@@ -23,11 +23,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.TestResources;
@@ -36,46 +38,53 @@ import net.sf.xmlunit.util.Convert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import com.google.common.io.Closeables;
 
 public class InputTest {
 
-	private static Document parse(Source s) throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		return b.parse(Convert.toInputSource(s));
+	private static Document parseDocument(Source s) {
+		DocumentBuilder builder;
+		try {
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document document = builder.parse(Convert.toInputSource(s));
+			return document;
+		} catch (ParserConfigurationException e) {
+			throw new IllegalStateException("Failed to parse document.", e);
+		} catch (SAXException e) {
+			throw new IllegalStateException("Failed to parse document.", e);
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed to parse document.", e);
+		}
 	}
 
 	@Test
-	public void shouldParseADocument() throws Exception {
+	public void should_parse_document() throws Exception {
 		File testFile = TestResources.ANIMAL_FILE.getFile();
-		Document d = parse(Input.fromFile(testFile).build());
+		Document d = parseDocument(Input.fromFile(testFile).build());
 		Source s = Input.fromDocument(d).build();
 		allIsWellFor(s);
 	}
 
 	@Test
-	public void shouldParseAnExistingFileByName() throws Exception {
+	public void should_parse_existing_file_by_name() throws Exception {
 		File testFile = TestResources.ANIMAL_FILE.getFile();
 		Source s = Input.fromFile(testFile.getAbsolutePath()).build();
 		allIsWellFor(s);
-		// TODO check that toFileUri
-		// assertEquals(toFileUri(TestResources.ANIMAL_FILE), s.getSystemId());
 		Assert.assertThat(TestResources.ANIMAL_FILE.getUri().toString(), is(equalTo(s.getSystemId())));
 	}
 
 	@Test
-	public void shouldParseAnExistingFileByFile() throws Exception {
+	public void should_parse_existing_file_by_file() throws Exception {
 		File testFile = TestResources.ANIMAL_FILE.getFile();
 		Source s = Input.fromFile(testFile).build();
 		allIsWellFor(s);
 		assertEquals(TestResources.ANIMAL_FILE.getUri().toString(), s.getSystemId());
-		// TODO check that toFileUri
-		// assertEquals(toFileUri(TestResources.ANIMAL_FILE), s.getSystemId());
 	}
 
 	@Test
-	public void shouldParseAnExistingFileFromStream() throws Exception {
+	public void should_parse_existing_file_from_stream() throws Exception {
 		File testFile = TestResources.ANIMAL_FILE.getFile();
 		FileInputStream is = null;
 		try {
@@ -87,7 +96,7 @@ public class InputTest {
 	}
 
 	@Test
-	public void shouldParseAnExistingFileFromReader() throws Exception {
+	public void should_parse_existing_file_from_reader() throws Exception {
 		File testFile = TestResources.ANIMAL_FILE.getFile();
 		FileReader r = null;
 		try {
@@ -109,25 +118,25 @@ public class InputTest {
 	}
 
 	@Test
-	public void shouldParseFileFromURIString() throws Exception {
+	public void should_parse_file_from_URI_string() throws Exception {
 		String uriString = TestResources.ANIMAL_FILE.getUri().toString();
 		allIsWellFor(Input.fromURI(uriString).build());
 	}
 
 	@Test
-	public void shouldParseFileFromURI() throws Exception {
+	public void should_parse_file_from_URI() throws Exception {
 		URI uri = TestResources.ANIMAL_FILE.getUri();
 		allIsWellFor(Input.fromURI(uri).build());
 	}
 
 	@Test
-	public void shouldParseFileFromURL() throws Exception {
+	public void should_parse_file_from_URL() throws Exception {
 		URL url = TestResources.ANIMAL_FILE.getUrl();
 		allIsWellFor(Input.fromURL(url).build());
 	}
 
 	@Test
-	public void shouldParseATransformationFromSource() throws Exception {
+	public void should_parse_transformation_from_source() throws Exception {
 		// given
 		File testFile = TestResources.ANIMAL_XSL.getFile();
 		Source input = Input.fromMemory("<animal>furry</animal>").build();
@@ -139,7 +148,7 @@ public class InputTest {
 	}
 
 	@Test
-	public void shouldParseATransformationFromBuilder() throws Exception {
+	public void should_parse_transformation_from_builder() throws Exception {
 		// given
 		File testFile = TestResources.ANIMAL_XSL.getFile();
 		Input.Builder input = Input.fromMemory("<animal>furry</animal>");
@@ -156,7 +165,7 @@ public class InputTest {
 
 	private static void allIsWellFor(Source s, String rootElementName) throws Exception {
 		assertThat(s, notNullValue());
-		Document d = parse(s);
+		Document d = parseDocument(s);
 		assertThat(d, notNullValue());
 		assertThat(d.getDocumentElement().getTagName(), is(rootElementName));
 	}
@@ -175,30 +184,4 @@ public class InputTest {
 		is.close();
 		return bos.toByteArray();
 	}
-
-	// private static String toFileUri(String fileName) throws
-	// URISyntaxException {
-	// String url = TestUtils.getFile(InputTest.class,
-	// fileName).toURI().toString();
-	// if (url.startsWith("file:/") && !url.startsWith("file:///")
-	// && ("1.5".equals(System.getProperty("java.specification.version")) ||
-	// transformerIsApacheXalan())) {
-	// // Java5's StreamSource as well as the one used by apache
-	// // Xalan create a triple slash URLs,
-	// // Java6's sticks with only one - toURI uses only one
-	// // slash in either version
-	// url = "file:///" + url.substring(6);
-	// }
-	// return url;
-	// }
-
-	// private static boolean transformerIsApacheXalan() {
-	// try {
-	// TransformerFactory fac = TransformerFactory.newInstance();
-	// return
-	// fac.getClass().getName().equals("org.apache.xalan.processor.TransformerFactoryImpl");
-	// } catch (Exception ex) {
-	// return false;
-	// }
-	// }
 }
