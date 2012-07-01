@@ -10,164 +10,218 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
-import java.util.ArrayList;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 import java.util.HashMap;
+import java.util.List;
+
 import javax.xml.namespace.QName;
+
 import net.sf.xmlunit.util.Linqy;
+
 import org.junit.Test;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class XPathContextTest {
-    @Test public void empty() {
-        assertEquals("/", new XPathContext().getXPath());
+    @Test
+    public void empty() {
+        assertThat(new XPathContext().getXPath(), is(equalTo("/")));
     }
 
-    @Test public void oneLevelOfElements() {
-        ArrayList<Element> l = new ArrayList<Element>();
-        l.add(new Element("foo"));
-        l.add(new Element("foo"));
-        l.add(new Element("bar"));
-        l.add(new Element("foo"));
+    @Test
+    public void should_check_one_level_of_elements() {
+        // given
+        List<Element> elements = Lists.newArrayList();
+        elements.add(new Element("foo"));
+        elements.add(new Element("foo"));
+        elements.add(new Element("bar"));
+        elements.add(new Element("foo"));
+
+        // when
         XPathContext ctx = new XPathContext();
-        ctx.setChildren(l);
+        ctx.setChildren(elements);
+
+        // then
         ctx.navigateToChild(0);
-        assertEquals("/foo[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(1);
-        assertEquals("/foo[2]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[2]")));
         ctx.navigateToParent();
         ctx.navigateToChild(2);
-        assertEquals("/bar[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/bar[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(3);
-        assertEquals("/foo[3]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[3]")));
     }
 
-    @Test public void appendChildren() {
-        ArrayList<Element> l = new ArrayList<Element>();
-        l.add(new Element("foo"));
-        l.add(new Element("foo"));
+    @Test
+    public void should_check_context_with_appended_children() {
+        // given
+        List<Element> initialElements = Lists.newArrayList();
+        initialElements.add(new Element("foo"));
+        initialElements.add(new Element("foo"));
+
+        List<Element> additionaElements = Lists.newArrayList();
+        additionaElements.add(new Element("bar"));
+        additionaElements.add(new Element("foo"));
+
+        // when
         XPathContext ctx = new XPathContext();
-        ctx.setChildren(l);
-        l = new ArrayList<Element>();
-        l.add(new Element("bar"));
-        l.add(new Element("foo"));
-        ctx.appendChildren(l);
+        ctx.setChildren(initialElements);
+        ctx.appendChildren(additionaElements);
+
+        // then
         ctx.navigateToChild(0);
-        assertEquals("/foo[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(1);
-        assertEquals("/foo[2]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[2]")));
         ctx.navigateToParent();
         ctx.navigateToChild(2);
-        assertEquals("/bar[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/bar[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(3);
-        assertEquals("/foo[3]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[3]")));
     }
 
-    @Test public void twoLevelsOfElements() {
-        ArrayList<Element> l = new ArrayList<Element>();
-        l.add(new Element("foo"));
-        l.add(new Element("foo"));
-        l.add(new Element("bar"));
-        l.add(new Element("foo"));
+    @Test
+    public void should_check_two_levels_of_elements() {
+        // given
+        List<Element> elements = Lists.newArrayList();
+        elements.add(new Element("foo"));
+        elements.add(new Element("foo"));
+        elements.add(new Element("bar"));
+        elements.add(new Element("foo"));
+
+        // when
         XPathContext ctx = new XPathContext();
-        ctx.setChildren(l);
+        ctx.setChildren(elements);
+
+        // then
         ctx.navigateToChild(0);
-        assertEquals("/foo[1]", ctx.getXPath());
-        ctx.setChildren(l);
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]")));
+        ctx.setChildren(elements);
         ctx.navigateToChild(3);
-        assertEquals("/foo[1]/foo[3]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]/foo[3]")));
         ctx.navigateToParent();
-        assertEquals("/foo[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(2);
-        assertEquals("/bar[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/bar[1]")));
     }
 
-    @Test public void attributes() {
+    @Test
+    public void should_check_attributes() {
+        // given
+        List<QName> attributes = Lists.newArrayList();
+        attributes.add(new QName("bar"));
+
+        // when
         XPathContext ctx = new XPathContext();
         ctx.setChildren(Linqy.singleton(new Element("foo")));
         ctx.navigateToChild(0);
-        ArrayList<QName> l = new ArrayList<QName>();
-        l.add(new QName("bar"));
-        ctx.addAttributes(l);
+        ctx.addAttributes(attributes);
         ctx.navigateToAttribute(new QName("bar"));
-        assertEquals("/foo[1]/@bar", ctx.getXPath());
+
+        // then
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]/@bar")));
     }
 
-    @Test public void mixed() {
-        ArrayList<XPathContext.NodeInfo> l = new ArrayList<XPathContext.NodeInfo>();
-        l.add(new Text());
-        l.add(new Comment());
-        l.add(new CDATA());
-        l.add(new PI());
-        l.add(new CDATA());
-        l.add(new Comment());
-        l.add(new PI());
-        l.add(new Text());
+    @Test
+    public void should_check_mixed_elements() {
+        // given
+        List<XPathContext.NodeInfo> elements = Lists.newArrayList();
+        elements.add(new Text());
+        elements.add(new Comment());
+        elements.add(new CDATA());
+        elements.add(new PI());
+        elements.add(new CDATA());
+        elements.add(new Comment());
+        elements.add(new PI());
+        elements.add(new Text());
+
+        // when
         XPathContext ctx = new XPathContext();
-        ctx.setChildren(l);
+        ctx.setChildren(elements);
+
+        // then
         ctx.navigateToChild(0);
-        assertEquals("/text()[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/text()[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(1);
-        assertEquals("/comment()[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/comment()[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(2);
-        assertEquals("/text()[2]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/text()[2]")));
         ctx.navigateToParent();
         ctx.navigateToChild(3);
-        assertEquals("/processing-instruction()[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/processing-instruction()[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(4);
-        assertEquals("/text()[3]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/text()[3]")));
         ctx.navigateToParent();
         ctx.navigateToChild(5);
-        assertEquals("/comment()[2]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/comment()[2]")));
         ctx.navigateToParent();
         ctx.navigateToChild(6);
-        assertEquals("/processing-instruction()[2]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/processing-instruction()[2]")));
         ctx.navigateToParent();
         ctx.navigateToChild(7);
-        assertEquals("/text()[4]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/text()[4]")));
     }
 
-    @Test public void elementsAndNs() {
-        ArrayList<Element> l = new ArrayList<Element>();
-        l.add(new Element("foo", "urn:foo:foo"));
-        l.add(new Element("foo"));
-        l.add(new Element("foo", "urn:foo:bar"));
-        HashMap<String, String> m = new HashMap<String, String>();
-        m.put("urn:foo:bar", "bar");
-        XPathContext ctx = new XPathContext(m);
-        ctx.setChildren(l);
+    @Test
+    public void should_check_elements_and_namespaces() {
+        // given
+        List<Element> list = Lists.newArrayList();
+        list.add(new Element("foo", "urn:foo:foo"));
+        list.add(new Element("foo"));
+        list.add(new Element("foo", "urn:foo:bar"));
+        HashMap<String, String> uri2Prefix = Maps.newHashMap();
+        uri2Prefix.put("urn:foo:bar", "bar");
+
+        // when
+        XPathContext ctx = new XPathContext(uri2Prefix);
+        ctx.setChildren(list);
+
+        // then
         ctx.navigateToChild(0);
-        assertEquals("/foo[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[1]")));
         ctx.navigateToParent();
         ctx.navigateToChild(1);
-        assertEquals("/foo[2]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/foo[2]")));
         ctx.navigateToParent();
         ctx.navigateToChild(2);
-        assertEquals("/bar:foo[1]", ctx.getXPath());
+        assertThat(ctx.getXPath(), is(equalTo("/bar:foo[1]")));
     }
 
-    @Test public void attributesAndNs() {
-        HashMap<String, String> m = new HashMap<String, String>();
-        m.put("urn:foo:bar", "bar");
-        XPathContext ctx = new XPathContext(m);
+    @Test
+    public void should_check_attributes_and_namespaces() {
+        // given
+        HashMap<String, String> uri2Prefix = new HashMap<String, String>();
+        uri2Prefix.put("urn:foo:bar", "bar");
+
+        List<QName> list = Lists.newArrayList();
+        list.add(new QName("baz"));
+        list.add(new QName("urn:foo:bar", "baz"));
+
+        // when
+        XPathContext ctx = new XPathContext(uri2Prefix);
         ctx.setChildren(Linqy.singleton(new Element("foo", "urn:foo:bar")));
         ctx.navigateToChild(0);
-        ArrayList<QName> l = new ArrayList<QName>();
-        l.add(new QName("baz"));
-        l.add(new QName("urn:foo:bar", "baz"));
-        ctx.addAttributes(l);
+        ctx.addAttributes(list);
+
+        // then
         ctx.navigateToAttribute(new QName("baz"));
         assertEquals("/bar:foo[1]/@baz", ctx.getXPath());
         ctx.navigateToParent();
@@ -178,29 +232,51 @@ public class XPathContextTest {
 
     private static class Element implements XPathContext.NodeInfo {
         private final QName name;
+
         private Element(String name) {
             this.name = new QName(name);
         }
+
         private Element(String name, String ns) {
             this.name = new QName(ns, name);
         }
-        public QName getName() { return name; }
-        public short getType() { return Node.ELEMENT_NODE; }
+
+        public QName getName() {
+            return name;
+        }
+
+        public short getType() {
+            return Node.ELEMENT_NODE;
+        }
     }
 
     private static abstract class NonElement implements XPathContext.NodeInfo {
-        public QName getName() { return null; }
+        public QName getName() {
+            return null;
+        }
     }
+
     private static class Text extends NonElement {
-        public short getType() { return Node.TEXT_NODE; }
+        public short getType() {
+            return Node.TEXT_NODE;
+        }
     }
+
     private static class Comment extends NonElement {
-        public short getType() { return Node.COMMENT_NODE; }
+        public short getType() {
+            return Node.COMMENT_NODE;
+        }
     }
+
     private static class PI extends NonElement {
-        public short getType() { return Node.PROCESSING_INSTRUCTION_NODE; }
+        public short getType() {
+            return Node.PROCESSING_INSTRUCTION_NODE;
+        }
     }
+
     private static class CDATA extends NonElement {
-        public short getType() { return Node.CDATA_SECTION_NODE; }
+        public short getType() {
+            return Node.CDATA_SECTION_NODE;
+        }
     }
 }

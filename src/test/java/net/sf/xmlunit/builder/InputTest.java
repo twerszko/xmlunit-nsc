@@ -19,7 +19,6 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -27,161 +26,186 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.util.Convert;
+import net.sf.xmlunit.TestTools;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import com.google.common.io.Closeables;
 
 public class InputTest {
 
-	private static Document parseDocument(Source s) {
-		DocumentBuilder builder;
-		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document document = builder.parse(Convert.toInputSource(s));
-			return document;
-		} catch (ParserConfigurationException e) {
-			throw new IllegalStateException("Failed to parse document.", e);
-		} catch (SAXException e) {
-			throw new IllegalStateException("Failed to parse document.", e);
-		} catch (IOException e) {
-			throw new IllegalStateException("Failed to parse document.", e);
-		}
-	}
+    @Test
+    public void should_parse_document() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_FILE.getFile();
+        Document doc = TestTools.parseDocument(Input.fromFile(testFile).build());
 
-	@Test
-	public void should_parse_document() throws Exception {
-		File testFile = TestResources.ANIMAL_FILE.getFile();
-		Document d = parseDocument(Input.fromFile(testFile).build());
-		Source s = Input.fromDocument(d).build();
-		allIsWellFor(s);
-	}
+        // when
+        Source source = Input.fromDocument(doc).build();
 
-	@Test
-	public void should_parse_existing_file_by_name() throws Exception {
-		File testFile = TestResources.ANIMAL_FILE.getFile();
-		Source s = Input.fromFile(testFile.getAbsolutePath()).build();
-		allIsWellFor(s);
-		Assert.assertThat(TestResources.ANIMAL_FILE.getUri().toString(), is(equalTo(s.getSystemId())));
-	}
+        // then
+        allIsWellFor(source, "animal");
+    }
 
-	@Test
-	public void should_parse_existing_file_by_file() throws Exception {
-		File testFile = TestResources.ANIMAL_FILE.getFile();
-		Source s = Input.fromFile(testFile).build();
-		allIsWellFor(s);
-		assertEquals(TestResources.ANIMAL_FILE.getUri().toString(), s.getSystemId());
-	}
+    @Test
+    public void should_parse_existing_file_by_name() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_FILE.getFile();
 
-	@Test
-	public void should_parse_existing_file_from_stream() throws Exception {
-		File testFile = TestResources.ANIMAL_FILE.getFile();
-		FileInputStream is = null;
-		try {
-			is = new FileInputStream(testFile);
-			allIsWellFor(Input.fromStream(is).build());
-		} finally {
-			Closeables.closeQuietly(is);
-		}
-	}
+        // when
+        Source source = Input.fromFile(testFile.getAbsolutePath()).build();
 
-	@Test
-	public void should_parse_existing_file_from_reader() throws Exception {
-		File testFile = TestResources.ANIMAL_FILE.getFile();
-		FileReader r = null;
-		try {
-			r = new FileReader(testFile);
-			allIsWellFor(Input.fromReader(r).build());
-		} finally {
-			Closeables.closeQuietly(r);
-		}
-	}
+        // then
+        allIsWellFor(source, "animal");
+        Assert.assertThat(TestResources.ANIMAL_FILE.getUri().toString(), is(equalTo(source.getSystemId())));
+    }
 
-	@Test
-	public void shouldParseString() throws Exception {
-		allIsWellFor(Input.fromMemory(new String(readTestFile(), "UTF-8")).build());
-	}
+    @Test
+    public void should_parse_existing_file_by_file() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_FILE.getFile();
 
-	@Test
-	public void shouldParseBytes() throws Exception {
-		allIsWellFor(Input.fromMemory(readTestFile()).build());
-	}
+        // when
+        Source source = Input.fromFile(testFile).build();
 
-	@Test
-	public void should_parse_file_from_URI_string() throws Exception {
-		String uriString = TestResources.ANIMAL_FILE.getUri().toString();
-		allIsWellFor(Input.fromURI(uriString).build());
-	}
+        // then
+        allIsWellFor(source, "animal");
+        assertEquals(TestResources.ANIMAL_FILE.getUri().toString(), source.getSystemId());
+    }
 
-	@Test
-	public void should_parse_file_from_URI() throws Exception {
-		URI uri = TestResources.ANIMAL_FILE.getUri();
-		allIsWellFor(Input.fromURI(uri).build());
-	}
+    @Test
+    public void should_parse_existing_file_from_stream() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_FILE.getFile();
+        FileInputStream is = null;
+        try {
+            is = new FileInputStream(testFile);
 
-	@Test
-	public void should_parse_file_from_URL() throws Exception {
-		URL url = TestResources.ANIMAL_FILE.getUrl();
-		allIsWellFor(Input.fromURL(url).build());
-	}
+            // when
+            Source source = Input.fromStream(is).build();
 
-	@Test
-	public void should_parse_transformation_from_source() throws Exception {
-		// given
-		File testFile = TestResources.ANIMAL_XSL.getFile();
-		Source input = Input.fromMemory("<animal>furry</animal>").build();
-		Source s = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile).build()).build();
+            // then
+            allIsWellFor(source, "animal");
+        } finally {
+            Closeables.closeQuietly(is);
+        }
+    }
 
-		// when
-		// then
-		allIsWellFor(s, "furry");
-	}
+    @Test
+    public void should_parse_existing_file_from_reader() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_FILE.getFile();
+        FileReader reader = null;
+        try {
+            reader = new FileReader(testFile);
 
-	@Test
-	public void should_parse_transformation_from_builder() throws Exception {
-		// given
-		File testFile = TestResources.ANIMAL_XSL.getFile();
-		Input.Builder input = Input.fromMemory("<animal>furry</animal>");
-		Source s = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile)).build();
+            // when
+            Source source = Input.fromReader(reader).build();
 
-		// when
-		// then
-		allIsWellFor(s, "furry");
-	}
+            // then
+            allIsWellFor(source, "animal");
+        } finally {
+            Closeables.closeQuietly(reader);
+        }
+    }
 
-	private static void allIsWellFor(Source s) throws Exception {
-		allIsWellFor(s, "animal");
-	}
+    @Test
+    public void should_parse_string() throws IOException {
+        // given
+        String fileContent = FileUtils.readFileToString(TestResources.ANIMAL_FILE.getFile(), "UTF-8");
 
-	private static void allIsWellFor(Source s, String rootElementName) throws Exception {
-		assertThat(s, notNullValue());
-		Document d = parseDocument(s);
-		assertThat(d, notNullValue());
-		assertThat(d.getDocumentElement().getTagName(), is(rootElementName));
-	}
+        // when
+        Source source = Input.fromMemory(fileContent).build();
 
-	private static byte[] readTestFile() throws Exception {
-		File testFile = TestResources.ANIMAL_FILE.getFile();
-		FileInputStream is = new FileInputStream(testFile);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		int read = -1;
-		while ((read = is.read(buffer)) >= 0) {
-			if (read > 0) {
-				bos.write(buffer, 0, read);
-			}
-		}
-		is.close();
-		return bos.toByteArray();
-	}
+        // then
+        allIsWellFor(source, "animal");
+    }
+
+    @Test
+    public void should_parse_bytes() throws IOException {
+        // given
+        byte[] byteArray = FileUtils.readFileToByteArray(TestResources.ANIMAL_FILE.getFile());
+
+        // when
+        Source source = Input.fromMemory(byteArray).build();
+
+        // then
+        allIsWellFor(source, "animal");
+    }
+
+    @Test
+    public void should_parse_file_from_URI_string() throws IOException {
+        // given
+        String uriString = TestResources.ANIMAL_FILE.getUri().toString();
+
+        // when
+        Source source = Input.fromURI(uriString).build();
+
+        // then
+        allIsWellFor(source, "animal");
+    }
+
+    @Test
+    public void should_parse_file_from_URI() throws IOException {
+        // given
+        URI uri = TestResources.ANIMAL_FILE.getUri();
+
+        // when
+        Source source = Input.fromURI(uri).build();
+
+        // then
+        allIsWellFor(source, "animal");
+    }
+
+    @Test
+    public void should_parse_file_from_URL() throws IOException {
+        // given
+        URL url = TestResources.ANIMAL_FILE.getUrl();
+
+        // when
+        Source source = Input.fromURL(url).build();
+
+        // then
+        allIsWellFor(source, "animal");
+    }
+
+    @Test
+    public void should_parse_transformation_from_source() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_XSL.getFile();
+
+        // when
+        Source input = Input.fromMemory("<animal>furry</animal>").build();
+        Source source = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile).build()).build();
+
+        // then
+        allIsWellFor(source, "furry");
+    }
+
+    @Test
+    public void should_parse_transformation_from_builder() throws IOException {
+        // given
+        File testFile = TestResources.ANIMAL_XSL.getFile();
+
+        // when
+        Input.Builder input = Input.fromMemory("<animal>furry</animal>");
+        Source source = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile)).build();
+
+        // then
+        allIsWellFor(source, "furry");
+    }
+
+    private void allIsWellFor(Source source, String rootElementName) {
+        assertThat(source, is(notNullValue()));
+        Document doc = TestTools.parseDocument(source);
+        assertThat(doc, is(notNullValue()));
+        assertThat(doc.getDocumentElement().getTagName(), is(rootElementName));
+    }
+
 }

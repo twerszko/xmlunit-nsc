@@ -29,29 +29,29 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 public class TransformationTest {
-	private Transformation t;
+	private Transformation transformation;
 
 	@Before
 	public void createTransformation() throws IOException {
-		t = new Transformation(Input.fromFile(TestResources.DOG_FILE.getFile()).build());
-		t.setStylesheet(Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build());
+		transformation = new Transformation(Input.fromFile(TestResources.DOG_FILE.getFile()).build());
+		transformation.setStylesheet(Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build());
 	}
 
 	@Test
 	public void transformAnimalToString() {
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>", t.transformToString());
+		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>", transformation.transformToString());
 	}
 
 	@Test
 	public void transformAnimalToDocument() {
-		Document doc = t.transformToDocument();
+		Document doc = transformation.transformToDocument();
 		assertEquals("dog", doc.getDocumentElement().getTagName());
 	}
 
 	@Test
 	public void transformAnimalToHtml() {
-		t.addOutputProperty(OutputKeys.METHOD, "html");
-		assertThat(t.transformToString(), not("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"));
+		transformation.addOutputProperty(OutputKeys.METHOD, "html");
+		assertThat(transformation.transformToString(), not("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"));
 	}
 
 }

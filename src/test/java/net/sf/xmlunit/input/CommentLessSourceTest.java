@@ -10,32 +10,37 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.input;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.StringReader;
+
 import javax.xml.transform.stream.StreamSource;
+
 import net.sf.xmlunit.util.Convert;
+
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.*;
-
 public class CommentLessSourceTest {
 
-    @Test public void stripCommentsAtDifferentLevels() {
+    @Test
+    public void stripCommentsAtDifferentLevels() {
         StreamSource s =
-            new StreamSource(new StringReader("<?xml version='1.0'?>"
-                                              + "<!-- comment 1 -->"
-                                              + "<foo>"
-                                              + "<!-- comment 2 -->"
-                                              + "</foo>"));
+                new StreamSource(new StringReader("<?xml version='1.0'?>"
+                        + "<!-- comment 1 -->"
+                        + "<foo>"
+                        + "<!-- comment 2 -->"
+                        + "</foo>"));
         CommentLessSource cls = new CommentLessSource(s);
-        Document d = Convert.toDocument(cls);
-        assertEquals(1, d.getChildNodes().getLength());
-        assertTrue(d.getChildNodes().item(0) instanceof Element);
-        assertEquals(0, d.getChildNodes().item(0).getChildNodes().getLength());
+        Document doc = Convert.toDocument(cls);
+        assertEquals(1, doc.getChildNodes().getLength());
+        assertTrue(doc.getChildNodes().item(0) instanceof Element);
+        assertEquals(0, doc.getChildNodes().item(0).getChildNodes().getLength());
     }
 
 }

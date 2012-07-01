@@ -13,19 +13,15 @@
  */
 package net.sf.xmlunit.builder;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
-import java.io.StringWriter;
 
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Source;
 
 import net.sf.xmlunit.TestResources;
 
@@ -34,47 +30,44 @@ import org.w3c.dom.Document;
 
 public class TransformTest {
 
-	public String getStringFromDocument(Document doc) {
-		try {
-			DOMSource domSource = new DOMSource(doc);
-			StringWriter writer = new StringWriter();
-			StreamResult result = new StreamResult(writer);
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer = tf.newTransformer();
-			transformer.transform(domSource, result);
-			return writer.toString();
-		} catch (TransformerException ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
+    @Test
+    public void should_transform_animal_to_string() throws IOException {
+        // given
+        Source source = Input.fromFile(TestResources.DOG_FILE.getFile()).build();
+        Source stylesheet = Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build();
 
-	@Test
-	public void transformAnimalToString() throws IOException {
-		String result = Transform.source(
-		        Input.fromFile(TestResources.DOG_FILE.getFile()).build())
-		        .withStylesheet(
-		                Input.fromFile(TestResources.ANIMAL_XSL.getFile())
-		                        .build()).build().toString();
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>", result);
-	}
+        // when
+        String result = Transform.source(source).withStylesheet(stylesheet).build().toString();
 
-	@Test
-	public void transformAnimalToDocument() throws IOException {
-		Document doc = Transform.source(
-		        Input.fromFile(TestResources.DOG_FILE.getFile()).build())
-		        .withStylesheet(Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build()).build().toDocument();
+        // then
+        assertThat(result, is(equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>")));
+    }
 
-		assertEquals("dog", doc.getDocumentElement().getTagName());
-	}
+    @Test
+    public void should_transform_animal_to_document() throws IOException {
+        // given
+        Source source = Input.fromFile(TestResources.DOG_FILE.getFile()).build();
+        Source stylesheet = Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build();
 
-	@Test
-	public void transformAnimalToHtml() throws IOException {
-		assertThat(
-		        Transform.source(Input.fromFile(TestResources.DOG_FILE.getFile()).build())
-		                .withStylesheet(Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build())
-		                .withOutputProperty(OutputKeys.METHOD, "html").build().toString(),
-		        not("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"));
-	}
+        // when
+        Document doc = Transform.source(source).withStylesheet(stylesheet).build().toDocument();
+
+        // then
+        assertThat(doc.getDocumentElement().getTagName(), is(equalTo("dog")));
+    }
+
+    @Test
+    public void should_transform_animal_to_html() throws IOException {
+        // given
+        Source source = Input.fromFile(TestResources.DOG_FILE.getFile()).build();
+        Source stylesheet = Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build();
+
+        // when
+        String result = Transform.source(source).withStylesheet(stylesheet)
+                .withOutputProperty(OutputKeys.METHOD, "html").build().toString();
+
+        // then
+        assertThat(result, is(not(equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"))));
+    }
 
 }

@@ -10,58 +10,72 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class ComparisonListenerSupportTest {
 
-    @Test public void dispatchesOnOutcome() {
-        ComparisonListenerSupport s = new ComparisonListenerSupport();
-        Listener c, m, d;
-        s.addComparisonListener(c = new Listener(ComparisonResult.EQUAL,
-                                                 ComparisonResult.SIMILAR,
-                                                 ComparisonResult.DIFFERENT,
-                                                 ComparisonResult.CRITICAL));
-        s.addMatchListener(m = new Listener(ComparisonResult.EQUAL));
-        s.addDifferenceListener(d = new Listener(ComparisonResult.SIMILAR,
-                                                 ComparisonResult.DIFFERENT,
-                                                 ComparisonResult.CRITICAL));
-        for (ComparisonResult r : new ComparisonResult[] {
+    @Test
+    public void shoud_count_invocations() {
+        // given
+        ComparisonListenerSupport support = new ComparisonListenerSupport();
+        Listener comparisonListener = new Listener(
+                ComparisonResult.EQUAL,
+                ComparisonResult.SIMILAR,
+                ComparisonResult.DIFFERENT,
+                ComparisonResult.CRITICAL);
+        Listener matchListener = new Listener(ComparisonResult.EQUAL);
+        Listener diffListener = new Listener(ComparisonResult.SIMILAR,
+                ComparisonResult.DIFFERENT,
+                ComparisonResult.CRITICAL);
+
+        ComparisonResult[] results = new ComparisonResult[] {
                 ComparisonResult.EQUAL,
                 ComparisonResult.SIMILAR,
                 ComparisonResult.DIFFERENT,
                 ComparisonResult.CRITICAL
-            }) {
-            s.fireComparisonPerformed(null, r);
+        };
+
+        // when
+        support.addComparisonListener(comparisonListener);
+        support.addMatchListener(matchListener);
+        support.addDifferenceListener(diffListener);
+        for (ComparisonResult r : results) {
+            support.fireComparisonPerformed(null, r);
         }
 
-        assertEquals(4, c.invocations);
-        assertEquals(1, m.invocations);
-        assertEquals(3, d.invocations);
+        // then
+        assertEquals(4, comparisonListener.invocations);
+        assertEquals(1, matchListener.invocations);
+        assertEquals(3, diffListener.invocations);
     }
 
-    @Test public void noListenersDontCauseProblems() {
-        ComparisonListenerSupport s = new ComparisonListenerSupport();
-        s.fireComparisonPerformed(null, ComparisonResult.EQUAL);
+    @Test
+    public void should_do_nothing_when_no_listeners() {
+        // given
+        ComparisonListenerSupport support = new ComparisonListenerSupport();
+
+        // when
+        support.fireComparisonPerformed(null, ComparisonResult.EQUAL);
     }
 
     static class Listener implements ComparisonListener {
-        private final HashSet<ComparisonResult> acceptable =
-            new HashSet<ComparisonResult>();
+        private final HashSet<ComparisonResult> acceptable = new HashSet<ComparisonResult>();
         private int invocations = 0;
 
         Listener(ComparisonResult... accept) {
             acceptable.addAll(Arrays.asList(accept));
         }
 
-        public void comparisonPerformed(Comparison comparison,
-                                        ComparisonResult outcome) {
+        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
             invocations++;
             if (!acceptable.contains(outcome)) {
                 fail("unexpected outcome: " + outcome);

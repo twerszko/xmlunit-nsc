@@ -10,21 +10,20 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
-
-import static org.junit.Assert.*;
 
 public class ElementSelectorsTest {
     private static final String FOO = "foo";
@@ -33,39 +32,83 @@ public class ElementSelectorsTest {
 
     private Document doc;
 
-    @Before public void createDoc() throws Exception {
-        doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .newDocument();
+    @Before
+    public void createDoc() throws ParserConfigurationException {
+        doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
-    private void pureElementNameComparisons(ElementSelector s) {
+    @Test
+    public void should_check_if_can_be_compared_by_name() {
+        pureElementNameComparisons(ElementSelectors.byName);
+    }
+
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndText_NamePart() {
+        pureElementNameComparisons(ElementSelectors.byNameAndText);
+    }
+
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndTextRec_NamePart() {
+        pureElementNameComparisons(ElementSelectors.byNameAndTextRec);
+    }
+
+    private void pureElementNameComparisons(ElementSelector selector) {
+        // given
         Element control = doc.createElement(FOO);
         Element equal = doc.createElement(FOO);
         Element different = doc.createElement(BAR);
         Element controlNS = doc.createElementNS(SOME_URI, FOO);
         controlNS.setPrefix(BAR);
 
-        assertFalse(s.canBeCompared(null, null));
-        assertFalse(s.canBeCompared(null, control));
-        assertFalse(s.canBeCompared(control, null));
-        assertTrue(s.canBeCompared(control, equal));
-        assertFalse(s.canBeCompared(control, different));
-        assertFalse(s.canBeCompared(control, controlNS));
-        assertTrue(s.canBeCompared(doc.createElementNS(SOME_URI, FOO),
-                                   controlNS));
+        // then
+        assertFalse(selector.canBeCompared(null, null));
+        assertFalse(selector.canBeCompared(null, control));
+        assertFalse(selector.canBeCompared(control, null));
+        assertTrue(selector.canBeCompared(control, equal));
+        assertFalse(selector.canBeCompared(control, different));
+        assertFalse(selector.canBeCompared(control, controlNS));
+        assertTrue(selector.canBeCompared(doc.createElementNS(SOME_URI, FOO), controlNS));
     }
 
-    @Test public void byName() {
-        pureElementNameComparisons(ElementSelectors.byName);
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndText() {
+        byNameAndText_SingleLevel(ElementSelectors.byNameAndText);
     }
 
-    @Test public void byNameAndText_NamePart() {
-        pureElementNameComparisons(ElementSelectors.byNameAndText);
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndAllAttributes_NamePart() {
+        pureElementNameComparisons(ElementSelectors.byNameAndAllAttributes);
     }
 
-    private void byNameAndText_SingleLevel(ElementSelector s) {
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndTextRec_Single() {
+        byNameAndText_SingleLevel(ElementSelectors.byNameAndTextRec);
+    }
+
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndAttributes_NamePart() {
+        // given
+        String[] emptyStringArray = new String[] {};
+        QName[] emptyQnameArray = new QName[] {};
+
+        // then
+        pureElementNameComparisons(ElementSelectors.byNameAndAttributes(emptyStringArray));
+        pureElementNameComparisons(ElementSelectors.byNameAndAttributes(emptyQnameArray));
+        pureElementNameComparisons(ElementSelectors.byNameAndAttributes(BAR));
+        pureElementNameComparisons(ElementSelectors.byNameAndAttributes(new QName(SOME_URI, BAR)));
+    }
+
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndAttributesControlNS_NamePart() {
+        pureElementNameComparisons(ElementSelectors.byNameAndAttributesControlNS());
+        pureElementNameComparisons(ElementSelectors.byNameAndAttributesControlNS(BAR));
+    }
+
+    private void byNameAndText_SingleLevel(ElementSelector selector) {
+        // given
         Element control = doc.createElement(FOO);
         control.appendChild(doc.createTextNode(BAR));
+
         Element equal = doc.createElement(FOO);
         equal.appendChild(doc.createTextNode(BAR));
         Element equalC = doc.createElement(FOO);
@@ -75,29 +118,21 @@ public class ElementSelectorsTest {
         differentText.appendChild(doc.createTextNode(BAR));
         differentText.appendChild(doc.createTextNode(BAR));
 
-        assertTrue(s.canBeCompared(control, equal));
-        assertTrue(s.canBeCompared(control, equalC));
-        assertFalse(s.canBeCompared(control, noText));
-        assertFalse(s.canBeCompared(control, differentText));
+        // then
+        assertTrue(selector.canBeCompared(control, equal));
+        assertTrue(selector.canBeCompared(control, equalC));
+        assertFalse(selector.canBeCompared(control, noText));
+        assertFalse(selector.canBeCompared(control, differentText));
     }
 
-    @Test public void byNameAndText() {
-        byNameAndText_SingleLevel(ElementSelectors.byNameAndText);
-    }
-
-    @Test public void byNameAndTextRec_NamePart() {
-        pureElementNameComparisons(ElementSelectors.byNameAndTextRec);
-    }
-
-    @Test public void byNameAndTextRec_Single() {
-        byNameAndText_SingleLevel(ElementSelectors.byNameAndTextRec);
-    }
-
-    @Test public void byNameAndTextRec() {
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndTextRec() {
+        // given
         Element control = doc.createElement(FOO);
         Element child = doc.createElement(BAR);
         control.appendChild(child);
         child.appendChild(doc.createTextNode(BAR));
+
         Element equal = doc.createElement(FOO);
         Element child2 = doc.createElement(BAR);
         equal.appendChild(child2);
@@ -118,20 +153,46 @@ public class ElementSelectorsTest {
         differentText.appendChild(child5);
         child5.appendChild(doc.createTextNode(FOO));
 
-        ElementSelector s = ElementSelectors.byNameAndTextRec;
-        assertTrue(s.canBeCompared(control, equal));
-        assertTrue(s.canBeCompared(control, equalC));
-        assertFalse(s.canBeCompared(control, noText));
-        assertFalse(s.canBeCompared(control, differentLevel));
-        assertFalse(s.canBeCompared(control, differentElement));
-        assertFalse(s.canBeCompared(control, differentText));
+        // when
+        ElementSelector selector = ElementSelectors.byNameAndTextRec;
+
+        // then
+        assertTrue(selector.canBeCompared(control, equal));
+        assertTrue(selector.canBeCompared(control, equalC));
+        assertFalse(selector.canBeCompared(control, noText));
+        assertFalse(selector.canBeCompared(control, differentLevel));
+        assertFalse(selector.canBeCompared(control, differentElement));
+        assertFalse(selector.canBeCompared(control, differentText));
     }
 
-    @Test public void byNameAndAllAttributes_NamePart() {
-        pureElementNameComparisons(ElementSelectors.byNameAndAllAttributes);
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndAllAttributes() {
+        // given
+        Element control = doc.createElement(FOO);
+        control.setAttribute(BAR, BAR);
+
+        Element equal = doc.createElement(FOO);
+        equal.setAttribute(BAR, BAR);
+        Element noAttributes = doc.createElement(FOO);
+        Element differentValue = doc.createElement(FOO);
+        differentValue.setAttribute(BAR, FOO);
+        Element differentName = doc.createElement(FOO);
+        differentName.setAttribute(FOO, FOO);
+        Element differentNS = doc.createElement(FOO);
+        differentNS.setAttributeNS(SOME_URI, BAR, BAR);
+
+        // then
+        assertTrue(ElementSelectors.byNameAndAllAttributes.canBeCompared(control, equal));
+        assertFalse(ElementSelectors.byNameAndAllAttributes.canBeCompared(control, noAttributes));
+        assertFalse(ElementSelectors.byNameAndAllAttributes.canBeCompared(noAttributes, control));
+        assertFalse(ElementSelectors.byNameAndAllAttributes.canBeCompared(control, differentValue));
+        assertFalse(ElementSelectors.byNameAndAllAttributes.canBeCompared(control, differentName));
+        assertFalse(ElementSelectors.byNameAndAllAttributes.canBeCompared(control, differentNS));
     }
 
-    @Test public void byNameAndAllAttributes() {
+    @Test
+    public void byNameAndAttributes_QName() {
+        // given
         Element control = doc.createElement(FOO);
         control.setAttribute(BAR, BAR);
         Element equal = doc.createElement(FOO);
@@ -144,34 +205,23 @@ public class ElementSelectorsTest {
         Element differentNS = doc.createElement(FOO);
         differentNS.setAttributeNS(SOME_URI, BAR, BAR);
 
-        assertTrue(ElementSelectors.byNameAndAllAttributes
-                   .canBeCompared(control, equal));
-        assertFalse(ElementSelectors.byNameAndAllAttributes
-                   .canBeCompared(control, noAttributes));
-        assertFalse(ElementSelectors.byNameAndAllAttributes
-                    .canBeCompared(noAttributes, control));
-        assertFalse(ElementSelectors.byNameAndAllAttributes
-                   .canBeCompared(control, differentValue));
-        assertFalse(ElementSelectors.byNameAndAllAttributes
-                   .canBeCompared(control, differentName));
-        assertFalse(ElementSelectors.byNameAndAllAttributes
-                   .canBeCompared(control, differentNS));
+        // then
+        assertTrue(ElementSelectors.byNameAndAttributes(new QName(BAR)).canBeCompared(control, equal));
+        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR)).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributes(new QName(FOO)).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributes(new QName[] {}).canBeCompared(control, noAttributes));
+        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR)).canBeCompared(noAttributes, control));
+        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR)).canBeCompared(control, differentValue));
+        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR)).canBeCompared(control, differentName));
+        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR)).canBeCompared(control, differentNS));
     }
 
-    @Test public void byNameAndAttributes_NamePart() {
-        pureElementNameComparisons(ElementSelectors
-                                   .byNameAndAttributes(new String[] {}));
-        pureElementNameComparisons(ElementSelectors
-                                   .byNameAndAttributes(new QName[] {}));
-        pureElementNameComparisons(ElementSelectors.byNameAndAttributes(BAR));
-        pureElementNameComparisons(ElementSelectors
-                                   .byNameAndAttributes(new QName(SOME_URI,
-                                                                  BAR)));
-    }
-
-    @Test public void byNameAndAttributes_String() {
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndAttributes_String() {
+        // given
         Element control = doc.createElement(FOO);
         control.setAttribute(BAR, BAR);
+
         Element equal = doc.createElement(FOO);
         equal.setAttribute(BAR, BAR);
         Element noAttributes = doc.createElement(FOO);
@@ -182,65 +232,23 @@ public class ElementSelectorsTest {
         Element differentNS = doc.createElement(FOO);
         differentNS.setAttributeNS(SOME_URI, BAR, BAR);
 
-        assertTrue(ElementSelectors.byNameAndAttributes(BAR)
-                   .canBeCompared(control, equal));
-        assertFalse(ElementSelectors.byNameAndAttributes(BAR)
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributes(FOO)
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributes(new String[] {})
-                   .canBeCompared(control, noAttributes));
-        assertFalse(ElementSelectors.byNameAndAttributes(BAR)
-                    .canBeCompared(noAttributes, control));
-        assertFalse(ElementSelectors.byNameAndAttributes(BAR)
-                   .canBeCompared(control, differentValue));
-        assertFalse(ElementSelectors.byNameAndAttributes(BAR)
-                   .canBeCompared(control, differentName));
-        assertFalse(ElementSelectors.byNameAndAttributes(BAR)
-                   .canBeCompared(control, differentNS));
+        // then
+        assertTrue(ElementSelectors.byNameAndAttributes(BAR).canBeCompared(control, equal));
+        assertFalse(ElementSelectors.byNameAndAttributes(BAR).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributes(FOO).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributes(new String[] {}).canBeCompared(control, noAttributes));
+        assertFalse(ElementSelectors.byNameAndAttributes(BAR).canBeCompared(noAttributes, control));
+        assertFalse(ElementSelectors.byNameAndAttributes(BAR).canBeCompared(control, differentValue));
+        assertFalse(ElementSelectors.byNameAndAttributes(BAR).canBeCompared(control, differentName));
+        assertFalse(ElementSelectors.byNameAndAttributes(BAR).canBeCompared(control, differentNS));
     }
 
-    @Test public void byNameAndAttributes_QName() {
-        Element control = doc.createElement(FOO);
-        control.setAttribute(BAR, BAR);
-        Element equal = doc.createElement(FOO);
-        equal.setAttribute(BAR, BAR);
-        Element noAttributes = doc.createElement(FOO);
-        Element differentValue = doc.createElement(FOO);
-        differentValue.setAttribute(BAR, FOO);
-        Element differentName = doc.createElement(FOO);
-        differentName.setAttribute(FOO, FOO);
-        Element differentNS = doc.createElement(FOO);
-        differentNS.setAttributeNS(SOME_URI, BAR, BAR);
-
-        assertTrue(ElementSelectors.byNameAndAttributes(new QName(BAR))
-                   .canBeCompared(control, equal));
-        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR))
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributes(new QName(FOO))
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributes(new QName[] {})
-                   .canBeCompared(control, noAttributes));
-        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR))
-                    .canBeCompared(noAttributes, control));
-        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR))
-                   .canBeCompared(control, differentValue));
-        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR))
-                   .canBeCompared(control, differentName));
-        assertFalse(ElementSelectors.byNameAndAttributes(new QName(BAR))
-                   .canBeCompared(control, differentNS));
-    }
-
-    @Test public void byNameAndAttributesControlNS_NamePart() {
-        pureElementNameComparisons(ElementSelectors
-                                   .byNameAndAttributesControlNS());
-        pureElementNameComparisons(ElementSelectors
-                                   .byNameAndAttributesControlNS(BAR));
-    }
-
-    @Test public void byNameAndAttributesControlNS() {
+    @Test
+    public void should_check_if_can_be_compared_by_nameAndAttributesControlNS() {
+        // given
         Element control = doc.createElement(FOO);
         control.setAttributeNS(SOME_URI, BAR, BAR);
+
         Element equal = doc.createElement(FOO);
         equal.setAttributeNS(SOME_URI, BAR, BAR);
         Element noAttributes = doc.createElement(FOO);
@@ -253,26 +261,17 @@ public class ElementSelectorsTest {
         Element noNS = doc.createElement(FOO);
         noNS.setAttribute(BAR, BAR);
 
-        assertTrue(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(control, equal));
-        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributesControlNS(FOO)
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributesControlNS(new String[] {})
-                   .canBeCompared(control, noAttributes));
-        assertTrue(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(noAttributes, control));
-        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                    .canBeCompared(noAttributes, noNS));
-        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(control, differentValue));
-        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(control, differentName));
-        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(control, differentNS));
-        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR)
-                   .canBeCompared(control, noNS));
+        // then
+        assertTrue(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(control, equal));
+        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributesControlNS(FOO).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributesControlNS(new String[] {}).canBeCompared(control, noAttributes));
+        assertTrue(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(noAttributes, control));
+        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(noAttributes, noNS));
+        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(control, differentValue));
+        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(control, differentName));
+        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(control, differentNS));
+        assertFalse(ElementSelectors.byNameAndAttributesControlNS(BAR).canBeCompared(control, noNS));
     }
 
 }
