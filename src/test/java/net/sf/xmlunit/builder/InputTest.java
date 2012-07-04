@@ -13,11 +13,9 @@
  */
 package net.sf.xmlunit.builder;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,9 +46,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromDocument(doc).build();
+        doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
     }
 
     @Test
@@ -60,9 +59,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromFile(testFile.getAbsolutePath()).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
         Assert.assertThat(TestResources.ANIMAL_FILE.getUri().toString(), is(equalTo(source.getSystemId())));
     }
 
@@ -73,10 +73,11 @@ public class InputTest {
 
         // when
         Source source = Input.fromFile(testFile).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
-        assertEquals(TestResources.ANIMAL_FILE.getUri().toString(), source.getSystemId());
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
+        assertThat(TestResources.ANIMAL_FILE.getUri().toString()).isEqualTo(source.getSystemId());
     }
 
     @Test
@@ -89,9 +90,10 @@ public class InputTest {
 
             // when
             Source source = Input.fromStream(is).build();
+            Document doc = TestTools.parseDocument(source);
 
             // then
-            allIsWellFor(source, "animal");
+            assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
         } finally {
             Closeables.closeQuietly(is);
         }
@@ -107,9 +109,10 @@ public class InputTest {
 
             // when
             Source source = Input.fromReader(reader).build();
+            Document doc = TestTools.parseDocument(source);
 
             // then
-            allIsWellFor(source, "animal");
+            assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
         } finally {
             Closeables.closeQuietly(reader);
         }
@@ -122,9 +125,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromMemory(fileContent).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
     }
 
     @Test
@@ -134,9 +138,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromMemory(byteArray).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
     }
 
     @Test
@@ -146,9 +151,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromURI(uriString).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
     }
 
     @Test
@@ -158,9 +164,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromURI(uri).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
     }
 
     @Test
@@ -170,9 +177,10 @@ public class InputTest {
 
         // when
         Source source = Input.fromURL(url).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "animal");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
     }
 
     @Test
@@ -183,9 +191,10 @@ public class InputTest {
         // when
         Source input = Input.fromMemory("<animal>furry</animal>").build();
         Source source = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile).build()).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "furry");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("furry");
     }
 
     @Test
@@ -196,16 +205,9 @@ public class InputTest {
         // when
         Input.Builder input = Input.fromMemory("<animal>furry</animal>");
         Source source = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile)).build();
+        Document doc = TestTools.parseDocument(source);
 
         // then
-        allIsWellFor(source, "furry");
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("furry");
     }
-
-    private void allIsWellFor(Source source, String rootElementName) {
-        assertThat(source, is(notNullValue()));
-        Document doc = TestTools.parseDocument(source);
-        assertThat(doc, is(notNullValue()));
-        assertThat(doc.getDocumentElement().getTagName(), is(rootElementName));
-    }
-
 }
