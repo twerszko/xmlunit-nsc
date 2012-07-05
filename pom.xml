@@ -48,5 +48,10 @@
 			<artifactId>mockito-all</artifactId>
 			<version>1.9.0</version>
 		</dependency>
+		<dependency>
+			<groupId>pl.pragmatists</groupId>
+			<artifactId>JUnitParams</artifactId>
+			<version>0.5.0</version>
+		</dependency>
 	</dependencies>
 </project>

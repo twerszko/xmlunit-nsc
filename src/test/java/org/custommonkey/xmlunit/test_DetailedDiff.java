@@ -57,387 +57,387 @@ import org.xml.sax.InputSource;
  * Test a DetailedDiff. Extend the test case class for Diff so we can rerun
  * those tests with a DetailedDiff and assert that behaviour has not changed.
  */
-public class test_DetailedDiff extends test_Diff {
+public class test_DetailedDiff extends DiffTest {
 
-	@Test
-	public void testAllDifferencesFirstForecastControl() throws Exception {
-		Diff multipleDifferences = new Diff(firstForecast, secondForecast);
-		DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
+    @Test
+    public void testAllDifferencesFirstForecastControl() throws Exception {
+        Diff multipleDifferences = new Diff(firstForecast, secondForecast);
+        DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
 
-		List differences = detailedDiff.getAllDifferences();
-		assertExpectedDifferencesFirstForecastControl(differences, detailedDiff);
-	}
+        List differences = detailedDiff.getAllDifferences();
+        assertExpectedDifferencesFirstForecastControl(differences, detailedDiff);
+    }
 
-	private void assertExpectedDifferencesFirstForecastControl(List differences,
-	        DetailedDiff detailedDiff) {
-		assertEquals("size: " + detailedDiff, 5, differences.size());
-		assertEquals("first: " + detailedDiff,
-		        DifferenceConstants.HAS_CHILD_NODES, differences.get(0));
-		assertEquals("second: " + detailedDiff,
-		        DifferenceConstants.ELEMENT_NUM_ATTRIBUTES, differences.get(1));
-		assertEquals("third: " + detailedDiff,
-		        DifferenceConstants.ATTR_NAME_NOT_FOUND, differences.get(2));
-		assertEquals("fourth: " + detailedDiff,
-		        DifferenceConstants.ATTR_VALUE, differences.get(3));
-		assertEquals("fifth: " + detailedDiff,
-		        DifferenceConstants.CHILD_NODE_NOT_FOUND, differences.get(4));
-	}
+    private void assertExpectedDifferencesFirstForecastControl(List differences,
+            DetailedDiff detailedDiff) {
+        assertEquals("size: " + detailedDiff, 5, differences.size());
+        assertEquals("first: " + detailedDiff,
+                DifferenceConstants.HAS_CHILD_NODES, differences.get(0));
+        assertEquals("second: " + detailedDiff,
+                DifferenceConstants.ELEMENT_NUM_ATTRIBUTES, differences.get(1));
+        assertEquals("third: " + detailedDiff,
+                DifferenceConstants.ATTR_NAME_NOT_FOUND, differences.get(2));
+        assertEquals("fourth: " + detailedDiff,
+                DifferenceConstants.ATTR_VALUE, differences.get(3));
+        assertEquals("fifth: " + detailedDiff,
+                DifferenceConstants.CHILD_NODE_NOT_FOUND, differences.get(4));
+    }
 
-	@Test
-	public void testAllDifferencesSecondForecastControl() throws Exception {
-		Diff multipleDifferences = new Diff(secondForecast, firstForecast);
-		DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
+    @Test
+    public void testAllDifferencesSecondForecastControl() throws Exception {
+        Diff multipleDifferences = new Diff(secondForecast, firstForecast);
+        DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
 
-		List differences = detailedDiff.getAllDifferences();
+        List differences = detailedDiff.getAllDifferences();
 
-		assertEquals("size: " + detailedDiff, 5, differences.size());
-		assertEquals("first: " + detailedDiff,
-		        DifferenceConstants.HAS_CHILD_NODES, differences.get(0));
-		assertEquals("second: " + detailedDiff,
-		        DifferenceConstants.ELEMENT_NUM_ATTRIBUTES, differences.get(1));
-		assertEquals("third: " + detailedDiff,
-		        DifferenceConstants.ATTR_VALUE, differences.get(2));
-		assertEquals("forth: " + detailedDiff,
-		        DifferenceConstants.ATTR_NAME_NOT_FOUND,
-		        differences.get(3));
-		assertEquals("fifth: " + detailedDiff,
-		        DifferenceConstants.CHILD_NODE_NOT_FOUND, differences.get(4));
-	}
+        assertEquals("size: " + detailedDiff, 5, differences.size());
+        assertEquals("first: " + detailedDiff,
+                DifferenceConstants.HAS_CHILD_NODES, differences.get(0));
+        assertEquals("second: " + detailedDiff,
+                DifferenceConstants.ELEMENT_NUM_ATTRIBUTES, differences.get(1));
+        assertEquals("third: " + detailedDiff,
+                DifferenceConstants.ATTR_VALUE, differences.get(2));
+        assertEquals("forth: " + detailedDiff,
+                DifferenceConstants.ATTR_NAME_NOT_FOUND,
+                differences.get(3));
+        assertEquals("fifth: " + detailedDiff,
+                DifferenceConstants.CHILD_NODE_NOT_FOUND, differences.get(4));
+    }
 
-	@Test
-	public void testPrototypeIsADetailedDiff() throws Exception {
-		Diff multipleDifferences = new Diff(firstForecast, secondForecast);
-		DetailedDiff detailedDiff = new DetailedDiff(
-		        new DetailedDiff(multipleDifferences));
+    @Test
+    public void testPrototypeIsADetailedDiff() throws Exception {
+        Diff multipleDifferences = new Diff(firstForecast, secondForecast);
+        DetailedDiff detailedDiff = new DetailedDiff(
+                new DetailedDiff(multipleDifferences));
 
-		List differences = detailedDiff.getAllDifferences();
-		assertExpectedDifferencesFirstForecastControl(differences, detailedDiff);
-	}
+        List differences = detailedDiff.getAllDifferences();
+        assertExpectedDifferencesFirstForecastControl(differences, detailedDiff);
+    }
 
-	@Test
-	public void testLargeFiles() throws Exception {
-		int i = 0;
-		String expr = null;
-		File test, control;
-		control = TestResources.DETAIL_CONTROL.getFile();
-		test = TestResources.DETAIL_TEST.getFile();
+    @Test
+    public void testLargeFiles() throws Exception {
+        int i = 0;
+        String expr = null;
+        File test, control;
+        control = TestResources.DETAIL_CONTROL.getFile();
+        test = TestResources.DETAIL_TEST.getFile();
 
-		try {
-			XMLUnit.setIgnoreWhitespace(true);
-			Diff prototype =
-			        new Diff(new FileReader(control), new FileReader(test));
-			DetailedDiff detailedDiff = new DetailedDiff(prototype);
-			List differences = detailedDiff.getAllDifferences();
+        try {
+            XMLUnit.setIgnoreWhitespace(true);
+            Diff prototype =
+                    new Diff(new FileReader(control), new FileReader(test));
+            DetailedDiff detailedDiff = new DetailedDiff(prototype);
+            List differences = detailedDiff.getAllDifferences();
 
-			SimpleXpathEngine xpathEngine = new SimpleXpathEngine();
-			Document controlDoc =
-			        XMLUnit.buildControlDocument(
-			                new InputSource(new FileReader(control)));
-			Document testDoc =
-			        XMLUnit.buildTestDocument(
-			                new InputSource(new FileReader(test)));
+            SimpleXpathEngine xpathEngine = new SimpleXpathEngine();
+            Document controlDoc =
+                    XMLUnit.buildControlDocument(
+                            new InputSource(new FileReader(control)));
+            Document testDoc =
+                    XMLUnit.buildTestDocument(
+                            new InputSource(new FileReader(test)));
 
-			Difference aDifference;
-			String value;
-			for (Iterator iter = differences.iterator(); iter.hasNext();) {
-				aDifference = (Difference) iter.next();
-				if (aDifference.equals(DifferenceConstants.ATTR_VALUE)
-				        || aDifference.equals(DifferenceConstants.CDATA_VALUE)
-				        || aDifference.equals(DifferenceConstants.COMMENT_VALUE)
-				        || aDifference.equals(DifferenceConstants.ELEMENT_TAG_NAME)
-				        || aDifference.equals(DifferenceConstants.TEXT_VALUE)) {
-					expr = aDifference.getControlNodeDetail().getXpathLocation();
-					if (expr == null || expr.length() == 0) {
-						System.out.println(aDifference);
-					} else {
-						value = xpathEngine.evaluate(expr, controlDoc);
-						assertEquals(i + " control " + aDifference.toString(),
-						        value, aDifference.getControlNodeDetail().getValue());
-					}
+            Difference aDifference;
+            String value;
+            for (Iterator iter = differences.iterator(); iter.hasNext();) {
+                aDifference = (Difference) iter.next();
+                if (aDifference.equals(DifferenceConstants.ATTR_VALUE)
+                        || aDifference.equals(DifferenceConstants.CDATA_VALUE)
+                        || aDifference.equals(DifferenceConstants.COMMENT_VALUE)
+                        || aDifference.equals(DifferenceConstants.ELEMENT_TAG_NAME)
+                        || aDifference.equals(DifferenceConstants.TEXT_VALUE)) {
+                    expr = aDifference.getControlNodeDetail().getXpathLocation();
+                    if (expr == null || expr.length() == 0) {
+                        System.out.println(aDifference);
+                    } else {
+                        value = xpathEngine.evaluate(expr, controlDoc);
+                        assertEquals(i + " control " + aDifference.toString(),
+                                value, aDifference.getControlNodeDetail().getValue());
+                    }
 
-					expr = aDifference.getTestNodeDetail().getXpathLocation();
-					if (expr == null || expr.length() == 0) {
-						System.out.println(aDifference);
-					} else {
-						value = xpathEngine.evaluate(expr, testDoc);
-						assertEquals(i + " test " + aDifference.toString(),
-						        value, aDifference.getTestNodeDetail().getValue());
-					}
-				}
-				++i;
-			}
-		} catch (Exception e) {
-			System.out.println("eek@" + i + ":" + expr);
-			throw e;
-		} finally {
-			XMLUnit.setIgnoreWhitespace(false);
-		}
-	}
+                    expr = aDifference.getTestNodeDetail().getXpathLocation();
+                    if (expr == null || expr.length() == 0) {
+                        System.out.println(aDifference);
+                    } else {
+                        value = xpathEngine.evaluate(expr, testDoc);
+                        assertEquals(i + " test " + aDifference.toString(),
+                                value, aDifference.getTestNodeDetail().getValue());
+                    }
+                }
+                ++i;
+            }
+        } catch (Exception e) {
+            System.out.println("eek@" + i + ":" + expr);
+            throw e;
+        } finally {
+            XMLUnit.setIgnoreWhitespace(false);
+        }
+    }
 
-	@Test
-	public void testSeeAllDifferencesEvenIfDiffWouldSayHaltComparison() throws Exception {
-		String control = "<a><b/><c/></a>";
-		String test = "<a><c/></a>";
+    @Test
+    public void testSeeAllDifferencesEvenIfDiffWouldSayHaltComparison() throws Exception {
+        String control = "<a><b/><c/></a>";
+        String test = "<a><c/></a>";
 
-		Diff d = new Diff(control, test);
-		DetailedDiff dd = new DetailedDiff(d);
+        Diff d = new Diff(control, test);
+        DetailedDiff dd = new DetailedDiff(d);
 
-		List l = dd.getAllDifferences();
-		// number of children is different, didn't find <b/>, wrong
-		// sequence of nodes
-		assertEquals(3, l.size());
-	}
+        List l = dd.getAllDifferences();
+        // number of children is different, didn't find <b/>, wrong
+        // sequence of nodes
+        assertEquals(3, l.size());
+    }
 
-	@Test
-	public void testSeeAllDifferencesEvenIfDiffSaysHaltComparison() throws Exception {
-		String control = "<a><b/><c/></a>";
-		String test = "<a><c/></a>";
+    @Test
+    public void testSeeAllDifferencesEvenIfDiffSaysHaltComparison() throws Exception {
+        String control = "<a><b/><c/></a>";
+        String test = "<a><c/></a>";
 
-		Diff d = new Diff(control, test);
-		d.similar();
-		DetailedDiff dd = new DetailedDiff(d);
+        Diff d = new Diff(control, test);
+        d.similar();
+        DetailedDiff dd = new DetailedDiff(d);
 
-		List l = dd.getAllDifferences();
-		// number of children is different, didn't find <b/>, wrong
-		// sequence of nodes
-		assertEquals(3, l.size());
-	}
+        List l = dd.getAllDifferences();
+        // number of children is different, didn't find <b/>, wrong
+        // sequence of nodes
+        assertEquals(3, l.size());
+    }
 
-	/**
-	 * @see http 
-	 *      ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
-	 */
-	@Test
-	public void testHelpForumThread1691528() throws Exception {
-		String control = "<table border=\"1\">"
-		        + "<tr>"
-		        + "<th>News</th>"
-		        + "</tr>"
-		        + "<tr>"
-		        + "<td>Newsitem 1</td>"
-		        + "</tr>"
-		        + "</table>";
-		String test = "<table border=\"1\">"
-		        + "<tr>"
-		        + "<th>News</th>"
-		        + "</tr>"
-		        + "<tr>"
-		        + "<td>Newsitem 2</td>"
-		        + "<td>Newsitem 1</td>"
-		        + "</tr>"
-		        + "</table>";
+    /**
+     * @see http 
+     *      ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
+     */
+    @Test
+    public void testHelpForumThread1691528() throws Exception {
+        String control = "<table border=\"1\">"
+                + "<tr>"
+                + "<th>News</th>"
+                + "</tr>"
+                + "<tr>"
+                + "<td>Newsitem 1</td>"
+                + "</tr>"
+                + "</table>";
+        String test = "<table border=\"1\">"
+                + "<tr>"
+                + "<th>News</th>"
+                + "</tr>"
+                + "<tr>"
+                + "<td>Newsitem 2</td>"
+                + "<td>Newsitem 1</td>"
+                + "</tr>"
+                + "</table>";
 
-		DetailedDiff diff = new DetailedDiff(new Diff(control, test));
-		List changes = diff.getAllDifferences();
-		// number of children, text of first child, unexpected second
-		// test child
-		assertEquals(3, changes.size());
-	}
+        DetailedDiff diff = new DetailedDiff(new Diff(control, test));
+        List changes = diff.getAllDifferences();
+        // number of children, text of first child, unexpected second
+        // test child
+        assertEquals(3, changes.size());
+    }
 
-	/**
-	 * Bug 1860681
-	 * 
-	 * @see https
-	 *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
-	 *      &amp;group_id=23187&amp;atid=377768
-	 */
-	@Test
-	public void testXpathOfMissingNode() throws Exception {
-		String control =
-		        "<books>"
-		                + "  <book>"
-		                + "    <title>Kabale und Liebe</title>"
-		                + "  </book>"
-		                + "  <book>"
-		                + "    <title>Schuld und Suehne</title>"
-		                + "  </book>"
-		                + "</books>";
-		String test =
-		        "<books>"
-		                + "  <book>"
-		                + "    <title>Schuld und Suehne</title>"
-		                + "  </book>"
-		                + "</books>";
-		XMLUnit.setIgnoreWhitespace(true);
-		try {
-			Diff diff = new Diff(control, test);
-			diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-			DetailedDiff dd = new DetailedDiff(diff);
-			List l = dd.getAllDifferences();
-			assertEquals(3, l.size());
-			// (0) number of children, (1) order different, (2) node not found
-			Difference d = (Difference) l.get(2);
-			assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
-			        d.getId());
-			assertEquals("/books[1]/book[1]",
-			        d.getControlNodeDetail().getXpathLocation());
-			assertNull("should be null but is "
-			        + d.getTestNodeDetail().getXpathLocation(),
-			        d.getTestNodeDetail().getXpathLocation());
+    /**
+     * Bug 1860681
+     * 
+     * @see https
+     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
+     *      &amp;group_id=23187&amp;atid=377768
+     */
+    @Test
+    public void testXpathOfMissingNode() throws Exception {
+        String control =
+                "<books>"
+                        + "  <book>"
+                        + "    <title>Kabale und Liebe</title>"
+                        + "  </book>"
+                        + "  <book>"
+                        + "    <title>Schuld und Suehne</title>"
+                        + "  </book>"
+                        + "</books>";
+        String test =
+                "<books>"
+                        + "  <book>"
+                        + "    <title>Schuld und Suehne</title>"
+                        + "  </book>"
+                        + "</books>";
+        XMLUnit.setIgnoreWhitespace(true);
+        try {
+            Diff diff = new Diff(control, test);
+            diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
+            DetailedDiff dd = new DetailedDiff(diff);
+            List l = dd.getAllDifferences();
+            assertEquals(3, l.size());
+            // (0) number of children, (1) order different, (2) node not found
+            Difference d = (Difference) l.get(2);
+            assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
+                    d.getId());
+            assertEquals("/books[1]/book[1]",
+                    d.getControlNodeDetail().getXpathLocation());
+            assertNull("should be null but is "
+                    + d.getTestNodeDetail().getXpathLocation(),
+                    d.getTestNodeDetail().getXpathLocation());
 
-			// and reverse
-			diff = new Diff(test, control);
-			diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-			dd = new DetailedDiff(diff);
-			l = dd.getAllDifferences();
-			assertEquals(3, l.size());
-			// (0) number of children, (1) order different, (2) node not found
-			d = (Difference) l.get(2);
-			assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
-			        d.getId());
-			assertEquals("/books[1]/book[1]",
-			        d.getTestNodeDetail().getXpathLocation());
-			assertNull(d.getControlNodeDetail().getXpathLocation());
-		} finally {
-			XMLUnit.setIgnoreWhitespace(false);
-		}
-	}
+            // and reverse
+            diff = new Diff(test, control);
+            diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
+            dd = new DetailedDiff(diff);
+            l = dd.getAllDifferences();
+            assertEquals(3, l.size());
+            // (0) number of children, (1) order different, (2) node not found
+            d = (Difference) l.get(2);
+            assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
+                    d.getId());
+            assertEquals("/books[1]/book[1]",
+                    d.getTestNodeDetail().getXpathLocation());
+            assertNull(d.getControlNodeDetail().getXpathLocation());
+        } finally {
+            XMLUnit.setIgnoreWhitespace(false);
+        }
+    }
 
-	protected Diff buildDiff(Document control, Document test) {
-		return new DetailedDiff(super.buildDiff(control, test));
-	}
+    protected Diff buildDiff(Document control, Document test) {
+        return new DetailedDiff(super.buildDiff(control, test));
+    }
 
-	protected Diff buildDiff(String control, String test) throws Exception {
-		return new DetailedDiff(super.buildDiff(control, test));
-	}
+    protected Diff buildDiff(String control, String test) throws Exception {
+        return new DetailedDiff(super.buildDiff(control, test));
+    }
 
-	protected Diff buildDiff(Reader control, Reader test) throws Exception {
-		return new DetailedDiff(super.buildDiff(control, test));
-	}
+    protected Diff buildDiff(Reader control, Reader test) throws Exception {
+        return new DetailedDiff(super.buildDiff(control, test));
+    }
 
-	protected Diff buildDiff(String control, String test,
-	        DifferenceEngineContract engine) throws Exception {
-		return new DetailedDiff(super.buildDiff(control, test, engine));
-	}
+    protected Diff buildDiff(String control, String test,
+            DifferenceEngineContract engine) throws Exception {
+        return new DetailedDiff(super.buildDiff(control, test, engine));
+    }
 
-	String firstForecast = "<weather><today icon=\"clouds\" temp=\"17\">"
-	        + "<outlook>unsettled</outlook></today></weather>";
-	String secondForecast = "<weather><today temp=\"20\"/></weather>";
+    String firstForecast = "<weather><today icon=\"clouds\" temp=\"17\">"
+            + "<outlook>unsettled</outlook></today></weather>";
+    String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
-	/**
-	 * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
-	 * atid=377768
-	 */
-	@Test
-	public void testCompareUnmatched() throws Exception {
-		String control = "<root><a>1</a>"
-		        + "<b>1</b>"
-		        + "<c>1</c>"
-		        + "<d>1</d>"
-		        + "<e>1</e></root>";
-		String test = "<root><a>1</a>"
-		        + "<b>1</b>"
-		        + "<z>1</z>"
-		        + "<d>1</d>"
-		        + "<e>1</e></root>";
-		DetailedDiff d = (DetailedDiff) buildDiff(control, test);
-		List l = d.getAllDifferences();
-		assertEquals(1, l.size());
-		Difference diff = (Difference) l.get(0);
-		assertEquals(DifferenceConstants.ELEMENT_TAG_NAME_ID, diff.getId());
-	}
+    /**
+     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
+     * atid=377768
+     */
+    @Test
+    public void testCompareUnmatched() throws Exception {
+        String control = "<root><a>1</a>"
+                + "<b>1</b>"
+                + "<c>1</c>"
+                + "<d>1</d>"
+                + "<e>1</e></root>";
+        String test = "<root><a>1</a>"
+                + "<b>1</b>"
+                + "<z>1</z>"
+                + "<d>1</d>"
+                + "<e>1</e></root>";
+        DetailedDiff d = (DetailedDiff) buildDiff(control, test);
+        List l = d.getAllDifferences();
+        assertEquals(1, l.size());
+        Difference diff = (Difference) l.get(0);
+        assertEquals(DifferenceConstants.ELEMENT_TAG_NAME_ID, diff.getId());
+    }
 
-	/**
-	 * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
-	 * atid=377768
-	 */
-	@Test
-	public void testDontCompareUnmatched() throws Exception {
-		String control = "<root><a>1</a>"
-		        + "<b>1</b>"
-		        + "<c>1</c>"
-		        + "<d>1</d>"
-		        + "<e>1</e></root>";
-		String test = "<root><a>1</a>"
-		        + "<b>1</b>"
-		        + "<z>1</z>"
-		        + "<d>1</d>"
-		        + "<e>1</e></root>";
-		try {
-			XMLUnit.setCompareUnmatched(false);
-			DetailedDiff d = (DetailedDiff) buildDiff(control, test);
-			List l = d.getAllDifferences();
-			assertEquals(2, l.size());
-			Difference diff = (Difference) l.get(0);
-			assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
-			        diff.getId());
-			assertNotNull(diff.getControlNodeDetail().getNode());
-			assertNull(diff.getTestNodeDetail().getNode());
-			diff = (Difference) l.get(1);
-			assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
-			        diff.getId());
-			assertNull(diff.getControlNodeDetail().getNode());
-			assertNotNull(diff.getTestNodeDetail().getNode());
-		} finally {
-			XMLUnit.setCompareUnmatched(true);
-		}
-	}
+    /**
+     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
+     * atid=377768
+     */
+    @Test
+    public void testDontCompareUnmatched() throws Exception {
+        String control = "<root><a>1</a>"
+                + "<b>1</b>"
+                + "<c>1</c>"
+                + "<d>1</d>"
+                + "<e>1</e></root>";
+        String test = "<root><a>1</a>"
+                + "<b>1</b>"
+                + "<z>1</z>"
+                + "<d>1</d>"
+                + "<e>1</e></root>";
+        try {
+            XMLUnit.setCompareUnmatched(false);
+            DetailedDiff d = (DetailedDiff) buildDiff(control, test);
+            List l = d.getAllDifferences();
+            assertEquals(2, l.size());
+            Difference diff = (Difference) l.get(0);
+            assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
+                    diff.getId());
+            assertNotNull(diff.getControlNodeDetail().getNode());
+            assertNull(diff.getTestNodeDetail().getNode());
+            diff = (Difference) l.get(1);
+            assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
+                    diff.getId());
+            assertNull(diff.getControlNodeDetail().getNode());
+            assertNotNull(diff.getTestNodeDetail().getNode());
+        } finally {
+            XMLUnit.setCompareUnmatched(true);
+        }
+    }
 
-	/**
-	 * @see https
-	 *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062518
-	 *      &amp;group_id=23187&amp;atid=377768
-	 */
-	@Test
-	public void testIssue3062518() throws Exception {
-		String control = "<Fruits>"
-		        + "<Apple size=\"11\" color=\"green\"/>"
-		        + "<Apple size=\"15\" color=\"green\"/>"
-		        + "<Banana size=\"10\"/>"
-		        + "</Fruits>";
-		String test = "<Fruits>"
-		        + "<Apple size=\"11\" color=\"green\"/>"
-		        + "<Banana size=\"11\"/>"
-		        + "</Fruits>";
-		try {
-			XMLUnit.setCompareUnmatched(false);
-			DetailedDiff d = (DetailedDiff) buildDiff(control, test);
-			List l = d.getAllDifferences();
-			assertEquals(4, l.size());
-			// expected 3 children is 2
-			Difference diff = (Difference) l.get(0);
-			assertEquals(DifferenceConstants.CHILD_NODELIST_LENGTH_ID,
-			        diff.getId());
-			assertEquals("3", diff.getControlNodeDetail().getValue());
-			assertEquals("2", diff.getTestNodeDetail().getValue());
-			assertEquals("/Fruits[1]",
-			        diff.getControlNodeDetail().getXpathLocation());
-			assertEquals("/Fruits[1]",
-			        diff.getTestNodeDetail().getXpathLocation());
+    /**
+     * @see https
+     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062518
+     *      &amp;group_id=23187&amp;atid=377768
+     */
+    @Test
+    public void testIssue3062518() throws Exception {
+        String control = "<Fruits>"
+                + "<Apple size=\"11\" color=\"green\"/>"
+                + "<Apple size=\"15\" color=\"green\"/>"
+                + "<Banana size=\"10\"/>"
+                + "</Fruits>";
+        String test = "<Fruits>"
+                + "<Apple size=\"11\" color=\"green\"/>"
+                + "<Banana size=\"11\"/>"
+                + "</Fruits>";
+        try {
+            XMLUnit.setCompareUnmatched(false);
+            DetailedDiff d = (DetailedDiff) buildDiff(control, test);
+            List l = d.getAllDifferences();
+            assertEquals(4, l.size());
+            // expected 3 children is 2
+            Difference diff = (Difference) l.get(0);
+            assertEquals(DifferenceConstants.CHILD_NODELIST_LENGTH_ID,
+                    diff.getId());
+            assertEquals("3", diff.getControlNodeDetail().getValue());
+            assertEquals("2", diff.getTestNodeDetail().getValue());
+            assertEquals("/Fruits[1]",
+                    diff.getControlNodeDetail().getXpathLocation());
+            assertEquals("/Fruits[1]",
+                    diff.getTestNodeDetail().getXpathLocation());
 
-			// Banana is the third child in control but the second one in test
-			diff = (Difference) l.get(1);
-			assertEquals("2", diff.getControlNodeDetail().getValue());
-			assertEquals("1", diff.getTestNodeDetail().getValue());
-			assertEquals("/Fruits[1]/Banana[1]",
-			        diff.getControlNodeDetail().getXpathLocation());
-			assertEquals("/Fruits[1]/Banana[1]",
-			        diff.getTestNodeDetail().getXpathLocation());
+            // Banana is the third child in control but the second one in test
+            diff = (Difference) l.get(1);
+            assertEquals("2", diff.getControlNodeDetail().getValue());
+            assertEquals("1", diff.getTestNodeDetail().getValue());
+            assertEquals("/Fruits[1]/Banana[1]",
+                    diff.getControlNodeDetail().getXpathLocation());
+            assertEquals("/Fruits[1]/Banana[1]",
+                    diff.getTestNodeDetail().getXpathLocation());
 
-			// Banana's size attribute doesn't match
-			diff = (Difference) l.get(2);
-			assertEquals(DifferenceConstants.ATTR_VALUE_ID,
-			        diff.getId());
-			assertEquals("10", diff.getControlNodeDetail().getValue());
-			assertEquals("11", diff.getTestNodeDetail().getValue());
-			assertEquals("/Fruits[1]/Banana[1]/@size",
-			        diff.getControlNodeDetail().getXpathLocation());
-			assertEquals("/Fruits[1]/Banana[1]/@size",
-			        diff.getTestNodeDetail().getXpathLocation());
+            // Banana's size attribute doesn't match
+            diff = (Difference) l.get(2);
+            assertEquals(DifferenceConstants.ATTR_VALUE_ID,
+                    diff.getId());
+            assertEquals("10", diff.getControlNodeDetail().getValue());
+            assertEquals("11", diff.getTestNodeDetail().getValue());
+            assertEquals("/Fruits[1]/Banana[1]/@size",
+                    diff.getControlNodeDetail().getXpathLocation());
+            assertEquals("/Fruits[1]/Banana[1]/@size",
+                    diff.getTestNodeDetail().getXpathLocation());
 
-			// didn't find the second Apple element
-			diff = (Difference) l.get(3);
-			assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
-			        diff.getId());
-			assertEquals("Apple", diff.getControlNodeDetail().getValue());
-			assertEquals("null", diff.getTestNodeDetail().getValue());
-			assertEquals("/Fruits[1]/Apple[2]",
-			        diff.getControlNodeDetail().getXpathLocation());
-			assertEquals(null,
-			        diff.getTestNodeDetail().getXpathLocation());
+            // didn't find the second Apple element
+            diff = (Difference) l.get(3);
+            assertEquals(DifferenceConstants.CHILD_NODE_NOT_FOUND_ID,
+                    diff.getId());
+            assertEquals("Apple", diff.getControlNodeDetail().getValue());
+            assertEquals("null", diff.getTestNodeDetail().getValue());
+            assertEquals("/Fruits[1]/Apple[2]",
+                    diff.getControlNodeDetail().getXpathLocation());
+            assertEquals(null,
+                    diff.getTestNodeDetail().getXpathLocation());
 
-		} finally {
-			XMLUnit.setCompareUnmatched(true);
-		}
-	}
+        } finally {
+            XMLUnit.setCompareUnmatched(true);
+        }
+    }
 }

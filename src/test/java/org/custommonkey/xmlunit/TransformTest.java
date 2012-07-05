@@ -197,7 +197,7 @@ public class TransformTest {
      * @throws TransformerException
      */
     @Test
-    public void testURIResolverForStylesheet() throws TransformerException {
+    public void should_get_exception_when_incorrect_include_uri() throws TransformerException {
         // given
         String xsl =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
