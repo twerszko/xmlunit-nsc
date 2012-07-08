@@ -36,90 +36,159 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
 import java.io.IOException;
 
 import org.junit.Test;
 
 /**
- * JUnit test for DoctypeReader and DoctypeInputStream
+ * Base for tests for DoctypeReader and DoctypeInputStream
  */
 public abstract class AbstractDoctypeTests {
 
 	private static final String COMMENT = "<!-- comment -->";
-	protected static final String NO_DTD =
-	        "<document><element>one</element></document>";
+	protected static final String NO_DTD_XML = "<document><element>one</element></document>";
 
-	public abstract void testGetContent() throws IOException;
-
-	protected abstract void assertEquals(String expected, String input,
-	        String docType, String systemId)
+	protected abstract String getDoctyped(
+	        String expected,
+	        String input,
+	        String docType,
+	        String systemId)
 	        throws IOException;
 
 	@Test
-	public void testRead() throws IOException {
+	public void should_read_with_doctype() throws IOException {
+		// given
 		String oz = "Chirurgische Verbesserungen sind g\u00fcnstig";
-		assertEquals("<!DOCTYPE Kylie SYSTEM \"bumJob\">" + oz,
-		        oz, "Kylie", "bumJob");
+		String expected = "<!DOCTYPE Kylie SYSTEM \"bumJob\">" + oz;
+
+		// when
+		String doctyped = getDoctyped(expected, oz, "Kylie", "bumJob");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testInternalDTD() throws IOException {
-		assertEquals("<!DOCTYPE ni SYSTEM \"shrubbery\">",
-		        test_Constants.CHUCK_JONES_RIP_DTD_DECL, "ni",
-		        "shrubbery");
+	public void should_check_internal_DTD() throws IOException {
+		// given
+		String input =
+		        "<!DOCTYPE cartoons [" +
+		                "<!ELEMENT name (#PCDATA)> \n" +
+		                "<!ELEMENT toon (name)> \n" +
+		                "<!ELEMENT cartoons (toon*)> \n" + "\n]>";
+
+		String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">";
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testExternalDTD() throws IOException {
-		assertEquals("<!DOCTYPE ni SYSTEM \"shrubbery\">",
-		        "<! DOCTYPE PUBLIC \"yak\" SYSTEM \"llama\">", "ni",
-		        "shrubbery");
+	public void should_check_external_DTD() throws IOException {
+		// given
+		String input = "<! DOCTYPE PUBLIC \"yak\" SYSTEM \"llama\">";
+		String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">";
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testNoDTD() throws IOException {
-		assertEquals("<!DOCTYPE ni SYSTEM \"shrubbery\">" + NO_DTD,
-		        NO_DTD, "ni", "shrubbery");
+	public void should_check_no_DTD() throws IOException {
+		// given
+		String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">" + NO_DTD_XML;
+
+		// when
+		String doctyped = getDoctyped(expected, NO_DTD_XML, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testNoDTDButXMLDecl() throws IOException {
-		assertEquals(test_Constants.XML_DECLARATION
-		        + "<!DOCTYPE ni SYSTEM \"shrubbery\">" + NO_DTD,
-		        test_Constants.XML_DECLARATION + NO_DTD,
-		        "ni", "shrubbery");
+	public void should_check_no_DTD_but_XML_Declaration() throws IOException {
+		// given
+		String input = XMLConstants.XML_DECLARATION + NO_DTD_XML;
+		String expected =
+		        XMLConstants.XML_DECLARATION +
+		                "<!DOCTYPE ni SYSTEM \"shrubbery\">" +
+		                NO_DTD_XML;
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testInternalDTDWithComment() throws IOException {
-		assertEquals(test_Constants.XML_DECLARATION
-		        + "<!DOCTYPE ni SYSTEM \"shrubbery\">"
-		        + COMMENT,
-		        test_Constants.XML_DECLARATION
-		                + COMMENT
-		                + test_Constants.CHUCK_JONES_RIP_DTD_DECL,
-		        "ni", "shrubbery");
+	public void should_check_internal_DTD_with_comment() throws IOException {
+		// given
+		String input = XMLConstants.XML_DECLARATION +
+		        COMMENT +
+		        "<!DOCTYPE cartoons [" +
+		        "<!ELEMENT name (#PCDATA)> \n" +
+		        "<!ELEMENT toon (name)> \n" +
+		        "<!ELEMENT cartoons (toon*)> \n" + "\n]>";
+
+		String expected =
+		        XMLConstants.XML_DECLARATION +
+		                "<!DOCTYPE ni SYSTEM \"shrubbery\">" +
+		                COMMENT;
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testExternalDTDWithComment() throws IOException {
-		assertEquals("<!DOCTYPE ni SYSTEM \"shrubbery\">"
-		        + COMMENT,
-		        COMMENT + "<! DOCTYPE PUBLIC \"yak\" SYSTEM \"llama\">",
-		        "ni", "shrubbery");
+	public void should_check_external_DTD_with_comment() throws IOException {
+		// given
+		String input = COMMENT + "<! DOCTYPE PUBLIC \"yak\" SYSTEM \"llama\">";
+		String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">" +
+		        COMMENT;
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testNoDTDWithComment() throws IOException {
-		assertEquals("<!DOCTYPE ni SYSTEM \"shrubbery\">" + COMMENT + NO_DTD,
-		        COMMENT + NO_DTD, "ni", "shrubbery");
+	public void should_check_no_DTD_with_comment() throws IOException {
+		// given
+		String input = COMMENT + NO_DTD_XML;
+		String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">" + input;
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 
 	@Test
-	public void testNoDTDButXMLDeclWithComment() throws IOException {
-		assertEquals(test_Constants.XML_DECLARATION
-		        + "<!DOCTYPE ni SYSTEM \"shrubbery\">" + COMMENT + NO_DTD,
-		        test_Constants.XML_DECLARATION + COMMENT + NO_DTD,
-		        "ni", "shrubbery");
+	public void should_check_no_DTD_but_XML_decl_with_comment() throws IOException {
+		// given
+		String expected = XMLConstants.XML_DECLARATION
+		        + "<!DOCTYPE ni SYSTEM \"shrubbery\">" + COMMENT + NO_DTD_XML;
+		String input = XMLConstants.XML_DECLARATION + COMMENT + NO_DTD_XML;
+
+		// when
+		String doctyped = getDoctyped(expected, input, "ni", "shrubbery");
+
+		// then
+		assertThat(doctyped).isEqualTo(expected);
 	}
 }
