@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,47 +31,50 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /**
  * Implementation of NamespaceContext that's backed by a map.
  */
 public class SimpleNamespaceContext implements NamespaceContext {
-    /* prefix -> NS URI */
-    private final Map/*<String, String>*/ prefixMap;
+	/* prefix -> NS URI */
+	private final Map<String, String> prefixMap;
 
-    /**
-     * An empty context containing no prefixes at all.
-     */
-    public static final SimpleNamespaceContext EMPTY_CONTEXT =
-        new SimpleNamespaceContext(Collections.EMPTY_MAP);
+	/**
+	 * An empty context containing no prefixes at all.
+	 */
+	public static final SimpleNamespaceContext EMPTY_CONTEXT =
+	        new SimpleNamespaceContext(Collections.EMPTY_MAP);
 
-    /**
-     * Creates a NamespaceContext backed by the given map.
-     *
-     * <p>Copies the map, changes made to the given map after calling
-     * the constructor are not reflected into the
-     * NamespaceContext.</p>
-     *
-     * @param prefixMap maps prefix to Namespace URI
-     */
-    public SimpleNamespaceContext(Map prefixMap) {
-        this.prefixMap = new HashMap(prefixMap);
-    }
+	/**
+	 * Creates a NamespaceContext backed by the given map.
+	 * 
+	 * <p>
+	 * Copies the map, changes made to the given map after calling the
+	 * constructor are not reflected into the NamespaceContext.
+	 * </p>
+	 * 
+	 * @param prefixMap
+	 *            maps prefix to Namespace URI
+	 */
+	public SimpleNamespaceContext(Map<String, String> prefixMap) {
+		this.prefixMap = Maps.newHashMap(prefixMap);
+	}
 
-    public String getNamespaceURI(String prefix) {
-        return (String) prefixMap.get(prefix);
-    }
+	public String getNamespaceURI(String prefix) {
+		return (String) prefixMap.get(prefix);
+	}
 
-    public Iterator getPrefixes() {
-        return prefixMap.keySet().iterator();
-    }
+	public Iterator<String> getPrefixes() {
+		return prefixMap.keySet().iterator();
+	}
 }
