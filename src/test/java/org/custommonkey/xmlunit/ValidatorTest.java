@@ -56,7 +56,7 @@ import org.xml.sax.InputSource;
  * JUnit test for Validator Also includes tests for XMLTestCase
  * <code>assertValidXML</code> methods because test values etc are here
  */
-public class test_Validator extends XMLTestCase {
+public class ValidatorTest extends XMLTestCase {
 	private Validator validator;
 	private File tempDTDFile;
 
@@ -309,12 +309,12 @@ public class test_Validator extends XMLTestCase {
 		}
 	}
 
-	public test_Validator(String name) {
+	public ValidatorTest(String name) {
 		super(name);
 	}
 
 	public static TestSuite suite() {
-		return new TestSuite(test_Validator.class);
+		return new TestSuite(ValidatorTest.class);
 	}
 
 }

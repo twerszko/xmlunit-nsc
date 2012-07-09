@@ -87,9 +87,9 @@ public class NodeInputStreamTest {
 	@Test
 	public void should_get_available() throws IOException {
 		// when
-		int availableAfterRead = nodeStream.available();
+		int availableAtStart = nodeStream.available();
 		nodeStream.read();
-		int availableAtStart = availableAfterRead;
+		int availableAfterRead = nodeStream.available();
 
 		// then
 		assertThat(availableAtStart).isGreaterThan(0);

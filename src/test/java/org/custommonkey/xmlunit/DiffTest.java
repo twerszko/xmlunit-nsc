@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,10 +80,30 @@ public class DiffTest {
 		aDocument = XMLUnit.newControlParser().newDocument();
 	}
 
+	protected Diff prepareDiff(Document control, Document test) {
+		return new Diff(control, test);
+	}
+
+	protected Diff prepareDiff(String control, String test) throws SAXException, IOException {
+		return new Diff(control, test);
+	}
+
+	protected Diff prepareDiff(Reader control, Reader test) throws SAXException, IOException {
+		return new Diff(control, test);
+	}
+
+	protected Diff prepareDiff(String control, String test, DifferenceEngineContract engine)
+	        throws SAXException, IOException {
+
+		Document controlDocument = XMLUnit.buildControlDocument(control);
+		Document testDocument = XMLUnit.buildTestDocument(test);
+		return new Diff(controlDocument, testDocument, engine);
+	}
+
 	@Test
 	public void should_create_valid_toString() {
 		// given
-		Diff diff = new Diff(aDocument, aDocument);
+		Diff diff = prepareDiff(aDocument, aDocument);
 
 		Element elemA = aDocument.createElement("tag");
 		Text textA = aDocument.createTextNode("Monkey");
@@ -108,7 +129,7 @@ public class DiffTest {
 
 	public void should_create_valid_toString_2() {
 		// given
-		Diff diff = new Diff(aDocument, aDocument);
+		Diff diff = prepareDiff(aDocument, aDocument);
 
 		// when
 		Text textA = aDocument.createTextNode("Monkey");
@@ -137,7 +158,7 @@ public class DiffTest {
 		String longEaredBat = "<bat type=\"longeared\"/>";
 
 		// when
-		Diff diff = new Diff(fruitBat, longEaredBat);
+		Diff diff = prepareDiff(fruitBat, longEaredBat);
 		String toStringResult = diff.toString();
 
 		String expectedString = diff.getClass().getName() + "\n[different] Expected "
@@ -156,8 +177,8 @@ public class DiffTest {
 
 		// given
 		// when
-		Diff diffControl = new Diff(control, control);
-		Diff diff = new Diff(control, test);
+		Diff diffControl = prepareDiff(control, control);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diffControl.similar()).isTrue();
@@ -212,7 +233,7 @@ public class DiffTest {
 		String test = "<control><test>test2</test><test>test1</test></control>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -227,7 +248,7 @@ public class DiffTest {
 		FileReader test = new FileReader(testFile);
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isTrue();
@@ -239,7 +260,7 @@ public class DiffTest {
 		String control = "<same>pass</same>";
 
 		// when
-		Diff diff = new Diff(control, control);
+		Diff diff = prepareDiff(control, control);
 
 		// then
 		assertThat(diff.identical()).isTrue();
@@ -253,7 +274,7 @@ public class DiffTest {
 		String test = "<root><node/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -267,7 +288,7 @@ public class DiffTest {
 		String test = "<root></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -281,7 +302,7 @@ public class DiffTest {
 		String test = "<root><pass/><same/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -295,7 +316,7 @@ public class DiffTest {
 		String test = "<same except=\"this\">pass</same>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -309,7 +330,7 @@ public class DiffTest {
 		String test = "<same>pass</same>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -323,7 +344,7 @@ public class DiffTest {
 		String test = "<same aaa=\"uiop\" zzz=\"qwerty\">pass</same>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.similar()).isTrue();
@@ -351,7 +372,7 @@ public class DiffTest {
 		                xmlWithoutDTD;
 
 		// when
-		Diff diff = new Diff(xmlWithDTD, xmlWithoutDTD);
+		Diff diff = prepareDiff(xmlWithDTD, xmlWithoutDTD);
 
 		// then
 		assertThat(diff.similar()).isTrue();
@@ -387,7 +408,7 @@ public class DiffTest {
 		                xmlWithoutDTD;
 		try {
 			// when
-			Diff diff = new Diff(xmlWithDTD, xmlWithExternalDTD);
+			Diff diff = prepareDiff(xmlWithDTD, xmlWithExternalDTD);
 
 			// then
 			assertThat(diff.similar()).isTrue();
@@ -412,7 +433,7 @@ public class DiffTest {
 		String xmlWithDTD = aDTDpart + "]>" + xmlWithoutDTD;
 		String xmlWithAnotherDTD = aDTDpart + "<!ELEMENT comment (ANY)>" + "]>" + xmlWithoutDTD;
 
-		Diff diff = new Diff(xmlWithDTD, xmlWithAnotherDTD);
+		Diff diff = prepareDiff(xmlWithDTD, xmlWithAnotherDTD);
 
 		assertThat(diff.similar()).isTrue();
 		assertThat(diff.identical()).isTrue();
@@ -440,11 +461,11 @@ public class DiffTest {
 			String test = "<aakture>  <node>text</node>\t<node>text2</node> \n </aakture>";
 
 			// when
-			Diff whitespaceAwareDiff = new Diff(control, test);
+			Diff whitespaceAwareDiff = prepareDiff(control, test);
 			whitespaceAwareDiffSimilar = whitespaceAwareDiff.similar();
 
 			XMLUnit.setIgnoreWhitespace(true);
-			Diff whitespaceIgnoredDiff = new Diff(control, test);
+			Diff whitespaceIgnoredDiff = prepareDiff(control, test);
 			whitespaceIgnoredDiffSimilar = whitespaceIgnoredDiff.similar();
 		} finally {
 			XMLUnit.setIgnoreWhitespace(startValueIgnoreWhitespace);
@@ -494,8 +515,8 @@ public class DiffTest {
 		                "<test:xyz>text</test:xyz></test:abc>";
 
 		// when
-		Diff diff = new Diff(control, test);
-		Diff reverseDiff = new Diff(test, control);
+		Diff diff = prepareDiff(control, test);
+		Diff reverseDiff = prepareDiff(test, control);
 
 		// then
 		assertThat(diff.similar()).isTrue();
@@ -523,8 +544,8 @@ public class DiffTest {
 		                "<xyz>text</xyz></abc>";
 
 		// when
-		Diff diff = new Diff(control, test);
-		Diff reverseDiff = new Diff(test, control);
+		Diff diff = prepareDiff(control, test);
+		Diff reverseDiff = prepareDiff(test, control);
 
 		// then
 		assertThat(diff.similar()).isTrue();
@@ -549,8 +570,8 @@ public class DiffTest {
 		        "</ns1:root>";
 
 		// when
-		Diff diff = new Diff(control, test);
-		Diff reverseDiff = new Diff(test, control);
+		Diff diff = prepareDiff(control, test);
+		Diff reverseDiff = prepareDiff(test, control);
 
 		// then
 		assertThat(diff.similar()).isTrue();
@@ -575,7 +596,7 @@ public class DiffTest {
 		                "<car colour=\"blue\">peugot 206</car></vehicles>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.similar()).isFalse();
@@ -597,17 +618,17 @@ public class DiffTest {
 		                "<car colour=\"blue\">peugot 206</car></vehicles>";
 
 		// when
-		Diff diffWithIdenticalOverride = new Diff(control, test);
+		Diff diffWithIdenticalOverride = prepareDiff(control, test);
 		diffWithIdenticalOverride.overrideDifferenceListener(
 		        new OverrideDifferenceListener(DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL)
 		        );
 
-		Diff diffWithSimilarOverride = new Diff(control, test);
+		Diff diffWithSimilarOverride = prepareDiff(control, test);
 		diffWithSimilarOverride.overrideDifferenceListener(
 		        new OverrideDifferenceListener(DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR)
 		        );
 
-		Diff diffWithOverride = new Diff(control, test);
+		Diff diffWithOverride = prepareDiff(control, test);
 		diffWithOverride.overrideDifferenceListener(new OverrideDifferenceListener(
 		        DifferenceListener.RETURN_ACCEPT_DIFFERENCE));
 
@@ -631,7 +652,7 @@ public class DiffTest {
 		FileReader test = new FileReader(testFile);
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideDifferenceListener(
 		        new ExpectedDifferenceListener(DifferenceConstants.NAMESPACE_PREFIX_ID)
 		        );
@@ -648,7 +669,7 @@ public class DiffTest {
 		String test = "<root><node><inner-node>text</inner-node></node></root>";
 
 		// when
-		Diff myDiff = new Diff(control, test);
+		Diff myDiff = prepareDiff(control, test);
 
 		// then
 		assertThat(myDiff.similar()).isFalse();
@@ -663,7 +684,7 @@ public class DiffTest {
 		String test = "<root><node id=\"2\"/><node id=\"1\"/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier("id"));
 
 		// then
@@ -680,7 +701,7 @@ public class DiffTest {
 		String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier("id"));
 
 		// then
@@ -697,7 +718,7 @@ public class DiffTest {
 		String test = "<root><node id=\"2\" val=\"3\"/><node id=\"1\" val=\"4\"/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 
 		// then
@@ -714,7 +735,7 @@ public class DiffTest {
 		String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 
 		// then
@@ -739,7 +760,7 @@ public class DiffTest {
 		                "</root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 		diff.overrideDifferenceListener(
 		        new ExpectedDifferenceListener(
@@ -774,7 +795,7 @@ public class DiffTest {
 		        };
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndTextQualifier());
 		diff.overrideDifferenceListener(delegate);
 
@@ -797,7 +818,7 @@ public class DiffTest {
 		String test = "<root xmlns=\"qwerty\" xmlns:qwerty=\"qwerty\"><qwerty:node/></root>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -871,7 +892,7 @@ public class DiffTest {
 		                "</farm>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 
 		// then
 		assertThat(diff.similar()).isFalse();
@@ -884,7 +905,7 @@ public class DiffTest {
 		String actual = "<a><![CDATA[Hello]]></a>";
 
 		// when
-		Diff diff = new Diff(expected, actual);
+		Diff diff = prepareDiff(expected, actual);
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -901,7 +922,7 @@ public class DiffTest {
 			String test = "<a><![CDATA[Hello]]></a>";
 
 			// when
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 
 			// then
 			assertThat(diff.identical()).isTrue();
@@ -918,13 +939,13 @@ public class DiffTest {
 		String test = "<foo><bar a=\"b\"><!-- test --></bar> </foo>";
 		try {
 			// when
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 			assertThat(diff.identical()).isFalse();
 			assertThat(diff.similar()).isFalse();
 
 			XMLUnit.setIgnoreComments(true);
 
-			diff = new Diff(control, test);
+			diff = prepareDiff(control, test);
 
 			// then
 			assertThat(diff.identical()).isTrue();
@@ -977,17 +998,17 @@ public class DiffTest {
 
 		// when - then
 		// TODO This is ugly, test flow is disturbed - must be changed
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		assertThat(diff.identical()).isFalse();
 		try {
 			XMLUnit.setNormalize(true);
-			diff = new Diff(control, test);
+			diff = prepareDiff(control, test);
 			assertTrue(diff.identical());
 			assertTrue(diff.similar());
 		} finally {
 			XMLUnit.setNormalize(false);
 		}
-		diff = new Diff(control, test);
+		diff = prepareDiff(control, test);
 		assertThat(diff.similar()).isFalse();
 	}
 
@@ -1022,11 +1043,11 @@ public class DiffTest {
 		String test = "<foo>\r\n\ta =\tb; \r\n</foo>";
 		try {
 			// when - then
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 			assertThat(diff.identical()).isFalse();
 			assertThat(diff.similar()).isFalse();
 			XMLUnit.setNormalizeWhitespace(true);
-			diff = new Diff(control, test);
+			diff = prepareDiff(control, test);
 			assertThat(diff.identical()).isTrue();
 			assertThat(diff.similar()).isTrue();
 		} finally {
@@ -1060,7 +1081,7 @@ public class DiffTest {
 		                "</a:Message>";
 
 		// when
-		Diff d = new Diff(control, test);
+		Diff d = prepareDiff(control, test);
 
 		// then
 		assertThat(d.identical()).isFalse();
@@ -1094,7 +1115,7 @@ public class DiffTest {
 		// when
 		XMLUnit.setIgnoreWhitespace(true);
 		try {
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 
 			// then
 			assertThat(diff.identical()).isTrue();
@@ -1122,7 +1143,7 @@ public class DiffTest {
 		XMLUnit.setIgnoreWhitespace(true);
 		try {
 			// when
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 
 			// then
 			assertThat(diff.identical()).isTrue();
@@ -1138,9 +1159,9 @@ public class DiffTest {
 		String test = "<bar xmlns='urn:foo'/>";
 
 		// when
-		Diff controlDiff = new Diff(control, test);
+		Diff controlDiff = prepareDiff(control, test);
 
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideDifferenceListener(
 		        new DifferenceListener() {
 			        public int differenceFound(Difference d) {
@@ -1167,7 +1188,7 @@ public class DiffTest {
 		doNothing().when(mockedTracker).matchFound(any(Difference.class));
 
 		// when
-		Diff diff = new Diff("<foo/>", "<foo/>");
+		Diff diff = prepareDiff("<foo/>", "<foo/>");
 		diff.overrideMatchTracker(mockedTracker);
 
 		// then
@@ -1279,7 +1300,7 @@ public class DiffTest {
 		XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
 		try {
 			// when
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 
 			// then
 			assertThat(diff.similar()).isTrue();
@@ -1304,7 +1325,7 @@ public class DiffTest {
 		String test = "<root>bla&#xD;bla</root>";
 		// XMLUnit.setExpandEntityReferences(true);
 		try {
-			Diff diff = new Diff(control, test);
+			Diff diff = prepareDiff(control, test);
 			assertThat(diff.similar()).isTrue();
 		} finally {
 			XMLUnit.setExpandEntityReferences(false);
@@ -1340,7 +1361,7 @@ public class DiffTest {
 		                "</tag>";
 
 		// when
-		Diff diff = new Diff(control, test);
+		Diff diff = prepareDiff(control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 
 		// then
@@ -1357,19 +1378,11 @@ public class DiffTest {
 		Document testDoc = XMLUnit.buildControlDocument(test);
 
 		// when
-		Diff diff = new Diff(controlDoc, testDoc);
-		Diff reverseDiff = new Diff(testDoc, controlDoc);
+		Diff diff = prepareDiff(controlDoc, testDoc);
+		Diff reverseDiff = prepareDiff(testDoc, controlDoc);
 
 		// then
 		assertThat(diff.identical()).isTrue();
 		assertThat(reverseDiff.identical()).isTrue();
-	}
-
-	private Diff prepareDiff(String control, String test, DifferenceEngineContract engine)
-	        throws SAXException, IOException {
-
-		Document controlDocument = XMLUnit.buildControlDocument(control);
-		Document testDocument = XMLUnit.buildTestDocument(test);
-		return new Diff(controlDocument, testDocument, engine);
 	}
 }
