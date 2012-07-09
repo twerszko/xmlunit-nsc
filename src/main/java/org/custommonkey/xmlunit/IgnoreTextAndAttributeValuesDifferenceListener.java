@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,31 +31,33 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
+import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Node;
 
 /**
- * Class to use when performing a Diff that only compares the 
- * structure of 2 pieces of XML, i.e. where the values of text
- * and attribute nodes should be ignored.
+ * Class to use when performing a Diff that only compares the structure of 2
+ * pieces of XML, i.e. where the values of text and attribute nodes should be
+ * ignored.
+ * 
  * @see Diff#overrideDifferenceListener
  */
 public class IgnoreTextAndAttributeValuesDifferenceListener
-    implements DifferenceListener {
-    private static final int[] IGNORE_VALUES = new int[] {
-        DifferenceConstants.ATTR_VALUE.getId(),
-        DifferenceConstants.ATTR_VALUE_EXPLICITLY_SPECIFIED.getId(),
-        DifferenceConstants.TEXT_VALUE.getId()
+        implements DifferenceListener {
+    private static final DifferenceType[] IGNORE_VALUES = new DifferenceType[] {
+            DifferenceType.ATTR_VALUE,
+            DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+            DifferenceType.TEXT_VALUE
     };
-        
+
     private boolean isIgnoredDifference(Difference difference) {
-        int differenceId = difference.getId();
-        for (int i=0; i < IGNORE_VALUES.length; ++i) {
-            if (differenceId == IGNORE_VALUES[i]) {
+        DifferenceType differenceType = difference.getType();
+        for (int i = 0; i < IGNORE_VALUES.length; ++i) {
+            if (differenceType == IGNORE_VALUES[i]) {
                 return true;
             }
         }
@@ -63,10 +65,9 @@ public class IgnoreTextAndAttributeValuesDifferenceListener
     }
 
     /**
-     * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore 
-     *  differences in values of TEXT or ATTRIBUTE nodes,
-     *  and RETURN_ACCEPT_DIFFERENCE to accept all other 
-     *  differences.
+     * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
+     *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
+     *         to accept all other differences.
      * @see DifferenceListener#differenceFound(Difference)
      */
     public int differenceFound(Difference difference) {
@@ -76,9 +77,10 @@ public class IgnoreTextAndAttributeValuesDifferenceListener
             return RETURN_ACCEPT_DIFFERENCE;
         }
     }
-    
+
     /**
      * Do nothing
+     * 
      * @see DifferenceListener#skippedComparison(Node, Node)
      */
     public void skippedComparison(Node control, Node test) {

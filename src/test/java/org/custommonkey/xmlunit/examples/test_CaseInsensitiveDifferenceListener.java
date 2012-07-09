@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,11 +31,12 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 package org.custommonkey.xmlunit.examples;
 
 import java.util.Locale;
+
 import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.Diff;
@@ -53,18 +54,19 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
     public void testCaseInsensitive() throws Exception {
         String control = getDoc(ATTR, CDATA, CMMT, TEXT);
         String test = getDoc(ATTR.toUpperCase(Locale.US),
-                             CDATA.toUpperCase(Locale.US),
-                             CMMT.toUpperCase(Locale.US),
-                             TEXT.toUpperCase(Locale.US));
+                CDATA.toUpperCase(Locale.US),
+                CMMT.toUpperCase(Locale.US),
+                TEXT.toUpperCase(Locale.US));
         Diff d = new Diff(control, test);
 
         CaseInsensitiveDifferenceListener c =
-            new CaseInsensitiveDifferenceListener(new DifferenceListener() {
+                new CaseInsensitiveDifferenceListener(new DifferenceListener() {
                     public int differenceFound(Difference d) {
                         fail("differenceFound shouldn't get invoked, but"
-                             + " was with type " + d.getId());
+                                + " was with type " + d.getType());
                         return -42;
                     }
+
                     public void skippedComparison(Node c, Node t) {
                         fail("skippedComparison shouldn't get invoked");
                     }
@@ -75,9 +77,9 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
     }
 
     private static String getDoc(String attr, String cdata, String comment,
-                                 String text) {
+            String text) {
         return "<root><first attr=\"" + attr + "\"/><!--" + comment + "-->"
-            + "<second><![CDATA[" + cdata + "]]></second><third>" + text
-            + "</third></root>";
+                + "<second><![CDATA[" + cdata + "]]></second><third>" + text
+                + "</third></root>";
     }
 }

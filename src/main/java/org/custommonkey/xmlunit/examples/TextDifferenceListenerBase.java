@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,24 +31,25 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 package org.custommonkey.xmlunit.examples;
 
 import org.custommonkey.xmlunit.Difference;
-import org.custommonkey.xmlunit.DifferenceConstants;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.w3c.dom.Node;
 
 /**
  * Base class that delegates all differences to another DifferenceListener.
- *
- * <p>Subclasses get a chance to hook into special methods that will
- * be invoked for differences in textual values of attributes, CDATA
- * sections, Text or comment nodes.</p>
+ * 
+ * <p>
+ * Subclasses get a chance to hook into special methods that will be invoked for
+ * differences in textual values of attributes, CDATA sections, Text or comment
+ * nodes.
+ * </p>
  */
 public abstract class TextDifferenceListenerBase
-    implements DifferenceListener {
+        implements DifferenceListener {
 
     private final DifferenceListener delegateTo;
 
@@ -57,26 +58,25 @@ public abstract class TextDifferenceListenerBase
     }
 
     /**
-     * Delegates to the nested DifferenceListener unless the
-     * Difference is of type {@link DifferenceConstants#ATTR_VALUE_ID
-     * ATTR_VALUE_ID}, {@link DifferenceConstants#CDATA_VALUE_ID
-     * CDATA_VALUE_ID}, {@link DifferenceConstants#COMMENT_VALUE_ID
-     * COMMENT_VALUE_ID} or {@link DifferenceConstants#TEXT_VALUE_ID
-     * TEXT_VALUE_ID} - for those special differences {@link
-     * #attributeDifference attributeDifference}, {@link
-     * #cdataDifference cdataDifference}, {@link #commentDifference
-     * commentDifference} or {@link #textDifference textDifference}
-     * are invoked respectively.
+     * Delegates to the nested DifferenceListener unless the Difference is of
+     * type {@link DifferenceConstants#ATTR_VALUE_ID ATTR_VALUE_ID},
+     * {@link DifferenceConstants#CDATA_VALUE_ID CDATA_VALUE_ID},
+     * {@link DifferenceConstants#COMMENT_VALUE_ID COMMENT_VALUE_ID} or
+     * {@link DifferenceConstants#TEXT_VALUE_ID TEXT_VALUE_ID} - for those
+     * special differences {@link #attributeDifference attributeDifference},
+     * {@link #cdataDifference cdataDifference}, {@link #commentDifference
+     * commentDifference} or {@link #textDifference textDifference} are invoked
+     * respectively.
      */
     public int differenceFound(Difference difference) {
-        switch (difference.getId()) {
-        case DifferenceConstants.ATTR_VALUE_ID:
+        switch (difference.getType()) {
+        case ATTR_VALUE:
             return attributeDifference(difference);
-        case DifferenceConstants.CDATA_VALUE_ID:
+        case CDATA_VALUE:
             return cdataDifference(difference);
-        case DifferenceConstants.COMMENT_VALUE_ID:
+        case COMMENT_VALUE:
             return commentDifference(difference);
-        case DifferenceConstants.TEXT_VALUE_ID:
+        case TEXT_VALUE:
             return textDifference(difference);
         }
         return delegateTo.differenceFound(difference);

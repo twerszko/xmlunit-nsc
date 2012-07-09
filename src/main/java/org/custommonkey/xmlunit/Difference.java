@@ -1,19 +1,21 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
+
+Modified 2012 by Tomasz Werszko
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,73 +33,66 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
+import org.custommonkey.xmlunit.diff.DifferenceType;
 
 /**
- * Value object that describes a difference between DOM Nodes using one of
- * the DifferenceConstants ID values and a NodeDetail instance.
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * Value object that describes a difference between DOM Nodes using one of the
+ * DifferenceType values and a NodeDetail instance. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 
  * @see NodeDetail
  */
 public class Difference {
     /** Simple unique identifier */
-    private final int id;
-    /** Description of the difference */
-    private final String description;
+    private final DifferenceType type;
     /** TRUE if the difference represents a similarity, FALSE otherwise */
     private boolean recoverable;
-    
+
     private NodeDetail controlNodeDetail = null;
     private NodeDetail testNodeDetail = null;
 
     /**
      * Constructor for non-similar Difference instances
-     * @param id
-     * @param description
+     * 
+     * @param type
      */
-    protected Difference(int id, String description) {
-        this(id, description, false);
+    protected Difference(DifferenceType type) {
+        this.type = type;
+        this.recoverable = type.isRecoverable();
     }
 
     /**
-     * Constructor for similar Difference instances
-     * @param id
-     * @param description
+     * Copy constructor using prototype Difference and encountered NodeDetails
      */
-    protected Difference(int id, String description, boolean recoverable) {
-        this.id = id;
-        this.description = description;
-        this.recoverable = recoverable;
-    }
-    
+    protected Difference(
+            Difference prototype,
+            NodeDetail controlNodeDetail,
+            NodeDetail testNodeDetail) {
 
-    /**
-     * Copy constructor using prototype Difference and
-     * encountered NodeDetails
-     */
-    protected Difference(Difference prototype, NodeDetail controlNodeDetail,
-                         NodeDetail testNodeDetail) {
-        this(prototype.getId(), prototype.getDescription(), prototype.isRecoverable());
+        this(prototype.getType());
+        this.setRecoverable(prototype.isRecoverable());
         this.controlNodeDetail = controlNodeDetail;
         this.testNodeDetail = testNodeDetail;
     }
-    
+
     /**
-     * @return the id
+     * @return the difference type
      */
-    public int getId() {
-        return id;
+    public DifferenceType getType() {
+        return this.type;
     }
 
     /**
      * @return the description
      */
     public String getDescription() {
-        return description;
+        return type.getDescription();
     }
 
     /**
@@ -106,42 +101,41 @@ public class Difference {
     public boolean isRecoverable() {
         return recoverable;
     }
-    
+
     /**
-     * Allow the recoverable field value to be overridden.
-     * Used when an override DifferenceListener is used in conjunction with
-     * a DetailedDiff.
+     * Allow the recoverable field value to be overridden. Used when an override
+     * DifferenceListener is used in conjunction with a DetailedDiff.
      */
     protected void setRecoverable(boolean overrideValue) {
         recoverable = overrideValue;
     }
-    
+
     /**
-     * @return the NodeDetail from the piece of XML used as the control 
-     * at the Node where this difference was encountered
+     * @return the NodeDetail from the piece of XML used as the control at the
+     *         Node where this difference was encountered
      */
     public NodeDetail getControlNodeDetail() {
         return controlNodeDetail;
     }
 
     /**
-     * @return the NodeDetail from the piece of XML used as the test
-     * at the Node where this difference was encountered
+     * @return the NodeDetail from the piece of XML used as the test at the Node
+     *         where this difference was encountered
      */
     public NodeDetail getTestNodeDetail() {
         return testNodeDetail;
     }
-    
+
     /**
-     * Now that Differences can be constructed from prototypes
-     * we need to be able to compare them to those in DifferenceConstants
+     * Now that Differences can be constructed from prototypes we need to be
+     * able to compare them to those in DifferenceConstants
      */
     public boolean equals(Object other) {
         if (other == null) {
             return false;
         } else if (other instanceof Difference) {
             Difference otherDifference = (Difference) other;
-            return id == otherDifference.getId();
+            return type == otherDifference.getType();
         } else {
             return false;
         }
@@ -151,13 +145,13 @@ public class Difference {
      * hashcode implementation to go with equals.
      */
     public int hashCode() {
-        return id;
+        return type.hashCode();
     }
 
     /**
-     * @return a basic representation of the object state and identity
-     * and if <code>NodeDetail</code> instances are populated append 
-     * their details also
+     * @return a basic representation of the object state and identity and if
+     *         <code>NodeDetail</code> instances are populated append their
+     *         details also
      */
     public String toString() {
         StringBuffer buf = new StringBuffer();
@@ -168,17 +162,17 @@ public class Difference {
         }
         return buf.toString();
     }
-    
+
     private void appendBasicRepresentation(StringBuffer buf) {
-        buf.append("Difference (#").append(id).
-            append(") ").append(description);
+        buf.append("Difference (#").append(type).
+                append(") ").append(type.getDescription());
     }
-    
+
     private void appendDetailedRepresentation(StringBuffer buf) {
         buf.append("Expected ").append(getDescription())
-            .append(" '").append(controlNodeDetail.getValue())
-            .append("' but was '").append(testNodeDetail.getValue())
-            .append("' - comparing ");
+                .append(" '").append(controlNodeDetail.getValue())
+                .append("' but was '").append(testNodeDetail.getValue())
+                .append("' - comparing ");
         NodeDescriptor.appendNodeDetail(buf, controlNodeDetail);
         buf.append(" to ");
         NodeDescriptor.appendNodeDetail(buf, testNodeDetail);

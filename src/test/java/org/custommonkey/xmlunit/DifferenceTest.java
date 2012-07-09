@@ -42,6 +42,7 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.util.List;
 
+import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,111 +52,111 @@ import org.xml.sax.SAXException;
  * @author TimBacon
  */
 public class DifferenceTest {
-	private final Difference ORIGINAL = DifferenceConstants.ATTR_NAME_NOT_FOUND;
+    private final Difference ORIGINAL = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
 
-	@Test
-	public void should_check_defensive_constructor() {
-		// given
-		Difference difference = new Difference(ORIGINAL, null, null);
+    @Test
+    public void should_check_defensive_constructor() {
+        // given
+        Difference difference = new Difference(ORIGINAL, null, null);
 
-		// then
-		assertThat(difference.getId()).isEqualTo(ORIGINAL.getId());
-		assertThat(difference.getDescription()).isEqualTo(ORIGINAL.getDescription());
-		assertThat(difference.isRecoverable()).isEqualTo(ORIGINAL.isRecoverable());
+        // then
+        assertThat(difference.getType()).isEqualTo(ORIGINAL.getType());
+        assertThat(difference.getDescription()).isEqualTo(ORIGINAL.getDescription());
+        assertThat(difference.isRecoverable()).isEqualTo(ORIGINAL.isRecoverable());
 
-		assertThat(ORIGINAL.isRecoverable()).isFalse();
-		difference.setRecoverable(true);
-		assertThat(ORIGINAL.isRecoverable()).isNotEqualTo(difference.isRecoverable());
-	}
+        assertThat(ORIGINAL.isRecoverable()).isFalse();
+        difference.setRecoverable(true);
+        assertThat(ORIGINAL.isRecoverable()).isNotEqualTo(difference.isRecoverable());
+    }
 
-	@Test
-	public void should_check_equals() {
-		// given
-		Difference difference = new Difference(ORIGINAL, null, null);
+    @Test
+    public void should_check_equals() {
+        // given
+        Difference difference = new Difference(ORIGINAL, null, null);
 
-		// then
-		assertThat(difference).isNotEqualTo(null);
-		assertFalse(difference.equals("aString"));
-		assertThat(difference).isEqualTo(ORIGINAL);
-		assertThat(difference).isEqualTo(difference);
-	}
+        // then
+        assertThat(difference).isNotEqualTo(null);
+        assertFalse(difference.equals("aString"));
+        assertThat(difference).isEqualTo(ORIGINAL);
+        assertThat(difference).isEqualTo(difference);
+    }
 
-	@Test
-	public void should_check_toString() {
-		// given
-		Difference attrNameNotFound = DifferenceConstants.ATTR_NAME_NOT_FOUND;
+    @Test
+    public void should_check_toString() {
+        // given
+        Difference attrNameNotFound = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
 
-		String originalAsString =
-		        "Difference (#" + attrNameNotFound.getId() + ") " +
-		                attrNameNotFound.getDescription();
+        String originalAsString =
+                "Difference (#" + attrNameNotFound.getType() + ") " +
+                        attrNameNotFound.getDescription();
 
-		// then
-		assertThat(attrNameNotFound.toString()).isEqualTo(originalAsString);
-	}
+        // then
+        assertThat(attrNameNotFound.toString()).isEqualTo(originalAsString);
+    }
 
-	@Test
-	public void should_check_toString2() {
-		// given
-		Document document = XMLUnit.newControlParser().newDocument();
-		Node controlNode = document.createComment("control");
-		NodeDetail controlNodeDetail = new NodeDetail(
-		        controlNode.getNodeValue(),
-		        controlNode,
-		        "/testToString/comment()");
-		Node testNode = document.createComment("test");
-		NodeDetail testNodeDetail = new NodeDetail(
-		        testNode.getNodeValue(),
-		        testNode,
-		        "/testToString/comment()");
+    @Test
+    public void should_check_toString2() {
+        // given
+        Document document = XMLUnit.newControlParser().newDocument();
+        Node controlNode = document.createComment("control");
+        NodeDetail controlNodeDetail = new NodeDetail(
+                controlNode.getNodeValue(),
+                controlNode,
+                "/testToString/comment()");
+        Node testNode = document.createComment("test");
+        NodeDetail testNodeDetail = new NodeDetail(
+                testNode.getNodeValue(),
+                testNode,
+                "/testToString/comment()");
 
-		Difference difference = new Difference(
-		        DifferenceConstants.COMMENT_VALUE,
-		        controlNodeDetail,
-		        testNodeDetail);
-		StringBuffer buf = new StringBuffer("Expected ")
-		        .append(DifferenceConstants.COMMENT_VALUE.getDescription())
-		        .append(" 'control' but was 'test' - comparing ");
+        Difference difference = new Difference(
+                new Difference(DifferenceType.COMMENT_VALUE),
+                controlNodeDetail,
+                testNodeDetail);
+        StringBuffer buf = new StringBuffer("Expected ")
+                .append(DifferenceType.COMMENT_VALUE.getDescription())
+                .append(" 'control' but was 'test' - comparing ");
 
-		NodeDescriptor.appendNodeDetail(buf, controlNodeDetail);
-		buf.append(" to ");
+        NodeDescriptor.appendNodeDetail(buf, controlNodeDetail);
+        buf.append(" to ");
 
-		NodeDescriptor.appendNodeDetail(buf, testNodeDetail);
+        NodeDescriptor.appendNodeDetail(buf, testNodeDetail);
 
-		// then
-		assertThat(difference.toString()).isEqualTo(buf.toString());
-	}
+        // then
+        assertThat(difference.toString()).isEqualTo(buf.toString());
+    }
 
-	// bug 2386807
-	@Test
-	public void should_check_xpath_of_missing_attribute() throws SAXException, IOException {
-		// given
-		String control = "<foo><bar a=\"x\" y=\"z\"/></foo>";
-		String test = "<foo><bar a=\"x\"/></foo>";
-		Diff diff = new Diff(control, test);
-		DetailedDiff detailedDiff = new DetailedDiff(diff);
+    // bug 2386807
+    @Test
+    public void should_check_xpath_of_missing_attribute() throws SAXException, IOException {
+        // given
+        String control = "<foo><bar a=\"x\" y=\"z\"/></foo>";
+        String test = "<foo><bar a=\"x\"/></foo>";
+        Diff diff = new Diff(control, test);
+        DetailedDiff detailedDiff = new DetailedDiff(diff);
 
-		// when
-		List<Difference> diffs = detailedDiff.getAllDifferences();
+        // when
+        List<Difference> diffs = detailedDiff.getAllDifferences();
 
-		Difference difference1 = diffs.get(0);
-		String controlXpathLocation1 = difference1.getControlNodeDetail().getXpathLocation();
-		String testXpathLocation1 = difference1.getTestNodeDetail().getXpathLocation();
+        Difference difference1 = diffs.get(0);
+        String controlXpathLocation1 = difference1.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation1 = difference1.getTestNodeDetail().getXpathLocation();
 
-		Difference difference2 = diffs.get(1);
-		String controlXpathLocation2 = difference2.getControlNodeDetail().getXpathLocation();
-		String testXpathLocation2 = difference2.getTestNodeDetail().getXpathLocation();
+        Difference difference2 = diffs.get(1);
+        String controlXpathLocation2 = difference2.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation2 = difference2.getTestNodeDetail().getXpathLocation();
 
-		// then
-		assertThat(diffs).hasSize(2);
+        // then
+        assertThat(diffs).hasSize(2);
 
-		assertThat(difference1.getId())
-		        .isEqualTo(DifferenceConstants.ELEMENT_NUM_ATTRIBUTES_ID);
-		assertThat(controlXpathLocation1).isEqualTo("/foo[1]/bar[1]");
-		assertThat(testXpathLocation1).isEqualTo("/foo[1]/bar[1]");
+        assertThat(difference1.getType())
+                .isEqualTo(DifferenceType.ELEMENT_NUM_ATTRIBUTES);
+        assertThat(controlXpathLocation1).isEqualTo("/foo[1]/bar[1]");
+        assertThat(testXpathLocation1).isEqualTo("/foo[1]/bar[1]");
 
-		assertThat(difference2.getId())
-		        .isEqualTo(DifferenceConstants.ATTR_NAME_NOT_FOUND_ID);
-		assertThat(controlXpathLocation2).isEqualTo("/foo[1]/bar[1]/@y");
-		assertThat(testXpathLocation2).isEqualTo("/foo[1]/bar[1]");
-	}
+        assertThat(difference2.getType())
+                .isEqualTo(DifferenceType.ATTR_NAME_NOT_FOUND);
+        assertThat(controlXpathLocation2).isEqualTo("/foo[1]/bar[1]/@y");
+        assertThat(testXpathLocation2).isEqualTo("/foo[1]/bar[1]");
+    }
 }
