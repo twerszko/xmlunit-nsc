@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 200, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,67 +31,68 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
-import junit.framework.TestSuite;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlDocument;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Document;
 
 /**
  * JUnit test for HTMLDocumentBuilder
  */
-public class test_HTMLDocumentBuilder extends XMLTestCase {
+public class test_HTMLDocumentBuilder {
     private static final String xHtml =
-        "<html><head><title>test</title></head>" +
-        "<body><h1>hello</h1><p>world</p><hr/><div><img src=\"foo.bar\"/>" +
-        "<ul><li>one</li><li>two</li></ul></div></body></html>";
+            "<html><head><title>test</title></head>" +
+                    "<body><h1>hello</h1><p>world</p><hr/><div><img src=\"foo.bar\"/>" +
+                    "<ul><li>one</li><li>two</li></ul></div></body></html>";
     private Document xHtmlDocument;
     private HTMLDocumentBuilder parser;
     private TolerantSaxDocumentBuilder builder;
 
-    public void testParseGoodHtml() throws Exception {
-        assertParsedDocumentEqual(xHtmlDocument, xHtml);
-        assertEquals(parser.getTrace(),-1, parser.getTrace().indexOf("WARNING"));
-    }
-
-    public void testParseOldHtml() throws Exception {
-        String oldHTML=
-            "<html><head><title>test</title></head>" +
-            "<body><h1>hello</h1><p>world<hr><div><img src=\"foo.bar\">" +
-            "<ul><li>one<li>two</ul></div></body></html>";
-        assertParsedDocumentEqual(xHtmlDocument, oldHTML);
-        assertEquals(parser.getTrace(),-1, parser.getTrace().indexOf("WARNING"));
-    }
-
-    public void testParsePoorHtml() throws Exception {
-        String poorHTML=
-            "<html><head><title>test</title></head>" +
-            "<body><h1>hello</h1><p>world<hr><div><img src=\"foo.bar\">" +
-            "<ul><li>one<li>two";
-        assertParsedDocumentEqual(xHtmlDocument, poorHTML);
-        assertEquals(parser.getTrace(),-1, parser.getTrace().indexOf("WARNING"));
-    }
-
-    private void assertParsedDocumentEqual(Document control, String test)
-        throws Exception {
-        assertXMLEqual(control, parser.parse(test));
-    }
-
-    public test_HTMLDocumentBuilder(String name) {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
         xHtmlDocument = XMLUnit.buildControlDocument(xHtml);
         builder = new TolerantSaxDocumentBuilder(XMLUnit.newTestParser());
         parser = new HTMLDocumentBuilder(builder);
-
     }
-    public static TestSuite suite() {
-        return new TestSuite(test_HTMLDocumentBuilder.class);
+
+    @Test
+    public void testParseGoodHtml() throws Exception {
+        assertParsedDocumentEqual(xHtmlDocument, xHtml);
+        assertThat(parser.getTrace().indexOf("WARNING")).isEqualTo(-1);
+    }
+
+    @Test
+    public void testParseOldHtml() throws Exception {
+        String oldHTML =
+                "<html><head><title>test</title></head>" +
+                        "<body><h1>hello</h1><p>world<hr><div><img src=\"foo.bar\">" +
+                        "<ul><li>one<li>two</ul></div></body></html>";
+        assertParsedDocumentEqual(xHtmlDocument, oldHTML);
+        assertThat(parser.getTrace().indexOf("WARNING")).isEqualTo(-1);
+    }
+
+    @Test
+    public void testParsePoorHtml() throws Exception {
+        String poorHTML =
+                "<html><head><title>test</title></head>" +
+                        "<body><h1>hello</h1><p>world<hr><div><img src=\"foo.bar\">" +
+                        "<ul><li>one<li>two";
+        assertParsedDocumentEqual(xHtmlDocument, poorHTML);
+        assertThat(parser.getTrace().indexOf("WARNING")).isEqualTo(-1);
+    }
+
+    private void assertParsedDocumentEqual(Document control, String test)
+            throws Exception {
+
+        assertThat(parser.parse(test), is(equalToXmlDocument(control)));
     }
 }
-

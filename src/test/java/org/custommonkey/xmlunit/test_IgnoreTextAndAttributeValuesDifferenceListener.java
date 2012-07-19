@@ -127,7 +127,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
         String control = "<clouds><cloud name=\"cumulus\" rain=\"maybe\">fluffy</cloud></clouds>";
         String similarTest = "<clouds><cloud name=\"cirrus\" rain=\"no\">wispy</cloud></clouds>";
 
-        Diff diff = new Diff(control, similarTest);
+        Diff diff = new Diff(new XMLUnitProperties(), control, similarTest);
         diff.overrideDifferenceListener(listener);
         assertTrue("similar " + diff.toString(),
                 diff.similar());
@@ -135,18 +135,18 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
                 !diff.identical());
 
         DetailedDiff detailedDiff = new DetailedDiff(
-                new Diff(control, similarTest));
+                new Diff(new XMLUnitProperties(), control, similarTest));
         assertEquals("2 attribute and 1 text values",
                 3, detailedDiff.getAllDifferences().size());
 
         String dissimilarTest = "<clouds><cloud name=\"nimbus\"/></clouds>";
-        Diff dissimilarDiff = new Diff(control, dissimilarTest);
+        Diff dissimilarDiff = new Diff(new XMLUnitProperties(), control, dissimilarTest);
         dissimilarDiff.overrideDifferenceListener(listener);
         assertTrue("not similar " + dissimilarDiff.toString(),
                 !dissimilarDiff.similar());
 
         DetailedDiff dissimilarDetailedDiff = new DetailedDiff(
-                new Diff(control, dissimilarTest));
+                new Diff(new XMLUnitProperties(), control, dissimilarTest));
         dissimilarDetailedDiff.overrideDifferenceListener(listener);
         List differences = dissimilarDetailedDiff.getAllDifferences();
         assertEquals(
@@ -174,7 +174,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
                 + "<street-address>20 east cheap</street-address>"
                 + "</location>";
 
-        Diff d = new Diff(xmlString1, xmlString2);
+        Diff d = new Diff(new XMLUnitProperties(), xmlString1, xmlString2);
         d.overrideDifferenceListener(listener);
         assertFalse(d.similar());
         assertTrue("postcode was matched against postcode1",

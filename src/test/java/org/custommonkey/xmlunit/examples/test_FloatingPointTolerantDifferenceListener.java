@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
+import org.custommonkey.xmlunit.XMLUnitProperties;
 import org.w3c.dom.Node;
 
 public class test_FloatingPointTolerantDifferenceListener extends TestCase {
@@ -47,7 +48,7 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
     public void testFloatingPointTolerance() throws Exception {
         String control = "<foo value=\"2.718281828\"/>";
         String test = "<foo value=\"2.71\"/>";
-        Diff d = new Diff(control, test);
+        Diff d = new Diff(new XMLUnitProperties(), control, test);
 
         FloatingPointTolerantDifferenceListener c =
                 new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
@@ -77,7 +78,7 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
             }
         }, 1e-3);
 
-        d = new Diff(control, test);
+        d = new Diff(new XMLUnitProperties(), control, test);
         d.overrideDifferenceListener(c);
         assertFalse(d.identical());
     }

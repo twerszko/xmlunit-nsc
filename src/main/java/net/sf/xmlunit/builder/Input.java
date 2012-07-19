@@ -10,25 +10,26 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.builder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
+
 import net.sf.xmlunit.exceptions.XMLUnitException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -46,9 +47,11 @@ public class Input {
 
     private static class DOMBuilder implements Builder {
         private final Source source;
+
         private DOMBuilder(Node d) {
             source = new DOMSource(d);
         }
+
         public Source build() {
             assert source != null;
             return source;
@@ -71,20 +74,25 @@ public class Input {
 
     private static class StreamBuilder implements Builder {
         private final Source source;
+
         private StreamBuilder(File f) {
             source = new StreamSource(f);
         }
+
         private StreamBuilder(InputStream s) {
             source = new StreamSource(s);
         }
+
         private StreamBuilder(Reader r) {
             source = new StreamSource(r);
         }
+
         void setSystemId(String id) {
             if (id != null) {
                 source.setSystemId(id);
             }
         }
+
         public Source build() {
             assert source != null;
             return source;
@@ -150,7 +158,7 @@ public class Input {
                     }
                 }
                 StreamBuilder b =
-                    (StreamBuilder) fromMemory(baos.toByteArray());
+                        (StreamBuilder) fromMemory(baos.toByteArray());
                 try {
                     b.setSystemId(url.toURI().toString());
                 } catch (URISyntaxException use) {
@@ -171,32 +179,36 @@ public class Input {
 
     /**
      * Build a Source from an URI.
-     * @param uri must represent a valid URL
+     * 
+     * @param uri
+     *            must represent a valid URL
      */
     public static Builder fromURI(URI uri) {
         try {
             return fromURL(uri.toURL());
         } catch (java.net.MalformedURLException ex) {
             throw new IllegalArgumentException("uri " + uri + " is not an URL",
-                                               ex);
+                    ex);
         }
     }
 
     /**
      * Build a Source from an URI.
-     * @param uri must represent a valid URL
+     * 
+     * @param uri
+     *            must represent a valid URL
      */
     public static Builder fromURI(String uri) {
         try {
             return fromURI(new URI(uri));
         } catch (java.net.URISyntaxException ex) {
             throw new IllegalArgumentException("uri " + uri + " is not an URI",
-                                               ex);
+                    ex);
         }
     }
 
     public static interface TransformationBuilder
-        extends TransformationBuilderBase<TransformationBuilder>, Builder {
+            extends TransformationBuilderBase<TransformationBuilder>, Builder {
         /**
          * Sets the stylesheet to use.
          */
@@ -204,15 +216,17 @@ public class Input {
     }
 
     private static class Transformation
-        extends AbstractTransformationBuilder<TransformationBuilder>
-        implements TransformationBuilder {
+            extends AbstractTransformationBuilder<TransformationBuilder>
+            implements TransformationBuilder {
 
         private Transformation(Source s) {
             super(s);
         }
+
         public TransformationBuilder withStylesheet(Builder b) {
             return withStylesheet(b.build());
         }
+
         public Source build() {
             return new DOMSource(getHelper().transformToDocument());
         }

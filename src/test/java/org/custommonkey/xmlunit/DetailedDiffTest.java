@@ -51,6 +51,7 @@ import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -64,28 +65,38 @@ import org.xml.sax.SAXException;
 public class DetailedDiffTest extends DiffTest {
 
     @Override
-    protected Diff prepareDiff(Document control, Document test) {
-        return new DetailedDiff(super.prepareDiff(control, test));
+    protected Diff prepareDiff(XMLUnitProperties properties, Document control, Document test) {
+        return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 
     @Override
-    protected Diff prepareDiff(String control, String test) throws SAXException, IOException {
-        return new DetailedDiff(super.prepareDiff(control, test));
+    protected Diff prepareDiff(XMLUnitProperties properties, String control, String test) throws SAXException,
+            IOException {
+        return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 
     @Override
-    protected Diff prepareDiff(Reader control, Reader test) throws SAXException, IOException {
-        return new DetailedDiff(super.prepareDiff(control, test));
+    protected Diff prepareDiff(XMLUnitProperties properties, Reader control, Reader test) throws SAXException,
+            IOException {
+        return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 
     @Override
     protected Diff prepareDiff(
+            XMLUnitProperties properties,
             String control,
             String test,
             DifferenceEngineContract engine)
             throws SAXException, IOException {
 
-        return new DetailedDiff(super.prepareDiff(control, test, engine));
+        return new DetailedDiff(super.prepareDiff(properties, control, test, engine));
+    }
+
+    private XMLUnitProperties properties;
+
+    @Before
+    public void before() {
+        properties = new XMLUnitProperties();
     }
 
     @Test
@@ -99,7 +110,7 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new Diff(firstForecast, secondForecast);
+        Diff multipleDifferences = new Diff(properties, firstForecast, secondForecast);
         DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
         List<Difference> differences = detailedDiff.getAllDifferences();
 
@@ -123,7 +134,7 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new Diff(secondForecast, firstForecast);
+        Diff multipleDifferences = new Diff(properties, secondForecast, firstForecast);
         DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
         List<Difference> differences = detailedDiff.getAllDifferences();
 
@@ -147,7 +158,7 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new Diff(firstForecast, secondForecast);
+        Diff multipleDifferences = new Diff(properties, firstForecast, secondForecast);
         DetailedDiff detailedDiff = new DetailedDiff(new DetailedDiff(multipleDifferences));
         List<Difference> differences = detailedDiff.getAllDifferences();
 
@@ -168,46 +179,42 @@ public class DetailedDiffTest extends DiffTest {
         control = TestResources.DETAIL_CONTROL.getFile();
         test = TestResources.DETAIL_TEST.getFile();
 
-        try {
-            XMLUnit.setIgnoreWhitespace(true);
-            Diff prototype =
-                    new Diff(new FileReader(control), new FileReader(test));
-            DetailedDiff detailedDiff = new DetailedDiff(prototype);
-            List<Difference> differences = detailedDiff.getAllDifferences();
+        properties.setIgnoreWhitespace(true);
+        Diff prototype =
+                new Diff(properties, new FileReader(control), new FileReader(test));
+        DetailedDiff detailedDiff = new DetailedDiff(prototype);
+        List<Difference> differences = detailedDiff.getAllDifferences();
 
-            SimpleXpathEngine xpathEngine = new SimpleXpathEngine();
-            Document controlDoc =
-                    XMLUnit.buildControlDocument(
-                            new InputSource(new FileReader(control)));
-            Document testDoc =
-                    XMLUnit.buildTestDocument(
-                            new InputSource(new FileReader(test)));
+        SimpleXpathEngine xpathEngine = new SimpleXpathEngine();
+        Document controlDoc =
+                XMLUnit.buildControlDocument(
+                        new InputSource(new FileReader(control)));
+        Document testDoc =
+                XMLUnit.buildTestDocument(
+                        new InputSource(new FileReader(test)));
 
-            // TODO: reduce this mess
-            String value;
-            for (Difference difference : differences) {
+        // TODO: reduce this mess
+        String value;
+        for (Difference difference : differences) {
 
-                if (difference.equals(new Difference(DifferenceType.ATTR_VALUE))
-                        || difference.equals(new Difference(DifferenceType.CDATA_VALUE))
-                        || difference.equals(new Difference(DifferenceType.COMMENT_VALUE))
-                        || difference.equals(new Difference(DifferenceType.ELEMENT_TAG_NAME))
-                        || difference.equals(new Difference(DifferenceType.TEXT_VALUE))) {
+            if (difference.equals(new Difference(DifferenceType.ATTR_VALUE))
+                    || difference.equals(new Difference(DifferenceType.CDATA_VALUE))
+                    || difference.equals(new Difference(DifferenceType.COMMENT_VALUE))
+                    || difference.equals(new Difference(DifferenceType.ELEMENT_TAG_NAME))
+                    || difference.equals(new Difference(DifferenceType.TEXT_VALUE))) {
 
-                    expr = difference.getControlNodeDetail().getXpathLocation();
-                    if (expr != null && expr.length() > 0) {
-                        value = xpathEngine.evaluate(expr, controlDoc);
-                        assertThat(difference.getControlNodeDetail().getValue()).isEqualTo(value);
-                    }
+                expr = difference.getControlNodeDetail().getXpathLocation();
+                if (expr != null && expr.length() > 0) {
+                    value = xpathEngine.evaluate(expr, controlDoc);
+                    assertThat(difference.getControlNodeDetail().getValue()).isEqualTo(value);
+                }
 
-                    expr = difference.getTestNodeDetail().getXpathLocation();
-                    if (expr != null && expr.length() > 0) {
-                        value = xpathEngine.evaluate(expr, testDoc);
-                        assertThat(difference.getTestNodeDetail().getValue()).isEqualTo(value);
-                    }
+                expr = difference.getTestNodeDetail().getXpathLocation();
+                if (expr != null && expr.length() > 0) {
+                    value = xpathEngine.evaluate(expr, testDoc);
+                    assertThat(difference.getTestNodeDetail().getValue()).isEqualTo(value);
                 }
             }
-        } finally {
-            XMLUnit.setIgnoreWhitespace(false);
         }
     }
 
@@ -220,7 +227,7 @@ public class DetailedDiffTest extends DiffTest {
         String test = "<a><c/></a>";
 
         // when
-        Diff d = new Diff(control, test);
+        Diff d = new Diff(properties, control, test);
         DetailedDiff dd = new DetailedDiff(d);
 
         List<Difference> differences = dd.getAllDifferences();
@@ -240,7 +247,7 @@ public class DetailedDiffTest extends DiffTest {
         String test = "<a><c/></a>";
 
         // when
-        Diff diff = new Diff(control, test);
+        Diff diff = new Diff(properties, control, test);
         diff.similar();
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -281,7 +288,7 @@ public class DetailedDiffTest extends DiffTest {
                         "</table>";
 
         // when
-        DetailedDiff diff = new DetailedDiff(new Diff(control, test));
+        DetailedDiff diff = new DetailedDiff(new Diff(properties, control, test));
         List<Difference> differences = diff.getAllDifferences();
 
         // then
@@ -320,27 +327,23 @@ public class DetailedDiffTest extends DiffTest {
                         "</books>";
 
         // when
-        XMLUnit.setIgnoreWhitespace(true);
-        try {
-            Diff diff = new Diff(control, test);
-            diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-            DetailedDiff detailedDiff = new DetailedDiff(diff);
-            List<Difference> differences = detailedDiff.getAllDifferences();
+        properties.setIgnoreWhitespace(true);
+        Diff diff = new Diff(properties, control, test);
+        diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
+        DetailedDiff detailedDiff = new DetailedDiff(diff);
+        List<Difference> differences = detailedDiff.getAllDifferences();
 
-            // (0) number of children, (1) order different, (2) node not found
-            Difference difference = differences.get(2);
-            String controlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
-            String testXpathLocation = difference.getTestNodeDetail().getXpathLocation();
+        // (0) number of children, (1) order different, (2) node not found
+        Difference difference = differences.get(2);
+        String controlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation = difference.getTestNodeDetail().getXpathLocation();
 
-            // then
-            assertThat(differences).hasSize(3);
-            assertThat(difference.getType())
-                    .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
-            assertThat(controlXpathLocation).isEqualTo("/books[1]/book[1]");
-            assertThat(testXpathLocation).isNull();
-        } finally {
-            XMLUnit.setIgnoreWhitespace(false);
-        }
+        // then
+        assertThat(differences).hasSize(3);
+        assertThat(difference.getType())
+                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+        assertThat(controlXpathLocation).isEqualTo("/books[1]/book[1]");
+        assertThat(testXpathLocation).isNull();
     }
 
     @Test
@@ -363,27 +366,23 @@ public class DetailedDiffTest extends DiffTest {
                         "</books>";
 
         // when
-        XMLUnit.setIgnoreWhitespace(true);
-        try {
-            Diff diff = new Diff(test, control);
-            diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-            DetailedDiff detailedDiff = new DetailedDiff(diff);
-            List<Difference> differences = detailedDiff.getAllDifferences();
+        properties.setIgnoreWhitespace(true);
+        Diff diff = new Diff(properties, test, control);
+        diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
+        DetailedDiff detailedDiff = new DetailedDiff(diff);
+        List<Difference> differences = detailedDiff.getAllDifferences();
 
-            // (0) number of children, (1) order different, (2) node not found
-            Difference difference = differences.get(2);
-            String reverseControlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
-            String reverseTestXpathLocation = difference.getTestNodeDetail().getXpathLocation();
+        // (0) number of children, (1) order different, (2) node not found
+        Difference difference = differences.get(2);
+        String reverseControlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
+        String reverseTestXpathLocation = difference.getTestNodeDetail().getXpathLocation();
 
-            // then
-            assertThat(differences).hasSize(3);
-            assertThat(difference.getType())
-                    .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
-            assertThat(reverseTestXpathLocation).isEqualTo("/books[1]/book[1]");
-            assertThat(reverseControlXpathLocation).isNull();
-        } finally {
-            XMLUnit.setIgnoreWhitespace(false);
-        }
+        // then
+        assertThat(differences).hasSize(3);
+        assertThat(difference.getType())
+                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+        assertThat(reverseTestXpathLocation).isEqualTo("/books[1]/book[1]");
+        assertThat(reverseControlXpathLocation).isNull();
     }
 
     /**
@@ -410,7 +409,7 @@ public class DetailedDiffTest extends DiffTest {
                         "<e>1</e></root>";
 
         // when
-        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(control, test);
+        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
         List<Difference> differences = detailedDiff.getAllDifferences();
         Difference difference = differences.get(0);
 
@@ -445,7 +444,7 @@ public class DetailedDiffTest extends DiffTest {
         try {
             XMLUnit.setCompareUnmatched(false);
 
-            DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(control, test);
+            DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
             List<Difference> differences = detailedDiff.getAllDifferences();
 
             Difference difference = differences.get(0);
@@ -497,7 +496,7 @@ public class DetailedDiffTest extends DiffTest {
         // when
         try {
             XMLUnit.setCompareUnmatched(false);
-            DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(control, test);
+            DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
             List<Difference> differences = detailedDiff.getAllDifferences();
 
             Difference difference = differences.get(0);

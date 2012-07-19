@@ -205,7 +205,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testXpathLocation12() throws Exception {
-        engine = new NewDifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
@@ -217,7 +217,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testXpathLocation13() throws Exception {
-        engine = new NewDifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><?item data?></stuff>";
         listenToDifferences(control, test);
@@ -231,7 +231,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testXpathLocation14() throws Exception {
-        engine = new NewDifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DETAILED_DIFF);
         String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
@@ -245,7 +245,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testIssue1027863() throws Exception {
-        engine = new NewDifferenceEngine(PSEUDO_DIFF);
+        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DIFF);
         String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
         String test = "<stuff><item id=\"2\"/></stuff>";
         listenToDifferences(control, test);
@@ -376,7 +376,7 @@ public class test_NewDifferenceEngine extends TestCase {
         Element test = document.createElement("foo");
         final int[] count = new int[1];
         NewDifferenceEngine d =
-                new NewDifferenceEngine(new SimpleComparisonController(),
+                new NewDifferenceEngine(new XMLUnitProperties(), new SimpleComparisonController(),
                         new MatchTracker() {
                             public void matchFound(Difference d) {
                                 count[0]++;
@@ -524,7 +524,7 @@ public class test_NewDifferenceEngine extends TestCase {
 
     public void setUp() throws Exception {
         resetListener();
-        engine = new NewDifferenceEngine(PSEUDO_DIFF);
+        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DIFF);
         DocumentBuilder documentBuilder = XMLUnit.newControlParser();
         document = documentBuilder.newDocument();
     }

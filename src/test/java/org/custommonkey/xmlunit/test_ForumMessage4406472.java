@@ -111,13 +111,13 @@ public class test_ForumMessage4406472 extends TestCase {
     }
 
     public void testOriginal() throws Exception {
-        Diff d = new Diff(doc1, doc2);
+        Diff d = new Diff(new XMLUnitProperties(), doc1, doc2);
         d.overrideDifferenceListener(new OriginalDifferenceListener());
         assertTrue(d.toString(), d.similar());
     }
 
     public void testModified() throws Exception {
-        Diff d = new Diff(doc1, doc2);
+        Diff d = new Diff(new XMLUnitProperties(), doc1, doc2);
         d.overrideDifferenceListener(new ModifiedDifferenceListener());
         assertTrue(d.toString(), d.similar());
     }

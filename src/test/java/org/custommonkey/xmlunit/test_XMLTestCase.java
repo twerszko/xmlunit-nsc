@@ -36,445 +36,537 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.containsXpath;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.documentContainsXpath;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.documentNotContainsXpath;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlDocument;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlReader;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlString;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXpath;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notContainsXpath;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlDocument;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlReader;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlString;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXpath;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notPassesWith;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.passesWith;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.valueIsEqualToXpathValue;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.valueIsNotEqualToXpathValue;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.xpathEvaluatesTo;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestSuite;
 import net.sf.xmlunit.TestResources;
+import net.sf.xmlunit.xpath.XpathWrapper;
 
+import org.custommonkey.xmlunit.matchers.XmlUnitMatchers;
+import org.junit.After;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
-/**
- * Test case used to test the XMLTestCase
- */
-public class test_XMLTestCase extends XMLTestCase {
-	private static final String PREFIX = "foo";
-	private static final String TEST_NS = "urn:org.example";
-	private static final NamespaceContext NS_CONTEXT;
-	static {
-		HashMap<String, String> m = new HashMap<String, String>();
-		m.put(PREFIX, TEST_NS);
-		NS_CONTEXT = new SimpleNamespaceContext(m);
-	}
+public class test_XMLTestCase {
+    private static final String PREFIX = "foo";
+    private static final String TEST_NS = "urn:org.example";
+    private static final NamespaceContext NS_CONTEXT;
+    static {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put(PREFIX, TEST_NS);
+        NS_CONTEXT = new SimpleNamespaceContext(m);
+    }
 
-	private final String[] control = new String[] { "<root/>", "<root></root>", "<root>test</root>",
-	        "<root attr=\"test\">test</root>", "<test/>", "<root>test</root>", "<root attr=\"test\"/>",
-	        "<root><outer><inner></inner></outer></root>",
-	        "<root attr=\"test\"><outer>test<inner>test</inner></outer></root>",
-	        "<root attr=\"test\"><outer>test<inner>test</inner></outer></root>" };
-	private final String[] test = new String[] { "<fail/>", "<fail/>", "<fail>test</fail>", "<root>test</root>",
-	        "<fail/>", "<root>fail</root>", "<root attr=\"fail\"/>", "<root><outer><inner>test</inner></outer></root>",
-	        "<root attr=\"test\"><outer>fail<inner>test</inner></outer></root>",
-	        "<root attr=\"fail\"><outer>test<inner>test</inner></outer></root>" };
+    @After
+    public void tearDown() {
+        XMLUnit.setXpathNamespaceContext(null);
+    }
 
-	/**
-	 * Test for the compareXML method.
-	 */
-	public void testCompareXMLStrings() throws Exception {
-		for (int i = 0; i < control.length; i++) {
-			assertEquals("compareXML case " + i + " failed", true, compareXML(control[i], control[i]).similar());
-			assertEquals("!compareXML case " + i + " failed", false, compareXML(control[i], test[i]).similar());
-		}
-	}
+    private final String[] control = new String[] { "<root/>", "<root></root>", "<root>test</root>",
+            "<root attr=\"test\">test</root>", "<test/>", "<root>test</root>", "<root attr=\"test\"/>",
+            "<root><outer><inner></inner></outer></root>",
+            "<root attr=\"test\"><outer>test<inner>test</inner></outer></root>",
+            "<root attr=\"test\"><outer>test<inner>test</inner></outer></root>" };
+    private final String[] test = new String[] { "<fail/>", "<fail/>", "<fail>test</fail>", "<root>test</root>",
+            "<fail/>", "<root>fail</root>", "<root attr=\"fail\"/>", "<root><outer><inner>test</inner></outer></root>",
+            "<root attr=\"test\"><outer>fail<inner>test</inner></outer></root>",
+            "<root attr=\"fail\"><outer>test<inner>test</inner></outer></root>" };
 
-	/**
-	 * Test the comparision of two files
-	 */
-	public void testXMLEqualsFiles() throws Exception {
-		// Bug 956372
-		assertXMLEqual("equal message",
-		        new FileReader(TestResources.ANIMAL_FILE.getFile()),
-		        new FileReader(TestResources.ANIMAL_FILE.getFile()));
-		assertXMLNotEqual("notEqual message",
-		        new FileReader(TestResources.ANIMAL_FILE.getFile()),
-		        new FileReader(TestResources.ANIMAL_FILE2.getFile()));
+    /**
+     * Test for the compareXML method.
+     */
+    @Test
+    public void testCompareXMLStrings() throws Exception {
+        for (int i = 0; i < control.length; i++) {
+            assertThat(control[i], is(equalToXmlString(control[i])));
+            assertThat(test[i], is(notEqualToXmlString(control[i])));
+        }
+    }
 
-		try {
-			assertXMLNotEqual(
-			        new FileReader("nosuchfile.xml"),
-			        new FileReader("nosuchfile.xml"));
-			fail("Expecting FileNotFoundException");
-		} catch (FileNotFoundException e) {
-		}
-	}
+    /**
+     * Test the comparision of two files
+     */
+    @Test
+    public void testXMLEqualsFiles() throws Exception {
+        // Bug 956372
+        FileReader testFileReader = new FileReader(TestResources.ANIMAL_FILE.getFile());
+        FileReader controlFileReader = new FileReader(TestResources.ANIMAL_FILE.getFile());
 
-	/**
-	 * Test for the assertXMLEquals method.
-	 */
-	public void testXMLEqualsStrings() throws Exception {
-		for (int i = 0; i < control.length; i++) {
-			assertXMLEqual("assertXMLEquals test case " + i + " failed", control[i], control[i]);
-			assertXMLNotEqual("assertXMLNotEquals test case" + i + " failed", control[i], test[i]);
-		}
-	}
+        assertThat(testFileReader, is(equalToXmlReader(controlFileReader)));
 
-	/**
-	 * Test for the assertXMLEquals method.
-	 */
-	public void testXMLEqualsDocuments() throws Exception {
-		Document controlDocument, testDocument;
-		for (int i = 0; i < control.length; i++) {
-			controlDocument = XMLUnit.buildControlDocument(control[i]);
-			assertXMLEqual("assertXMLEquals test case " + i + " failed", controlDocument, controlDocument);
-			testDocument = XMLUnit.buildTestDocument(test[i]);
-			assertXMLNotEqual("assertXMLNotEquals test case" + i + " failed", controlDocument, testDocument);
-		}
-	}
+        FileReader testFileReader2 = new FileReader(TestResources.ANIMAL_FILE.getFile());
+        FileReader controlReader2 = new FileReader(TestResources.ANIMAL_FILE2.getFile());
 
-	private static final String xpathValuesControlXML = "<root><outer attr=\"urk\"><inner attr=\"urk\">"
-	        + "controlDocument</inner></outer></root>";
-	private static final String xpathValuesTestXML = "<root><outer attr=\"urk\"><inner attr=\"ugh\">"
-	        + "testDocument</inner></outer></root>";
-	private static final String xpathValuesControlXMLNS = addNamespaceToDocument(xpathValuesControlXML);
-	private static final String xpathValuesTestXMLNS = addNamespaceToDocument(xpathValuesTestXML);
+        assertThat(testFileReader2, is(notEqualToXmlReader(controlReader2)));
 
-	public void testXpathValuesEqualUsingDocument() throws Exception {
-		Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXML);
-		Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXML);
+        try {
+            assertThat(new FileReader("nosuchfile.xml"),
+                    is(notEqualToXmlReader(new FileReader("nosuchfile.xml"))));
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getCause()).isInstanceOf(FileNotFoundException.class);
+        }
+    }
 
-		assertXpathValuesEqual("//text()", "//inner/text()", controlDocument);
-		assertXpathValuesEqual("//inner/@attr", controlDocument, "//outer/@attr", testDocument);
+    /**
+     * Test for the assertXMLEquals method.
+     */
+    @Test
+    public void testXMLEqualsStrings() throws Exception {
+        for (int i = 0; i < control.length; i++) {
+            assertThat(control[i], is(XmlUnitMatchers.equalToXmlString(control[i])));
+            assertThat(test[i], is(notEqualToXmlString(control[i])));
+        }
+    }
 
-		assertXpathValuesNotEqual("//inner/text()", "//outer/@attr", controlDocument);
-		assertXpathValuesNotEqual("//inner/text()", controlDocument, "//text()", testDocument);
-	}
+    /**
+     * Test for the assertXMLEquals method.
+     */
+    @Test
+    public void testXMLEqualsDocuments() throws Exception {
+        Document controlDocument, testDocument;
+        for (int i = 0; i < control.length; i++) {
+            controlDocument = XMLUnit.buildControlDocument(control[i]);
+            assertThat(controlDocument, is(equalToXmlDocument(controlDocument)));
+            testDocument = XMLUnit.buildTestDocument(test[i]);
+            assertThat(testDocument, is(notEqualToXmlDocument(controlDocument)));
+        }
+    }
 
-	public void testXpathValuesEqualUsingDocumentNS() throws Exception {
-		Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXMLNS);
-		Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXMLNS);
+    private static final String xpathValuesControlXML = "<root><outer attr=\"urk\"><inner attr=\"urk\">"
+            + "controlDocument</inner></outer></root>";
+    private static final String xpathValuesTestXML = "<root><outer attr=\"urk\"><inner attr=\"ugh\">"
+            + "testDocument</inner></outer></root>";
+    private static final String xpathValuesControlXMLNS = addNamespaceToDocument(xpathValuesControlXML);
+    private static final String xpathValuesTestXMLNS = addNamespaceToDocument(xpathValuesTestXML);
 
-		assertXpathValuesNotEqual("//text()", "//inner/text()", controlDocument);
-		XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
-		assertXpathValuesEqual("//text()", "//" + PREFIX + ":inner/text()", controlDocument);
-		assertXpathValuesEqual("//" + PREFIX + ":inner/@attr", controlDocument, "//" + PREFIX + ":outer/@attr",
-		        testDocument);
+    @Test
+    public void testXpathValuesEqualUsingDocument() throws Exception {
+        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXML);
+        Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXML);
 
-		assertXpathValuesNotEqual("//" + PREFIX + ":inner/text()", "//" + PREFIX + ":outer/@attr", controlDocument);
-		assertXpathValuesNotEqual("//" + PREFIX + ":inner/text()", controlDocument, "//text()", testDocument);
-	}
+        XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
+        XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
+        assertThat(testXpath1, valueIsEqualToXpathValue(controlXpath1));
 
-	public void testXpathValuesEqualUsingString() throws Exception {
-		assertXpathValuesEqual("//text()", "//inner/text()", xpathValuesControlXML);
-		assertXpathValuesEqual("//inner/@attr", xpathValuesControlXML, "//outer/@attr", xpathValuesTestXML);
+        XpathWrapper testXpath2 = new XpathWrapper("//outer/@attr", testDocument);
+        XpathWrapper controlXpath2 = new XpathWrapper("//inner/@attr", controlDocument);
+        assertThat(testXpath2, valueIsEqualToXpathValue(controlXpath2));
 
-		assertXpathValuesNotEqual("//inner/text()", "//outer/@attr", xpathValuesControlXML);
-		assertXpathValuesNotEqual("//inner/text()", xpathValuesControlXML, "//text()", xpathValuesTestXML);
-	}
+        XpathWrapper testXpath3 = new XpathWrapper("//outer/@attr", controlDocument);
+        XpathWrapper controlXpath3 = new XpathWrapper("//inner/text()", controlDocument);
+        assertThat(testXpath3, is(valueIsNotEqualToXpathValue(controlXpath3)));
 
-	public void testXpathValuesEqualUsingStringNS() throws Exception {
-		assertXpathValuesNotEqual("//text()", "//inner/text()", xpathValuesControlXMLNS);
-		XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
-		assertXpathValuesEqual("//text()", "//" + PREFIX + ":inner/text()", xpathValuesControlXMLNS);
-		assertXpathValuesEqual("//" + PREFIX + ":inner/@attr", xpathValuesControlXMLNS, "//" + PREFIX + ":outer/@attr",
-		        xpathValuesTestXMLNS);
+        XpathWrapper testXpath4 = new XpathWrapper("//text()", testDocument);
+        XpathWrapper controlXpath4 = new XpathWrapper("//inner/text()", controlDocument);
+        assertThat(testXpath4, valueIsNotEqualToXpathValue(controlXpath4));
+    }
 
-		assertXpathValuesNotEqual("//" + PREFIX + ":inner/text()", "//" + PREFIX + ":outer/@attr",
-		        xpathValuesControlXMLNS);
-		assertXpathValuesNotEqual("//" + PREFIX + ":inner/text()", xpathValuesControlXMLNS, "//text()",
-		        xpathValuesTestXMLNS);
-	}
+    @Test
+    public void testXpathValuesEqualUsingDocumentNS() throws Exception {
+        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXMLNS);
+        Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXMLNS);
 
-	public void testXpathEvaluatesTo() throws Exception {
-		assertXpathEvaluatesTo("urk", "//outer/@attr", xpathValuesControlXML);
-		try {
-			assertXpathEvaluatesTo("yum", "//inner/@attr", xpathValuesControlXML);
-			fail("Expected assertion to fail #1");
-		} catch (AssertionFailedError e) {
-		}
-		assertXpathEvaluatesTo("2", "count(//@attr)", xpathValuesControlXML);
+        XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
+        XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
+        assertThat(testXpath1, valueIsNotEqualToXpathValue(controlXpath1));
 
-		Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXML);
-		assertXpathEvaluatesTo("ugh", "//inner/@attr", testDocument);
-		try {
-			assertXpathEvaluatesTo("yeah", "//outer/@attr", testDocument);
-			fail("Expected assertion to fail #2");
-		} catch (AssertionFailedError e) {
-		}
+        XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
+        XpathWrapper testXpath2 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
+        XpathWrapper controlXpath2 = new XpathWrapper("//text()", controlDocument);
+        assertThat(testXpath2, valueIsEqualToXpathValue(controlXpath2));
 
-	}
+        XpathWrapper testXpath3 = new XpathWrapper("//" + PREFIX + ":outer/@attr", testDocument);
+        XpathWrapper controlXpath3 = new XpathWrapper("//" + PREFIX + ":inner/@attr", controlDocument);
+        assertThat(testXpath3, valueIsEqualToXpathValue(controlXpath3));
 
-	public void testXpathEvaluatesToNS() throws Exception {
-		try {
-			assertXpathEvaluatesTo("urk", "//outer/@attr", xpathValuesControlXMLNS);
-			fail("Expected assertion to fail #1");
-		} catch (AssertionFailedError e) {
-		}
+        XpathWrapper testXpath4 = new XpathWrapper("//" + PREFIX + ":outer/@attr", controlDocument);
+        XpathWrapper controlXpath4 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
+        assertThat(testXpath4, valueIsNotEqualToXpathValue(controlXpath4));
 
-		XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
-		assertXpathEvaluatesTo("urk", "//" + PREFIX + ":outer/@attr", xpathValuesControlXMLNS);
-		try {
-			assertXpathEvaluatesTo("yum", "//" + PREFIX + ":inner/@attr", xpathValuesControlXMLNS);
-			fail("Expected assertion to fail #2");
-		} catch (AssertionFailedError e) {
-		}
-		assertXpathEvaluatesTo("2", "count(//@attr)", xpathValuesControlXMLNS);
+        XpathWrapper testXpath5 = new XpathWrapper("//text()", testDocument);
+        XpathWrapper controlXpath5 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
+        assertThat(testXpath5, valueIsNotEqualToXpathValue(controlXpath5));
+    }
 
-		Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXMLNS);
-		assertXpathEvaluatesTo("ugh", "//" + PREFIX + ":inner/@attr", testDocument);
-		try {
-			assertXpathEvaluatesTo("yeah", "//" + PREFIX + ":outer/@attr", testDocument);
-			fail("Expected assertion to fail #3");
-		} catch (AssertionFailedError e) {
-		}
+    @Test
+    public void testXpathValuesEqualUsingString() throws Exception {
+        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXML);
+        Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXML);
 
-	}
+        XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
+        XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
+        assertThat(testXpath1, valueIsEqualToXpathValue(controlXpath1));
 
-	public void testNodeTest() throws Exception {
-		NodeTester tester = new CountingNodeTester(1);
-		assertNodeTestPasses(xpathValuesControlXML, tester, Node.TEXT_NODE);
-		try {
-			assertNodeTestPasses(xpathValuesControlXML, tester, Node.ELEMENT_NODE);
-			fail("Expected node test failure #1!");
-		} catch (AssertionFailedError e) {
-		}
+        XpathWrapper testXpath2 = new XpathWrapper("//outer/@attr", testDocument);
+        XpathWrapper controlXpath2 = new XpathWrapper("//inner/@attr", controlDocument);
+        assertThat(testXpath2, valueIsEqualToXpathValue(controlXpath2));
 
-		NodeTest test = new NodeTest(new StringReader(xpathValuesTestXML));
-		tester = new CountingNodeTester(4);
-		assertNodeTestPasses(test, tester, new short[] { Node.TEXT_NODE, Node.ELEMENT_NODE }, true);
-		assertNodeTestPasses(test, tester, new short[] { Node.TEXT_NODE, Node.COMMENT_NODE }, false);
+        XpathWrapper testXpath3 = new XpathWrapper("//outer/@attr", testDocument);
+        XpathWrapper controlXpath3 = new XpathWrapper("//inner/text()", controlDocument);
+        assertThat(testXpath3, valueIsNotEqualToXpathValue(controlXpath3));
 
-		try {
-			assertNodeTestPasses(test, tester, new short[] { Node.TEXT_NODE, Node.ELEMENT_NODE }, false);
-			fail("Expected node test failure #2!");
-			assertNodeTestPasses(test, tester, new short[] { Node.TEXT_NODE, Node.COMMENT_NODE }, true);
-			fail("Expected node test failure #3!");
-		} catch (AssertionFailedError e) {
-		}
-	}
+        XpathWrapper testXpath4 = new XpathWrapper("//text()", testDocument);
+        XpathWrapper controlXpath4 = new XpathWrapper("//inner/text()", controlDocument);
+        assertThat(testXpath4, valueIsNotEqualToXpathValue(controlXpath4));
+    }
 
-	public void testXMLValid() {
-		// see test_Validator class
-	}
+    @Test
+    public void testXpathValuesEqualUsingStringNS() throws Exception {
+        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXMLNS);
+        Document testDocument = XMLUnit.buildControlDocument(xpathValuesTestXMLNS);
 
-	private static final String TREES_OPEN = "<trees>";
-	private static final String TREES_CLOSE = "</trees>";
-	private static final String xpathNodesControlXML = TREES_OPEN + "<tree evergreen=\"false\">oak</tree>"
-	        + "<tree evergreen=\"false\">ash</tree>" + "<tree evergreen=\"true\">scots pine</tree>"
-	        + "<tree evergreen=\"true\">spruce</tree>" + "<favourite><!-- is this a tree or a bush?! -->"
-	        + "<tree evergreen=\"false\">magnolia</tree>" + "</favourite>" + "<fruit>"
-	        + "<apples><crunchy/><yum/><tree evergreen=\"false\">apple</tree></apples>" + "</fruit>" + TREES_CLOSE;
-	private static final String xpathNodesTestXML = TREES_OPEN + "<tree evergreen=\"false\">oak</tree>"
-	        + "<tree evergreen=\"false\">ash</tree>" + "<tree evergreen=\"true\">scots pine</tree>"
-	        + "<tree evergreen=\"true\">spruce</tree>" + "<tree flowering=\"true\">cherry</tree>"
-	        + "<tree flowering=\"true\">apple</tree>" + "<favourite><!-- is this a tree or a bush?! -->"
-	        + "<tree evergreen=\"false\">magnolia</tree>" + "</favourite>"
-	        + "<apples><crunchy/><yum/><tree evergreen=\"false\">apple</tree></apples>" + TREES_CLOSE;
+        XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
+        XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
+        assertThat(testXpath1, valueIsNotEqualToXpathValue(controlXpath1));
 
-	public void testXpathsEqual() throws Exception {
-		Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
-		Document testDoc = XMLUnit.buildTestDocument(xpathNodesTestXML);
+        XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
 
-		String[] controlXpath = new String[] { "/trees/tree[@evergreen]", "//tree[@evergreen='false']",
-		        "/trees/favourite", "//fruit/apples" };
-		String[] testXpath = { controlXpath[0], controlXpath[1], "//favourite", "//apples" };
+        XpathWrapper testXpath2 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
+        XpathWrapper controlXpath2 = new XpathWrapper("//text()", controlDocument);
+        assertThat(testXpath2, valueIsEqualToXpathValue(controlXpath2));
 
-		// test positive passes
-		for (int i = 0; i < controlXpath.length; ++i) {
-			assertXpathsEqual(controlXpath[i], controlDoc, testXpath[i], testDoc);
-			assertXpathsEqual(controlXpath[i], xpathNodesControlXML, testXpath[i], xpathNodesTestXML);
-			assertXpathsEqual(controlXpath[i], testXpath[i], controlDoc);
-			assertXpathsEqual(controlXpath[i], testXpath[i], xpathNodesControlXML);
-		}
-		// test negative fails
-		for (int i = 0; i < controlXpath.length; ++i) {
-			try {
-				assertXpathsNotEqual(controlXpath[i], controlDoc, testXpath[i], testDoc);
-				fail("should not be notEqual!");
-			} catch (AssertionFailedError e) {
-			}
-			try {
-				assertXpathsNotEqual(controlXpath[i], xpathNodesControlXML, testXpath[i], xpathNodesTestXML);
-				fail("should not be notEqual!");
-			} catch (AssertionFailedError e) {
-			}
-			try {
-				assertXpathsNotEqual(controlXpath[i], testXpath[i], controlDoc);
-				fail("should not be notEqual!");
-			} catch (AssertionFailedError e) {
-			}
-			try {
-				assertXpathsNotEqual(controlXpath[i], testXpath[i], xpathNodesControlXML);
-				fail("should not be notEqual!");
-			} catch (AssertionFailedError e) {
-			}
-		}
-	}
+        XpathWrapper testXpath3 = new XpathWrapper("//" + PREFIX + ":outer/@attr", testDocument);
+        XpathWrapper controlXpath3 = new XpathWrapper("//" + PREFIX + ":inner/@attr", controlDocument);
+        assertThat(testXpath3, valueIsEqualToXpathValue(controlXpath3));
 
-	public void testXpathsNotEqual() throws Exception {
-		Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
-		Document testDoc = XMLUnit.buildTestDocument(xpathNodesTestXML);
+        XpathWrapper testXpath4 = new XpathWrapper("//" + PREFIX + ":outer/@attr", controlDocument);
+        XpathWrapper controlXpath4 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
+        assertThat(testXpath4, valueIsNotEqualToXpathValue(controlXpath4));
 
-		String[] controlXpath = new String[] { "/trees/tree[@evergreen]", "//tree[@evergreen='false']",
-		        "/trees/favourite", "//fruit/apples" };
-		String[] testXpath = { "//tree", "//tree[@evergreen='true']", "//favourite/apples", "//apples/tree" };
+        XpathWrapper testXpath5 = new XpathWrapper("//text()", testDocument);
+        XpathWrapper controlXpath5 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
+        assertThat(testXpath5, valueIsNotEqualToXpathValue(controlXpath5));
+    }
 
-		// test positive passes
-		for (int i = 0; i < controlXpath.length; ++i) {
-			assertXpathsNotEqual(controlXpath[i], controlDoc, testXpath[i], testDoc);
-			assertXpathsNotEqual(controlXpath[i], xpathNodesControlXML, testXpath[i], xpathNodesTestXML);
-			assertXpathsNotEqual(controlXpath[i], testXpath[i], controlDoc);
-			assertXpathsNotEqual(controlXpath[i], testXpath[i], xpathNodesControlXML);
-		}
-		// test negative fails
-		for (int i = 0; i < controlXpath.length; ++i) {
-			try {
-				assertXpathsEqual(controlXpath[i], controlDoc, testXpath[i], testDoc);
-				fail("should not be Equal!");
-			} catch (AssertionFailedError e) {
-			}
-			try {
-				assertXpathsEqual(controlXpath[i], xpathNodesControlXML, testXpath[i], xpathNodesTestXML);
-				fail("should not be Equal!");
-			} catch (AssertionFailedError e) {
-			}
-			try {
-				assertXpathsEqual(controlXpath[i], testXpath[i], controlDoc);
-				fail("should not be Equal!");
-			} catch (AssertionFailedError e) {
-			}
-			try {
-				assertXpathsEqual(controlXpath[i], testXpath[i], xpathNodesControlXML);
-				fail("should not be Equal!");
-			} catch (AssertionFailedError e) {
-			}
-		}
-	}
+    @Test
+    public void testXpathEvaluatesTo() throws Exception {
+        Document inDocument1 = XMLUnit.buildControlDocument(xpathValuesControlXML);
 
-	public void testDocumentAssertXpathExists() throws Exception {
-		Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
-		assertXpathExists("/trees/fruit/apples/yum", controlDoc);
-		assertXpathExists("//tree[@evergreen='false']", controlDoc);
-		try {
-			assertXpathExists("//tree[@evergreen='idunno']", controlDoc);
-			fail("Xpath does not exist");
-		} catch (AssertionFailedError e) {
-			// expected
-		}
-	}
+        assertThat(new XpathWrapper("//outer/@attr", inDocument1), xpathEvaluatesTo("urk"));
+        try {
+            assertThat(new XpathWrapper("//inner/@attr", inDocument1), xpathEvaluatesTo("yum"));
+            fail("Expected assertion to fail #1");
+        } catch (AssertionError e) {
+        }
 
-	public void testStringAssertXpathExists() throws Exception {
-		assertXpathExists("/trees/fruit/apples/yum", xpathNodesControlXML);
-		assertXpathExists("//tree[@evergreen='false']", xpathNodesControlXML);
-		try {
-			assertXpathExists("//tree[@evergreen='idunno']", xpathNodesControlXML);
-			fail("Xpath does not exist");
-		} catch (AssertionFailedError e) {
-			// expected
-		}
-	}
+        assertThat(new XpathWrapper("count(//@attr)", inDocument1), xpathEvaluatesTo("2"));
 
-	public void testDocumentAssertNotXpathExists() throws Exception {
-		Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
-		assertXpathNotExists("//tree[@evergreen='idunno']", controlDoc);
-		try {
-			assertXpathNotExists("/trees/fruit/apples/yum", controlDoc);
-			fail("Xpath does exist, once");
-		} catch (AssertionFailedError e) {
-			// expected
-		}
-		try {
-			assertXpathNotExists("//tree[@evergreen='false']", controlDoc);
-			fail("Xpath does exist many times");
-		} catch (AssertionFailedError e) {
-			// expected
-		}
-	}
+        Document inDocument2 = XMLUnit.buildTestDocument(xpathValuesTestXML);
+        assertThat(new XpathWrapper("//inner/@attr", inDocument2), xpathEvaluatesTo("ugh"));
+        try {
+            assertThat(new XpathWrapper("//outer/@attr", inDocument2), xpathEvaluatesTo("yeah"));
+            fail("Expected assertion to fail #2");
+        } catch (AssertionError e) {
+        }
 
-	public void testStringAssertNotXpathExists() throws Exception {
-		assertXpathNotExists("//tree[@evergreen='idunno']", xpathNodesControlXML);
-		try {
-			assertXpathNotExists("/trees/fruit/apples/yum", xpathNodesControlXML);
-			fail("Xpath does exist, once");
-		} catch (AssertionFailedError e) {
-			// expected
-		}
-		try {
-			assertXpathNotExists("//tree[@evergreen='false']", xpathNodesControlXML);
-			fail("Xpath does exist many times");
-		} catch (AssertionFailedError e) {
-			// expected
-		}
-	}
+    }
 
-	// Bug 585555
-	public void testUnusedNamespacesDontMatter() throws Exception {
-		boolean startValueIgnoreWhitespace = XMLUnit.getIgnoreWhitespace();
-		try {
-			XMLUnit.setIgnoreWhitespace(true);
-			String a = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<outer xmlns:NS2=\"http://namespace2/foo\">\n"
-			        + "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" + "</outer>\n";
+    @Test
+    public void testXpathEvaluatesToNS() throws Exception {
+        Document inDocument1 = XMLUnit.buildControlDocument(xpathValuesControlXMLNS);
+        try {
+            assertThat(new XpathWrapper("//outer/@attr", inDocument1), xpathEvaluatesTo("urk"));
+            fail("Expected assertion to fail #1");
+        } catch (AssertionError e) {
+        }
 
-			String b = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<outer xmlns:NS2=\"http://namespace2\">\n"
-			        + "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" + "</outer>\n";
+        XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
+        assertThat(new XpathWrapper("//" + PREFIX + ":outer/@attr", inDocument1), xpathEvaluatesTo("urk"));
+        try {
+            assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument1), xpathEvaluatesTo("yum"));
+            fail("Expected assertion to fail #2");
+        } catch (AssertionError e) {
+        }
+        assertThat(new XpathWrapper("count(//@attr)", inDocument1), xpathEvaluatesTo("2"));
 
-			assertXMLEqual(a, b);
-		} finally {
-			XMLUnit.setIgnoreWhitespace(startValueIgnoreWhitespace);
-		}
-	}
+        Document inDocument2 = XMLUnit.buildTestDocument(xpathValuesTestXMLNS);
+        assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument2), xpathEvaluatesTo("ugh"));
+        try {
+            assertThat(new XpathWrapper("//" + PREFIX + ":outer/@attr", inDocument2), xpathEvaluatesTo("yeah"));
+            fail("Expected assertion to fail #3");
+        } catch (AssertionError e) {
+        }
 
-	// Bug 585555
-	public void testNamespaceMatters() throws Exception {
-		boolean startValueIgnoreWhitespace = XMLUnit.getIgnoreWhitespace();
-		try {
-			XMLUnit.setIgnoreWhitespace(true);
-			String a = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<outer xmlns=\"http://namespace2/\">\n"
-			        + "</outer>";
+    }
 
-			String b = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<outer xmlns=\"http://namespace2\">\n"
-			        + "</outer>\n";
+    @Test
+    public void testNodeTest() throws Exception {
+        NodeTester tester = new CountingNodeTester(1);
 
-			assertXMLNotEqual(a, b);
-		} finally {
-			XMLUnit.setIgnoreWhitespace(startValueIgnoreWhitespace);
-		}
-	}
+        assertThat(new NodeTest(xpathValuesControlXML), passesWith(tester, Node.TEXT_NODE));
+        try {
+            assertThat(new NodeTest(xpathValuesControlXML), passesWith(tester, Node.ELEMENT_NODE));
+            fail("Expected node test failure #1!");
+        } catch (AssertionError e) {
+        }
 
-	// Bug 741636
-	public void testXpathCount() throws Exception {
-		assertXpathEvaluatesTo("25", "count(//td)", "<div><p>" + "</p><table><tr><td><p>" + "</p></td><td><p>"
-		        + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td></tr><tr><td><p>"
-		        + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>"
-		        + "</p></td></tr><tr><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>"
-		        + "</p></td><td><p>" + "</p></td></tr><tr><td><p>" + "</p></td><td><p>" + "</p></td><td><p>"
-		        + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td></tr><tr><td><p>" + "</p></td><td><p>"
-		        + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td></tr></table></div>");
-	}
+        NodeTest test = new NodeTest(new StringReader(xpathValuesTestXML));
+        tester = new CountingNodeTester(4);
+        assertThat(test, passesWith(tester, new short[] { Node.TEXT_NODE, Node.ELEMENT_NODE }));
+        assertThat(test, notPassesWith(tester, new short[] { Node.TEXT_NODE, Node.COMMENT_NODE }));
 
-	// bug 1418497
-	public void testAssertXpathExistsFails() throws Exception {
-		String xmlDocument = "<axrtable> <schema name=\"emptySchema\"><relation name=\"\"></relation></schema></axrtable>";
-		assertXpathExists("/axrtable/schema", xmlDocument);
-	}
+        try {
+            assertThat(test, notPassesWith(tester, new short[] { Node.TEXT_NODE, Node.ELEMENT_NODE }));
+            fail("Expected node test failure #2!");
+        } catch (AssertionError e) {
+        }
 
-	// bug 3290264
-	public void testAssertXpathEqualsAndAttributes() throws Exception {
-		assertXpathsNotEqual("/foo/Bar/@a", "/foo/Bar", "<foo><Bar a=\"1\" /></foo>");
-		assertXpathsNotEqual("/foo/Bar/@a", "/foo/Bar/@b", "<foo><Bar a=\"1\" b=\"1\"/></foo>");
-		assertXpathsEqual("/foo/Bar/@a", "/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"2\"/></foo>");
-	}
+        try {
+            assertThat(test, passesWith(tester, new short[] { Node.TEXT_NODE, Node.COMMENT_NODE }));
+            fail("Expected node test failure #3!");
+        } catch (AssertionError e) {
+        }
+    }
 
-	public test_XMLTestCase(String name) {
-		super(name);
-	}
+    @Test
+    public void testXMLValid() {
+        // see test_Validator class
+    }
 
-	private static String addNamespaceToDocument(String original) {
-		int pos = original.indexOf(">");
-		return original.substring(0, pos) + " xmlns='" + TEST_NS + "'" + original.substring(pos);
-	}
+    private static final String TREES_OPEN = "<trees>";
+    private static final String TREES_CLOSE = "</trees>";
+    private static final String xpathNodesControlXML = TREES_OPEN + "<tree evergreen=\"false\">oak</tree>"
+            + "<tree evergreen=\"false\">ash</tree>" + "<tree evergreen=\"true\">scots pine</tree>"
+            + "<tree evergreen=\"true\">spruce</tree>" + "<favourite><!-- is this a tree or a bush?! -->"
+            + "<tree evergreen=\"false\">magnolia</tree>" + "</favourite>" + "<fruit>"
+            + "<apples><crunchy/><yum/><tree evergreen=\"false\">apple</tree></apples>" + "</fruit>" + TREES_CLOSE;
+    private static final String xpathNodesTestXML = TREES_OPEN + "<tree evergreen=\"false\">oak</tree>"
+            + "<tree evergreen=\"false\">ash</tree>" + "<tree evergreen=\"true\">scots pine</tree>"
+            + "<tree evergreen=\"true\">spruce</tree>" + "<tree flowering=\"true\">cherry</tree>"
+            + "<tree flowering=\"true\">apple</tree>" + "<favourite><!-- is this a tree or a bush?! -->"
+            + "<tree evergreen=\"false\">magnolia</tree>" + "</favourite>"
+            + "<apples><crunchy/><yum/><tree evergreen=\"false\">apple</tree></apples>" + TREES_CLOSE;
 
-	public void tearDown() {
-		XMLUnit.setXpathNamespaceContext(null);
-	}
+    @Test
+    public void testXpathsEqual() throws Exception {
+        String[] controlXpath = new String[] { "/trees/tree[@evergreen]", "//tree[@evergreen='false']",
+                "/trees/favourite", "//fruit/apples" };
+        String[] testXpath = { controlXpath[0], controlXpath[1], "//favourite", "//apples" };
 
-	/**
-	 * returns the TestSuite containing this test
-	 */
-	public static TestSuite suite() {
-		return new TestSuite(test_XMLTestCase.class);
-	}
+        // test positive passes
+        for (int i = 0; i < controlXpath.length; ++i) {
+            XpathWrapper controlXpathW = getControlXpath(controlXpath[i], xpathNodesControlXML);
+            XpathWrapper testXpathW = getTestXpath(testXpath[i], xpathNodesTestXML);
+
+            assertThat(testXpathW, is(equalToXpath(controlXpathW)));
+        }
+        // test negative fails
+        for (int i = 0; i < controlXpath.length; ++i) {
+            try {
+                XpathWrapper controlXpathW = getControlXpath(controlXpath[i], xpathNodesControlXML);
+                XpathWrapper testXpathW = getTestXpath(testXpath[i], xpathNodesTestXML);
+
+                assertThat(testXpathW, is(notEqualToXpath(controlXpathW)));
+                fail("should not be notEqual!");
+            } catch (AssertionError e) {
+            }
+        }
+    }
+
+    @Test
+    public void testXpathsNotEqual() throws Exception {
+        String[] controlXpath = new String[] { "/trees/tree[@evergreen]", "//tree[@evergreen='false']",
+                "/trees/favourite", "//fruit/apples" };
+        String[] testXpath = { "//tree", "//tree[@evergreen='true']", "//favourite/apples", "//apples/tree" };
+
+        // test positive passes
+        for (int i = 0; i < controlXpath.length; ++i) {
+            XpathWrapper controlXpathW = getControlXpath(controlXpath[i], xpathNodesControlXML);
+            XpathWrapper testXpathW = getTestXpath(testXpath[i], xpathNodesTestXML);
+
+            assertThat(testXpathW, is(notEqualToXpath(controlXpathW)));
+        }
+        // test negative fails
+        for (int i = 0; i < controlXpath.length; ++i) {
+            try {
+                XpathWrapper controlXpathW = getControlXpath(controlXpath[i], xpathNodesControlXML);
+                XpathWrapper testXpathW = getTestXpath(testXpath[i], xpathNodesTestXML);
+
+                assertThat(testXpathW, is(equalToXpath(controlXpathW)));
+                fail("should not be Equal!");
+            } catch (AssertionError e) {
+            }
+        }
+    }
+
+    @Test
+    public void testDocumentAssertXpathExists() throws Exception {
+        Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
+        assertThat(controlDoc, documentContainsXpath("/trees/fruit/apples/yum"));
+        assertThat(controlDoc, documentContainsXpath("//tree[@evergreen='false']"));
+        try {
+            assertThat(controlDoc, documentContainsXpath("//tree[@evergreen='idunno']"));
+            fail("Xpath does not exist");
+        } catch (AssertionError e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testStringAssertXpathExists() throws Exception {
+        assertThat(xpathNodesControlXML, containsXpath("/trees/fruit/apples/yum"));
+        assertThat(xpathNodesControlXML, containsXpath("//tree[@evergreen='false']"));
+        try {
+            assertThat(xpathNodesControlXML, containsXpath("//tree[@evergreen='idunno']"));
+            fail("Xpath does not exist");
+        } catch (AssertionError e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testDocumentAssertNotXpathExists() throws Exception {
+        Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
+        assertThat(controlDoc, documentNotContainsXpath("//tree[@evergreen='idunno']"));
+        try {
+            assertThat(controlDoc, documentNotContainsXpath("/trees/fruit/apples/yum"));
+            fail("Xpath does exist, once");
+        } catch (AssertionError e) {
+            // expected
+        }
+        try {
+            assertThat(controlDoc, documentNotContainsXpath("//tree[@evergreen='false']"));
+            fail("Xpath does exist many times");
+        } catch (AssertionError e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testStringAssertNotXpathExists() throws Exception {
+        assertThat(xpathNodesControlXML, notContainsXpath("//tree[@evergreen='idunno']"));
+        try {
+            assertThat(xpathNodesControlXML, notContainsXpath("/trees/fruit/apples/yum"));
+            fail("Xpath does exist, once");
+        } catch (AssertionError e) {
+            // expected
+        }
+        try {
+            assertThat(xpathNodesControlXML, notContainsXpath("//tree[@evergreen='false']"));
+            fail("Xpath does exist many times");
+        } catch (AssertionError e) {
+            // expected
+        }
+    }
+
+    // TODO
+    // Bug 585555
+    @Test
+    public void testUnusedNamespacesDontMatter() throws Exception {
+        XMLUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
+        String a = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<outer xmlns:NS2=\"http://namespace2/foo\">\n"
+                + "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" +
+                "</outer>\n";
+
+        String b = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<outer xmlns:NS2=\"http://namespace2\">\n"
+                + "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" +
+                "</outer>\n";
+
+        assertThat(b, is(equalToXmlString(a).using(xmlUnit)));
+    }
+
+    // Bug 585555
+    @Test
+    public void testNamespaceMatters() throws Exception {
+        XMLUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
+
+        String a = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<outer xmlns=\"http://namespace2/\">\n"
+                + "</outer>";
+
+        String b = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<outer xmlns=\"http://namespace2\">\n"
+                + "</outer>\n";
+
+        assertThat(b, is(notEqualToXmlString(a).using(xmlUnit)));
+    }
+
+    // Bug 741636
+    @Test
+    public void testXpathCount() throws Exception {
+        String html = "<div><p>" + "</p><table><tr><td><p>" + "</p></td><td><p>"
+                + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td></tr><tr><td><p>"
+                + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>"
+                + "</p></td></tr><tr><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>"
+                + "</p></td><td><p>" + "</p></td></tr><tr><td><p>" + "</p></td><td><p>" + "</p></td><td><p>"
+                + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td></tr><tr><td><p>" + "</p></td><td><p>"
+                + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td><td><p>" + "</p></td></tr></table></div>";
+
+        Document htmlDoc = XMLUnit.buildControlDocument(html);
+
+        assertThat(new XpathWrapper("count(//td)", htmlDoc), XmlUnitMatchers.xpathEvaluatesTo("25"));
+    }
+
+    // bug 1418497
+    @Test
+    public void testAssertXpathExistsFails() throws Exception {
+        String xmlDocument = "<axrtable> <schema name=\"emptySchema\"><relation name=\"\"></relation></schema></axrtable>";
+        assertThat(xmlDocument, containsXpath("/axrtable/schema"));
+    }
+
+    // bug 3290264
+    @Test
+    public void testAssertXpathEqualsAndAttributes() throws Exception {
+        XpathWrapper controlXpath1 = getControlXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" /></foo>");
+        XpathWrapper testXpath1 = getTestXpath("/foo/Bar", "<foo><Bar a=\"1\" /></foo>");
+
+        assertThat(testXpath1, is(notEqualToXpath(controlXpath1)));
+
+        XpathWrapper controlXpath2 = getControlXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"1\"/></foo>");
+        XpathWrapper testXpath2 = getTestXpath("/foo/Bar/@b", "<foo><Bar a=\"1\" b=\"1\"/></foo>");
+
+        assertThat(testXpath2, is(notEqualToXpath(controlXpath2)));
+
+        XpathWrapper controlXpath3 = getControlXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"2\"/></foo>");
+        XpathWrapper testXpath3 = getTestXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"2\"/></foo>");
+
+        assertThat(testXpath3, is(equalToXpath(controlXpath3)));
+    }
+
+    private XpathWrapper getTestXpath(String testXpath, String testXml) throws SAXException, IOException {
+        Document testDocument = XMLUnit.buildTestDocument(testXml);
+        XpathWrapper xpath = new XpathWrapper(testXpath, testDocument);
+        return xpath;
+    }
+
+    private XpathWrapper getControlXpath(String controlXpath, String controlXml) throws SAXException, IOException {
+        Document testDocument = XMLUnit.buildControlDocument(controlXml);
+        XpathWrapper xpath = new XpathWrapper(controlXpath, testDocument);
+        return xpath;
+    }
+
+    private static String addNamespaceToDocument(String original) {
+        int pos = original.indexOf(">");
+        return original.substring(0, pos) + " xmlns='" + TEST_NS + "'" + original.substring(pos);
+    }
+
 }

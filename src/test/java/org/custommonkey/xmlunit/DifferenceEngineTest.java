@@ -51,6 +51,8 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Attr;
@@ -65,10 +67,7 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-/**
- * JUnit test for DifferenceEngine
- */
-public class test_DifferenceEngine {
+public class DifferenceEngineTest {
     private CollectingDifferenceListener listener;
     private DifferenceEngine engine;
     private Document document;
@@ -88,6 +87,18 @@ public class test_DifferenceEngine {
     private final static String ATTR_A = "These boots were made for walking";
     private final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
+    private class SimpleComparisonController implements ComparisonController {
+        public boolean haltComparison(Difference afterDifference) {
+            return !afterDifference.isRecoverable();
+        }
+    }
+
+    private class NeverHaltingComparisonController implements ComparisonController {
+        public boolean haltComparison(Difference afterDifference) {
+            return false;
+        }
+    }
+
     private void assertDifferentText(Text control, Text test,
             Difference difference) {
         try {
@@ -97,6 +108,27 @@ public class test_DifferenceEngine {
         assertEquals(difference.getType(), listener.comparingWhat);
         assertEquals(true, listener.different);
         resetListener();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        resetListener();
+        engine = new DifferenceEngine(null, PSEUDO_DIFF);
+        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+        document = documentBuilder.newDocument();
+    }
+
+    private class TextMatcher extends TypeSafeMatcher<Text> {
+        public void describeTo(Description description) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public boolean matchesSafely(Text arg0) {
+            // TODO Auto-generated method stub
+            return false;
+        }
     }
 
     @Test
@@ -638,7 +670,7 @@ public class test_DifferenceEngine {
 
     @Test
     public void testXpathLocation12() throws Exception {
-        engine = new DifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new DifferenceEngine(null, PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
@@ -650,7 +682,7 @@ public class test_DifferenceEngine {
 
     @Test
     public void testXpathLocation13() throws Exception {
-        engine = new DifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new DifferenceEngine(null, PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><?item data?></stuff>";
         listenToDifferences(control, test);
@@ -665,7 +697,7 @@ public class test_DifferenceEngine {
 
     @Test
     public void testXpathLocation14() throws Exception {
-        engine = new DifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new DifferenceEngine(null, PSEUDO_DETAILED_DIFF);
         String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
@@ -677,7 +709,7 @@ public class test_DifferenceEngine {
 
     @Test
     public void testIssue1027863() throws Exception {
-        engine = new DifferenceEngine(PSEUDO_DETAILED_DIFF);
+        engine = new DifferenceEngine(null, PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
         String test = "<stuff><item id=\"2\"/></stuff>";
         listenToDifferences(control, test);
@@ -895,7 +927,7 @@ public class test_DifferenceEngine {
         Element test = document.createElement("foo");
         final int[] count = new int[1];
         DifferenceEngine d =
-                new DifferenceEngine(new SimpleComparisonController(),
+                new DifferenceEngine(null, new SimpleComparisonController(),
                         new MatchTracker() {
                             public void matchFound(Difference d) {
                                 count[0]++;
@@ -1026,26 +1058,6 @@ public class test_DifferenceEngine {
 
     private void resetListener() {
         listener = new CollectingDifferenceListener();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        resetListener();
-        engine = new DifferenceEngine(PSEUDO_DIFF);
-        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
-        document = documentBuilder.newDocument();
-    }
-
-    private class SimpleComparisonController implements ComparisonController {
-        public boolean haltComparison(Difference afterDifference) {
-            return !afterDifference.isRecoverable();
-        }
-    }
-
-    private class NeverHaltingComparisonController implements ComparisonController {
-        public boolean haltComparison(Difference afterDifference) {
-            return false;
-        }
     }
 
     private class CollectingDifferenceListener implements DifferenceListener {

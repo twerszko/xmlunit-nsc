@@ -95,7 +95,7 @@ public class TransformTest {
         Transform transform = new Transform(FLEABALL, animalXsl);
 
         // when
-        Diff diff = new Diff(DOG, transform);
+        Diff diff = new Diff(new XMLUnitProperties(), DOG, transform);
 
         // then
         assertThat(diff.identical()).isTrue();
@@ -109,7 +109,7 @@ public class TransformTest {
 
         // when
         Document testDoc = transform.getResultDocument();
-        Diff diff = new Diff(controlDoc, testDoc);
+        Diff diff = new Diff(new XMLUnitProperties(), controlDoc, testDoc);
 
         // then
         assertThat(diff.identical()).isTrue();

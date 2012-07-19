@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
@@ -40,6 +40,8 @@ import junit.framework.TestCase;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
+import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.junit.Before;
 import org.w3c.dom.Node;
 
 public class test_TextDifferenceListenerBase extends TestCase {
@@ -52,6 +54,13 @@ public class test_TextDifferenceListenerBase extends TestCase {
     private static final String C_TEXT = "controlText";
     private static final String T_TEXT = "testText";
 
+    private XMLUnitProperties properties;
+
+    @Before
+    public void setUp() {
+        properties = new XMLUnitProperties();
+    }
+
     public void testTextDifferenceDelegations() throws Exception {
         final int[] invocations = new int[4];
 
@@ -59,36 +68,36 @@ public class test_TextDifferenceListenerBase extends TestCase {
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
         TextDifferenceListenerBase b = new TextDifferenceListenerBase(null) {
-                protected int attributeDifference(Difference d) {
-                    assertEquals(C_ATTR, d.getControlNodeDetail().getValue());
-                    assertEquals(T_ATTR, d.getTestNodeDetail().getValue());
-                    invocations[0]++;
-                    return 1;
-                }
+            protected int attributeDifference(Difference d) {
+                assertEquals(C_ATTR, d.getControlNodeDetail().getValue());
+                assertEquals(T_ATTR, d.getTestNodeDetail().getValue());
+                invocations[0]++;
+                return 1;
+            }
 
-                protected int cdataDifference(Difference d) {
-                    assertEquals(C_CDATA, d.getControlNodeDetail().getValue());
-                    assertEquals(T_CDATA, d.getTestNodeDetail().getValue());
-                    invocations[1]++;
-                    return 1;
-                }
+            protected int cdataDifference(Difference d) {
+                assertEquals(C_CDATA, d.getControlNodeDetail().getValue());
+                assertEquals(T_CDATA, d.getTestNodeDetail().getValue());
+                invocations[1]++;
+                return 1;
+            }
 
-                protected int commentDifference(Difference d) {
-                    assertEquals(C_CMMT, d.getControlNodeDetail().getValue());
-                    assertEquals(T_CMMT, d.getTestNodeDetail().getValue());
-                    invocations[2]++;
-                    return 1;
-                }
+            protected int commentDifference(Difference d) {
+                assertEquals(C_CMMT, d.getControlNodeDetail().getValue());
+                assertEquals(T_CMMT, d.getTestNodeDetail().getValue());
+                invocations[2]++;
+                return 1;
+            }
 
-                protected int textDifference(Difference d) {
-                    assertEquals(C_TEXT, d.getControlNodeDetail().getValue());
-                    assertEquals(T_TEXT, d.getTestNodeDetail().getValue());
-                    invocations[3]++;
-                    return 1;
-                }
-            };
+            protected int textDifference(Difference d) {
+                assertEquals(C_TEXT, d.getControlNodeDetail().getValue());
+                assertEquals(T_TEXT, d.getTestNodeDetail().getValue());
+                invocations[3]++;
+                return 1;
+            }
+        };
 
-        Diff d = new Diff(control, test);
+        Diff d = new Diff(properties, control, test);
         d.overrideDifferenceListener(b);
 
         assertTrue(d.identical());
@@ -105,13 +114,13 @@ public class test_TextDifferenceListenerBase extends TestCase {
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
         TextDifferenceListenerBase b = new TextDifferenceListenerBase(null) {
-                protected int textualDifference(Difference d) {
-                    invocations[0]++;
-                    return 1;
-                }
-            };
+            protected int textualDifference(Difference d) {
+                invocations[0]++;
+                return 1;
+            }
+        };
 
-        Diff d = new Diff(control, test);
+        Diff d = new Diff(properties, control, test);
         d.overrideDifferenceListener(b);
 
         assertTrue(d.identical());
@@ -125,17 +134,18 @@ public class test_TextDifferenceListenerBase extends TestCase {
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
         TextDifferenceListenerBase b =
-            new TextDifferenceListenerBase(new DifferenceListener() {
+                new TextDifferenceListenerBase(new DifferenceListener() {
                     public int differenceFound(Difference d) {
                         invocations[0]++;
                         return 1;
                     }
+
                     public void skippedComparison(Node c, Node t) {
                         fail("skippedComparison shouldn't get invoked");
                     }
                 }) {};
 
-        Diff d = new Diff(control, test);
+        Diff d = new Diff(properties, control, test);
         d.overrideDifferenceListener(b);
 
         assertTrue(d.identical());
@@ -143,9 +153,9 @@ public class test_TextDifferenceListenerBase extends TestCase {
     }
 
     private static String getDoc(String attr, String cdata, String comment,
-                                 String text) {
+            String text) {
         return "<root><first attr=\"" + attr + "\"/><!--" + comment + "-->"
-            + "<second><![CDATA[" + cdata + "]]></second><third>" + text
-            + "</third></root>";
+                + "<second><![CDATA[" + cdata + "]]></second><third>" + text
+                + "</third></root>";
     }
 }

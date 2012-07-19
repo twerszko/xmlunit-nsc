@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
@@ -99,6 +100,8 @@ public class NewDifferenceEngine
         KNOWN_SELECTORS = Collections.unmodifiableMap(m);
     }
 
+    private final XMLUnitProperties properties;
+
     private final ComparisonController controller;
     private MatchTracker matchTracker;
 
@@ -110,8 +113,8 @@ public class NewDifferenceEngine
      *            by this class should halt further comparison or not
      * @see ComparisonController#haltComparison(Difference)
      */
-    public NewDifferenceEngine(ComparisonController controller) {
-        this(controller, null);
+    public NewDifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller) {
+        this(properties, controller, null);
     }
 
     /**
@@ -126,8 +129,15 @@ public class NewDifferenceEngine
      * @see ComparisonController#haltComparison(Difference)
      * @see MatchTracker#matchFound(Difference)
      */
-    public NewDifferenceEngine(ComparisonController controller,
+    public NewDifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller,
             MatchTracker matchTracker) {
+
+        if (properties == null) {
+            this.properties = new XMLUnitProperties();
+        } else {
+            this.properties = properties.clone();
+        }
+
         this.controller = controller;
         this.matchTracker = matchTracker;
     }
@@ -219,7 +229,7 @@ public class NewDifferenceEngine
         if (XMLUnit.getNormalizeWhitespace()) {
             ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
             tstSource = new WhitespaceNormalizedSource(tstSource);
-        } else if (XMLUnit.getIgnoreWhitespace()) {
+        } else if (properties.getIgnoreWhitespace()) {
             ctrlSource = new WhitespaceStrippedSource(ctrlSource);
             tstSource = new WhitespaceStrippedSource(tstSource);
         }

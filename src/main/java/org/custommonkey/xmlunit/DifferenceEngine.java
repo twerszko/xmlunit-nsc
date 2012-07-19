@@ -40,6 +40,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Attr;
@@ -70,6 +73,8 @@ import org.w3c.dom.Text;
 public class DifferenceEngine
         implements DifferenceEngineContract {
 
+    private final XMLUnitProperties properties;
+
     private static final String NULL_NODE = "null";
     private static final String NOT_NULL_NODE = "not null";
     private static final String ATTRIBUTE_ABSENT = "[attribute absent]";
@@ -86,8 +91,8 @@ public class DifferenceEngine
      *            by this class should halt further comparison or not
      * @see ComparisonController#haltComparison(Difference)
      */
-    public DifferenceEngine(ComparisonController controller) {
-        this(controller, null);
+    public DifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller) {
+        this(properties, controller, null);
     }
 
     /**
@@ -102,8 +107,15 @@ public class DifferenceEngine
      * @see ComparisonController#haltComparison(Difference)
      * @see MatchTracker#matchFound(Difference)
      */
-    public DifferenceEngine(ComparisonController controller,
+    public DifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller,
             MatchTracker matchTracker) {
+
+        if (properties == null) {
+            this.properties = new XMLUnitProperties();
+        } else {
+            this.properties = properties.clone();
+        }
+
         this.controller = controller;
         this.matchTracker = matchTracker;
         this.controlTracker = new XpathNodeTracker();
@@ -396,8 +408,8 @@ public class DifferenceEngine
      *            the control NodeList.
      * @throws DifferenceFoundException
      */
-    protected void compareNodeList(final List controlChildren,
-            final List testChildren,
+    protected void compareNodeList(final List<Node> controlChildren,
+            final List<Node> testChildren,
             final int numNodes,
             final DifferenceListener listener,
             final ElementQualifier elementQualifier)
@@ -407,14 +419,14 @@ public class DifferenceEngine
         final int lastTestNode = testChildren.size() - 1;
         testTracker.preloadChildList(testChildren);
 
-        HashMap/* <Node, Node> */matchingNodes = new HashMap();
-        HashMap/* <Node, Integer> */matchingNodeIndexes = new HashMap();
+        Map<Node, Node> matchingNodes = new HashMap<Node, Node>();
+        Map<Node, Integer> matchingNodeIndexes = new HashMap<Node, Integer>();
 
-        List/* <Node> */unmatchedTestNodes = new ArrayList(testChildren);
+        List<Node> unmatchedTestNodes = new ArrayList<Node>(testChildren);
 
         // first pass to find the matching nodes in control and test docs
         for (int i = 0; i < numNodes; ++i) {
-            Node nextControl = (Node) controlChildren.get(i);
+            Node nextControl = controlChildren.get(i);
             boolean matchOnElement = nextControl instanceof Element;
             short findNodeType = nextControl.getNodeType();
             int startAt = (i > lastTestNode ? lastTestNode : i);
@@ -938,7 +950,7 @@ public class DifferenceEngine
      *         account if necessary)
      */
     private boolean unequalNotNull(Object expected, Object actual) {
-        if ((XMLUnit.getIgnoreWhitespace() || XMLUnit.getNormalizeWhitespace())
+        if ((properties.getIgnoreWhitespace() || XMLUnit.getNormalizeWhitespace())
                 && expected instanceof String && actual instanceof String) {
             String expectedString = ((String) expected).trim();
             String actualString = ((String) actual).trim();

@@ -1,0 +1,30 @@
+<matchers>
+
+  <!-- Hamcrest library -->
+  <!--  <factory class="org.hamcrest.core.Is"/> -->
+
+  <!-- Custom extension -->
+  <factory class="org.custommonkey.xmlunit.matchers.validation.XmlStringValidMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.validation.XmlStringInvalidMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.validation.XmlInputSourceValidMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.validation.XmlInputSourceInvalidMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.validation.XmlValidatorValidMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.validation.XmlValidatorInvalidMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.comparison.XmlEqualDocumentMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualDocumentMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.comparison.XmlEqualStringMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualStringMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.comparison.XmlEqualReaderMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualReaderMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathExistsInXmlStringMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInXmlStringMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathExistsInDocumentMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInDocumentMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathsEqualMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathsNotEqualMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathEvaluatesToValueMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathValuesEqualMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.xpath.XpathValuesNotEqualMatcher"/>
+  <factory class="org.custommonkey.xmlunit.matchers.NoteTestPassesMatcher"/>
+
+</matchers>

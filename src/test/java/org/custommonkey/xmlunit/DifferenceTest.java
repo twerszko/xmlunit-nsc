@@ -132,7 +132,7 @@ public class DifferenceTest {
         // given
         String control = "<foo><bar a=\"x\" y=\"z\"/></foo>";
         String test = "<foo><bar a=\"x\"/></foo>";
-        Diff diff = new Diff(control, test);
+        Diff diff = new Diff(new XMLUnitProperties(), control, test);
         DetailedDiff detailedDiff = new DetailedDiff(diff);
 
         // when
