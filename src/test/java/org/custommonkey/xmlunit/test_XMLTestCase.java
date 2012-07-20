@@ -53,7 +53,6 @@ import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.passesWith;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.valueIsEqualToXpathValue;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.valueIsNotEqualToXpathValue;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.xpathEvaluatesTo;
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -129,8 +128,7 @@ public class test_XMLTestCase {
         try {
             assertThat(new FileReader("nosuchfile.xml"),
                     is(notEqualToXmlReader(new FileReader("nosuchfile.xml"))));
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getCause()).isInstanceOf(FileNotFoundException.class);
+        } catch (FileNotFoundException e) {
         }
     }
 
@@ -531,25 +529,6 @@ public class test_XMLTestCase {
     public void testAssertXpathExistsFails() throws Exception {
         String xmlDocument = "<axrtable> <schema name=\"emptySchema\"><relation name=\"\"></relation></schema></axrtable>";
         assertThat(xmlDocument, containsXpath("/axrtable/schema"));
-    }
-
-    // bug 3290264
-    @Test
-    public void testAssertXpathEqualsAndAttributes() throws Exception {
-        XpathWrapper controlXpath1 = getControlXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" /></foo>");
-        XpathWrapper testXpath1 = getTestXpath("/foo/Bar", "<foo><Bar a=\"1\" /></foo>");
-
-        assertThat(testXpath1, is(notEqualToXpath(controlXpath1)));
-
-        XpathWrapper controlXpath2 = getControlXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"1\"/></foo>");
-        XpathWrapper testXpath2 = getTestXpath("/foo/Bar/@b", "<foo><Bar a=\"1\" b=\"1\"/></foo>");
-
-        assertThat(testXpath2, is(notEqualToXpath(controlXpath2)));
-
-        XpathWrapper controlXpath3 = getControlXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"2\"/></foo>");
-        XpathWrapper testXpath3 = getTestXpath("/foo/Bar/@a", "<foo><Bar a=\"1\" b=\"2\"/></foo>");
-
-        assertThat(testXpath3, is(equalToXpath(controlXpath3)));
     }
 
     private XpathWrapper getTestXpath(String testXpath, String testXml) throws SAXException, IOException {
