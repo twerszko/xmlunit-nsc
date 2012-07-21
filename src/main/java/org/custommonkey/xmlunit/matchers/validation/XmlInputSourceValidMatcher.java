@@ -1,7 +1,7 @@
 package org.custommonkey.xmlunit.matchers.validation;
 
 import org.custommonkey.xmlunit.Validator;
-import org.custommonkey.xmlunit.util.AbstractXmlValidMatcher;
+import org.custommonkey.xmlunit.matchers.AbstractXmlValidMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.xml.sax.InputSource;

@@ -1,4 +1,4 @@
-package org.custommonkey.xmlunit.util;
+package org.custommonkey.xmlunit.matchers;
 
 import org.hamcrest.TypeSafeMatcher;
 

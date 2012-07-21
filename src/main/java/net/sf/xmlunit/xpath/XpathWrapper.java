@@ -1,29 +1,73 @@
+//  Copyright 2012 Tomasz Werszko
+//		
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//	
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+
 package net.sf.xmlunit.xpath;
 
+import javax.xml.transform.TransformerException;
+
+import org.custommonkey.xmlunit.util.DomUtils;
 import org.w3c.dom.Document;
 
-//TODO: docu
+/**
+ * This object is a simple wrapper that holds xpath string and a document
+ * related with it
+ * 
+ */
 public class XpathWrapper {
-    private final String xpath;
-    private final Document document;
+	private final String xpath;
+	private final Document document;
 
-    public XpathWrapper(String xpath, Document document) {
-        if (xpath == null) {
-            throw new IllegalArgumentException("Xpath cannot be null!");
-        }
-        if (document == null) {
-            throw new IllegalArgumentException("Document cannot be null");
-        }
-        this.xpath = xpath;
-        this.document = document;
-    }
+	/**
+	 * @param xpath
+	 * @param document
+	 * 
+	 * @throws IllegalArgumentException
+	 *             when at least one parameter is null.
+	 */
+	public XpathWrapper(String xpath, Document document) {
+		if (xpath == null) {
+			throw new IllegalArgumentException("Xpath cannot be null!");
+		}
+		if (document == null) {
+			throw new IllegalArgumentException("Document cannot be null");
+		}
+		this.xpath = xpath;
+		this.document = document;
+	}
 
-    public String getXpath() {
-        return xpath;
-    }
+	/**
+	 * @return Xpath string
+	 */
+	public String getXpath() {
+		return xpath;
+	}
 
-    public Document getDocument() {
-        return document;
-    }
+	/**
+	 * @return Document related with xpath string.
+	 */
+	public Document getDocument() {
+		return document;
+	}
 
+	@Override
+	public String toString() {
+		String xml;
+		try {
+			xml = DomUtils.documentToString(document);
+		} catch (TransformerException e) {
+			xml = "invalid xml";
+		}
+		return "XpathWrapper [xpath=" + xpath + ", document=" + xml + "]";
+	}
 }
