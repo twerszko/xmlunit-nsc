@@ -36,13 +36,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.containsXpath;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.documentContainsXpath;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.documentNotContainsXpath;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlDocument;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlReader;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlString;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notContainsXpath;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlDocument;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlReader;
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlString;
@@ -344,74 +340,6 @@ public class test_XMLTestCase {
 		// see test_Validator class
 	}
 
-	private static final String TREES_OPEN = "<trees>";
-	private static final String TREES_CLOSE = "</trees>";
-	private static final String xpathNodesControlXML = TREES_OPEN + "<tree evergreen=\"false\">oak</tree>"
-	        + "<tree evergreen=\"false\">ash</tree>" + "<tree evergreen=\"true\">scots pine</tree>"
-	        + "<tree evergreen=\"true\">spruce</tree>" + "<favourite><!-- is this a tree or a bush?! -->"
-	        + "<tree evergreen=\"false\">magnolia</tree>" + "</favourite>" + "<fruit>"
-	        + "<apples><crunchy/><yum/><tree evergreen=\"false\">apple</tree></apples>" + "</fruit>" + TREES_CLOSE;
-
-	@Test
-	public void testDocumentAssertXpathExists() throws Exception {
-		Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
-		assertThat(controlDoc, documentContainsXpath("/trees/fruit/apples/yum"));
-		assertThat(controlDoc, documentContainsXpath("//tree[@evergreen='false']"));
-		try {
-			assertThat(controlDoc, documentContainsXpath("//tree[@evergreen='idunno']"));
-			fail("Xpath does not exist");
-		} catch (AssertionError e) {
-			// expected
-		}
-	}
-
-	@Test
-	public void testStringAssertXpathExists() throws Exception {
-		assertThat(xpathNodesControlXML, containsXpath("/trees/fruit/apples/yum"));
-		assertThat(xpathNodesControlXML, containsXpath("//tree[@evergreen='false']"));
-		try {
-			assertThat(xpathNodesControlXML, containsXpath("//tree[@evergreen='idunno']"));
-			fail("Xpath does not exist");
-		} catch (AssertionError e) {
-			// expected
-		}
-	}
-
-	@Test
-	public void testDocumentAssertNotXpathExists() throws Exception {
-		Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
-		assertThat(controlDoc, documentNotContainsXpath("//tree[@evergreen='idunno']"));
-		try {
-			assertThat(controlDoc, documentNotContainsXpath("/trees/fruit/apples/yum"));
-			fail("Xpath does exist, once");
-		} catch (AssertionError e) {
-			// expected
-		}
-		try {
-			assertThat(controlDoc, documentNotContainsXpath("//tree[@evergreen='false']"));
-			fail("Xpath does exist many times");
-		} catch (AssertionError e) {
-			// expected
-		}
-	}
-
-	@Test
-	public void testStringAssertNotXpathExists() throws Exception {
-		assertThat(xpathNodesControlXML, notContainsXpath("//tree[@evergreen='idunno']"));
-		try {
-			assertThat(xpathNodesControlXML, notContainsXpath("/trees/fruit/apples/yum"));
-			fail("Xpath does exist, once");
-		} catch (AssertionError e) {
-			// expected
-		}
-		try {
-			assertThat(xpathNodesControlXML, notContainsXpath("//tree[@evergreen='false']"));
-			fail("Xpath does exist many times");
-		} catch (AssertionError e) {
-			// expected
-		}
-	}
-
 	// TODO
 	// Bug 585555
 	@Test
@@ -460,13 +388,6 @@ public class test_XMLTestCase {
 		Document htmlDoc = XMLUnit.buildControlDocument(html);
 
 		assertThat(new XpathWrapper("count(//td)", htmlDoc), XmlUnitMatchers.xpathEvaluatesTo("25"));
-	}
-
-	// bug 1418497
-	@Test
-	public void testAssertXpathExistsFails() throws Exception {
-		String xmlDocument = "<axrtable> <schema name=\"emptySchema\"><relation name=\"\"></relation></schema></axrtable>";
-		assertThat(xmlDocument, containsXpath("/axrtable/schema"));
 	}
 
 	private static String addNamespaceToDocument(String original) {

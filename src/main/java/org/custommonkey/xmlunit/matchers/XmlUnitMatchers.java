@@ -59,12 +59,12 @@ public class XmlUnitMatchers {
     return org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInXmlStringMatcher.notContainsXpath(expectedXpath);
   }
 
-  public static org.custommonkey.xmlunit.matchers.xpath.XpathExistsInDocumentMatcher documentNotContainsXpath(java.lang.String expectedXpath) {
-    return org.custommonkey.xmlunit.matchers.xpath.XpathExistsInDocumentMatcher.documentNotContainsXpath(expectedXpath);
+  public static org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInDocumentMatcher documentNotContainsXpath(java.lang.String expectedXpath) {
+    return org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInDocumentMatcher.documentNotContainsXpath(expectedXpath);
   }
 
-  public static org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInDocumentMatcher documentContainsXpath(java.lang.String expectedXpath) {
-    return org.custommonkey.xmlunit.matchers.xpath.XpathNotExistsInDocumentMatcher.documentContainsXpath(expectedXpath);
+  public static org.custommonkey.xmlunit.matchers.xpath.XpathExistsInDocumentMatcher documentContainsXpath(java.lang.String expectedXpath) {
+    return org.custommonkey.xmlunit.matchers.xpath.XpathExistsInDocumentMatcher.documentContainsXpath(expectedXpath);
   }
 
   public static org.custommonkey.xmlunit.matchers.xpath.XpathsEqualMatcher equalToXpath(net.sf.xmlunit.xpath.XpathWrapper expectedXpath) {
