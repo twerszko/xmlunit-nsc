@@ -491,12 +491,8 @@ public class DiffTest {
 
     @Test
     public void should_check_whitespace_awareness_with_normalization() throws SAXException, IOException {
-        try {
-            XMLUnit.setNormalize(true);
-            should_check_whitespace_awareness();
-        } finally {
-            XMLUnit.setNormalize(false);
-        }
+        properties.setNormalize(true);
+        should_check_whitespace_awareness();
     }
 
     // TODO
@@ -973,14 +969,9 @@ public class DiffTest {
 
     @Test
     public void should_pass_when_normalization() throws SAXException, IOException {
-        // TODO clean it up;
-        try {
-            XMLUnit.setNormalize(true);
-            should_neither_be_identical_nor_similar_when_different_commants();
-            should_be_identical_and_similar_when_different_commants();
-        } finally {
-            XMLUnit.setNormalize(false);
-        }
+        properties.setNormalize(true);
+        should_neither_be_identical_nor_similar_when_different_commants();
+        should_be_identical_and_similar_when_different_commants();
     }
 
     @Test
@@ -1008,14 +999,13 @@ public class DiffTest {
         // TODO This is ugly, test flow is disturbed - must be changed
         Diff diff = prepareDiff(properties, control, test);
         assertThat(diff.identical()).isFalse();
-        try {
-            XMLUnit.setNormalize(true);
-            diff = prepareDiff(properties, control, test);
-            assertTrue(diff.identical());
-            assertTrue(diff.similar());
-        } finally {
-            XMLUnit.setNormalize(false);
-        }
+
+        properties.setNormalize(true);
+        diff = prepareDiff(properties, control, test);
+        assertTrue(diff.identical());
+        assertTrue(diff.similar());
+        properties.setNormalize(false);
+
         diff = prepareDiff(properties, control, test);
         assertThat(diff.similar()).isFalse();
     }

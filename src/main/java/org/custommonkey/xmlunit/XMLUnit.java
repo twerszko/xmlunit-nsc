@@ -762,45 +762,6 @@ public final class XMLUnit {
     }
 
     /**
-     * Whether Text nodes should be normalized.
-     * 
-     * <p>
-     * The default value is false
-     * </p>
-     * 
-     * <p>
-     * <b>Note:</b> if you are only working with documents read from streams
-     * (like files or network connections) or working with strings, there is no
-     * reason to change the default since the XML parser is required to
-     * normalize the documents. If you are testing {@link org.w3c.Document
-     * Document} instances you've created in code, you may want to alter the
-     * default behavior.
-     * </p>
-     * 
-     * <p>
-     * <b>Note2:</b> depending on the XML parser or XSLT transformer you use,
-     * setting {@link setIgnoreWhitespace ignoreWhitespace} or
-     * {@link setIgnoreComments ignoreComments} to true may have already
-     * normalized your document and this setting doesn't have any effect
-     * anymore.
-     * </p>
-     */
-    public static void setNormalize(boolean b) {
-        normalize = b;
-    }
-
-    /**
-     * Whether Text nodes should be normalized.
-     * 
-     * <p>
-     * The default value is false
-     * </p>
-     */
-    public static boolean getNormalize() {
-        return normalize;
-    }
-
-    /**
      * Whether to ignore the order of attributes on an element.
      * 
      * <p>

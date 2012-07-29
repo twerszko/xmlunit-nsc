@@ -239,7 +239,7 @@ public class Diff implements DifferenceListener, ComparisonController {
     }
 
     private Document getNormalizedDocument(Document orig) {
-        if (!XMLUnit.getNormalize()) {
+        if (!properties.getNormalize()) {
             return orig;
         }
         Document d = (Document) orig.cloneNode(true);
