@@ -1,11 +1,14 @@
 package org.custommonkey.xmlunit;
 
+import javax.annotation.Nullable;
+
 public class XMLUnitProperties implements Cloneable {
 
     private boolean ignoreWhitespace = false;
     private boolean normalizeWhitespace = false;
     private boolean ignoreComments = false;
     private boolean normalize = false;
+    private NamespaceContext xpathNamespaceContext;
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -122,6 +125,20 @@ public class XMLUnitProperties implements Cloneable {
      */
     public void setNormalize(boolean normalize) {
         this.normalize = normalize;
+    }
+
+    /**
+     * Get the NamespaceContext to use in XPath tests.
+     */
+    public NamespaceContext getXpathNamespaceContext() {
+        return xpathNamespaceContext;
+    }
+
+    /**
+     * Set the NamespaceContext to use in XPath tests.
+     */
+    public void setXpathNamespaceContext(@Nullable NamespaceContext xpathNamespaceContext) {
+        this.xpathNamespaceContext = xpathNamespaceContext;
     }
 
     @Override

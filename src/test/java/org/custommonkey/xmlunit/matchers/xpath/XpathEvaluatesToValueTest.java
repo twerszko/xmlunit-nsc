@@ -25,14 +25,18 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
 public class XpathEvaluatesToValueTest {
     private static final String PREFIX = "foo";
     private static final String TEST_NS = "urn:org.example";
-    private static final NamespaceContext NS_CONTEXT;
-    static {
+    private static NamespaceContext NS_CONTEXT;
+
+    @BeforeClass
+    public static void setUpClass() {
         HashMap<String, String> m = new HashMap<String, String>();
         m.put(PREFIX, TEST_NS);
         NS_CONTEXT = new SimpleNamespaceContext(m);
@@ -87,19 +91,26 @@ public class XpathEvaluatesToValueTest {
         } catch (AssertionError e) {
         }
 
-        XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
-        assertThat(new XpathWrapper("//" + PREFIX + ":outer/@attr", inDocument1), xpathEvaluatesTo("urk"));
+        XMLUnit xmlUnitWithCotext = new XmlUnitBuilder()
+                .withXpathNamespaceContext(NS_CONTEXT)
+                .build();
+
+        assertThat(new XpathWrapper("//" + PREFIX + ":outer/@attr", inDocument1),
+                xpathEvaluatesTo("urk").using(xmlUnitWithCotext));
         try {
-            assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument1), xpathEvaluatesTo("yum"));
+            assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument1),
+                    xpathEvaluatesTo("yum").using(xmlUnitWithCotext));
             fail("Expected assertion to fail #2");
         } catch (AssertionError e) {
         }
-        assertThat(new XpathWrapper("count(//@attr)", inDocument1), xpathEvaluatesTo("2"));
+        assertThat(new XpathWrapper("count(//@attr)", inDocument1), xpathEvaluatesTo("2").using(xmlUnitWithCotext));
 
         Document inDocument2 = XMLUnit.buildTestDocument(XPATH_VALUES_TEST_XMLNS);
-        assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument2), xpathEvaluatesTo("ugh"));
+        assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument2),
+                xpathEvaluatesTo("ugh").using(xmlUnitWithCotext));
         try {
-            assertThat(new XpathWrapper("//" + PREFIX + ":outer/@attr", inDocument2), xpathEvaluatesTo("yeah"));
+            assertThat(new XpathWrapper("//" + PREFIX + ":outer/@attr", inDocument2),
+                    xpathEvaluatesTo("yeah").using(xmlUnitWithCotext));
             fail("Expected assertion to fail #3");
         } catch (AssertionError e) {
         }

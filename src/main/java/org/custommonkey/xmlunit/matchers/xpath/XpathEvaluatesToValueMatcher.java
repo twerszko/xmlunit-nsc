@@ -16,7 +16,6 @@ package org.custommonkey.xmlunit.matchers.xpath;
 
 import net.sf.xmlunit.xpath.XpathWrapper;
 
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -52,7 +51,7 @@ public class XpathEvaluatesToValueMatcher extends AbstractXmlUnitMatcher<XpathWr
         if (actualXpath == null) {
             throw new IllegalArgumentException("Actual xpath cannot be null or empty!");
         }
-        XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
+        XpathEngine simpleXpathEngine = getXmlUnit().newXpathEngine();
         try {
             actualEvalueatedXpathValue = simpleXpathEngine.evaluate(actualXpath.getXpath(), actualXpath.getDocument());
         } catch (XpathException e) {

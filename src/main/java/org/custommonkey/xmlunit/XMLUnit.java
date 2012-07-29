@@ -76,9 +76,7 @@ public final class XMLUnit {
     private static URIResolver uriResolver = null;
     private static EntityResolver testEntityResolver = null;
     private static EntityResolver controlEntityResolver = null;
-    private static NamespaceContext namespaceContext = null;
     private static boolean ignoreDiffBetweenTextAndCDATA = false;
-    private static boolean normalize = false;
     private static boolean ignoreAttributeOrder = true;
     private static String xsltVersion = "1.0";
     private static String xpathFactoryName = null;
@@ -697,23 +695,9 @@ public final class XMLUnit {
     }
 
     /**
-     * Get the NamespaceContext to use in XPath tests.
-     */
-    public static NamespaceContext getXpathNamespaceContext() {
-        return namespaceContext;
-    }
-
-    /**
-     * Set the NamespaceContext to use in XPath tests.
-     */
-    public static void setXpathNamespaceContext(NamespaceContext ctx) {
-        namespaceContext = ctx;
-    }
-
-    /**
      * Obtains an XpathEngine to use in XPath tests.
      */
-    public static XpathEngine newXpathEngine() {
+    public XpathEngine newXpathEngine() {
         XpathEngine eng = null;
         try {
             Class.forName("javax.xml.xpath.XPath");
@@ -727,8 +711,9 @@ public final class XMLUnit {
             // without implementations
             eng = new SimpleXpathEngine();
         }
-        if (namespaceContext != null) {
-            eng.setNamespaceContext(namespaceContext);
+        if (properties.getXpathNamespaceContext() != null) {
+            // TODO
+            eng.setNamespaceContext(properties.getXpathNamespaceContext());
         }
         return eng;
     }

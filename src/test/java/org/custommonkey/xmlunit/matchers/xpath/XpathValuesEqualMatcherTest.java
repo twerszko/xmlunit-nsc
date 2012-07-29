@@ -26,7 +26,7 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.After;
+import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -65,11 +65,6 @@ public class XpathValuesEqualMatcherTest {
         NS_CONTEXT = new SimpleNamespaceContext(m);
     }
 
-    @After
-    public void tearDown() {
-        XMLUnit.setXpathNamespaceContext(null);
-    }
-
     @Test
     public void testXpathValuesEqualUsingDocument() throws Exception {
         Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXML);
@@ -101,22 +96,25 @@ public class XpathValuesEqualMatcherTest {
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
         assertThat(testXpath1, notEqualToXpathValueOf(controlXpath1));
 
-        XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
+        XMLUnit xmlUnitWithCotext = new XmlUnitBuilder()
+                .withXpathNamespaceContext(NS_CONTEXT)
+                .build();
+
         XpathWrapper testXpath2 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
         XpathWrapper controlXpath2 = new XpathWrapper("//text()", controlDocument);
-        assertThat(testXpath2, equalToXpathValueOf(controlXpath2));
+        assertThat(testXpath2, equalToXpathValueOf(controlXpath2).using(xmlUnitWithCotext));
 
         XpathWrapper testXpath3 = new XpathWrapper("//" + PREFIX + ":outer/@attr", testDocument);
         XpathWrapper controlXpath3 = new XpathWrapper("//" + PREFIX + ":inner/@attr", controlDocument);
-        assertThat(testXpath3, equalToXpathValueOf(controlXpath3));
+        assertThat(testXpath3, equalToXpathValueOf(controlXpath3).using(xmlUnitWithCotext));
 
         XpathWrapper testXpath4 = new XpathWrapper("//" + PREFIX + ":outer/@attr", controlDocument);
         XpathWrapper controlXpath4 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
-        assertThat(testXpath4, notEqualToXpathValueOf(controlXpath4));
+        assertThat(testXpath4, notEqualToXpathValueOf(controlXpath4).using(xmlUnitWithCotext));
 
         XpathWrapper testXpath5 = new XpathWrapper("//text()", testDocument);
         XpathWrapper controlXpath5 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
-        assertThat(testXpath5, notEqualToXpathValueOf(controlXpath5));
+        assertThat(testXpath5, notEqualToXpathValueOf(controlXpath5).using(xmlUnitWithCotext));
     }
 
     @Test
@@ -150,22 +148,24 @@ public class XpathValuesEqualMatcherTest {
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
         assertThat(testXpath1, notEqualToXpathValueOf(controlXpath1));
 
-        XMLUnit.setXpathNamespaceContext(NS_CONTEXT);
+        XMLUnit xmlUnitWithCotext = new XmlUnitBuilder()
+                .withXpathNamespaceContext(NS_CONTEXT)
+                .build();
 
         XpathWrapper testXpath2 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
         XpathWrapper controlXpath2 = new XpathWrapper("//text()", controlDocument);
-        assertThat(testXpath2, equalToXpathValueOf(controlXpath2));
+        assertThat(testXpath2, equalToXpathValueOf(controlXpath2).using(xmlUnitWithCotext));
 
         XpathWrapper testXpath3 = new XpathWrapper("//" + PREFIX + ":outer/@attr", testDocument);
         XpathWrapper controlXpath3 = new XpathWrapper("//" + PREFIX + ":inner/@attr", controlDocument);
-        assertThat(testXpath3, equalToXpathValueOf(controlXpath3));
+        assertThat(testXpath3, equalToXpathValueOf(controlXpath3).using(xmlUnitWithCotext));
 
         XpathWrapper testXpath4 = new XpathWrapper("//" + PREFIX + ":outer/@attr", controlDocument);
         XpathWrapper controlXpath4 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
-        assertThat(testXpath4, notEqualToXpathValueOf(controlXpath4));
+        assertThat(testXpath4, notEqualToXpathValueOf(controlXpath4).using(xmlUnitWithCotext));
 
         XpathWrapper testXpath5 = new XpathWrapper("//text()", testDocument);
         XpathWrapper controlXpath5 = new XpathWrapper("//" + PREFIX + ":inner/text()", controlDocument);
-        assertThat(testXpath5, notEqualToXpathValueOf(controlXpath5));
+        assertThat(testXpath5, notEqualToXpathValueOf(controlXpath5).using(xmlUnitWithCotext));
     }
 }

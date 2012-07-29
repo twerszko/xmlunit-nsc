@@ -2,7 +2,6 @@ package org.custommonkey.xmlunit.matchers.xpath;
 
 import net.sf.xmlunit.xpath.XpathWrapper;
 
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -34,7 +33,7 @@ public class XpathValuesNotEqualMatcher extends AbstractXmlUnitMatcher<XpathWrap
 
     @Override
     public boolean matchesSafely(XpathWrapper actualXpath) {
-        XpathEngine xpath = XMLUnit.newXpathEngine();
+        XpathEngine xpath = getXmlUnit().newXpathEngine();
         try {
             expectedXpathValue = xpath.evaluate(expectedXpath.getXpath(), expectedXpath.getDocument());
             actualXpathValue = xpath.evaluate(actualXpath.getXpath(), actualXpath.getDocument());

@@ -1,5 +1,7 @@
 package org.custommonkey.xmlunit;
 
+import javax.annotation.Nullable;
+
 public class XmlUnitBuilder {
     private final XMLUnitProperties properties;
 
@@ -84,5 +86,13 @@ public class XmlUnitBuilder {
 
     public XMLUnit build() {
         return new XMLUnit(properties);
+    }
+
+    /**
+     * Set the NamespaceContext to use in XPath tests.
+     */
+    public XmlUnitBuilder withXpathNamespaceContext(@Nullable NamespaceContext xpathNamespaceContext) {
+        properties.setXpathNamespaceContext(xpathNamespaceContext);
+        return this;
     }
 }

@@ -16,7 +16,6 @@ package org.custommonkey.xmlunit.matchers.xpath;
 
 import javax.xml.transform.TransformerException;
 
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -75,7 +74,7 @@ public class XpathNotExistsInDocumentMatcher extends AbstractXmlUnitMatcher<Docu
 
         NodeList nodeList;
         try {
-            XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
+            XpathEngine simpleXpathEngine = getXmlUnit().newXpathEngine();
             nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, actualXmlDoc);
         } catch (XpathException e) {
             throw new IllegalArgumentException("Invalid xpath!", e);
