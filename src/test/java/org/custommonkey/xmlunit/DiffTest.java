@@ -1037,22 +1037,32 @@ public class DiffTest {
     }
 
     @Test
-    public void testNormalizedWhitespace() throws SAXException, IOException {
+    public void should_neither_be_identical_nor_similar_when_different_whitespaces() throws SAXException, IOException {
         // given
         String control = "<foo>a = b;</foo>";
         String test = "<foo>\r\n\ta =\tb; \r\n</foo>";
-        try {
-            // when - then
-            Diff diff = prepareDiff(properties, control, test);
-            assertThat(diff.identical()).isFalse();
-            assertThat(diff.similar()).isFalse();
-            XMLUnit.setNormalizeWhitespace(true);
-            diff = prepareDiff(properties, control, test);
-            assertThat(diff.identical()).isTrue();
-            assertThat(diff.similar()).isTrue();
-        } finally {
-            XMLUnit.setNormalizeWhitespace(false);
-        }
+
+        // when
+        Diff diff = prepareDiff(properties, control, test);
+
+        // then
+        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).isFalse();
+    }
+
+    @Test
+    public void should_be_identical_and_similar_when_different_whitespaces() throws SAXException, IOException {
+        // given
+        properties.setNormalizeWhitespace(true);
+        String control = "<foo>a = b;</foo>";
+        String test = "<foo>\r\n\ta =\tb; \r\n</foo>";
+
+        // when
+        Diff diff = prepareDiff(properties, control, test);
+
+        // then
+        assertThat(diff.identical()).isTrue();
+        assertThat(diff.similar()).isTrue();
     }
 
     /**

@@ -226,7 +226,7 @@ public class NewDifferenceEngine
             ctrlSource = new CommentLessSource(ctrlSource);
             tstSource = new CommentLessSource(tstSource);
         }
-        if (XMLUnit.getNormalizeWhitespace()) {
+        if (properties.getNormalizeWhitespace()) {
             ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
             tstSource = new WhitespaceNormalizedSource(tstSource);
         } else if (properties.getIgnoreWhitespace()) {

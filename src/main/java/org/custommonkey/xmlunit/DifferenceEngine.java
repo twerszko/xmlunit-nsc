@@ -950,11 +950,11 @@ public class DifferenceEngine
      *         account if necessary)
      */
     private boolean unequalNotNull(Object expected, Object actual) {
-        if ((properties.getIgnoreWhitespace() || XMLUnit.getNormalizeWhitespace())
+        if ((properties.getIgnoreWhitespace() || properties.getNormalizeWhitespace())
                 && expected instanceof String && actual instanceof String) {
             String expectedString = ((String) expected).trim();
             String actualString = ((String) actual).trim();
-            if (XMLUnit.getNormalizeWhitespace()) {
+            if (properties.getNormalizeWhitespace()) {
                 expectedString = normalizeWhitespace(expectedString);
                 actualString = normalizeWhitespace(actualString);
             }
