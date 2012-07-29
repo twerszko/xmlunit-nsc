@@ -1,6 +1,12 @@
 package org.custommonkey.xmlunit;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
+
 import javax.annotation.Nullable;
+
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
 public class XMLUnitProperties implements Cloneable {
 
@@ -10,6 +16,7 @@ public class XMLUnitProperties implements Cloneable {
     private boolean normalize = false;
     private NamespaceContext xpathNamespaceContext;
     private boolean compareUnmatched = true;
+    private String xsltVersion = "1.0";
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -158,6 +165,39 @@ public class XMLUnitProperties implements Cloneable {
      */
     public void setCompareUnmatched(boolean compare) {
         this.compareUnmatched = compare;
+    }
+
+    /**
+     * The XSLT version set on stylesheets used internally.
+     * 
+     * <p>
+     * Defaults to "1.0".
+     * </p>
+     */
+    public String getXsltVersion() {
+        return xsltVersion;
+    }
+
+    /**
+     * Sets the XSLT version to set on stylesheets used internally.
+     * 
+     * <p>
+     * Defaults to "1.0".
+     * </p>
+     * 
+     * @throws ConfigurationException
+     *             if the argument cannot be parsed as a positive number.
+     */
+    public void setXsltVersion(String xsltVersion) {
+        try {
+            Number n = NumberFormat.getInstance(Locale.US).parse(xsltVersion);
+            if (n.doubleValue() < 0) {
+                throw new ConfigurationException(xsltVersion + " doesn't reperesent a positive number.");
+            }
+        } catch (ParseException e) {
+            throw new ConfigurationException(e);
+        }
+        this.xsltVersion = xsltVersion;
     }
 
     @Override

@@ -185,7 +185,7 @@ public class DetailedDiffTest extends DiffTest {
         DetailedDiff detailedDiff = new DetailedDiff(prototype);
         List<Difference> differences = detailedDiff.getAllDifferences();
 
-        SimpleXpathEngine xpathEngine = new SimpleXpathEngine();
+        SimpleXpathEngine xpathEngine = new SimpleXpathEngine(properties);
         Document controlDoc =
                 XMLUnit.buildControlDocument(
                         new InputSource(new FileReader(control)));

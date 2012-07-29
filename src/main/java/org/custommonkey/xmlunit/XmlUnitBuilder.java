@@ -2,11 +2,20 @@ package org.custommonkey.xmlunit;
 
 import javax.annotation.Nullable;
 
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+
 public class XmlUnitBuilder {
     private final XMLUnitProperties properties;
 
     public XmlUnitBuilder() {
         this.properties = new XMLUnitProperties();
+    }
+
+    public XmlUnitBuilder(XMLUnitProperties properties) {
+        if (properties == null) {
+            throw new IllegalArgumentException("Properties cannot be null!");
+        }
+        this.properties = properties.clone();
     }
 
     public static XmlUnitBuilder xmlUnit() {
@@ -96,8 +105,19 @@ public class XmlUnitBuilder {
         return this;
     }
 
-    public XMLUnit build() {
-        return new XMLUnit(properties);
+    /**
+     * Sets the XSLT version to set on stylesheets used internally.
+     * 
+     * <p>
+     * Defaults to "1.0".
+     * </p>
+     * 
+     * @throws ConfigurationException
+     *             if the argument cannot be parsed as a positive number.
+     */
+    public XmlUnitBuilder usingXsltVersion(String xsltVersion) {
+        properties.setXsltVersion(xsltVersion);
+        return this;
     }
 
     /**
@@ -107,4 +127,9 @@ public class XmlUnitBuilder {
         properties.setXpathNamespaceContext(xpathNamespaceContext);
         return this;
     }
+
+    public XMLUnit build() {
+        return new XMLUnit(properties);
+    }
+
 }

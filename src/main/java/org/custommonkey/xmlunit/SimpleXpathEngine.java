@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,51 +31,65 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
-
-import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.exceptions.XpathException;
 
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Iterator;
+
+import javax.annotation.Nullable;
 import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Result;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
  * Simple class for accessing the Nodes matched by an Xpath expression, or
- * evaluating the String value of an Xpath expression.
- * Uses a <code>copy-of</code> or <code>value-of</code> XSL template (as
- * appropriate) to execute the Xpath.
- * This is not an efficient method for accessing XPaths but it is portable
- * across underlying transform implementations. (Yes I know Jaxen is too, but
- * this approach seemed to be the simplest thing that could possibly work...)
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * evaluating the String value of an Xpath expression. Uses a
+ * <code>copy-of</code> or <code>value-of</code> XSL template (as appropriate)
+ * to execute the Xpath. This is not an efficient method for accessing XPaths
+ * but it is portable across underlying transform implementations. (Yes I know
+ * Jaxen is too, but this approach seemed to be the simplest thing that could
+ * possibly work...) <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
 
     private NamespaceContext ctx = SimpleNamespaceContext.EMPTY_CONTEXT;
 
+    private final XMLUnitProperties properties;
+
+    public SimpleXpathEngine(@Nullable XMLUnitProperties properties) {
+        if (properties == null) {
+            this.properties = new XMLUnitProperties();
+        } else {
+            this.properties = properties.clone();
+        }
+    }
+
     /**
      * What every XSL transform needs
+     * 
      * @return
      */
     private StringBuffer getXSLTBase() {
         StringBuffer result = new StringBuffer(XML_DECLARATION)
-            .append(XMLUnit.getXSLTStart());
+                .append(new XmlUnitBuilder(properties).build().getXSLTStart());
         String tmp = result.toString();
         int close = tmp.lastIndexOf('>');
         if (close == -1) {
@@ -86,42 +100,45 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
     }
 
     /**
-     * @param select an xpath syntax <code>select</code> expression
+     * @param select
+     *            an xpath syntax <code>select</code> expression
      * @return the <code>copy-of</code> transformation
      */
     private String getCopyTransformation(String select) {
         return getXSLTBase()
-            .append("<xsl:preserve-space elements=\"*\"/>")
-            .append("<xsl:output method=\"xml\" version=\"1.0\" encoding=\"UTF-8\"/>")
-            .append("<xsl:template match=\"/\">")
-            .append("<xpathResult>")
-            .append("<xsl:apply-templates select=\"").append(select)
-            .append("\" mode=\"result\"/>")
-            .append("</xpathResult>")
-            .append("</xsl:template>")
-            .append("<xsl:template match=\"*\" mode=\"result\">")
-            .append("  <xsl:copy-of select=\".\"/>")
-            .append("</xsl:template>")
-            .append("</xsl:stylesheet>")
-            .toString();
+                .append("<xsl:preserve-space elements=\"*\"/>")
+                .append("<xsl:output method=\"xml\" version=\"1.0\" encoding=\"UTF-8\"/>")
+                .append("<xsl:template match=\"/\">")
+                .append("<xpathResult>")
+                .append("<xsl:apply-templates select=\"").append(select)
+                .append("\" mode=\"result\"/>")
+                .append("</xpathResult>")
+                .append("</xsl:template>")
+                .append("<xsl:template match=\"*\" mode=\"result\">")
+                .append("  <xsl:copy-of select=\".\"/>")
+                .append("</xsl:template>")
+                .append("</xsl:stylesheet>")
+                .toString();
     }
 
     /**
-     * @param select an xpath syntax <code>select</code> expression
+     * @param select
+     *            an xpath syntax <code>select</code> expression
      * @return the <code>value-of</code> transformation
      */
     private String getValueTransformation(String select) {
         return getXSLTBase()
-            .append("<xsl:output method=\"text\"/>")
-            .append("<xsl:template match=\"/\">")
-            .append("  <xsl:value-of select=\"").append(select).append("\"/>")
-            .append("</xsl:template>")
-            .append("</xsl:stylesheet>")
-            .toString();
+                .append("<xsl:output method=\"text\"/>")
+                .append("<xsl:template match=\"/\">")
+                .append("  <xsl:value-of select=\"").append(select).append("\"/>")
+                .append("</xsl:template>")
+                .append("</xsl:stylesheet>")
+                .toString();
     }
 
     /**
      * Perform the actual transformation work required
+     * 
      * @param xslt
      * @param document
      * @param result
@@ -130,33 +147,35 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @throws ConfigurationException
      */
     private void performTransform(String xslt, Document document,
-                                  Result result)
-        throws TransformerException, ConfigurationException, XpathException {
+            Result result)
+            throws TransformerException, ConfigurationException, XpathException {
         try {
             StreamSource source = new StreamSource(new StringReader(xslt));
             TransformerFactory tf = XMLUnit.newTransformerFactory();
             ErrorListener el = new ErrorListener() {
-                    public void error(TransformerException ex)
+                public void error(TransformerException ex)
                         throws TransformerException {
-                        // any error in our simple stylesheet must be fatal
-                        throw ex;
-                    }
-                    public void fatalError(TransformerException ex)
+                    // any error in our simple stylesheet must be fatal
+                    throw ex;
+                }
+
+                public void fatalError(TransformerException ex)
                         throws TransformerException {
-                        throw ex;
-                    }
-                    public void warning(TransformerException ex) {
-                        // there shouldn't be any warning
-                        ex.printStackTrace();
-                    }
-                };
+                    throw ex;
+                }
+
+                public void warning(TransformerException ex) {
+                    // there shouldn't be any warning
+                    ex.printStackTrace();
+                }
+            };
             tf.setErrorListener(el);
             Transformer transformer = tf.newTransformer(source);
             // Issue 1985229 says Xalan-J 2.7.0 may return null for
             // illegal input
             if (transformer == null) {
                 throw new XpathException("failed to obtain an XSLT transformer"
-                                         + " for XPath expression.");
+                        + " for XPath expression.");
             }
             transformer.setErrorListener(el);
             transformer.transform(new DOMSource(document), result);
@@ -166,8 +185,9 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
     }
 
     /**
-     * Testable method to execute the copy-of transform and return the root
-     * node of the resulting Document.
+     * Testable method to execute the copy-of transform and return the root node
+     * of the resulting Document.
+     * 
      * @param select
      * @param document
      * @throws ConfigurationException
@@ -175,13 +195,14 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @return the root node of the Document created by the copy-of transform.
      */
     protected Node getXPathResultNode(String select, Document document)
-        throws ConfigurationException, TransformerException, XpathException {
+            throws ConfigurationException, TransformerException, XpathException {
         return getXPathResultAsDocument(select, document).getDocumentElement();
     }
 
     /**
-     * Execute the copy-of transform and return the resulting Document.
-     * Used for XMLTestCase comparison
+     * Execute the copy-of transform and return the resulting Document. Used for
+     * XMLTestCase comparison
+     * 
      * @param select
      * @param document
      * @throws ConfigurationException
@@ -189,23 +210,24 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @return the Document created by the copy-of transform.
      */
     protected Document getXPathResultAsDocument(String select,
-                                                Document document)
-        throws ConfigurationException, TransformerException, XpathException {
+            Document document)
+            throws ConfigurationException, TransformerException, XpathException {
         DOMResult result = new DOMResult();
         performTransform(getCopyTransformation(select), document, result);
         return (Document) result.getNode();
     }
 
     /**
-     * Execute the specified xpath syntax <code>select</code> expression
-     * on the specified document and return the list of nodes (could have
-     * length zero) that match
+     * Execute the specified xpath syntax <code>select</code> expression on the
+     * specified document and return the list of nodes (could have length zero)
+     * that match
+     * 
      * @param select
      * @param document
      * @return list of matching nodes
      */
     public NodeList getMatchingNodes(String select, Document document)
-        throws ConfigurationException, XpathException {
+            throws ConfigurationException, XpathException {
         try {
             return getXPathResultNode(select, document).getChildNodes();
         } catch (TransformerException ex) {
@@ -216,12 +238,13 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
     /**
      * Evaluate the result of executing the specified xpath syntax
      * <code>select</code> expression on the specified document
+     * 
      * @param select
      * @param document
      * @return evaluated result
      */
     public String evaluate(String select, Document document)
-        throws ConfigurationException, XpathException {
+            throws ConfigurationException, XpathException {
         try {
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
@@ -237,13 +260,13 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
     }
 
     /**
-     * returns namespace declarations for all namespaces known to the
-     * current context.
+     * returns namespace declarations for all namespaces known to the current
+     * context.
      */
     private String getNamespaceDeclarations() {
         StringBuffer nsDecls = new StringBuffer();
         String quoteStyle = "'";
-        for (Iterator keys = ctx.getPrefixes(); keys.hasNext(); ) {
+        for (Iterator keys = ctx.getPrefixes(); keys.hasNext();) {
             String prefix = (String) keys.next();
             String uri = ctx.getNamespaceURI(prefix);
             if (uri == null) {
@@ -262,8 +285,8 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
                 nsDecls.append(':');
             }
             nsDecls.append(prefix).append('=')
-                .append(quoteStyle).append(uri).append(quoteStyle)
-                .append(' ');
+                    .append(quoteStyle).append(uri).append(quoteStyle)
+                    .append(' ');
         }
         return nsDecls.toString();
     }

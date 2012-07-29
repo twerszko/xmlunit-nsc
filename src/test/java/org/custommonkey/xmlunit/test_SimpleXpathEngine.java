@@ -48,46 +48,46 @@ import org.w3c.dom.Node;
  */
 public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
 
-	private SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine();
+    private SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine(null);
 
-	protected XpathEngine newXpathEngine() {
-		return simpleXpathEngine;
-	}
+    protected XpathEngine newXpathEngine() {
+        return simpleXpathEngine;
+    }
 
-	@Test
-	public void testGetXPathResultNode() throws Exception {
-		Node result = simpleXpathEngine.getXPathResultNode("test",
-		        testDocument);
-		SimpleSerializer serializer = new SimpleSerializer();
-		serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		assertEquals(testString, serializer.serialize(result.getFirstChild()));
-	}
+    @Test
+    public void testGetXPathResultNode() throws Exception {
+        Node result = simpleXpathEngine.getXPathResultNode("test",
+                testDocument);
+        SimpleSerializer serializer = new SimpleSerializer();
+        serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        assertEquals(testString, serializer.serialize(result.getFirstChild()));
+    }
 
-	@Test
-	public void testGetMatchingNodesMatchText() throws Exception {
-		if (isJava5OrNewer()) {
-			// fails with "more recent" version of Xalan shipping with Java5
-			return;
-		}
-		super.testGetMatchingNodesMatchText();
-	}
+    @Test
+    public void testGetMatchingNodesMatchText() throws Exception {
+        if (isJava5OrNewer()) {
+            // fails with "more recent" version of Xalan shipping with Java5
+            return;
+        }
+        super.testGetMatchingNodesMatchText();
+    }
 
-	@Test
-	public void testEvaluate() throws Exception {
-		if (isJava5OrNewer()) {
-			// fails with "more recent" version of Xalan shipping with Java5
-			return;
-		}
-		super.testEvaluate();
-	}
+    @Test
+    public void testEvaluate() throws Exception {
+        if (isJava5OrNewer()) {
+            // fails with "more recent" version of Xalan shipping with Java5
+            return;
+        }
+        super.testEvaluate();
+    }
 
-	private static boolean isJava5OrNewer() {
-		try {
-			Class.forName("java.net.Proxy");
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
+    private static boolean isJava5OrNewer() {
+        try {
+            Class.forName("java.net.Proxy");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }

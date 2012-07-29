@@ -193,7 +193,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      */
     private Document getWhitespaceManipulatedDocument(Document originalDoc) {
         return properties.getIgnoreWhitespace()
-                ? XMLUnit.getWhitespaceStrippedDocument(originalDoc)
+                ? new XmlUnitBuilder(properties).build().getWhitespaceStrippedDocument(originalDoc)
                 : originalDoc;
     }
 
@@ -231,7 +231,7 @@ public class Diff implements DifferenceListener, ComparisonController {
             return orig;
         }
         try {
-            Transform commentStripper = XMLUnit.getStripCommentsTransform(orig);
+            Transform commentStripper = new XmlUnitBuilder(properties).build().getStripCommentsTransform(orig);
             return commentStripper.getResultDocument();
         } catch (TransformerException e) {
             throw new XMLUnitRuntimeException(e.getMessage(), e.getCause());

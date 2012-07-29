@@ -39,9 +39,6 @@ package org.custommonkey.xmlunit;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -78,7 +75,6 @@ public final class XMLUnit {
     private static EntityResolver controlEntityResolver = null;
     private static boolean ignoreDiffBetweenTextAndCDATA = false;
     private static boolean ignoreAttributeOrder = true;
-    private static String xsltVersion = "1.0";
     private static String xpathFactoryName = null;
     private static boolean expandEntities = false;
 
@@ -510,8 +506,8 @@ public final class XMLUnit {
         return saxParserFactory;
     }
 
-    private static String getStripWhitespaceStylesheet() {
-        return STRIP_WHITESPACE_STYLESHEET_START + getXSLTVersion()
+    private String getStripWhitespaceStylesheet() {
+        return STRIP_WHITESPACE_STYLESHEET_START + properties.getXsltVersion()
                 + STRIP_WHITESPACE_STYLESHEET_END;
     }
 
@@ -522,7 +518,7 @@ public final class XMLUnit {
      * @param forDocument
      * @return a <code>Transform</code> to do the whitespace stripping
      */
-    public static Transform getStripWhitespaceTransform(Document forDocument) {
+    public Transform getStripWhitespaceTransform(Document forDocument) {
         return new Transform(forDocument, getStripWhitespaceStylesheet());
     }
 
@@ -536,7 +532,7 @@ public final class XMLUnit {
      * shipping with JDK 1.5.
      * </p>
      */
-    public static Document getWhitespaceStrippedDocument(Document forDoc) {
+    public Document getWhitespaceStrippedDocument(Document forDoc) {
         String factory = getTransformerFactory().getClass().getName();
         if (XSLTConstants.JAVA5_XSLTC_FACTORY_NAME.equals(factory)) {
             return stripWhiteSpaceWithoutXSLT(forDoc);
@@ -545,7 +541,7 @@ public final class XMLUnit {
         }
     }
 
-    private static Document stripWhiteSpaceUsingXSLT(Document forDoc) {
+    private Document stripWhiteSpaceUsingXSLT(Document forDoc) {
         try {
             Transform whitespaceStripper = getStripWhitespaceTransform(forDoc);
             return whitespaceStripper.getResultDocument();
@@ -576,8 +572,8 @@ public final class XMLUnit {
         }
     }
 
-    private static String getStripCommentsStylesheet() {
-        return STRIP_COMMENTS_STYLESHEET_START + getXSLTVersion()
+    private String getStripCommentsStylesheet() {
+        return STRIP_COMMENTS_STYLESHEET_START + properties.getXsltVersion()
                 + STRIP_COMMENTS_STYLESHEET_END;
     }
 
@@ -587,7 +583,7 @@ public final class XMLUnit {
      * @param forDocument
      * @return a <code>Transform</code> to do the whitespace stripping
      */
-    public static Transform getStripCommentsTransform(Document forDocument) {
+    public Transform getStripCommentsTransform(Document forDocument) {
         return new Transform(forDocument, getStripCommentsStylesheet());
     }
 
@@ -708,7 +704,7 @@ public final class XMLUnit {
             // constellations - like Ant shipping a more recent version of
             // xml-apis than the JDK - may contain the JAXP 1.3 interfaces
             // without implementations
-            eng = new SimpleXpathEngine();
+            eng = new SimpleXpathEngine(properties);
         }
         if (properties.getXpathNamespaceContext() != null) {
             // TODO
@@ -782,40 +778,6 @@ public final class XMLUnit {
     }
 
     /**
-     * Sets the XSLT version to set on stylesheets used internally.
-     * 
-     * <p>
-     * Defaults to "1.0".
-     * </p>
-     * 
-     * @throws ConfigurationException
-     *             if the argument cannot be parsed as a positive number.
-     */
-    public static void setXSLTVersion(String s) {
-        try {
-            Number n = NumberFormat.getInstance(Locale.US).parse(s);
-            if (n.doubleValue() < 0) {
-                throw new ConfigurationException(s + " doesn't reperesent a"
-                        + " positive number.");
-            }
-        } catch (ParseException e) {
-            throw new ConfigurationException(e);
-        }
-        xsltVersion = s;
-    }
-
-    /**
-     * The XSLT version set on stylesheets used internally.
-     * 
-     * <p>
-     * Defaults to "1.0".
-     * </p>
-     */
-    public static String getXSLTVersion() {
-        return xsltVersion;
-    }
-
-    /**
      * Sets the class to use as XPathFactory when using JAXP 1.3.
      */
     public static void setXPathFactory(String className) {
@@ -832,9 +794,9 @@ public final class XMLUnit {
     /**
      * XSLT stylesheet element using the configured XSLT version.
      */
-    static String getXSLTStart() {
+    String getXSLTStart() {
         return XSLTConstants.XSLT_START_NO_VERSION
-                + XSLT_VERSION_START + getXSLTVersion() + XSLT_VERSION_END;
+                + XSLT_VERSION_START + properties.getXsltVersion() + XSLT_VERSION_END;
     }
 
     /**

@@ -109,31 +109,31 @@ public class test_XMLUnit extends TestCase {
     public void testStripWhitespaceTransform() throws Exception {
         Document doc = XMLUnit.buildTestDocument(
                 test_Constants.XML_WITH_WHITESPACE);
-        Transform transform = XMLUnit.getStripWhitespaceTransform(doc);
+        Transform transform = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc);
         Diff diff = new Diff(properties, test_Constants.XML_WITHOUT_WHITESPACE, transform);
         assertTrue(diff.similar());
     }
 
     public void testXSLTVersion() {
+        XMLUnit xmlUnit = new XmlUnitBuilder().build();
+
+        assertEquals("1.0", xmlUnit.getProperties().getXsltVersion());
+        assertEquals(XSLTConstants.XSLT_START, xmlUnit.getXSLTStart());
+
+        xmlUnit = new XmlUnitBuilder().usingXsltVersion("2.0").build();
+        assertTrue(xmlUnit.getXSLTStart()
+                .startsWith(XSLTConstants.XSLT_START_NO_VERSION));
+        assertTrue(xmlUnit.getXSLTStart().endsWith("\"2.0\">"));
+
         try {
-            assertEquals("1.0", XMLUnit.getXSLTVersion());
-            assertEquals(XSLTConstants.XSLT_START, XMLUnit.getXSLTStart());
-            XMLUnit.setXSLTVersion("2.0");
-            assertTrue(XMLUnit.getXSLTStart()
-                    .startsWith(XSLTConstants.XSLT_START_NO_VERSION));
-            assertTrue(XMLUnit.getXSLTStart().endsWith("\"2.0\">"));
-            try {
-                XMLUnit.setXSLTVersion("foo");
-                fail("foo is not a number");
-            } catch (ConfigurationException expected) {
-            }
-            try {
-                XMLUnit.setXSLTVersion("-1.0");
-                fail("-1.0 is negative");
-            } catch (ConfigurationException expected) {
-            }
-        } finally {
-            XMLUnit.setXSLTVersion("1.0");
+            new XmlUnitBuilder().usingXsltVersion("foo").build();
+            fail("foo is not a number");
+        } catch (ConfigurationException expected) {
+        }
+        try {
+            new XmlUnitBuilder().usingXsltVersion("-1.0").build();
+            fail("-1.0 is negative");
+        } catch (ConfigurationException expected) {
         }
     }
 }
