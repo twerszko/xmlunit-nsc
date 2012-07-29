@@ -84,6 +84,18 @@ public class XmlUnitBuilder {
         return this;
     }
 
+    /**
+     * Whether to compare unmatched control nodes to unmatched test nodes.
+     * 
+     * <p>
+     * Defaults to true.
+     * </p>
+     */
+    public XmlUnitBuilder comparingUnmatched(boolean compare) {
+        properties.setCompareUnmatched(compare);
+        return this;
+    }
+
     public XMLUnit build() {
         return new XMLUnit(properties);
     }

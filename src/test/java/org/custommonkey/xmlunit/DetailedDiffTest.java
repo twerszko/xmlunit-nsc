@@ -441,34 +441,30 @@ public class DetailedDiffTest extends DiffTest {
                 "<e>1</e></root>";
 
         // when
-        try {
-            XMLUnit.setCompareUnmatched(false);
+        properties.setCompareUnmatched(false);
 
-            DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
-            List<Difference> differences = detailedDiff.getAllDifferences();
+        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
+        List<Difference> differences = detailedDiff.getAllDifferences();
 
-            Difference difference = differences.get(0);
-            Node controlNode = difference.getControlNodeDetail().getNode();
-            Node testNode = difference.getTestNodeDetail().getNode();
+        Difference difference = differences.get(0);
+        Node controlNode = difference.getControlNodeDetail().getNode();
+        Node testNode = difference.getTestNodeDetail().getNode();
 
-            Difference difference1 = differences.get(1);
-            Node controlNode1 = difference1.getControlNodeDetail().getNode();
-            Node testNode1 = difference1.getTestNodeDetail().getNode();
+        Difference difference1 = differences.get(1);
+        Node controlNode1 = difference1.getControlNodeDetail().getNode();
+        Node testNode1 = difference1.getTestNodeDetail().getNode();
 
-            // then
-            assertThat(differences).hasSize(2);
-            assertThat(difference.getType())
-                    .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
-            assertThat(controlNode).isNotNull();
-            assertThat(testNode).isNull();
+        // then
+        assertThat(differences).hasSize(2);
+        assertThat(difference.getType())
+                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+        assertThat(controlNode).isNotNull();
+        assertThat(testNode).isNull();
 
-            assertThat(difference1.getType())
-                    .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
-            assertThat(controlNode1).isNull();
-            assertThat(testNode1).isNotNull();
-        } finally {
-            XMLUnit.setCompareUnmatched(true);
-        }
+        assertThat(difference1.getType())
+                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+        assertThat(controlNode1).isNull();
+        assertThat(testNode1).isNotNull();
     }
 
     /**
@@ -494,68 +490,64 @@ public class DetailedDiffTest extends DiffTest {
                         "</Fruits>";
 
         // when
-        try {
-            XMLUnit.setCompareUnmatched(false);
-            DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
-            List<Difference> differences = detailedDiff.getAllDifferences();
+        properties.setCompareUnmatched(false);
+        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
+        List<Difference> differences = detailedDiff.getAllDifferences();
 
-            Difference difference = differences.get(0);
-            String controlValue = difference.getControlNodeDetail().getValue();
-            String testValue = difference.getTestNodeDetail().getValue();
-            String controlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
-            String testXpathLocation = difference.getTestNodeDetail().getXpathLocation();
+        Difference difference = differences.get(0);
+        String controlValue = difference.getControlNodeDetail().getValue();
+        String testValue = difference.getTestNodeDetail().getValue();
+        String controlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation = difference.getTestNodeDetail().getXpathLocation();
 
-            Difference difference1 = differences.get(1);
-            String controlValue1 = difference1.getControlNodeDetail().getValue();
-            String testValue1 = difference1.getTestNodeDetail().getValue();
-            String controlXpathLocation1 = difference1.getControlNodeDetail().getXpathLocation();
-            String testXpathLocation1 = difference1.getTestNodeDetail().getXpathLocation();
+        Difference difference1 = differences.get(1);
+        String controlValue1 = difference1.getControlNodeDetail().getValue();
+        String testValue1 = difference1.getTestNodeDetail().getValue();
+        String controlXpathLocation1 = difference1.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation1 = difference1.getTestNodeDetail().getXpathLocation();
 
-            Difference difference2 = differences.get(2);
-            String controlValue2 = difference2.getControlNodeDetail().getValue();
-            String testValue2 = difference2.getTestNodeDetail().getValue();
-            String controlXpathLocation2 = difference2.getControlNodeDetail().getXpathLocation();
-            String testXpathLocation2 = difference2.getTestNodeDetail().getXpathLocation();
+        Difference difference2 = differences.get(2);
+        String controlValue2 = difference2.getControlNodeDetail().getValue();
+        String testValue2 = difference2.getTestNodeDetail().getValue();
+        String controlXpathLocation2 = difference2.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation2 = difference2.getTestNodeDetail().getXpathLocation();
 
-            // didn't find the second Apple element
-            Difference difference3 = differences.get(3);
-            String controlValue3 = difference3.getControlNodeDetail().getValue();
-            String testValue3 = difference3.getTestNodeDetail().getValue();
-            String controlXpathLocation3 = difference3.getControlNodeDetail().getXpathLocation();
-            String testXpathLocation3 = difference3.getTestNodeDetail().getXpathLocation();
+        // didn't find the second Apple element
+        Difference difference3 = differences.get(3);
+        String controlValue3 = difference3.getControlNodeDetail().getValue();
+        String testValue3 = difference3.getTestNodeDetail().getValue();
+        String controlXpathLocation3 = difference3.getControlNodeDetail().getXpathLocation();
+        String testXpathLocation3 = difference3.getTestNodeDetail().getXpathLocation();
 
-            // then
-            assertThat(differences).hasSize(4);
-            assertThat(difference.getType())
-                    .isEqualTo(DifferenceType.CHILD_NODELIST_LENGTH);
-            // expected 3 children is 2
-            assertThat(controlValue).isEqualTo("3");
-            assertThat(testValue).isEqualTo("2");
-            assertThat(controlXpathLocation).isEqualTo("/Fruits[1]");
-            assertThat(testXpathLocation).isEqualTo("/Fruits[1]");
+        // then
+        assertThat(differences).hasSize(4);
+        assertThat(difference.getType())
+                .isEqualTo(DifferenceType.CHILD_NODELIST_LENGTH);
+        // expected 3 children is 2
+        assertThat(controlValue).isEqualTo("3");
+        assertThat(testValue).isEqualTo("2");
+        assertThat(controlXpathLocation).isEqualTo("/Fruits[1]");
+        assertThat(testXpathLocation).isEqualTo("/Fruits[1]");
 
-            // Banana is the third child in control but the second one in test
-            assertThat(controlValue1).isEqualTo("2");
-            assertThat(testValue1).isEqualTo("1");
-            assertThat(controlXpathLocation1).isEqualTo("/Fruits[1]/Banana[1]");
-            assertThat(testXpathLocation1).isEqualTo("/Fruits[1]/Banana[1]");
+        // Banana is the third child in control but the second one in test
+        assertThat(controlValue1).isEqualTo("2");
+        assertThat(testValue1).isEqualTo("1");
+        assertThat(controlXpathLocation1).isEqualTo("/Fruits[1]/Banana[1]");
+        assertThat(testXpathLocation1).isEqualTo("/Fruits[1]/Banana[1]");
 
-            // Banana's size attribute doesn't match
-            assertThat(difference2.getType())
-                    .isEqualTo(DifferenceType.ATTR_VALUE);
-            assertThat(controlValue2).isEqualTo("10");
-            assertThat(testValue2).isEqualTo("11");
-            assertThat(controlXpathLocation2).isEqualTo("/Fruits[1]/Banana[1]/@size");
-            assertThat(testXpathLocation2).isEqualTo("/Fruits[1]/Banana[1]/@size");
+        // Banana's size attribute doesn't match
+        assertThat(difference2.getType())
+                .isEqualTo(DifferenceType.ATTR_VALUE);
+        assertThat(controlValue2).isEqualTo("10");
+        assertThat(testValue2).isEqualTo("11");
+        assertThat(controlXpathLocation2).isEqualTo("/Fruits[1]/Banana[1]/@size");
+        assertThat(testXpathLocation2).isEqualTo("/Fruits[1]/Banana[1]/@size");
 
-            assertThat(difference3.getType())
-                    .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
-            assertThat(controlValue3).isEqualTo("Apple");
-            assertThat(testValue3).isEqualTo("null");
-            assertThat(controlXpathLocation3).isEqualTo("/Fruits[1]/Apple[2]");
-            assertThat(testXpathLocation3).isNull();
-        } finally {
-            XMLUnit.setCompareUnmatched(true);
-        }
+        assertThat(difference3.getType())
+                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+        assertThat(controlValue3).isEqualTo("Apple");
+        assertThat(testValue3).isEqualTo("null");
+        assertThat(controlXpathLocation3).isEqualTo("/Fruits[1]/Apple[2]");
+        assertThat(testXpathLocation3).isNull();
     }
 }

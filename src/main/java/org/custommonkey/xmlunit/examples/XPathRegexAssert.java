@@ -56,6 +56,7 @@ import org.xml.sax.SAXException;
  * regular expressions (as provided by the java.util.regex package of JDK 1.4+).
  */
 
+// TODO Refactor
 public class XPathRegexAssert {
     // no instances
     private XPathRegexAssert() {

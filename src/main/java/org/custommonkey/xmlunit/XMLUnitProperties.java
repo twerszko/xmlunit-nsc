@@ -9,6 +9,7 @@ public class XMLUnitProperties implements Cloneable {
     private boolean ignoreComments = false;
     private boolean normalize = false;
     private NamespaceContext xpathNamespaceContext;
+    private boolean compareUnmatched = true;
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -139,6 +140,24 @@ public class XMLUnitProperties implements Cloneable {
      */
     public void setXpathNamespaceContext(@Nullable NamespaceContext xpathNamespaceContext) {
         this.xpathNamespaceContext = xpathNamespaceContext;
+    }
+
+    /**
+     * Whether the parser shall be instructed to expand entity references.
+     */
+    public boolean getCompareUnmatched() {
+        return compareUnmatched;
+    }
+
+    /**
+     * Whether to compare unmatched control nodes to unmatched test nodes.
+     * 
+     * <p>
+     * Defaults to true.
+     * </p>
+     */
+    public void setCompareUnmatched(boolean compare) {
+        this.compareUnmatched = compare;
     }
 
     @Override

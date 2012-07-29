@@ -489,7 +489,7 @@ public class DifferenceEngine
                     }
                 }
             }
-            if (!matchFound && XMLUnit.getCompareUnmatched()
+            if (!matchFound && properties.getCompareUnmatched()
                     && fallbackMatch >= 0) {
                 matchFound = true;
                 j = fallbackMatch;
@@ -508,7 +508,7 @@ public class DifferenceEngine
             Node nextControl = (Node) controlChildren.get(i);
             Node nextTest = (Node) matchingNodes.get(nextControl);
             Integer testIndex = (Integer) matchingNodeIndexes.get(nextControl);
-            if (nextTest == null && XMLUnit.getCompareUnmatched()
+            if (nextTest == null && properties.getCompareUnmatched()
                     && !unmatchedTestNodes.isEmpty()) {
                 nextTest = (Node) unmatchedTestNodes.get(0);
                 testIndex = new Integer(testChildren.indexOf(nextTest));

@@ -211,7 +211,7 @@ public class NewDifferenceEngine
                 m = new DefaultNodeMatcher(new ElementQualifier2ElementSelector(elementQualifier));
             }
         }
-        if (!XMLUnit.getCompareUnmatched()) {
+        if (!properties.getCompareUnmatched()) {
             engine.setNodeMatcher(m);
         } else {
             engine.setNodeMatcher(new CompareUnmatchedNodeMatcher(m));

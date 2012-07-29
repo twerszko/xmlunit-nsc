@@ -81,7 +81,6 @@ public final class XMLUnit {
     private static String xsltVersion = "1.0";
     private static String xpathFactoryName = null;
     private static boolean expandEntities = false;
-    private static boolean compareUnmatched = true;
 
     private static final String XSLT_VERSION_START = " version=\"";
     private static final String XSLT_VERSION_END = "\">";
@@ -859,26 +858,4 @@ public final class XMLUnit {
     public static boolean getExpandEntityReferences() {
         return expandEntities;
     }
-
-    /**
-     * Whether to compare unmatched control nodes to unmatched test nodes.
-     * 
-     * <p>
-     * Defaults to true.
-     * </p>
-     */
-    public static void setCompareUnmatched(boolean b) {
-        compareUnmatched = b;
-    }
-
-    /**
-     * Whether unmatched control nodes should be compared to unmatched test
-     * nodes.
-     * 
-     * @return true by default
-     */
-    public static boolean getCompareUnmatched() {
-        return compareUnmatched;
-    }
-
 }
