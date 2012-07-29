@@ -635,7 +635,7 @@ public class DifferenceEngine
                 } else if (compareTo != null) {
                     compareAttribute(nextAttr, compareTo, listener);
 
-                    if (!XMLUnit.getIgnoreAttributeOrder()) {
+                    if (!properties.getIgnoreAttributeOrder()) {
                         Attr attributeItem = (Attr) testAttr.item(i);
                         String testAttrName = ATTRIBUTE_ABSENT;
                         if (attributeItem != null) {

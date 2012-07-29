@@ -449,7 +449,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      */
     private DifferenceEngineContract getDifferenceEngine() {
         if (differenceEngine == null) {
-            if (XMLUnit.getIgnoreAttributeOrder()
+            if (properties.getIgnoreAttributeOrder()
                     &&
                     (!usesUnknownElementQualifier()
                     || properties.getCompareUnmatched())) {

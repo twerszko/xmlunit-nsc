@@ -741,12 +741,14 @@ public class DifferenceEngineTest {
 
     @Test
     public void testAttributeSequence() throws Exception {
-        XMLUnit.setIgnoreAttributeOrder(false);
-        try {
-            testAttributeSequence(DifferenceType.ATTR_SEQUENCE);
-        } finally {
-            XMLUnit.setIgnoreAttributeOrder(true);
-        }
+        properties.setIgnoreAttributeOrder(false);
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+
+        testAttributeSequence(DifferenceType.ATTR_SEQUENCE);
+
+        properties.setIgnoreAttributeOrder(true);
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+
         resetListener();
         testAttributeSequence(null);
     }
@@ -776,12 +778,14 @@ public class DifferenceEngineTest {
 
     @Test
     public void testAttributeSequenceNS() throws Exception {
-        XMLUnit.setIgnoreAttributeOrder(false);
-        try {
-            testAttributeSequenceNS(DifferenceType.ATTR_SEQUENCE);
-        } finally {
-            XMLUnit.setIgnoreAttributeOrder(true);
-        }
+        properties.setIgnoreAttributeOrder(false);
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+
+        testAttributeSequenceNS(DifferenceType.ATTR_SEQUENCE);
+
+        properties.setIgnoreAttributeOrder(true);
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+
         resetListener();
         testAttributeSequenceNS(null);
     }

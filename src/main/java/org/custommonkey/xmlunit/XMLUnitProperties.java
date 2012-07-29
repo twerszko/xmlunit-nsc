@@ -17,6 +17,7 @@ public class XMLUnitProperties implements Cloneable {
     private NamespaceContext xpathNamespaceContext;
     private boolean compareUnmatched = true;
     private String xsltVersion = "1.0";
+    private boolean ignoreAttributeOrder = true;
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -198,6 +199,42 @@ public class XMLUnitProperties implements Cloneable {
             throw new ConfigurationException(e);
         }
         this.xsltVersion = xsltVersion;
+    }
+
+    /**
+     * Whether to ignore the order of attributes on an element.
+     * 
+     * <p>
+     * The order of attributes has never been relevant for XML documents, still
+     * XMLUnit can consider two pieces of XML not-identical (but similar) if
+     * they differ in order of attributes. Set this option to true to compare
+     * the order.
+     * </p>
+     * 
+     * <p>
+     * The default value is true
+     * </p>
+     */
+    public boolean getIgnoreAttributeOrder() {
+        return ignoreAttributeOrder;
+    }
+
+    /**
+     * Whether to ignore the order of attributes on an element.
+     * 
+     * <p>
+     * The order of attributes has never been relevant for XML documents, still
+     * XMLUnit can consider two pieces of XML not-identical (but similar) if
+     * they differ in order of attributes. Set this option to true to compare
+     * the order.
+     * </p>
+     * 
+     * <p>
+     * The default value is true
+     * </p>
+     */
+    public void setIgnoreAttributeOrder(boolean ignore) {
+        this.ignoreAttributeOrder = ignore;
     }
 
     @Override

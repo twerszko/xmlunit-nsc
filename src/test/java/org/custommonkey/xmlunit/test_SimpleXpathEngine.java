@@ -65,6 +65,7 @@ public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
 
     @Test
     public void testGetMatchingNodesMatchText() throws Exception {
+        // TODO
         if (isJava5OrNewer()) {
             // fails with "more recent" version of Xalan shipping with Java5
             return;
@@ -74,6 +75,7 @@ public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
 
     @Test
     public void testEvaluate() throws Exception {
+        // TODO
         if (isJava5OrNewer()) {
             // fails with "more recent" version of Xalan shipping with Java5
             return;

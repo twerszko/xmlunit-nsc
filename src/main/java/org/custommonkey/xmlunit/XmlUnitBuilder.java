@@ -128,6 +128,25 @@ public class XmlUnitBuilder {
         return this;
     }
 
+    /**
+     * Whether to ignore the order of attributes on an element.
+     * 
+     * <p>
+     * The order of attributes has never been relevant for XML documents, still
+     * XMLUnit can consider two pieces of XML not-identical (but similar) if
+     * they differ in order of attributes. Set this option to true to compare
+     * the order.
+     * </p>
+     * 
+     * <p>
+     * The default value is true
+     * </p>
+     */
+    public XmlUnitBuilder ignoringAttributeOrder(boolean ignore) {
+        properties.setIgnoreAttributeOrder(ignore);
+        return this;
+    }
+
     public XMLUnit build() {
         return new XMLUnit(properties);
     }
