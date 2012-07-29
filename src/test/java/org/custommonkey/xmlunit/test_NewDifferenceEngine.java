@@ -45,6 +45,7 @@ import javax.xml.parsers.DocumentBuilder;
 import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
+import org.junit.Before;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -76,6 +77,18 @@ public class test_NewDifferenceEngine extends TestCase {
     private final static String CDATA_B = "I'm watching you sinking... Fools Gold";
     private final static String ATTR_A = "These boots were made for walking";
     private final static String ATTR_B = "The marquis de sade never wore no boots like these";
+
+    protected XMLUnitProperties properties;
+
+    @Before
+    public void setUp() throws Exception {
+        properties = new XMLUnitProperties();
+
+        resetListener();
+        engine = new NewDifferenceEngine(properties, PSEUDO_DIFF);
+        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+        document = documentBuilder.newDocument();
+    }
 
     public void testCompareNode() throws Exception {
         Document controlDocument = XMLUnit.buildControlDocument("<root>"
@@ -265,12 +278,11 @@ public class test_NewDifferenceEngine extends TestCase {
     public void testExtraComment() {
         testExtraComment(true);
         resetListener();
-        XMLUnit.setIgnoreComments(true);
-        try {
-            testExtraComment(false);
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+
+        properties.setIgnoreComments(true);
+        engine = new NewDifferenceEngine(properties, PSEUDO_DIFF);
+
+        testExtraComment(false);
     }
 
     private void testExtraComment(boolean expectDifference) {
@@ -292,12 +304,11 @@ public class test_NewDifferenceEngine extends TestCase {
     public void testCommentContent() {
         testCommentContent(true);
         resetListener();
-        XMLUnit.setIgnoreComments(true);
-        try {
-            testCommentContent(false);
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+
+        properties.setIgnoreComments(true);
+        engine = new NewDifferenceEngine(properties, PSEUDO_DIFF);
+
+        testCommentContent(false);
     }
 
     private void testCommentContent(boolean expectDifference) {
@@ -520,13 +531,6 @@ public class test_NewDifferenceEngine extends TestCase {
 
     private void resetListener() {
         listener = new CollectingDifferenceListener();
-    }
-
-    public void setUp() throws Exception {
-        resetListener();
-        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DIFF);
-        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
-        document = documentBuilder.newDocument();
     }
 
     private class SimpleComparisonController implements ComparisonController {

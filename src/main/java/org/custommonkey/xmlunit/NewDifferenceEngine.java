@@ -222,7 +222,7 @@ public class NewDifferenceEngine
 
         Source ctrlSource = ctrlBuilder.build();
         Source tstSource = tstBuilder.build();
-        if (XMLUnit.getIgnoreComments()) {
+        if (properties.getIgnoreComments()) {
             ctrlSource = new CommentLessSource(ctrlSource);
             tstSource = new CommentLessSource(tstSource);
         }

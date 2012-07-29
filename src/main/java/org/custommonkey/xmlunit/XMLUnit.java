@@ -78,9 +78,7 @@ public final class XMLUnit {
     private static EntityResolver controlEntityResolver = null;
     private static NamespaceContext namespaceContext = null;
     private static boolean ignoreDiffBetweenTextAndCDATA = false;
-    private static boolean ignoreComments = false;
     private static boolean normalize = false;
-    private static boolean normalizeWhitespace = false;
     private static boolean ignoreAttributeOrder = true;
     private static String xsltVersion = "1.0";
     private static String xpathFactoryName = null;
@@ -761,28 +759,6 @@ public final class XMLUnit {
      */
     public static boolean getIgnoreDiffBetweenTextAndCDATA() {
         return ignoreDiffBetweenTextAndCDATA;
-    }
-
-    /**
-     * Whether comments should be ignored.
-     * 
-     * <p>
-     * The default value is false
-     * </p>
-     */
-    public static void setIgnoreComments(boolean b) {
-        ignoreComments = b;
-    }
-
-    /**
-     * Whether comments should be ignored.
-     * 
-     * <p>
-     * The default value is false
-     * </p>
-     */
-    public static boolean getIgnoreComments() {
-        return ignoreComments;
     }
 
     /**

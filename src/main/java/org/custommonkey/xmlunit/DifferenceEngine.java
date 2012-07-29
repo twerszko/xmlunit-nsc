@@ -316,7 +316,7 @@ public class DifferenceEngine
      */
     private Boolean hasChildNodes(Node n) {
         boolean flag = n.hasChildNodes();
-        if (flag && XMLUnit.getIgnoreComments()) {
+        if (flag && properties.getIgnoreComments()) {
             List nl = nodeList2List(n.getChildNodes());
             flag = !nl.isEmpty();
         }
@@ -326,12 +326,12 @@ public class DifferenceEngine
     /**
      * Returns the NodeList's Nodes as List, taking ignoreComments into account.
      */
-    static List nodeList2List(NodeList nl) {
+    List nodeList2List(NodeList nl) {
         int len = nl.getLength();
         ArrayList l = new ArrayList(len);
         for (int i = 0; i < len; i++) {
             Node n = nl.item(i);
-            if (!XMLUnit.getIgnoreComments() || !(n instanceof Comment)) {
+            if (!properties.getIgnoreComments() || !(n instanceof Comment)) {
                 l.add(n);
             }
         }
@@ -787,7 +787,7 @@ public class DifferenceEngine
      */
     protected void compareComment(Comment control, Comment test,
             DifferenceListener listener) throws DifferenceFoundException {
-        if (!XMLUnit.getIgnoreComments()) {
+        if (!properties.getIgnoreComments()) {
             compareCharacterData(control, test, listener, new Difference(DifferenceType.COMMENT_VALUE));
         }
     }

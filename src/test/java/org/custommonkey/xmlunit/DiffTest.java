@@ -485,12 +485,8 @@ public class DiffTest {
 
     @Test
     public void should_check_whitespace_awareness_with_comment_handling() throws SAXException, IOException {
-        try {
-            XMLUnit.setIgnoreComments(true);
-            should_check_whitespace_awareness();
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+        properties.setIgnoreComments(true);
+        should_check_whitespace_awareness();
     }
 
     @Test
@@ -940,32 +936,39 @@ public class DiffTest {
     }
 
     @Test
-    public void should_be_identical_when_comments_ignored() throws SAXException, IOException {
+    public void should_neither_be_identical_nor_similar_when_different_commants() throws SAXException, IOException {
         // given
         String control = "<foo><!-- test --><bar a=\"b\"/> </foo>";
         String test = "<foo><bar a=\"b\"><!-- test --></bar> </foo>";
-        try {
-            // when
-            Diff diff = prepareDiff(properties, control, test);
-            assertThat(diff.identical()).isFalse();
-            assertThat(diff.similar()).isFalse();
 
-            XMLUnit.setIgnoreComments(true);
+        // when
+        Diff diff = prepareDiff(properties, control, test);
 
-            diff = prepareDiff(properties, control, test);
+        // then
+        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).isFalse();
+    }
 
-            // then
-            assertThat(diff.identical()).isTrue();
-            assertThat(diff.similar()).isTrue();
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+    @Test
+    public void should_be_identical_and_similar_when_different_commants() throws SAXException, IOException {
+        // given
+        String control = "<foo><!-- test --><bar a=\"b\"/> </foo>";
+        String test = "<foo><bar a=\"b\"><!-- test --></bar> </foo>";
+
+        // when
+        properties.setIgnoreComments(true);
+        Diff diff = prepareDiff(properties, control, test);
+
+        // then
+        assertThat(diff.identical()).isTrue();
+        assertThat(diff.similar()).isTrue();
     }
 
     @Test
     public void should_pass_when_whitespaces_ignored() throws SAXException, IOException {
         properties.setIgnoreWhitespace(true);
-        should_be_identical_when_comments_ignored();
+        should_neither_be_identical_nor_similar_when_different_commants();
+        should_be_identical_and_similar_when_different_commants();
     }
 
     @Test
@@ -973,7 +976,8 @@ public class DiffTest {
         // TODO clean it up;
         try {
             XMLUnit.setNormalize(true);
-            should_be_identical_when_comments_ignored();
+            should_neither_be_identical_nor_similar_when_different_commants();
+            should_be_identical_and_similar_when_different_commants();
         } finally {
             XMLUnit.setNormalize(false);
         }
@@ -1028,12 +1032,8 @@ public class DiffTest {
     @Test
     @Ignore
     public void should_make_sure_ignoring_comments_doesnt_affect_normalization() {
-        try {
-            XMLUnit.setIgnoreComments(true);
-            should_check_normalization();
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+        properties.setIgnoreComments(true);
+        should_check_normalization();
     }
 
     @Test

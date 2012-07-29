@@ -87,6 +87,18 @@ public class DifferenceEngineTest {
     private final static String ATTR_A = "These boots were made for walking";
     private final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
+    protected XMLUnitProperties properties;
+
+    @Before
+    public void setUp() throws Exception {
+        properties = new XMLUnitProperties();
+
+        resetListener();
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+        document = documentBuilder.newDocument();
+    }
+
     private class SimpleComparisonController implements ComparisonController {
         public boolean haltComparison(Difference afterDifference) {
             return !afterDifference.isRecoverable();
@@ -108,14 +120,6 @@ public class DifferenceEngineTest {
         assertEquals(difference.getType(), listener.comparingWhat);
         assertEquals(true, listener.different);
         resetListener();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        resetListener();
-        engine = new DifferenceEngine(null, PSEUDO_DIFF);
-        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
-        document = documentBuilder.newDocument();
     }
 
     private class TextMatcher extends TypeSafeMatcher<Text> {
@@ -809,12 +813,11 @@ public class DifferenceEngineTest {
     public void testExtraComment() {
         testExtraComment(true);
         resetListener();
-        XMLUnit.setIgnoreComments(true);
-        try {
-            testExtraComment(false);
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+
+        properties.setIgnoreComments(true);
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+
+        testExtraComment(false);
     }
 
     private void testExtraComment(boolean expectDifference) {
@@ -837,12 +840,11 @@ public class DifferenceEngineTest {
     public void testCommentContent() {
         testCommentContent(true);
         resetListener();
-        XMLUnit.setIgnoreComments(true);
-        try {
-            testCommentContent(false);
-        } finally {
-            XMLUnit.setIgnoreComments(false);
-        }
+
+        properties.setIgnoreComments(true);
+        engine = new DifferenceEngine(properties, PSEUDO_DIFF);
+
+        testCommentContent(false);
     }
 
     private void testCommentContent(boolean expectDifference) {

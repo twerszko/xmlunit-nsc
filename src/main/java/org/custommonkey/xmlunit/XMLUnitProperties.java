@@ -4,6 +4,7 @@ public class XMLUnitProperties implements Cloneable {
 
     private boolean ignoreWhitespace = false;
     private boolean normalizeWhitespace = false;
+    private boolean ignoreComments = false;
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -59,6 +60,28 @@ public class XMLUnitProperties implements Cloneable {
      */
     public void setNormalizeWhitespace(boolean normalizeWhitespace) {
         this.normalizeWhitespace = normalizeWhitespace;
+    }
+
+    /**
+     * Whether comments should be ignored.
+     * 
+     * <p>
+     * The default value is false
+     * </p>
+     */
+    public boolean getIgnoreComments() {
+        return ignoreComments;
+    }
+
+    /**
+     * Whether comments should be ignored.
+     * 
+     * <p>
+     * The default value is false
+     * </p>
+     */
+    public void setIgnoreComments(boolean ignoreComments) {
+        this.ignoreComments = ignoreComments;
     }
 
     @Override

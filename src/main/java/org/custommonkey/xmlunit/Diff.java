@@ -227,7 +227,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      * @return manipulated doc
      */
     private Document getCommentlessDocument(Document orig) {
-        if (!XMLUnit.getIgnoreComments()) {
+        if (!properties.getIgnoreComments()) {
             return orig;
         }
         try {

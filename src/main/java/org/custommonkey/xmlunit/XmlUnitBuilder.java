@@ -41,6 +41,18 @@ public class XmlUnitBuilder {
         return this;
     }
 
+    /**
+     * Whether comments should be ignored.
+     * 
+     * <p>
+     * The default value is false
+     * </p>
+     */
+    public XmlUnitBuilder ignoringComments(boolean ignore) {
+        properties.setIgnoreComments(ignore);
+        return this;
+    }
+
     public XMLUnit build() {
         return new XMLUnit(properties);
     }
