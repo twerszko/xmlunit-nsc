@@ -101,6 +101,7 @@ import org.xml.sax.SAXException;
  *      href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 // TODO: This needs to be refactored.
+@Deprecated
 public class XMLAssert extends Assert implements XSLTConstants {
 
     private final XMLUnitProperties properties;

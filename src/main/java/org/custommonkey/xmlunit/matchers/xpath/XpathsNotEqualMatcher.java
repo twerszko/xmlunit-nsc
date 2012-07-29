@@ -29,53 +29,59 @@ import org.hamcrest.Factory;
  */
 public class XpathsNotEqualMatcher extends AbstractXpathEqualMatcher {
 
-	private final XpathWrapper expectedXpath;
+    private final XpathWrapper expectedXpath;
 
-	public XpathsNotEqualMatcher(XpathWrapper expectedXpath) {
-		this.expectedXpath = expectedXpath;
-	}
+    public XpathsNotEqualMatcher(XpathWrapper expectedXpath) {
+        if (expectedXpath == null) {
+            throw new IllegalArgumentException("Expected xpath cannot be null!");
+        }
+        this.expectedXpath = expectedXpath;
+    }
 
-	public void describeTo(Description description) {
-		String actual;
-		try {
-			actual = DomUtils.documentToString(actualXpathDocument);
-		} catch (TransformerException e) {
-			actual = "";
-		}
-		description.appendText("something not equal to " + quote(actual));
-	}
+    public void describeTo(Description description) {
+        String actual;
+        try {
+            actual = DomUtils.documentToString(actualXpathDocument);
+        } catch (TransformerException e) {
+            actual = "";
+        }
+        description.appendText("something not equal to " + quote(actual));
+    }
 
-	@Override
-	protected void describeMismatchSafely(XpathWrapper item, Description description) {
-		String expected;
-		try {
-			expected = DomUtils.documentToString(expectedXpathDocument);
-		} catch (TransformerException e) {
-			expected = "";
-		}
-		description.appendText("got" + quote(expected));
-	}
+    @Override
+    protected void describeMismatchSafely(XpathWrapper item, Description description) {
+        String expected;
+        try {
+            expected = DomUtils.documentToString(expectedXpathDocument);
+        } catch (TransformerException e) {
+            expected = "";
+        }
+        description.appendText("got" + quote(expected));
+    }
 
-	@Override
-	public boolean matchesSafely(XpathWrapper actualXpath) {
-		boolean equalXpaths;
-		try {
-			equalXpaths = equalXpaths(
-			        expectedXpath.getXpath(),
-			        expectedXpath.getDocument(),
-			        actualXpath.getXpath(),
-			        expectedXpath.getDocument());
-		} catch (ConfigurationException e) {
-			throw new IllegalStateException("Couldn't check xpath", e);
-		} catch (XpathException e) {
-			throw new IllegalArgumentException("Invalid xpath!", e);
-		}
-		return !equalXpaths;
-	}
+    @Override
+    public boolean matchesSafely(XpathWrapper actualXpath) {
+        if (actualXpath == null) {
+            throw new IllegalArgumentException("Actual xpath cannot be null!");
+        }
+        boolean equalXpaths;
+        try {
+            equalXpaths = equalXpaths(
+                    expectedXpath.getXpath(),
+                    expectedXpath.getDocument(),
+                    actualXpath.getXpath(),
+                    expectedXpath.getDocument());
+        } catch (ConfigurationException e) {
+            throw new IllegalStateException("Couldn't check xpath", e);
+        } catch (XpathException e) {
+            throw new IllegalArgumentException("Invalid xpath!", e);
+        }
+        return !equalXpaths;
+    }
 
-	@Factory
-	public static XpathsNotEqualMatcher notEqualToXpath(XpathWrapper expectedXpath) {
-		return new XpathsNotEqualMatcher(expectedXpath);
-	}
+    @Factory
+    public static XpathsNotEqualMatcher notEqualToXpath(XpathWrapper expectedXpath) {
+        return new XpathsNotEqualMatcher(expectedXpath);
+    }
 
 }

@@ -1,3 +1,17 @@
+//  Copyright 2012 Tomasz Werszko
+//      
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//  
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.custommonkey.xmlunit.matchers.xpath;
 
 import java.io.IOException;
@@ -17,56 +31,59 @@ import org.xml.sax.SAXException;
  */
 public class XpathNotExistsInXmlStringMatcher extends AbstractXmlUnitMatcher<String> {
 
-	private final String expectedXpath;
-	private String actualXml;
+    private final String expectedXpath;
+    private String actualXml;
 
-	public XpathNotExistsInXmlStringMatcher(String expectedXpath) {
-		this.expectedXpath = expectedXpath;
-	}
+    public XpathNotExistsInXmlStringMatcher(String expectedXpath) {
+        if (expectedXpath == null || expectedXpath.isEmpty()) {
+            throw new IllegalArgumentException("Expected document cannot be null or empty!");
+        }
+        this.expectedXpath = expectedXpath;
+    }
 
-	public void describeTo(Description description) {
-		description.appendText("xpath " + quote(expectedXpath) +
-		        " does not exist in document " + quote(actualXml));
+    public void describeTo(Description description) {
+        description.appendText("xpath " + quote(expectedXpath) +
+                " does not exist in document " + quote(actualXml));
 
-	}
+    }
 
-	@Override
-	protected void describeMismatchSafely(String item, Description description) {
-		description.appendText("xpath " + quote(expectedXpath) +
-		        " exists in document " + quote(actualXml));
-	}
+    @Override
+    protected void describeMismatchSafely(String item, Description description) {
+        description.appendText("xpath " + quote(expectedXpath) +
+                " exists in document " + quote(actualXml));
+    }
 
-	@Override
-	public boolean matchesSafely(String actualXmlDoc) {
-		if (actualXmlDoc == null || actualXmlDoc.isEmpty()) {
-			throw new IllegalArgumentException("Actual document cannot be null or empty!");
-		}
+    @Override
+    public boolean matchesSafely(String actualXmlDoc) {
+        if (actualXmlDoc == null || actualXmlDoc.isEmpty()) {
+            throw new IllegalArgumentException("Actual document cannot be null or empty!");
+        }
 
-		this.actualXml = actualXmlDoc;
+        this.actualXml = actualXmlDoc;
 
-		Document inDocument;
-		int matches;
+        Document inDocument;
+        int matches;
 
-		try {
-			inDocument = XMLUnit.buildControlDocument(actualXmlDoc);
+        try {
+            inDocument = XMLUnit.buildControlDocument(actualXmlDoc);
 
-			XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
-			NodeList nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, inDocument);
-			matches = nodeList.getLength();
-		} catch (SAXException e) {
-			throw new IllegalStateException("Couldn't check xpath", e);
-		} catch (IOException e) {
-			throw new IllegalStateException("Couldn't check xpath", e);
-		} catch (XpathException e) {
-			throw new IllegalArgumentException("Invalid xpath!", e);
-		}
+            XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
+            NodeList nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, inDocument);
+            matches = nodeList.getLength();
+        } catch (SAXException e) {
+            throw new IllegalStateException("Couldn't check xpath", e);
+        } catch (IOException e) {
+            throw new IllegalStateException("Couldn't check xpath", e);
+        } catch (XpathException e) {
+            throw new IllegalArgumentException("Invalid xpath!", e);
+        }
 
-		return !(matches > 0);
-	}
+        return !(matches > 0);
+    }
 
-	@Factory
-	public static XpathNotExistsInXmlStringMatcher notContainsXpath(String expectedXpath) {
-		return new XpathNotExistsInXmlStringMatcher(expectedXpath);
-	}
+    @Factory
+    public static XpathNotExistsInXmlStringMatcher notContainsXpath(String expectedXpath) {
+        return new XpathNotExistsInXmlStringMatcher(expectedXpath);
+    }
 
 }

@@ -1,3 +1,17 @@
+//  Copyright 2012 Tomasz Werszko
+//      
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//  
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package org.custommonkey.xmlunit.matchers.xpath;
 
 import javax.xml.transform.TransformerException;
@@ -17,60 +31,63 @@ import org.w3c.dom.NodeList;
  */
 public class XpathNotExistsInDocumentMatcher extends AbstractXmlUnitMatcher<Document> {
 
-	private final String expectedXpath;
-	private Document actualDocument;
+    private final String expectedXpath;
+    private Document actualDocument;
 
-	public XpathNotExistsInDocumentMatcher(String expectedXpath) {
-		this.expectedXpath = expectedXpath;
-	}
+    public XpathNotExistsInDocumentMatcher(String expectedXpath) {
+        if (expectedXpath == null || expectedXpath.isEmpty()) {
+            throw new IllegalArgumentException("Expected document cannot be null or empty!");
+        }
+        this.expectedXpath = expectedXpath;
+    }
 
-	public void describeTo(Description description) {
-		String documentString;
-		try {
-			documentString = DomUtils.documentToString(actualDocument);
-		} catch (TransformerException e) {
-			documentString = "";
-		}
-		description.appendText("xpath " + quote(expectedXpath) +
-		        " does not exist in document " + quote(documentString));
+    public void describeTo(Description description) {
+        String documentString;
+        try {
+            documentString = DomUtils.documentToString(actualDocument);
+        } catch (TransformerException e) {
+            documentString = "";
+        }
+        description.appendText("xpath " + quote(expectedXpath) +
+                " does not exist in document " + quote(documentString));
 
-	}
+    }
 
-	@Override
-	protected void describeMismatchSafely(Document item, Description description) {
-		String documentString;
-		try {
-			documentString = DomUtils.documentToString(actualDocument);
-		} catch (TransformerException e) {
-			documentString = "";
-		}
-		description.appendText("xpath " + quote(expectedXpath) +
-		        " exists in document " + quote(documentString));
-	}
+    @Override
+    protected void describeMismatchSafely(Document item, Description description) {
+        String documentString;
+        try {
+            documentString = DomUtils.documentToString(actualDocument);
+        } catch (TransformerException e) {
+            documentString = "";
+        }
+        description.appendText("xpath " + quote(expectedXpath) +
+                " exists in document " + quote(documentString));
+    }
 
-	@Override
-	public boolean matchesSafely(Document actualXmlDoc) {
-		if (actualXmlDoc == null) {
-			throw new IllegalArgumentException("Actual document cannot be null!");
-		}
+    @Override
+    public boolean matchesSafely(Document actualXmlDoc) {
+        if (actualXmlDoc == null) {
+            throw new IllegalArgumentException("Actual document cannot be null!");
+        }
 
-		this.actualDocument = actualXmlDoc;
+        this.actualDocument = actualXmlDoc;
 
-		NodeList nodeList;
-		try {
-			XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
-			nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, actualXmlDoc);
-		} catch (XpathException e) {
-			throw new IllegalArgumentException("Invalid xpath!", e);
-		}
-		int matches = nodeList.getLength();
+        NodeList nodeList;
+        try {
+            XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
+            nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, actualXmlDoc);
+        } catch (XpathException e) {
+            throw new IllegalArgumentException("Invalid xpath!", e);
+        }
+        int matches = nodeList.getLength();
 
-		return !(matches > 0);
-	}
+        return !(matches > 0);
+    }
 
-	@Factory
-	public static XpathNotExistsInDocumentMatcher documentNotContainsXpath(String expectedXpath) {
-		return new XpathNotExistsInDocumentMatcher(expectedXpath);
-	}
+    @Factory
+    public static XpathNotExistsInDocumentMatcher documentNotContainsXpath(String expectedXpath) {
+        return new XpathNotExistsInDocumentMatcher(expectedXpath);
+    }
 
 }

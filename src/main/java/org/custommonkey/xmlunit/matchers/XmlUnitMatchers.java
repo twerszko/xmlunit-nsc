@@ -27,28 +27,28 @@ public class XmlUnitMatchers {
     return org.custommonkey.xmlunit.matchers.validation.XmlValidatorInvalidMatcher.invalidXml();
   }
 
-  public static org.custommonkey.xmlunit.matchers.comparison.XmlEqualDocumentMatcher equalToXmlDocument(org.w3c.dom.Document expectedDoc) {
-    return org.custommonkey.xmlunit.matchers.comparison.XmlEqualDocumentMatcher.equalToXmlDocument(expectedDoc);
+  public static org.custommonkey.xmlunit.matchers.comparison.EqualToDocumentMatcher equalToXmlDocument(org.w3c.dom.Document expectedDoc) {
+    return org.custommonkey.xmlunit.matchers.comparison.EqualToDocumentMatcher.equalToXmlDocument(expectedDoc);
   }
 
-  public static org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualDocumentMatcher notEqualToXmlDocument(org.w3c.dom.Document expectedDoc) {
-    return org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualDocumentMatcher.notEqualToXmlDocument(expectedDoc);
+  public static org.custommonkey.xmlunit.matchers.comparison.NotEqualToDocumentMatcher notEqualToXmlDocument(org.w3c.dom.Document expectedDoc) {
+    return org.custommonkey.xmlunit.matchers.comparison.NotEqualToDocumentMatcher.notEqualToXmlDocument(expectedDoc);
   }
 
-  public static org.custommonkey.xmlunit.matchers.comparison.XmlEqualStringMatcher equalToXmlString(java.lang.String expectedString) {
-    return org.custommonkey.xmlunit.matchers.comparison.XmlEqualStringMatcher.equalToXmlString(expectedString);
+  public static org.custommonkey.xmlunit.matchers.comparison.EqualToXmlStringMatcher equalToXmlString(java.lang.String expectedString) {
+    return org.custommonkey.xmlunit.matchers.comparison.EqualToXmlStringMatcher.equalToXmlString(expectedString);
   }
 
-  public static org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualStringMatcher notEqualToXmlString(java.lang.String expectedString) {
-    return org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualStringMatcher.notEqualToXmlString(expectedString);
+  public static org.custommonkey.xmlunit.matchers.comparison.NotEqualToXmlStringMatcher notEqualToXmlString(java.lang.String expectedString) {
+    return org.custommonkey.xmlunit.matchers.comparison.NotEqualToXmlStringMatcher.notEqualToXmlString(expectedString);
   }
 
-  public static org.custommonkey.xmlunit.matchers.comparison.XmlEqualReaderMatcher equalToXmlReader(java.io.Reader expectedReader) {
-    return org.custommonkey.xmlunit.matchers.comparison.XmlEqualReaderMatcher.equalToXmlReader(expectedReader);
+  public static org.custommonkey.xmlunit.matchers.comparison.EqualToReaderMatcher equalToXmlReader(java.io.Reader expectedReader) {
+    return org.custommonkey.xmlunit.matchers.comparison.EqualToReaderMatcher.equalToXmlReader(expectedReader);
   }
 
-  public static org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualReaderMatcher notEqualToXmlReader(java.io.Reader expectedReader) {
-    return org.custommonkey.xmlunit.matchers.comparison.XmlNotEqualReaderMatcher.notEqualToXmlReader(expectedReader);
+  public static org.custommonkey.xmlunit.matchers.comparison.NotEqualToReaderMatcher notEqualToXmlReader(java.io.Reader expectedReader) {
+    return org.custommonkey.xmlunit.matchers.comparison.NotEqualToReaderMatcher.notEqualToXmlReader(expectedReader);
   }
 
   public static org.custommonkey.xmlunit.matchers.xpath.XpathExistsInXmlStringMatcher containsXpath(java.lang.String expectedXpath) {
@@ -79,12 +79,12 @@ public class XmlUnitMatchers {
     return org.custommonkey.xmlunit.matchers.xpath.XpathEvaluatesToValueMatcher.xpathEvaluatesTo(expectedXpathValue);
   }
 
-  public static org.custommonkey.xmlunit.matchers.xpath.XpathValuesEqualMatcher valueIsEqualToXpathValue(net.sf.xmlunit.xpath.XpathWrapper expectedXpath) {
-    return org.custommonkey.xmlunit.matchers.xpath.XpathValuesEqualMatcher.valueIsEqualToXpathValue(expectedXpath);
+  public static org.custommonkey.xmlunit.matchers.xpath.XpathValuesEqualMatcher equalToXpathValueOf(net.sf.xmlunit.xpath.XpathWrapper expectedXpath) {
+    return org.custommonkey.xmlunit.matchers.xpath.XpathValuesEqualMatcher.equalToXpathValueOf(expectedXpath);
   }
 
-  public static org.custommonkey.xmlunit.matchers.xpath.XpathValuesNotEqualMatcher valueIsNotEqualToXpathValue(net.sf.xmlunit.xpath.XpathWrapper expectedXpath) {
-    return org.custommonkey.xmlunit.matchers.xpath.XpathValuesNotEqualMatcher.valueIsNotEqualToXpathValue(expectedXpath);
+  public static org.custommonkey.xmlunit.matchers.xpath.XpathValuesNotEqualMatcher notEqualToXpathValueOf(net.sf.xmlunit.xpath.XpathWrapper expectedXpath) {
+    return org.custommonkey.xmlunit.matchers.xpath.XpathValuesNotEqualMatcher.notEqualToXpathValue(expectedXpath);
   }
 
   public static org.custommonkey.xmlunit.matchers.NoteTestPassesMatcher passesWith(org.custommonkey.xmlunit.NodeTester param1, short[] param2) {

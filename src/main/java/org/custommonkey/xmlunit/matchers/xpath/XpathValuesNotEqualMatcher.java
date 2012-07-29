@@ -15,20 +15,26 @@ import org.hamcrest.Factory;
 public class XpathValuesNotEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper> {
 
     private XpathWrapper expectedXpath;
+    private String expectedXpathValue;
+    private String actualXpathValue;
 
     public XpathValuesNotEqualMatcher(XpathWrapper expectedXpath) {
         this.expectedXpath = expectedXpath;
     }
 
     public void describeTo(Description description) {
-        // TODO
+        description.appendText("xpath with value not equal to " + quote(expectedXpathValue));
+    }
+
+    @Override
+    protected void describeMismatchSafely(XpathWrapper item, Description mismatchDescription) {
+        super.describeMismatchSafely(item, mismatchDescription);
+        mismatchDescription.appendText("xpath with value " + quote(actualXpathValue));
     }
 
     @Override
     public boolean matchesSafely(XpathWrapper actualXpath) {
         XpathEngine xpath = XMLUnit.newXpathEngine();
-        String expectedXpathValue;
-        String actualXpathValue;
         try {
             expectedXpathValue = xpath.evaluate(expectedXpath.getXpath(), expectedXpath.getDocument());
             actualXpathValue = xpath.evaluate(actualXpath.getXpath(), actualXpath.getDocument());
@@ -40,7 +46,7 @@ public class XpathValuesNotEqualMatcher extends AbstractXmlUnitMatcher<XpathWrap
     }
 
     @Factory
-    public static XpathValuesNotEqualMatcher valueIsNotEqualToXpathValue(XpathWrapper expectedXpath) {
+    public static XpathValuesNotEqualMatcher notEqualToXpathValue(XpathWrapper expectedXpath) {
         return new XpathValuesNotEqualMatcher(expectedXpath);
     }
 

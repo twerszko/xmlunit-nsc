@@ -15,20 +15,32 @@ import org.hamcrest.Factory;
 public class XpathValuesEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper> {
 
     private XpathWrapper expectedXpath;
+    private String expectedXpathValue;
+    private String actualXpathValue;
 
     public XpathValuesEqualMatcher(XpathWrapper expectedXpath) {
+        if (expectedXpath == null) {
+            throw new IllegalArgumentException("Expected xpath cannot be null!");
+        }
         this.expectedXpath = expectedXpath;
     }
 
     public void describeTo(Description description) {
-        // TODO
+        description.appendText("xpath with value equal to " + quote(expectedXpathValue));
+    }
+
+    @Override
+    protected void describeMismatchSafely(XpathWrapper item, Description mismatchDescription) {
+        super.describeMismatchSafely(item, mismatchDescription);
+        mismatchDescription.appendText("xpath with value " + quote(actualXpathValue));
     }
 
     @Override
     public boolean matchesSafely(XpathWrapper actualXpath) {
+        if (actualXpath == null) {
+            throw new IllegalArgumentException("Actual xpath cannot be null!");
+        }
         XpathEngine xpath = XMLUnit.newXpathEngine();
-        String expectedXpathValue;
-        String actualXpathValue;
         try {
             expectedXpathValue = xpath.evaluate(expectedXpath.getXpath(), expectedXpath.getDocument());
             actualXpathValue = xpath.evaluate(actualXpath.getXpath(), actualXpath.getDocument());
@@ -40,7 +52,7 @@ public class XpathValuesEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper
     }
 
     @Factory
-    public static XpathValuesEqualMatcher valueIsEqualToXpathValue(XpathWrapper expectedXpath) {
+    public static XpathValuesEqualMatcher equalToXpathValueOf(XpathWrapper expectedXpath) {
         return new XpathValuesEqualMatcher(expectedXpath);
     }
 

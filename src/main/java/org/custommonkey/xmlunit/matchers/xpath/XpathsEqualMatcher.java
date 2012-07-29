@@ -29,54 +29,61 @@ import org.hamcrest.Factory;
  */
 public class XpathsEqualMatcher extends AbstractXpathEqualMatcher {
 
-	private final XpathWrapper expectedXpath;
+    private final XpathWrapper expectedXpath;
 
-	public XpathsEqualMatcher(XpathWrapper expectedXpath) {
-		this.expectedXpath = expectedXpath;
-	}
+    public XpathsEqualMatcher(XpathWrapper expectedXpath) {
+        if (expectedXpath == null) {
+            throw new IllegalArgumentException("Expected xpath cannot be null!");
+        }
+        this.expectedXpath = expectedXpath;
+    }
 
-	public void describeTo(Description description) {
-		String actual;
-		try {
-			actual = DomUtils.documentToString(actualXpathDocument);
-		} catch (TransformerException e) {
-			actual = "";
-		}
-		description.appendText("something equal to " + quote(actual));
-	}
+    public void describeTo(Description description) {
+        String actual;
+        try {
+            actual = DomUtils.documentToString(actualXpathDocument);
+        } catch (TransformerException e) {
+            actual = "";
+        }
+        description.appendText("something equal to " + quote(actual));
+    }
 
-	@Override
-	protected void describeMismatchSafely(XpathWrapper item, Description description) {
-		String expected;
-		try {
-			expected = DomUtils.documentToString(expectedXpathDocument);
-		} catch (TransformerException e) {
-			expected = "";
-		}
-		description.appendText("got" + quote(expected));
-	}
+    @Override
+    protected void describeMismatchSafely(XpathWrapper item, Description description) {
+        String expected;
+        try {
+            expected = DomUtils.documentToString(expectedXpathDocument);
+        } catch (TransformerException e) {
+            expected = "";
+        }
+        description.appendText("got" + quote(expected));
+    }
 
-	@Override
-	public boolean matchesSafely(XpathWrapper actualXpath) {
-		boolean equalXpaths;
-		try {
-			equalXpaths = equalXpaths(
-			        expectedXpath.getXpath(),
-			        expectedXpath.getDocument(),
-			        actualXpath.getXpath(),
-			        actualXpath.getDocument());
+    @Override
+    public boolean matchesSafely(XpathWrapper actualXpath) {
+        if (actualXpath == null) {
+            throw new IllegalArgumentException("Actual xpath cannot be null!");
+        }
 
-		} catch (ConfigurationException e) {
-			throw new IllegalStateException("Couldn't check xpath", e);
-		} catch (XpathException e) {
-			throw new IllegalArgumentException("Invalid xpath!", e);
-		}
-		return equalXpaths;
-	}
+        boolean equalXpaths;
+        try {
+            equalXpaths = equalXpaths(
+                    expectedXpath.getXpath(),
+                    expectedXpath.getDocument(),
+                    actualXpath.getXpath(),
+                    actualXpath.getDocument());
 
-	@Factory
-	public static XpathsEqualMatcher equalToXpath(XpathWrapper expectedXpath) {
-		return new XpathsEqualMatcher(expectedXpath);
-	}
+        } catch (ConfigurationException e) {
+            throw new IllegalStateException("Couldn't check xpath", e);
+        } catch (XpathException e) {
+            throw new IllegalArgumentException("Invalid xpath!", e);
+        }
+        return equalXpaths;
+    }
+
+    @Factory
+    public static XpathsEqualMatcher equalToXpath(XpathWrapper expectedXpath) {
+        return new XpathsEqualMatcher(expectedXpath);
+    }
 
 }
