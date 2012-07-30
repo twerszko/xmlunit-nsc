@@ -16,7 +16,7 @@ package net.sf.xmlunit.xpath;
 
 import javax.xml.transform.TransformerException;
 
-import org.custommonkey.xmlunit.util.DomUtils;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 
 /**
@@ -64,7 +64,7 @@ public class XpathWrapper {
 	public String toString() {
 		String xml;
 		try {
-			xml = DomUtils.documentToString(document);
+			xml = DocumentUtils.documentToString(document);
 		} catch (TransformerException e) {
 			xml = "invalid xml";
 		}

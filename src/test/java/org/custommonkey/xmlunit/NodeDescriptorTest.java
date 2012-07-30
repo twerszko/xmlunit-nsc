@@ -41,6 +41,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Attr;
@@ -51,191 +52,193 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 public class NodeDescriptorTest {
-	private Document aDocument;
+    private Document aDocument;
+    private DocumentUtils documentUtils;
 
-	@Before
-	public void setUp() {
-		aDocument = XMLUnit.newControlParser().newDocument();
-	}
+    @Before
+    public void setUp() {
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        aDocument = documentUtils.newControlParser().newDocument();
+    }
 
-	@Test
-	public void should_append_document_detail() {
-		// given
-		StringBuffer buffer = new StringBuffer();
-		String textDetail =
-		        "<" + NodeDescriptor.DOCUMENT_NODE_DESCRIPTION + "<...>> at /";
+    @Test
+    public void should_append_document_detail() {
+        // given
+        StringBuffer buffer = new StringBuffer();
+        String textDetail =
+                "<" + NodeDescriptor.DOCUMENT_NODE_DESCRIPTION + "<...>> at /";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", aDocument, "/");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", aDocument, "/");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_attribute_detail() {
-		// given
-		String attrName = "attrName";
-		String attrValue = "attrValue";
-		Attr attr = aDocument.createAttribute(attrName);
-		attr.setValue(attrValue);
+    @Test
+    public void should_append_attribute_detail() {
+        // given
+        String attrName = "attrName";
+        String attrValue = "attrValue";
+        Attr attr = aDocument.createAttribute(attrName);
+        attr.setValue(attrValue);
 
-		String tagName = "elemTag";
-		Element element = aDocument.createElement(tagName);
-		element.setAttributeNode(attr);
+        String tagName = "elemTag";
+        Element element = aDocument.createElement(tagName);
+        element.setAttributeNode(attr);
 
-		StringBuffer buffer = new StringBuffer();
-		String textDetail =
-		        "<" + tagName + " " + attrName + "=\"" + attrValue + "\"...> at /elemTag";
+        StringBuffer buffer = new StringBuffer();
+        String textDetail =
+                "<" + tagName + " " + attrName + "=\"" + attrValue + "\"...> at /elemTag";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", attr, "/elemTag");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", attr, "/elemTag");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_element_detail() {
-		// given
-		String tagName = "elemTag";
-		Element element = aDocument.createElement(tagName);
+    @Test
+    public void should_append_element_detail() {
+        // given
+        String tagName = "elemTag";
+        Element element = aDocument.createElement(tagName);
 
-		StringBuffer buffer = new StringBuffer();
-		String textDetail = "<" + tagName + "...> at /elemTag";
+        StringBuffer buffer = new StringBuffer();
+        String textDetail = "<" + tagName + "...> at /elemTag";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", element, "/elemTag");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", element, "/elemTag");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_text_detail() {
-		// given
-		String textString = "some text";
-		Text text = aDocument.createTextNode(textString);
-		String tagName = "elemTag";
-		Element element = aDocument.createElement(tagName);
-		element.appendChild(text);
+    @Test
+    public void should_append_text_detail() {
+        // given
+        String textString = "some text";
+        Text text = aDocument.createTextNode(textString);
+        String tagName = "elemTag";
+        Element element = aDocument.createElement(tagName);
+        element.appendChild(text);
 
-		StringBuffer buffer = new StringBuffer();
-		String textDetail =
-		        "<" + tagName + " ...>" +
-		                textString +
-		                "</" + tagName + "> at /elemTag/text()";
+        StringBuffer buffer = new StringBuffer();
+        String textDetail =
+                "<" + tagName + " ...>" +
+                        textString +
+                        "</" + tagName + "> at /elemTag/text()";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", text, "/elemTag/text()");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", text, "/elemTag/text()");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_processing_instruction_detail() {
-		// given
-		String target = "PItarget";
-		String data = "PIdata";
-		Node processingInstruction = aDocument.createProcessingInstruction(target, data);
+    @Test
+    public void should_append_processing_instruction_detail() {
+        // given
+        String target = "PItarget";
+        String data = "PIdata";
+        Node processingInstruction = aDocument.createProcessingInstruction(target, data);
 
-		StringBuffer buffer = new StringBuffer();
-		String textDetail = "<?" + target + " " + data + "?> at /processing-instruction()";
+        StringBuffer buffer = new StringBuffer();
+        String textDetail = "<?" + target + " " + data + "?> at /processing-instruction()";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", processingInstruction, "/processing-instruction()");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", processingInstruction, "/processing-instruction()");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_comment_detail() {
-		// given
-		String comments = "This is a comment";
-		Node comment = aDocument.createComment(comments);
+    @Test
+    public void should_append_comment_detail() {
+        // given
+        String comments = "This is a comment";
+        Node comment = aDocument.createComment(comments);
 
-		StringBuffer buffer = new StringBuffer();
-		String textDetail = "<!--" + comments + "--> at /comment()";
+        StringBuffer buffer = new StringBuffer();
+        String textDetail = "<!--" + comments + "--> at /comment()";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", comment, "/comment()");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", comment, "/comment()");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_CData_detail() {
-		// given
-		String cData = "<>& etc";
-		Node cDataNote = aDocument.createCDATASection(cData);
+    @Test
+    public void should_append_CData_detail() {
+        // given
+        String cData = "<>& etc";
+        Node cDataNote = aDocument.createCDATASection(cData);
 
-		StringBuffer buffer = new StringBuffer();
-		String textDetail = "<![CDATA[" + cData + "]]> at /text()";
+        StringBuffer buffer = new StringBuffer();
+        String textDetail = "<![CDATA[" + cData + "]]> at /text()";
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", cDataNote, "/text()");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", cDataNote, "/text()");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(textDetail);
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(textDetail);
+    }
 
-	@Test
-	public void should_append_doc_type_detail() throws SAXException, IOException {
-		// given
-		File dtdA = File.createTempFile(this.getClass() + "A", "dtd");
-		dtdA.deleteOnExit();
+    @Test
+    public void should_append_doc_type_detail() throws SAXException, IOException {
+        // given
+        File dtdA = File.createTempFile(this.getClass() + "A", "dtd");
+        dtdA.deleteOnExit();
 
-		String systemOnlyDTD =
-		        "<!DOCTYPE blah SYSTEM \"" + dtdA.toURI().toURL().toExternalForm() + "\">";
-		String someContent = "<blah>ignored</blah>";
-		String xmlWithExternalDTD = systemOnlyDTD + someContent;
+        String systemOnlyDTD =
+                "<!DOCTYPE blah SYSTEM \"" + dtdA.toURI().toURL().toExternalForm() + "\">";
+        String someContent = "<blah>ignored</blah>";
+        String xmlWithExternalDTD = systemOnlyDTD + someContent;
 
-		aDocument = XMLUnit.buildControlDocument(xmlWithExternalDTD);
-		Node doctypeA = aDocument.getDoctype();
+        aDocument = documentUtils.buildControlDocument(xmlWithExternalDTD);
+        Node doctypeA = aDocument.getDoctype();
 
-		StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", doctypeA, "/");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", doctypeA, "/");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(systemOnlyDTD + " at /");
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(systemOnlyDTD + " at /");
+    }
 
-	@Test
-	public void should_append_doc_type_detail2() throws SAXException, IOException {
-		// given
-		File dtdB = File.createTempFile(this.getClass() + "B", "dtd");
-		dtdB.deleteOnExit();
+    @Test
+    public void should_append_doc_type_detail2() throws SAXException, IOException {
+        // given
+        File dtdB = File.createTempFile(this.getClass() + "B", "dtd");
+        dtdB.deleteOnExit();
 
-		String publicDTD = "<!DOCTYPE web-app "
-		        + "PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN\" "
-		        + "\"" + dtdB.toURI().toURL().toExternalForm() + "\">";
-		String someOtherContent = "<web-app><!--ignore me--></web-app>";
-		String xmlWithPublicDTD = publicDTD + someOtherContent;
+        String publicDTD = "<!DOCTYPE web-app "
+                + "PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN\" "
+                + "\"" + dtdB.toURI().toURL().toExternalForm() + "\">";
+        String someOtherContent = "<web-app><!--ignore me--></web-app>";
+        String xmlWithPublicDTD = publicDTD + someOtherContent;
 
-		aDocument = XMLUnit.buildControlDocument(xmlWithPublicDTD);
-		Node doctypeB = aDocument.getDoctype();
+        aDocument = documentUtils.buildControlDocument(xmlWithPublicDTD);
+        Node doctypeB = aDocument.getDoctype();
 
-		StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
 
-		// when
-		NodeDetail nodeDetail = new NodeDetail("", doctypeB, "/");
-		NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        // when
+        NodeDetail nodeDetail = new NodeDetail("", doctypeB, "/");
+        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
 
-		// then
-		assertThat(buffer.toString()).isEqualTo(publicDTD + " at /");
-	}
+        // then
+        assertThat(buffer.toString()).isEqualTo(publicDTD + " at /");
+    }
 
 }

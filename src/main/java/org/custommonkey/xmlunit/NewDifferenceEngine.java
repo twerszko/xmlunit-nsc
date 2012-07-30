@@ -384,7 +384,7 @@ public class NewDifferenceEngine
     private static final Short CDATA_TYPE =
             Short.valueOf(Node.CDATA_SECTION_NODE);
 
-    private static boolean swallowComparison(Comparison comparison,
+    private boolean swallowComparison(Comparison comparison,
             ComparisonResult outcome,
             IsBetweenDocumentNodeAndRootElement
             checkPrelude) {
@@ -403,7 +403,7 @@ public class NewDifferenceEngine
                 || checkPrelude.shouldSkip()) {
             return true;
         }
-        if (XMLUnit.getIgnoreDiffBetweenTextAndCDATA()
+        if (properties.getIgnoreDiffBetweenTextAndCDATA()
                 && comparison.getType() == ComparisonType.NODE_TYPE) {
             return (
                     TEXT_TYPE.equals(comparison.getControlDetails().getValue())

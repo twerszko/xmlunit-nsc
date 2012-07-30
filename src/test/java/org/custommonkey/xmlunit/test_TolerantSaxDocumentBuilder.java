@@ -46,6 +46,7 @@ import java.io.StringReader;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -57,19 +58,21 @@ import org.xml.sax.InputSource;
 public class test_TolerantSaxDocumentBuilder {
     private TolerantSaxDocumentBuilder builder;
     private SAXParser parser;
+    private DocumentUtils documentUtils;
 
     private static final String SIMPLEST_XML = "<root><node>text</node></root>";
 
     @Before
     public void setUp() throws Exception {
-        builder = new TolerantSaxDocumentBuilder(XMLUnit.newTestParser());
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        builder = new TolerantSaxDocumentBuilder(documentUtils.newTestParser());
         parser = SAXParserFactory.newInstance().newSAXParser();
     }
 
     @Test
     public void testSimpleDocument() throws Exception {
         String simpleXML = XMLConstants.XML_DECLARATION + SIMPLEST_XML;
-        Document simpleXMLDocument = XMLUnit.buildControlDocument(
+        Document simpleXMLDocument = documentUtils.buildControlDocument(
                 simpleXML);
         assertParsedDocumentEqual(simpleXMLDocument, simpleXML);
         assertThat(builder.getTrace().indexOf("WARNING")).isEqualTo(-1);
@@ -88,7 +91,7 @@ public class test_TolerantSaxDocumentBuilder {
     public void testSimpleDocumentWithComments() throws Exception {
         String xmlWithComments = XMLConstants.XML_DECLARATION + "<more>" + SIMPLEST_XML
                 + "<!--this is a comment -->" + SIMPLEST_XML + "</more>";
-        Document documentWithComments = XMLUnit.buildControlDocument(
+        Document documentWithComments = documentUtils.buildControlDocument(
                 xmlWithComments);
         assertParsedDocumentEqual(documentWithComments, xmlWithComments);
         assertThat(builder.getTrace().indexOf("WARNING")).isEqualTo(-1);
@@ -98,7 +101,7 @@ public class test_TolerantSaxDocumentBuilder {
     public void testSimpleDocumentWithProcessingInstruction() throws Exception {
         String xmlWithProcInstruction = XMLConstants.XML_DECLARATION + "<more>" + SIMPLEST_XML
                 + "<?processing instruction?>" + SIMPLEST_XML + "</more>";
-        Document documentWithProcInstruction = XMLUnit.buildControlDocument(
+        Document documentWithProcInstruction = documentUtils.buildControlDocument(
                 xmlWithProcInstruction);
         assertParsedDocumentEqual(documentWithProcInstruction,
                 xmlWithProcInstruction);
@@ -110,7 +113,7 @@ public class test_TolerantSaxDocumentBuilder {
         builder.startDocument();
         builder.startElement(null, null, "root", null);
 
-        Document oneElementDocument = XMLUnit.buildControlDocument("<root/>");
+        Document oneElementDocument = documentUtils.buildControlDocument("<root/>");
         assertThat(builder.getDocument(), is(equalToXmlDocument(oneElementDocument)));
         assertThat(builder.getTrace().indexOf("WARNING")).isEqualTo(-1);
     }
@@ -122,7 +125,7 @@ public class test_TolerantSaxDocumentBuilder {
         builder.endElement(null, null, "node");
         builder.endElement(null, null, "root");
 
-        Document oneElementDocument = XMLUnit.buildControlDocument("<root/>");
+        Document oneElementDocument = documentUtils.buildControlDocument("<root/>");
         assertThat(builder.getDocument(), is(equalToXmlDocument(oneElementDocument)));
         assertThat(builder.getTrace().indexOf("WARNING")).isNotEqualTo(-1);
     }
@@ -133,7 +136,7 @@ public class test_TolerantSaxDocumentBuilder {
         builder.endElement(null, null, "root");
         builder.startElement(null, null, "root", null);
 
-        Document oneElementDocument = XMLUnit.buildControlDocument("<root/>");
+        Document oneElementDocument = documentUtils.buildControlDocument("<root/>");
         assertThat(builder.getDocument(), is(equalToXmlDocument(oneElementDocument)));
         assertThat(builder.getTrace().indexOf("WARNING")).isNotEqualTo(-1);
     }
@@ -145,7 +148,7 @@ public class test_TolerantSaxDocumentBuilder {
         builder.characters(someText.toCharArray(), 0, someText.length());
         builder.startElement(null, null, "root", null);
 
-        Document oneElementDocument = XMLUnit.buildControlDocument("<root/>");
+        Document oneElementDocument = documentUtils.buildControlDocument("<root/>");
         assertThat(builder.getDocument(), is(equalToXmlDocument(oneElementDocument)));
         assertThat(builder.getTrace().indexOf("WARNING")).isNotEqualTo(-1);
     }

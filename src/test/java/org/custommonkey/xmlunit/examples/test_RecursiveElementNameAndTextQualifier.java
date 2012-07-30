@@ -42,8 +42,8 @@ import junit.framework.TestCase;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.ElementQualifier;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -64,8 +64,8 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        document = XMLUnit.newControlParser().newDocument();
         properties = new XMLUnitProperties();
+        document = new DocumentUtils(properties).newControlParser().newDocument();
     }
 
     // copy of ElementNameAndTextQualifier test

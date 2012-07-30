@@ -51,6 +51,7 @@ import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -186,11 +187,14 @@ public class DetailedDiffTest extends DiffTest {
         List<Difference> differences = detailedDiff.getAllDifferences();
 
         SimpleXpathEngine xpathEngine = new SimpleXpathEngine(properties);
+
+        DocumentUtils documentUtils = new DocumentUtils(properties);
+
         Document controlDoc =
-                XMLUnit.buildControlDocument(
+                documentUtils.buildControlDocument(
                         new InputSource(new FileReader(control)));
         Document testDoc =
-                XMLUnit.buildTestDocument(
+                documentUtils.buildTestDocument(
                         new InputSource(new FileReader(test)));
 
         // TODO: reduce this mess

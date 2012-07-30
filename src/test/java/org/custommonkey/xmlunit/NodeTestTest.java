@@ -42,79 +42,84 @@ import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
 public class NodeTestTest {
-	private NodeTest nodeTest;
+    private NodeTest nodeTest;
 
-	private class NodeTypeTester implements NodeTester {
-		private short type;
+    private class NodeTypeTester implements NodeTester {
+        private short type;
 
-		public NodeTypeTester(short type) {
-			this.type = type;
-		}
+        public NodeTypeTester(short type) {
+            this.type = type;
+        }
 
-		public void testNode(Node aNode, NodeTest forTest) {
-			assertThat(aNode.getNodeType()).isEqualTo(type);
-		}
+        public void testNode(Node aNode, NodeTest forTest) {
+            assertThat(aNode.getNodeType()).isEqualTo(type);
+        }
 
-		public void noMoreNodes(NodeTest forTest) {
-		}
-	}
+        public void noMoreNodes(NodeTest forTest) {
+        }
+    }
 
-	private class RejectingNodeTester implements NodeTester {
-		public boolean completed;
+    private class RejectingNodeTester implements NodeTester {
+        public boolean completed;
 
-		public void testNode(Node aNode, NodeTest forTest)
-		        throws NodeTestException {
-			throw new NodeTestException("Reject all nodes", aNode);
-		}
+        public void testNode(Node aNode, NodeTest forTest)
+                throws NodeTestException {
+            throw new NodeTestException("Reject all nodes", aNode);
+        }
 
-		public void noMoreNodes(NodeTest forTest) throws NodeTestException {
-			completed = true;
-			throw new NodeTestException("Rejection");
-		}
+        public void noMoreNodes(NodeTest forTest) throws NodeTestException {
+            completed = true;
+            throw new NodeTestException("Rejection");
+        }
 
-	}
+    }
 
-	@Test
-	public void testFiltering() throws Exception {
-		nodeTest = new NodeTest(
-		        new StringReader("<message><hello>folks</hello></message>"));
-		short nodeType = Node.ELEMENT_NODE;
-		nodeTest.performTest(new NodeTypeTester(nodeType), nodeType);
+    @Test
+    public void testFiltering() throws Exception {
+        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
 
-		nodeType = Node.TEXT_NODE;
-		nodeTest.performTest(new NodeTypeTester(nodeType), nodeType);
+        nodeTest = new NodeTest(documentUtils,
+                new StringReader("<message><hello>folks</hello></message>"));
+        short nodeType = Node.ELEMENT_NODE;
+        nodeTest.performTest(new NodeTypeTester(nodeType), nodeType);
 
-		nodeType = Node.COMMENT_NODE;
-		nodeTest.performTest(new NodeTypeTester(nodeType), nodeType);
+        nodeType = Node.TEXT_NODE;
+        nodeTest.performTest(new NodeTypeTester(nodeType), nodeType);
 
-		short[] nodeTypes = new short[] { Node.TEXT_NODE, Node.COMMENT_NODE };
-		nodeTest.performTest(new NodeTypeTester(Node.TEXT_NODE), nodeTypes);
-	}
+        nodeType = Node.COMMENT_NODE;
+        nodeTest.performTest(new NodeTypeTester(nodeType), nodeType);
 
-	@Test
-	public void testNodeTesting() throws Exception {
-		String xml = "<keyboard><qwerty>standard</qwerty></keyboard>";
-		nodeTest = new NodeTest(new StringReader(xml));
+        short[] nodeTypes = new short[] { Node.TEXT_NODE, Node.COMMENT_NODE };
+        nodeTest.performTest(new NodeTypeTester(Node.TEXT_NODE), nodeTypes);
+    }
 
-		RejectingNodeTester tester = new RejectingNodeTester();
+    @Test
+    public void testNodeTesting() throws Exception {
+        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
 
-		try {
-			nodeTest.performTest(tester, Node.TEXT_NODE);
-			fail("Expected NodeTestException");
-		} catch (NodeTestException e) {
-			assertEquals("not completed", false, tester.completed);
-		}
+        String xml = "<keyboard><qwerty>standard</qwerty></keyboard>";
+        nodeTest = new NodeTest(documentUtils, new StringReader(xml));
 
-		try {
-			nodeTest.performTest(tester, Node.CDATA_SECTION_NODE);
-			fail("Expected NodeTestException");
-		} catch (NodeTestException e) {
-			assertEquals("completed", true, tester.completed);
-		}
-	}
+        RejectingNodeTester tester = new RejectingNodeTester();
+
+        try {
+            nodeTest.performTest(tester, Node.TEXT_NODE);
+            fail("Expected NodeTestException");
+        } catch (NodeTestException e) {
+            assertEquals("not completed", false, tester.completed);
+        }
+
+        try {
+            nodeTest.performTest(tester, Node.CDATA_SECTION_NODE);
+            fail("Expected NodeTestException");
+        } catch (NodeTestException e) {
+            assertEquals("completed", true, tester.completed);
+        }
+    }
 
 }

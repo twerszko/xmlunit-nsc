@@ -44,9 +44,11 @@ import javax.annotation.Nullable;
 import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -77,14 +79,14 @@ public class XPathRegexAssert {
     public static void assertXPathMatches(XMLUnit xmlUnit, String message, String regex,
             String xpath, String xml)
             throws XpathException, SAXException, IOException {
-        Document doc = XMLUnit.buildControlDocument(xml);
+        Document doc = new DocumentUtils(new XMLUnitProperties()).buildControlDocument(xml);
         assertXPathMatches(xmlUnit, message, regex, xpath, doc);
     }
 
     public static void assertXPathMatches(XMLUnit xmlUnit, String message, String regex,
             String xpath, Reader reader)
             throws XpathException, SAXException, IOException {
-        Document doc = XMLUnit.buildControlDocument(new InputSource(reader));
+        Document doc = new DocumentUtils(new XMLUnitProperties()).buildControlDocument(new InputSource(reader));
         assertXPathMatches(xmlUnit, message, regex, xpath, doc);
     }
 

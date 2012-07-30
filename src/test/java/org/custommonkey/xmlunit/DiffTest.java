@@ -61,6 +61,7 @@ import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -80,8 +81,8 @@ public class DiffTest {
 
     @Before
     public void setUp() throws Exception {
-        aDocument = XMLUnit.newControlParser().newDocument();
         properties = new XMLUnitProperties();
+        aDocument = new DocumentUtils(properties).newControlParser().newDocument();
     }
 
     protected Diff prepareDiff(XMLUnitProperties properties, Document control, Document test) {
@@ -102,8 +103,8 @@ public class DiffTest {
             DifferenceEngineContract engine)
             throws SAXException, IOException {
 
-        Document controlDocument = XMLUnit.buildControlDocument(control);
-        Document testDocument = XMLUnit.buildTestDocument(test);
+        Document controlDocument = new DocumentUtils(properties).buildControlDocument(control);
+        Document testDocument = new DocumentUtils(properties).buildTestDocument(test);
         return new Diff(properties, controlDocument, testDocument, engine);
     }
 
@@ -913,22 +914,18 @@ public class DiffTest {
 
     @Test
     public void should_be_identical_when_CDATA_ignored() throws SAXException, IOException {
-        try {
-            // given
-            XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
+        // given
+        properties.setIgnoreDiffBetweenTextAndCDATA(true);
 
-            String control = "<a>Hello</a>";
-            String test = "<a><![CDATA[Hello]]></a>";
+        String control = "<a>Hello</a>";
+        String test = "<a><![CDATA[Hello]]></a>";
 
-            // when
-            Diff diff = prepareDiff(properties, control, test);
+        // when
+        Diff diff = prepareDiff(properties, control, test);
 
-            // then
-            assertThat(diff.identical()).isTrue();
-            assertThat(diff.similar()).isTrue();
-        } finally {
-            XMLUnit.setIgnoreDiffBetweenTextAndCDATA(false);
-        }
+        // then
+        assertThat(diff.identical()).isTrue();
+        assertThat(diff.similar()).isTrue();
     }
 
     @Test
@@ -977,7 +974,7 @@ public class DiffTest {
     @Test
     public void should_check_normalization() {
         // given
-        Document control = XMLUnit.newControlParser().newDocument();
+        Document control = new DocumentUtils(properties).newControlParser().newDocument();
         Element root = control.createElement("root");
         control.appendChild(root);
         root.appendChild(control.createTextNode("Text 1"));
@@ -986,7 +983,7 @@ public class DiffTest {
         root.appendChild(inner);
         inner.appendChild(control.createTextNode("Text 3 and 4"));
 
-        Document test = XMLUnit.newTestParser().newDocument();
+        Document test = new DocumentUtils(properties).newTestParser().newDocument();
         root = test.createElement("root");
         test.appendChild(root);
         root.appendChild(test.createTextNode("Text 1 and 2"));
@@ -1290,16 +1287,13 @@ public class DiffTest {
                         "<Person> <Name> <![CDATA[JOE]]> </Name> </Person></Data>";
 
         properties.setIgnoreWhitespace(true);
-        XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
-        try {
-            // when
-            Diff diff = prepareDiff(properties, control, test);
+        properties.setIgnoreDiffBetweenTextAndCDATA(true);
 
-            // then
-            assertThat(diff.similar()).isTrue();
-        } finally {
-            XMLUnit.setIgnoreDiffBetweenTextAndCDATA(false);
-        }
+        // when
+        Diff diff = prepareDiff(properties, control, test);
+
+        // then
+        assertThat(diff.similar()).isTrue();
     }
 
     /**
@@ -1320,7 +1314,7 @@ public class DiffTest {
             Diff diff = prepareDiff(properties, control, test);
             assertThat(diff.similar()).isTrue();
         } finally {
-            XMLUnit.setExpandEntityReferences(false);
+            properties.setExpandEntityReferences(false);
         }
     }
 
@@ -1366,8 +1360,8 @@ public class DiffTest {
         String control = "<!DOCTYPE skinconfig []>" + "<!--abcd--><root></root>";
         String test = "<!DOCTYPE skinconfig [<!--abcd-->]>" + "<root></root>";
 
-        Document controlDoc = XMLUnit.buildTestDocument(control);
-        Document testDoc = XMLUnit.buildControlDocument(test);
+        Document controlDoc = new DocumentUtils(properties).buildTestDocument(control);
+        Document testDoc = new DocumentUtils(properties).buildControlDocument(test);
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);

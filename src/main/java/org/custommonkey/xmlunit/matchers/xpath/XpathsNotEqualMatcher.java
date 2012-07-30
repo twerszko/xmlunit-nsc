@@ -20,7 +20,7 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.custommonkey.xmlunit.util.DomUtils;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 
@@ -41,7 +41,7 @@ public class XpathsNotEqualMatcher extends AbstractXpathEqualMatcher {
     public void describeTo(Description description) {
         String actual;
         try {
-            actual = DomUtils.documentToString(actualXpathDocument);
+            actual = DocumentUtils.documentToString(actualXpathDocument);
         } catch (TransformerException e) {
             actual = "";
         }
@@ -52,7 +52,7 @@ public class XpathsNotEqualMatcher extends AbstractXpathEqualMatcher {
     protected void describeMismatchSafely(XpathWrapper item, Description description) {
         String expected;
         try {
-            expected = DomUtils.documentToString(expectedXpathDocument);
+            expected = DocumentUtils.documentToString(expectedXpathDocument);
         } catch (TransformerException e) {
             expected = "";
         }

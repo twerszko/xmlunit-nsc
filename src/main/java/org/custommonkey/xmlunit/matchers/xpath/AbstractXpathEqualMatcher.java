@@ -5,12 +5,12 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.xpath.XpathWrapper;
 
 import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XMLUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,11 +30,14 @@ public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<X
 
         XpathEngine xpath = getXmlUnit().newXpathEngine();
         XMLUnitProperties properties = getXmlUnit().getProperties();
+
+        DocumentUtils documentUtils = new DocumentUtils(getXmlUnit().getProperties());
+
         expectedXpathDocument = asXpathResultDocument(
-                XMLUnit.newControlParser(),
+                documentUtils.newControlParser(),
                 xpath.getMatchingNodes(expectedXpath, expectedDocument));
         actualXpathDocument = asXpathResultDocument(
-                XMLUnit.newTestParser(),
+                documentUtils.newTestParser(),
                 xpath.getMatchingNodes(actualXpath, actualDocument));
         Diff diff = new Diff(properties, expectedXpathDocument, actualXpathDocument);
         return diff.similar();

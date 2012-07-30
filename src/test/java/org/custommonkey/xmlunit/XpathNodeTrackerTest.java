@@ -37,6 +37,7 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Attr;
@@ -52,11 +53,13 @@ import org.w3c.dom.Text;
 public class XpathNodeTrackerTest {
     private XpathNodeTracker xpathNodeTracker;
     private static final Node DUMMY_NODE = null;
+    private DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
 
     @Before
     public void setUp() {
         xpathNodeTracker = new XpathNodeTracker();
         xpathNodeTracker.reset();
+
     }
 
     @Test
@@ -121,7 +124,7 @@ public class XpathNodeTrackerTest {
 
     @Test
     public void should_check_nodes() {
-        Document doc = XMLUnit.newControlParser().newDocument();
+        Document doc = documentUtils.newControlParser().newDocument();
         Element element = doc.createElementNS("http://example.com/xmlunit", "eg:root");
         xpathNodeTracker.visited(element);
         assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]");
@@ -153,7 +156,7 @@ public class XpathNodeTrackerTest {
 
     @Test
     public void should_check_repeat_nodes_for_test_tracker() {
-        Document doc = XMLUnit.newControlParser().newDocument();
+        Document doc = documentUtils.newControlParser().newDocument();
         final Element element = doc.createElement("repeated");
         final Element copy = doc.createElement("repeated");
 
@@ -187,7 +190,7 @@ public class XpathNodeTrackerTest {
 
     @Test
     public void should_check_repeat_nodes_for_control_tracker() {
-        Document doc = XMLUnit.newControlParser().newDocument();
+        Document doc = documentUtils.newControlParser().newDocument();
         Element element = doc.createElement("repeated");
 
         xpathNodeTracker.visited(element);

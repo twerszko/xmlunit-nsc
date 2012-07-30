@@ -24,7 +24,9 @@ import java.io.IOException;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
@@ -33,13 +35,20 @@ import org.xml.sax.SAXException;
 @RunWith(JUnitParamsRunner.class)
 public class EqualToDocumentMatcherTest extends AbstractComparisonTest {
 
+    private DocumentUtils documentUtils;
+
+    @Before
+    public void setUp() {
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
+    }
+
     @Test
     @Parameters(method = "provideEqualXmlStringPairs")
     public void should_compare_equal_xml_strings(String testString, String expectedString) throws SAXException,
             IOException {
         // given
-        Document testDocument = XMLUnit.buildTestDocument(testString);
-        Document expectedDocument = XMLUnit.buildControlDocument(expectedString);
+        Document testDocument = documentUtils.buildTestDocument(testString);
+        Document expectedDocument = documentUtils.buildControlDocument(expectedString);
 
         // then
         assertThat(testDocument, is(equalToXmlDocument(expectedDocument)));
@@ -50,8 +59,8 @@ public class EqualToDocumentMatcherTest extends AbstractComparisonTest {
     public void should_compare_npt_equal_xml_strings(String testString, String expectedString) throws SAXException,
             IOException {
         // given
-        Document testDocument = XMLUnit.buildTestDocument(testString);
-        Document expectedDocument = XMLUnit.buildControlDocument(expectedString);
+        Document testDocument = documentUtils.buildTestDocument(testString);
+        Document expectedDocument = documentUtils.buildControlDocument(expectedString);
 
         // then
         assertThat(testDocument, is(notEqualToXmlDocument(expectedDocument)));

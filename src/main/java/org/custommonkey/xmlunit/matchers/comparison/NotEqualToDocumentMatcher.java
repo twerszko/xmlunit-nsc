@@ -19,7 +19,7 @@ import javax.xml.transform.TransformerException;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
-import org.custommonkey.xmlunit.util.DomUtils;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
@@ -40,7 +40,7 @@ public class NotEqualToDocumentMatcher extends AbstractXmlUnitMatcher<Document> 
     public void describeTo(Description description) {
         String documentString;
         try {
-            documentString = DomUtils.documentToString(expectedDoc);
+            documentString = DocumentUtils.documentToString(expectedDoc);
         } catch (TransformerException e) {
             documentString = "";
         }
@@ -53,7 +53,7 @@ public class NotEqualToDocumentMatcher extends AbstractXmlUnitMatcher<Document> 
         super.describeMismatchSafely(item, mismatchDescription);
         String documentString;
         try {
-            documentString = DomUtils.documentToString(actualDoc);
+            documentString = DocumentUtils.documentToString(actualDoc);
         } catch (TransformerException e) {
             documentString = "";
         }

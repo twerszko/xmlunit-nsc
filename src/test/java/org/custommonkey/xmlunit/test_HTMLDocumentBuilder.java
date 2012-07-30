@@ -41,6 +41,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -59,8 +60,9 @@ public class test_HTMLDocumentBuilder {
 
     @Before
     public void setUp() throws Exception {
-        xHtmlDocument = XMLUnit.buildControlDocument(xHtml);
-        builder = new TolerantSaxDocumentBuilder(XMLUnit.newTestParser());
+        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+        xHtmlDocument = documentUtils.buildControlDocument(xHtml);
+        builder = new TolerantSaxDocumentBuilder(documentUtils.newTestParser());
         parser = new HTMLDocumentBuilder(builder);
     }
 

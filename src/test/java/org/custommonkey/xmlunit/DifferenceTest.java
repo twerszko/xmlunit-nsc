@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -97,7 +98,7 @@ public class DifferenceTest {
     @Test
     public void should_check_toString2() {
         // given
-        Document document = XMLUnit.newControlParser().newDocument();
+        Document document = new DocumentUtils(new XMLUnitProperties()).newControlParser().newDocument();
         Node controlNode = document.createComment("control");
         NodeDetail controlNodeDetail = new NodeDetail(
                 controlNode.getNodeValue(),

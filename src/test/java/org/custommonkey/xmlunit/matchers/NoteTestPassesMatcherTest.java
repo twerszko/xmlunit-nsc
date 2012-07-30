@@ -24,6 +24,8 @@ import java.io.StringReader;
 import org.custommonkey.xmlunit.CountingNodeTester;
 import org.custommonkey.xmlunit.NodeTest;
 import org.custommonkey.xmlunit.NodeTester;
+import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
@@ -44,16 +46,18 @@ public class NoteTestPassesMatcherTest {
 
     @Test
     public void testNodeTest() throws Exception {
+        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+
         NodeTester tester = new CountingNodeTester(1);
 
-        assertThat(new NodeTest(xpathValuesControlXML), passesWith(tester, Node.TEXT_NODE));
+        assertThat(new NodeTest(documentUtils, xpathValuesControlXML), passesWith(tester, Node.TEXT_NODE));
         try {
-            assertThat(new NodeTest(xpathValuesControlXML), passesWith(tester, Node.ELEMENT_NODE));
+            assertThat(new NodeTest(documentUtils, xpathValuesControlXML), passesWith(tester, Node.ELEMENT_NODE));
             fail("Expected node test failure #1!");
         } catch (AssertionError e) {
         }
 
-        NodeTest test = new NodeTest(new StringReader(xpathValuesTestXML));
+        NodeTest test = new NodeTest(documentUtils, new StringReader(xpathValuesTestXML));
         tester = new CountingNodeTester(4);
         assertThat(test, passesWith(tester, new short[] { Node.TEXT_NODE, Node.ELEMENT_NODE }));
         assertThat(test, notPassesWith(tester, new short[] { Node.TEXT_NODE, Node.COMMENT_NODE }));

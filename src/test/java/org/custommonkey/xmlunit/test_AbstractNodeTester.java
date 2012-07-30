@@ -38,6 +38,7 @@ package org.custommonkey.xmlunit;
 
 import junit.framework.Assert;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.CDATASection;
@@ -52,96 +53,98 @@ import org.w3c.dom.Text;
  */
 public class test_AbstractNodeTester {
 
-	@Test
-	@Ignore
-	// TODO This doesn't pass when run with other tests. Find out why!
-	public void testExactlyOncePerMethod() throws Exception {
-		String testXml = "<!DOCTYPE foo ["
-		        + "<!ELEMENT foo (#PCDATA)>"
-		        + "<!ATTLIST foo  attr CDATA #IMPLIED>"
-		        + "<!ENTITY my \"hello\">"
-		        + "<!NOTATION notation PUBLIC \"pub\">"
-		        + "]>"
-		        + "<foo attr=\"value\">"
-		        + "<!--comment-->"
-		        + "<?target processing-instruction?>"
-		        + "bar"
-		        + "&my;"
-		        + "<![CDATA[baz]]>"
-		        + "</foo>";
-		NodeTest nt = new NodeTest(testXml);
-		ExactlyOncePerMethod tester = new ExactlyOncePerMethod();
-		nt.performTest(tester, new short[] {
-		        Node.ATTRIBUTE_NODE,
-		        Node.CDATA_SECTION_NODE,
-		        Node.COMMENT_NODE,
-		        Node.DOCUMENT_FRAGMENT_NODE,
-		        Node.DOCUMENT_NODE,
-		        Node.DOCUMENT_TYPE_NODE,
-		        Node.ELEMENT_NODE,
-		        Node.ENTITY_NODE,
-		        Node.ENTITY_REFERENCE_NODE,
-		        Node.NOTATION_NODE,
-		        Node.PROCESSING_INSTRUCTION_NODE,
-		        Node.TEXT_NODE,
-		});
-		tester.verify();
-	}
+    @Test
+    @Ignore
+    // TODO This doesn't pass when run with other tests. Find out why!
+            public
+            void testExactlyOncePerMethod() throws Exception {
+        String testXml = "<!DOCTYPE foo ["
+                + "<!ELEMENT foo (#PCDATA)>"
+                + "<!ATTLIST foo  attr CDATA #IMPLIED>"
+                + "<!ENTITY my \"hello\">"
+                + "<!NOTATION notation PUBLIC \"pub\">"
+                + "]>"
+                + "<foo attr=\"value\">"
+                + "<!--comment-->"
+                + "<?target processing-instruction?>"
+                + "bar"
+                + "&my;"
+                + "<![CDATA[baz]]>"
+                + "</foo>";
+        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+        NodeTest nt = new NodeTest(documentUtils, testXml);
+        ExactlyOncePerMethod tester = new ExactlyOncePerMethod();
+        nt.performTest(tester, new short[] {
+                Node.ATTRIBUTE_NODE,
+                Node.CDATA_SECTION_NODE,
+                Node.COMMENT_NODE,
+                Node.DOCUMENT_FRAGMENT_NODE,
+                Node.DOCUMENT_NODE,
+                Node.DOCUMENT_TYPE_NODE,
+                Node.ELEMENT_NODE,
+                Node.ENTITY_NODE,
+                Node.ENTITY_REFERENCE_NODE,
+                Node.NOTATION_NODE,
+                Node.PROCESSING_INSTRUCTION_NODE,
+                Node.TEXT_NODE,
+        });
+        tester.verify();
+    }
 
-	private class ExactlyOncePerMethod extends AbstractNodeTester {
+    private class ExactlyOncePerMethod extends AbstractNodeTester {
 
-		private boolean cdataCalled;
-		private boolean commentCalled;
-		private boolean elementCalled;
-		private boolean piCalled;
-		private boolean textCalled;
-		private boolean noMoreNodesCalled;
+        private boolean cdataCalled;
+        private boolean commentCalled;
+        private boolean elementCalled;
+        private boolean piCalled;
+        private boolean textCalled;
+        private boolean noMoreNodesCalled;
 
-		public void testCDATASection(CDATASection cdata) {
-			Assert.assertFalse("testCDATASection called", cdataCalled);
-			cdataCalled = true;
-			Assert.assertEquals("baz", cdata.getNodeValue());
-		}
+        public void testCDATASection(CDATASection cdata) {
+            Assert.assertFalse("testCDATASection called", cdataCalled);
+            cdataCalled = true;
+            Assert.assertEquals("baz", cdata.getNodeValue());
+        }
 
-		public void testComment(Comment comment) {
-			Assert.assertFalse("testComment called", commentCalled);
-			commentCalled = true;
-			Assert.assertEquals("comment", comment.getNodeValue());
-		}
+        public void testComment(Comment comment) {
+            Assert.assertFalse("testComment called", commentCalled);
+            commentCalled = true;
+            Assert.assertEquals("comment", comment.getNodeValue());
+        }
 
-		public void testElement(Element element) {
-			Assert.assertFalse("testElement called", elementCalled);
-			elementCalled = true;
-			Assert.assertEquals("foo", element.getNodeName());
-			Assert.assertEquals("value", element.getAttribute("attr"));
-		}
+        public void testElement(Element element) {
+            Assert.assertFalse("testElement called", elementCalled);
+            elementCalled = true;
+            Assert.assertEquals("foo", element.getNodeName());
+            Assert.assertEquals("value", element.getAttribute("attr"));
+        }
 
-		public void testProcessingInstruction(ProcessingInstruction instr) {
-			Assert.assertFalse("testProcessingInstruction called", piCalled);
-			piCalled = true;
-			Assert.assertEquals("target", instr.getTarget());
-			Assert.assertEquals("processing-instruction", instr.getData());
-		}
+        public void testProcessingInstruction(ProcessingInstruction instr) {
+            Assert.assertFalse("testProcessingInstruction called", piCalled);
+            piCalled = true;
+            Assert.assertEquals("target", instr.getTarget());
+            Assert.assertEquals("processing-instruction", instr.getData());
+        }
 
-		public void testText(Text text) {
-			Assert.assertFalse("testText called", textCalled);
-			textCalled = true;
-			Assert.assertEquals("barhello", text.getNodeValue());
-		}
+        public void testText(Text text) {
+            Assert.assertFalse("testText called", textCalled);
+            textCalled = true;
+            Assert.assertEquals("barhello", text.getNodeValue());
+        }
 
-		public void noMoreNodes(NodeTest t) {
-			Assert.assertFalse("noMoreNodes called", noMoreNodesCalled);
-			noMoreNodesCalled = true;
-		}
+        public void noMoreNodes(NodeTest t) {
+            Assert.assertFalse("noMoreNodes called", noMoreNodesCalled);
+            noMoreNodesCalled = true;
+        }
 
-		void verify() {
-			Assert.assertTrue("testCDATASection not called", cdataCalled);
-			Assert.assertTrue("testComment not called", commentCalled);
-			Assert.assertTrue("testElement not called", elementCalled);
-			Assert.assertTrue("testProcessingInstruction not called",
-			        piCalled);
-			Assert.assertTrue("testText not called", textCalled);
-			Assert.assertTrue("noMoreNodes not called", noMoreNodesCalled);
-		}
-	}
+        void verify() {
+            Assert.assertTrue("testCDATASection not called", cdataCalled);
+            Assert.assertTrue("testComment not called", commentCalled);
+            Assert.assertTrue("testElement not called", elementCalled);
+            Assert.assertTrue("testProcessingInstruction not called",
+                    piCalled);
+            Assert.assertTrue("testText not called", textCalled);
+            Assert.assertTrue("noMoreNodes not called", noMoreNodesCalled);
+        }
+    }
 }

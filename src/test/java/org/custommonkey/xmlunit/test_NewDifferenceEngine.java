@@ -45,6 +45,7 @@ import javax.xml.parsers.DocumentBuilder;
 import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
@@ -86,16 +87,16 @@ public class test_NewDifferenceEngine extends TestCase {
 
         resetListener();
         engine = new NewDifferenceEngine(properties, PSEUDO_DIFF);
-        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+        DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlParser();
         document = documentBuilder.newDocument();
     }
 
     public void testCompareNode() throws Exception {
-        Document controlDocument = XMLUnit.buildControlDocument("<root>"
+        Document controlDocument = new DocumentUtils(properties).buildControlDocument("<root>"
                 + "<!-- " + COMMENT_A + " -->"
                 + "<?" + PROC_A[0] + " " + PROC_A[1] + " ?>"
                 + "<elem attr=\"" + ATTR_A + "\">" + TEXT_A + "</elem></root>");
-        Document testDocument = XMLUnit.buildTestDocument("<root>"
+        Document testDocument = new DocumentUtils(properties).buildTestDocument("<root>"
                 + "<!-- " + COMMENT_B + " -->"
                 + "<?" + PROC_B[0] + " " + PROC_B[1] + " ?>"
                 + "<elem attr=\"" + ATTR_B + "\">" + TEXT_B + "</elem></root>");
@@ -524,8 +525,8 @@ public class test_NewDifferenceEngine extends TestCase {
     private void listenToDifferences(String control, String test,
             ElementQualifier eq)
             throws SAXException, IOException {
-        Document controlDoc = XMLUnit.buildControlDocument(control);
-        Document testDoc = XMLUnit.buildTestDocument(test);
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(control);
+        Document testDoc = new DocumentUtils(properties).buildTestDocument(test);
         engine.compare(controlDoc, testDoc, listener, eq);
     }
 

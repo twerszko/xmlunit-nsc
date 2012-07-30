@@ -43,6 +43,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class NodeInputStreamTest {
 
     @Before
     public void setUp() throws SAXException, IOException {
-        Document document = XMLUnit.buildControlDocument(frog);
+        Document document = new DocumentUtils(new XMLUnitProperties()).buildControlDocument(frog);
         nodeStream = new NodeInputStream(document);
     }
 

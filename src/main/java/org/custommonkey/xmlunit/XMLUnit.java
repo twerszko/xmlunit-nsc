@@ -40,20 +40,15 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
-import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -66,17 +61,10 @@ import org.xml.sax.SAXException;
 public final class XMLUnit {
     private final XMLUnitProperties properties;
 
-    private static DocumentBuilderFactory controlBuilderFactory;
-    private static DocumentBuilderFactory testBuilderFactory;
     private static TransformerFactory transformerFactory;
     private static SAXParserFactory saxParserFactory;
     private static URIResolver uriResolver = null;
-    private static EntityResolver testEntityResolver = null;
-    private static EntityResolver controlEntityResolver = null;
-    private static boolean ignoreDiffBetweenTextAndCDATA = false;
-    private static boolean ignoreAttributeOrder = true;
     private static String xpathFactoryName = null;
-    private static boolean expandEntities = false;
 
     private static final String XSLT_VERSION_START = " version=\"";
     private static final String XSLT_VERSION_END = "\">";
@@ -111,8 +99,6 @@ public final class XMLUnit {
      */
     XMLUnit(XMLUnitProperties properties) {
         this.properties = properties.clone();
-        getControlDocumentBuilderFactory().setIgnoringElementContentWhitespace(this.properties.getIgnoreWhitespace());
-        getTestDocumentBuilderFactory().setIgnoringElementContentWhitespace(this.properties.getIgnoreWhitespace());
     }
 
     /**
@@ -122,262 +108,6 @@ public final class XMLUnit {
      */
     public XMLUnitProperties getProperties() {
         return properties.clone();
-    }
-
-    /**
-     * Overide the DocumentBuilder to use to parse control documents. This is
-     * useful when comparing the output of two different parsers. Note: setting
-     * the control parser before any test cases are run will affect the test
-     * parser as well.
-     */
-    public static void setControlParser(String className) {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", className);
-        controlBuilderFactory = null;
-        controlBuilderFactory = getControlDocumentBuilderFactory();
-    }
-
-    /**
-     * Get the <code>DocumentBuilder</code> instance used to parse the control
-     * XML in an XMLTestCase.
-     * 
-     * @return parser for control values
-     * @throws ConfigurationException
-     */
-    public static DocumentBuilder newControlParser()
-            throws ConfigurationException {
-        try {
-            controlBuilderFactory = getControlDocumentBuilderFactory();
-            DocumentBuilder builder =
-                    controlBuilderFactory.newDocumentBuilder();
-            if (controlEntityResolver != null) {
-                builder.setEntityResolver(controlEntityResolver);
-            }
-            return builder;
-        } catch (ParserConfigurationException ex) {
-            throw new ConfigurationException(ex);
-        }
-    }
-
-    /**
-     * Sets an EntityResolver to be added to all new test parsers. Setting to
-     * null will reset to the default EntityResolver
-     */
-    public static void setTestEntityResolver(EntityResolver resolver) {
-        testEntityResolver = resolver;
-    }
-
-    /**
-     * Sets an EntityResolver to be added to all new control parsers. Setting to
-     * null will reset to the default EntityResolver
-     */
-    public static void setControlEntityResolver(EntityResolver resolver) {
-        controlEntityResolver = resolver;
-    }
-
-    /**
-     * Obtains the EntityResolver to be added to all new control parsers.
-     */
-    public static EntityResolver getControlEntityResolver() {
-        return controlEntityResolver;
-    }
-
-    /**
-     * Get the <code>DocumentBuilderFactory</code> instance used to instantiate
-     * parsers for the control XML in an XMLTestCase.
-     * 
-     * @return factory for control parsers
-     */
-    public static DocumentBuilderFactory getControlDocumentBuilderFactory() {
-        if (controlBuilderFactory == null) {
-            controlBuilderFactory = DocumentBuilderFactory.newInstance();
-            controlBuilderFactory.setNamespaceAware(true);
-        }
-        return controlBuilderFactory;
-    }
-
-    /**
-     * Override the <code>DocumentBuilderFactory</code> used to instantiate
-     * parsers for the control XML in an XMLTestCase.
-     */
-    public static void setControlDocumentBuilderFactory(DocumentBuilderFactory factory) {
-        if (factory == null) {
-            throw new IllegalArgumentException("Cannot set control DocumentBuilderFactory to null!");
-        }
-        controlBuilderFactory = factory;
-    }
-
-    /**
-     * Overide the DocumentBuilder to use to parser test documents. This is
-     * useful when comparing the output of two different parsers. Note: setting
-     * the test parser before any test cases are run will affect the control
-     * parser as well.
-     */
-    public static void setTestParser(String className) {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", className);
-        testBuilderFactory = null;
-        testBuilderFactory = getTestDocumentBuilderFactory();
-    }
-
-    /**
-     * Get the <code>DocumentBuilder</code> instance used to parse the test XML
-     * in an XMLTestCase.
-     * 
-     * @return parser for test values
-     * @throws ConfigurationException
-     */
-    public static DocumentBuilder newTestParser()
-            throws ConfigurationException {
-        try {
-            testBuilderFactory = getTestDocumentBuilderFactory();
-            DocumentBuilder builder = testBuilderFactory.newDocumentBuilder();
-            if (testEntityResolver != null) {
-                builder.setEntityResolver(testEntityResolver);
-            }
-            return builder;
-        } catch (ParserConfigurationException ex) {
-            throw new ConfigurationException(ex);
-        }
-    }
-
-    /**
-     * Get the <code>DocumentBuilderFactory</code> instance used to instantiate
-     * parsers for the test XML in an XMLTestCase.
-     * 
-     * @return factory for test parsers
-     */
-    public static DocumentBuilderFactory getTestDocumentBuilderFactory() {
-        if (testBuilderFactory == null) {
-            testBuilderFactory = DocumentBuilderFactory.newInstance();
-            testBuilderFactory.setNamespaceAware(true);
-        }
-        return testBuilderFactory;
-    }
-
-    /**
-     * Override the <code>DocumentBuilderFactory</code> used to instantiate
-     * parsers for the test XML in an XMLTestCase.
-     */
-    public static void setTestDocumentBuilderFactory(DocumentBuilderFactory factory) {
-        if (factory == null) {
-            throw new IllegalArgumentException("Cannot set test DocumentBuilderFactory to null!");
-        }
-        testBuilderFactory = factory;
-    }
-
-    /**
-     * Whether to ignore whitespace when comparing node values.
-     * 
-     * <p>
-     * This method also invokes
-     * <code>setIgnoringElementContentWhitespace()</code> on the underlying
-     * control AND test document builder factories.
-     * </p>
-     * 
-     * <p>
-     * Setting this parameter has no effect on {@link setNormalizeWhitespace
-     * whitespace inside texts}.
-     * </p>
-     */
-    // TODO
-    // public void setIgnoreWhitespace(boolean ignore) {
-    // getControlDocumentBuilderFactory().setIgnoringElementContentWhitespace(ignore);
-    // getTestDocumentBuilderFactory().setIgnoringElementContentWhitespace(ignore);
-    // }
-
-    /**
-     * Whether to ignore whitespace when comparing node values.
-     * 
-     * @return true if whitespace should be ignored when comparing nodes, false
-     *         otherwise
-     */
-    // public static boolean getIgnoreWhitespace() {
-    // return ignoreWhitespace;
-    // }
-
-    /**
-     * Utility method to build a Document using the control DocumentBuilder to
-     * parse the specified String.
-     * 
-     * @param fromXML
-     * @return Document representation of the String content
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document buildControlDocument(String fromXML)
-            throws SAXException, IOException {
-        return buildDocument(newControlParser(), new StringReader(fromXML));
-    }
-
-    /**
-     * Utility method to build a Document using the control DocumentBuilder and
-     * the specified InputSource
-     * 
-     * @param fromSource
-     * @return Document representation of the String content
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document buildControlDocument(InputSource fromSource)
-            throws IOException, SAXException {
-        return buildDocument(newControlParser(), fromSource);
-    }
-
-    /**
-     * Utility method to build a Document using the test DocumentBuilder to
-     * parse the specified String.
-     * 
-     * @param fromXML
-     * @return Document representation of the String content
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document buildTestDocument(String fromXML)
-            throws SAXException, IOException {
-        return buildDocument(newTestParser(), new StringReader(fromXML));
-    }
-
-    /**
-     * Utility method to build a Document using the test DocumentBuilder and the
-     * specified InputSource
-     * 
-     * @param fromSource
-     * @return Document representation of the String content
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document buildTestDocument(InputSource fromSource)
-            throws IOException, SAXException {
-        return buildDocument(newTestParser(), fromSource);
-    }
-
-    /**
-     * Utility method to build a Document using a specific DocumentBuilder and
-     * reading characters from a specific Reader.
-     * 
-     * @param withBuilder
-     * @param fromReader
-     * @return Document built
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document buildDocument(DocumentBuilder withBuilder,
-            Reader fromReader) throws SAXException, IOException {
-        return buildDocument(withBuilder, new InputSource(fromReader));
-    }
-
-    /**
-     * Utility method to build a Document using a specific DocumentBuilder and a
-     * specific InputSource
-     * 
-     * @param withBuilder
-     * @param fromSource
-     * @return Document built
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document buildDocument(DocumentBuilder withBuilder,
-            InputSource fromSource) throws IOException, SAXException {
-        return withBuilder.parse(fromSource);
     }
 
     /**
@@ -688,34 +418,6 @@ public final class XMLUnit {
     }
 
     /**
-     * Whether CDATA sections and Text nodes should be considered the same.
-     * 
-     * <p>
-     * The default is false.
-     * </p>
-     * 
-     * <p>
-     * This also set the DocumentBuilderFactory's
-     * {@link javax.xml.parsers.DocumentBuilderFactory#setCoalescing coalescing}
-     * flag on the factories for the control and test document.
-     * </p>
-     */
-    public static void setIgnoreDiffBetweenTextAndCDATA(boolean b) {
-        ignoreDiffBetweenTextAndCDATA = b;
-        getControlDocumentBuilderFactory().setCoalescing(b);
-        getTestDocumentBuilderFactory().setCoalescing(b);
-    }
-
-    /**
-     * Whether CDATA sections and Text nodes should be considered the same.
-     * 
-     * @return false by default
-     */
-    public static boolean getIgnoreDiffBetweenTextAndCDATA() {
-        return ignoreDiffBetweenTextAndCDATA;
-    }
-
-    /**
      * Sets the class to use as XPathFactory when using JAXP 1.3.
      */
     public static void setXPathFactory(String className) {
@@ -735,27 +437,5 @@ public final class XMLUnit {
     String getXSLTStart() {
         return XSLTConstants.XSLT_START_NO_VERSION
                 + XSLT_VERSION_START + properties.getXsltVersion() + XSLT_VERSION_END;
-    }
-
-    /**
-     * Whether the parser shall be instructed to expand entity references.
-     * 
-     * <p>
-     * Defaults to false.
-     * </p>
-     * 
-     * @see javax.xml.parsers.DocumentBuilderFactory#setExpandEntityReferences
-     */
-    public static void setExpandEntityReferences(boolean b) {
-        expandEntities = b;
-        getControlDocumentBuilderFactory().setExpandEntityReferences(b);
-        getTestDocumentBuilderFactory().setExpandEntityReferences(b);
-    }
-
-    /**
-     * Whether the parser shall be instructed to expand entity references.
-     */
-    public static boolean getExpandEntityReferences() {
-        return expandEntities;
     }
 }

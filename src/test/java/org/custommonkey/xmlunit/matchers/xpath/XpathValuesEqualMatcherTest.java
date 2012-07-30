@@ -26,7 +26,10 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -65,10 +68,17 @@ public class XpathValuesEqualMatcherTest {
         NS_CONTEXT = new SimpleNamespaceContext(m);
     }
 
+    private DocumentUtils documentUtils;
+
+    @Before
+    public void setUp() {
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
+    }
+
     @Test
     public void testXpathValuesEqualUsingDocument() throws Exception {
-        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXML);
-        Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXML);
+        Document controlDocument = documentUtils.buildControlDocument(xpathValuesControlXML);
+        Document testDocument = documentUtils.buildTestDocument(xpathValuesTestXML);
 
         XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
@@ -89,8 +99,8 @@ public class XpathValuesEqualMatcherTest {
 
     @Test
     public void testXpathValuesEqualUsingDocumentNS() throws Exception {
-        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXMLNS);
-        Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXMLNS);
+        Document controlDocument = documentUtils.buildControlDocument(xpathValuesControlXMLNS);
+        Document testDocument = documentUtils.buildTestDocument(xpathValuesTestXMLNS);
 
         XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
@@ -119,8 +129,8 @@ public class XpathValuesEqualMatcherTest {
 
     @Test
     public void testXpathValuesEqualUsingString() throws Exception {
-        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXML);
-        Document testDocument = XMLUnit.buildTestDocument(xpathValuesTestXML);
+        Document controlDocument = documentUtils.buildControlDocument(xpathValuesControlXML);
+        Document testDocument = documentUtils.buildTestDocument(xpathValuesTestXML);
 
         XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
@@ -141,8 +151,8 @@ public class XpathValuesEqualMatcherTest {
 
     @Test
     public void testXpathValuesEqualUsingStringNS() throws Exception {
-        Document controlDocument = XMLUnit.buildControlDocument(xpathValuesControlXMLNS);
-        Document testDocument = XMLUnit.buildControlDocument(xpathValuesTestXMLNS);
+        Document controlDocument = documentUtils.buildControlDocument(xpathValuesControlXMLNS);
+        Document testDocument = documentUtils.buildControlDocument(xpathValuesTestXMLNS);
 
         XpathWrapper testXpath1 = new XpathWrapper("//inner/text()", controlDocument);
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);

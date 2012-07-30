@@ -147,6 +147,38 @@ public class XmlUnitBuilder {
         return this;
     }
 
+    /**
+     * Whether the parser shall be instructed to expand entity references.
+     * 
+     * <p>
+     * Defaults to false.
+     * </p>
+     * 
+     * @see javax.xml.parsers.DocumentBuilderFactory#setExpandEntityReferences
+     */
+    public XmlUnitBuilder expandingEntityReferences(boolean expand) {
+        properties.setExpandEntityReferences(expand);
+        return this;
+    }
+
+    /**
+     * Whether CDATA sections and Text nodes should be considered the same.
+     * 
+     * <p>
+     * The default is false.
+     * </p>
+     * 
+     * <p>
+     * This also set the DocumentBuilderFactory's
+     * {@link javax.xml.parsers.DocumentBuilderFactory#setCoalescing coalescing}
+     * flag on the factories for the control and test document.
+     * </p>
+     */
+    public XmlUnitBuilder ignoringDiffBetweenTextAndCDATA(boolean ignore) {
+        properties.setIgnoreDiffBetweenTextAndCDATA(ignore);
+        return this;
+    }
+
     public XMLUnit build() {
         return new XMLUnit(properties);
     }

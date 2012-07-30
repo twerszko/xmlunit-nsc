@@ -39,6 +39,7 @@ package org.custommonkey.xmlunit;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -218,7 +219,7 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
     }
 
     /**
-     * @see https
+     * @see https 
      *      ://sourceforge.net/forum/forum.php?thread_id=1135716&forum_id=73274l
      */
     public void testHelpForumThread1135716() throws Exception {
@@ -250,7 +251,7 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
     }
 
     public void setUp() throws Exception {
-        document = XMLUnit.newControlParser().newDocument();
+        document = new DocumentUtils(new XMLUnitProperties()).newControlParser().newDocument();
     }
 
     public static TestSuite suite() {

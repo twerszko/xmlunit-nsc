@@ -18,6 +18,8 @@ public class XMLUnitProperties implements Cloneable {
     private boolean compareUnmatched = true;
     private String xsltVersion = "1.0";
     private boolean ignoreAttributeOrder = true;
+    private boolean expandEntityReference = false;
+    private boolean ignoreDiffBetweenTextAndCDATA = false;
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -235,6 +237,52 @@ public class XMLUnitProperties implements Cloneable {
      */
     public void setIgnoreAttributeOrder(boolean ignore) {
         this.ignoreAttributeOrder = ignore;
+    }
+
+    /**
+     * Whether the parser shall be instructed to expand entity references.
+     */
+    public boolean getExpandEntityReferences() {
+        return expandEntityReference;
+    }
+
+    /**
+     * Whether the parser shall be instructed to expand entity references.
+     * 
+     * <p>
+     * Defaults to false.
+     * </p>
+     * 
+     * @see javax.xml.parsers.DocumentBuilderFactory#setExpandEntityReferences
+     */
+    public void setExpandEntityReferences(boolean expandEntityReferences) {
+        this.expandEntityReference = expandEntityReferences;
+    }
+
+    /**
+     * Whether CDATA sections and Text nodes should be considered the same.
+     * 
+     * <p>
+     * The default is false.
+     * </p>
+     * 
+     * <p>
+     * This also set the DocumentBuilderFactory's
+     * {@link javax.xml.parsers.DocumentBuilderFactory#setCoalescing coalescing}
+     * flag on the factories for the control and test document.
+     * </p>
+     */
+    public void setIgnoreDiffBetweenTextAndCDATA(boolean ignore) {
+        ignoreDiffBetweenTextAndCDATA = ignore;
+    }
+
+    /**
+     * Whether CDATA sections and Text nodes should be considered the same.
+     * 
+     * @return false by default
+     */
+    public boolean getIgnoreDiffBetweenTextAndCDATA() {
+        return ignoreDiffBetweenTextAndCDATA;
     }
 
     @Override

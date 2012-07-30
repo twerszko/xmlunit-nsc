@@ -56,6 +56,7 @@ import java.io.StringReader;
 
 import net.sf.xmlunit.TestResources;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -190,7 +191,7 @@ public class ValidatorTest {
     }
 
     private Document getDocument(String fromXML) throws Exception {
-        return XMLUnit.buildControlDocument(fromXML);
+        return new DocumentUtils(new XMLUnitProperties()).buildControlDocument(fromXML);
     }
 
     private void removeTempDTDFile() throws Exception {

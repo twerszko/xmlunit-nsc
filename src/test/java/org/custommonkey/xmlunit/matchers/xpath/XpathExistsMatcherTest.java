@@ -24,7 +24,9 @@ import static org.junit.Assert.fail;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
@@ -48,6 +50,13 @@ public class XpathExistsMatcherTest {
                     "</fruit>" +
                     "</trees>";
 
+    DocumentUtils documentUtils;
+
+    @Before
+    public void setUp() {
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
+    }
+
     @SuppressWarnings("unused")
     private Object[] provideExistingXpaths() throws Exception {
         return $(
@@ -64,7 +73,7 @@ public class XpathExistsMatcherTest {
     @Parameters(method = "provideExistingXpaths")
     public void should_pass_when_xpath_exists_in_document(String xpath) throws Exception {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
+        Document controlDoc = documentUtils.buildControlDocument(xpathNodesControlXML);
 
         // then
         assertThat(controlDoc, documentContainsXpath(xpath));
@@ -82,7 +91,7 @@ public class XpathExistsMatcherTest {
     @Parameters(method = "provideNotExistingXpaths")
     public void should_pass_when_assert_fail_on_not_existing_xpath(String xpath) throws Exception {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
+        Document controlDoc = documentUtils.buildControlDocument(xpathNodesControlXML);
 
         // then
         try {
@@ -110,7 +119,7 @@ public class XpathExistsMatcherTest {
     @Parameters(method = "provideNotExistingXpaths")
     public void should_pass_when_xpath_not_exists_in_document(String xpath) throws Exception {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
+        Document controlDoc = documentUtils.buildControlDocument(xpathNodesControlXML);
 
         // then
         assertThat(controlDoc, documentNotContainsXpath(xpath));
@@ -128,7 +137,7 @@ public class XpathExistsMatcherTest {
     @Parameters(method = "provideExistingXpaths")
     public void should_pass_when_assert_fail_on_existing_xpath(String xpath) throws Exception {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(xpathNodesControlXML);
+        Document controlDoc = documentUtils.buildControlDocument(xpathNodesControlXML);
 
         // then
         try {

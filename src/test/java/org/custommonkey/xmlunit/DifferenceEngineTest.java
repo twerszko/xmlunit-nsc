@@ -51,6 +51,7 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
@@ -88,6 +89,7 @@ public class DifferenceEngineTest {
     private final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
     protected XMLUnitProperties properties;
+    private DocumentUtils documentUtils;
 
     @Before
     public void setUp() throws Exception {
@@ -95,7 +97,8 @@ public class DifferenceEngineTest {
 
         resetListener();
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);
-        DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+        documentUtils = new DocumentUtils(properties);
+        DocumentBuilder documentBuilder = documentUtils.newControlParser();
         document = documentBuilder.newDocument();
     }
 
@@ -249,10 +252,10 @@ public class DifferenceEngineTest {
         new FileWriter(altTmpFile).write(tmpDTD);
         String theCrowsDTD = altTmpFile.toURI().toURL().toExternalForm();
 
-        Document controlDoc = XMLUnit.buildControlDocument(
+        Document controlDoc = documentUtils.buildControlDocument(
                 "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDTD + "'>"
                         + "<root><leaf/></root>");
-        Document testDoc = XMLUnit.buildTestDocument(
+        Document testDoc = documentUtils.buildTestDocument(
                 "<!DOCTYPE tree PUBLIC 'Stone' '" + rosesDTD + "'>"
                         + "<tree><leaf/></tree>");
 
@@ -261,23 +264,23 @@ public class DifferenceEngineTest {
 
         assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_NAME), true);
 
-        test = XMLUnit.buildTestDocument("<!DOCTYPE root PUBLIC 'id' '" + rosesDTD + "'>"
+        test = documentUtils.buildTestDocument("<!DOCTYPE root PUBLIC 'id' '" + rosesDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
         assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), true);
 
-        test = XMLUnit.buildTestDocument("<!DOCTYPE root SYSTEM '" + rosesDTD + "'>"
+        test = documentUtils.buildTestDocument("<!DOCTYPE root SYSTEM '" + rosesDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
         assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), true);
 
-        test = XMLUnit.buildTestDocument("<!DOCTYPE root PUBLIC 'Stone' '" + theCrowsDTD + "'>"
+        test = documentUtils.buildTestDocument("<!DOCTYPE root PUBLIC 'Stone' '" + theCrowsDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
         assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_SYSTEM_ID), false);
 
-        test = XMLUnit.buildTestDocument("<!DOCTYPE root SYSTEM '" + theCrowsDTD + "'>"
+        test = documentUtils.buildTestDocument("<!DOCTYPE root SYSTEM '" + theCrowsDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
         assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), true);
 
-        control = XMLUnit.buildTestDocument("<!DOCTYPE root SYSTEM '" + rosesDTD + "'>"
+        control = documentUtils.buildTestDocument("<!DOCTYPE root SYSTEM '" + rosesDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
         assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_SYSTEM_ID), false);
     }
@@ -313,12 +316,12 @@ public class DifferenceEngineTest {
         String doctypeDeclaration = "<!DOCTYPE manchester [" +
                 "<!ELEMENT sound EMPTY><!ATTLIST sound sorted (true|false) \"true\">" +
                 "<!ELEMENT manchester (sound)>]>";
-        Document controlDoc = XMLUnit.buildControlDocument(doctypeDeclaration +
+        Document controlDoc = documentUtils.buildControlDocument(doctypeDeclaration +
                 "<manchester><sound sorted=\"true\"/></manchester>");
         control = (Attr) controlDoc.getDocumentElement().getFirstChild()
                 .getAttributes().getNamedItem("sorted");
 
-        Document testDoc = XMLUnit.buildTestDocument(doctypeDeclaration +
+        Document testDoc = documentUtils.buildTestDocument(doctypeDeclaration +
                 "<manchester><sound/></manchester>");
         test = (Attr) testDoc.getDocumentElement().getFirstChild()
                 .getAttributes().getNamedItem("sorted");
@@ -340,7 +343,7 @@ public class DifferenceEngineTest {
 
     @Test
     public void testCompareElements() throws Exception {
-        Document document = XMLUnit.buildControlDocument(
+        Document document = documentUtils.buildControlDocument(
                 "<down><im standing=\"alone\"/><im watching=\"you\" all=\"\"/>"
                         + "<im watching=\"you all\"/><im watching=\"you sinking\"/></down>");
         Element control = (Element) document.getDocumentElement();
@@ -365,11 +368,11 @@ public class DifferenceEngineTest {
 
     @Test
     public void testCompareNode() throws Exception {
-        Document controlDocument = XMLUnit.buildControlDocument("<root>"
+        Document controlDocument = documentUtils.buildControlDocument("<root>"
                 + "<!-- " + COMMENT_A + " -->"
                 + "<?" + PROC_A[0] + " " + PROC_A[1] + " ?>"
                 + "<elem attr=\"" + ATTR_A + "\">" + TEXT_A + "</elem></root>");
-        Document testDocument = XMLUnit.buildTestDocument("<root>"
+        Document testDocument = documentUtils.buildTestDocument("<root>"
                 + "<!-- " + COMMENT_B + " -->"
                 + "<?" + PROC_B[0] + " " + PROC_B[1] + " ?>"
                 + "<elem attr=\"" + ATTR_B + "\">" + TEXT_B + "</elem></root>");
@@ -457,7 +460,7 @@ public class DifferenceEngineTest {
 
     @Test
     public void testCompareNodeChildren() throws Exception {
-        document = XMLUnit.buildControlDocument(
+        document = documentUtils.buildControlDocument(
                 "<down><im standing=\"alone\"/><im><watching/>you all</im>"
                         + "<im watching=\"you\">sinking</im></down>");
         // compare im #1 to itself
@@ -497,7 +500,7 @@ public class DifferenceEngineTest {
 
     @Test
     public void testCompareNodeList() throws Exception {
-        document = XMLUnit.buildControlDocument(
+        document = documentUtils.buildControlDocument(
                 "<down><im><standing/>alone</im><im><watching/>you all</im>"
                         + "<im><watching/>you sinking</im></down>");
         // compare im #1 to itself
@@ -1057,8 +1060,8 @@ public class DifferenceEngineTest {
 
     private void listenToDifferences(String control, String test)
             throws SAXException, IOException {
-        Document controlDoc = XMLUnit.buildControlDocument(control);
-        Document testDoc = XMLUnit.buildTestDocument(test);
+        Document controlDoc = documentUtils.buildControlDocument(control);
+        Document testDoc = documentUtils.buildTestDocument(test);
         engine.compare(controlDoc, testDoc, listener, DEFAULT_ELEMENT_QUALIFIER);
     }
 

@@ -285,7 +285,7 @@ public class DifferenceEngine
     }
 
     private boolean comparingTextAndCDATA(short controlType, short testType) {
-        return XMLUnit.getIgnoreDiffBetweenTextAndCDATA() &&
+        return properties.getIgnoreDiffBetweenTextAndCDATA() &&
                 (controlType == Node.TEXT_NODE
                         && testType == Node.CDATA_SECTION_NODE
                         ||

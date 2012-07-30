@@ -44,6 +44,7 @@ import java.util.HashMap;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -53,154 +54,157 @@ import org.w3c.dom.NodeList;
 
 public abstract class AbstractXpathEngineTests {
 
-	protected static final String[] testAttrNames = { "attrOne", "attrTwo" };
+    protected static final String[] testAttrNames = { "attrOne", "attrTwo" };
 
-	protected static final String testString =
-	        "<test><nodeWithoutAttributes>intellectual property rights"
-	                + " </nodeWithoutAttributes>"
-	                + "<nodeWithoutAttributes>make us all poorer </nodeWithoutAttributes>"
-	                + "<nodeWithAttributes " + testAttrNames[0] + "=\"open source \" "
-	                + testAttrNames[1]
-	                + "=\"is the answer \">free your code from its chains"
-	                + "</nodeWithAttributes></test>";
-	protected Document testDocument;
+    protected static final String testString =
+            "<test><nodeWithoutAttributes>intellectual property rights"
+                    + " </nodeWithoutAttributes>"
+                    + "<nodeWithoutAttributes>make us all poorer </nodeWithoutAttributes>"
+                    + "<nodeWithAttributes " + testAttrNames[0] + "=\"open source \" "
+                    + testAttrNames[1]
+                    + "=\"is the answer \">free your code from its chains"
+                    + "</nodeWithAttributes></test>";
 
-	protected abstract XpathEngine newXpathEngine();
+    protected DocumentUtils documentUtils;
+    protected Document testDocument;
 
-	@Test
-	public void testGetMatchingNodesNoMatches() throws Exception {
-		NodeList nodeList = newXpathEngine().getMatchingNodes("toast",
-		        testDocument);
-		assertEquals(0, nodeList.getLength());
-	}
+    protected abstract XpathEngine newXpathEngine();
 
-	@Test
-	public void testGetMatchingNodesMatchRootElement() throws Exception {
-		NodeList nodeList = newXpathEngine().getMatchingNodes("test",
-		        testDocument);
-		assertEquals(1, nodeList.getLength());
-		assertEquals(Node.ELEMENT_NODE, nodeList.item(0).getNodeType());
-	}
+    @Before
+    public void setUp() throws Exception {
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        testDocument = documentUtils.buildControlDocument(testString);
+    }
 
-	@Test
-	public void testGetMatchingNodesMatchElement() throws Exception {
-		NodeList nodeList = newXpathEngine()
-		        .getMatchingNodes("test/nodeWithoutAttributes", testDocument);
-		assertEquals(2, nodeList.getLength());
-		assertEquals(Node.ELEMENT_NODE, nodeList.item(0).getNodeType());
-	}
+    @Test
+    public void testGetMatchingNodesNoMatches() throws Exception {
+        NodeList nodeList = newXpathEngine().getMatchingNodes("toast",
+                testDocument);
+        assertEquals(0, nodeList.getLength());
+    }
 
-	@Test
-	public void testGetMatchingNodesMatchText() throws Exception {
-		NodeList nodeList = newXpathEngine().getMatchingNodes("test//text()",
-		        testDocument);
-		assertEquals(3, nodeList.getLength());
-		assertEquals(Node.TEXT_NODE, nodeList.item(0).getNodeType());
-	}
+    @Test
+    public void testGetMatchingNodesMatchRootElement() throws Exception {
+        NodeList nodeList = newXpathEngine().getMatchingNodes("test",
+                testDocument);
+        assertEquals(1, nodeList.getLength());
+        assertEquals(Node.ELEMENT_NODE, nodeList.item(0).getNodeType());
+    }
 
-	@Test
-	public void testGetMatchingNodesCheckSubNodes() throws Exception {
-		NodeList nodeList = newXpathEngine()
-		        .getMatchingNodes("test/nodeWithAttributes", testDocument);
-		assertEquals(1, nodeList.getLength());
-		Node aNode;
+    @Test
+    public void testGetMatchingNodesMatchElement() throws Exception {
+        NodeList nodeList = newXpathEngine()
+                .getMatchingNodes("test/nodeWithoutAttributes", testDocument);
+        assertEquals(2, nodeList.getLength());
+        assertEquals(Node.ELEMENT_NODE, nodeList.item(0).getNodeType());
+    }
 
-		aNode = nodeList.item(0);
-		assertEquals(Node.ELEMENT_NODE, aNode.getNodeType());
-		assertEquals(true, aNode.hasAttributes());
-		assertEquals(true, aNode.hasChildNodes());
+    @Test
+    public void testGetMatchingNodesMatchText() throws Exception {
+        NodeList nodeList = newXpathEngine().getMatchingNodes("test//text()",
+                testDocument);
+        assertEquals(3, nodeList.getLength());
+        assertEquals(Node.TEXT_NODE, nodeList.item(0).getNodeType());
+    }
 
-		NodeList children = aNode.getChildNodes();
-		int length = children.getLength();
-		assertEquals(1, length);
-		for (int i = 0; i < length; ++i) {
-			assertEquals(Node.TEXT_NODE, children.item(i).getNodeType());
-		}
+    @Test
+    public void testGetMatchingNodesCheckSubNodes() throws Exception {
+        NodeList nodeList = newXpathEngine()
+                .getMatchingNodes("test/nodeWithAttributes", testDocument);
+        assertEquals(1, nodeList.getLength());
+        Node aNode;
 
-		NamedNodeMap attributes = aNode.getAttributes();
-		int numAttrs = attributes.getLength();
-		assertEquals(testAttrNames.length, numAttrs);
-		for (int i = 0; i < testAttrNames.length; ++i) {
-			Node attrNode = attributes.getNamedItem(testAttrNames[i]);
-			assertNotNull(attrNode);
-			assertEquals(Node.ATTRIBUTE_NODE, attrNode.getNodeType());
-		}
-	}
+        aNode = nodeList.item(0);
+        assertEquals(Node.ELEMENT_NODE, aNode.getNodeType());
+        assertEquals(true, aNode.hasAttributes());
+        assertEquals(true, aNode.hasChildNodes());
 
-	@Test
-	public void testEvaluate() throws Exception {
-		String result = newXpathEngine().evaluate("count(test//node())",
-		        testDocument);
-		assertEquals("3 elements and 3 text nodes", "6", result);
-	}
+        NodeList children = aNode.getChildNodes();
+        int length = children.getLength();
+        assertEquals(1, length);
+        for (int i = 0; i < length; ++i) {
+            assertEquals(Node.TEXT_NODE, children.item(i).getNodeType());
+        }
 
-	@Test
-	public void testXpathPrefixChange() throws Exception {
-		String testDoc = "<t:test xmlns:t=\"urn:foo\"><t:bar/></t:test>";
-		Document d = XMLUnit.buildControlDocument(testDoc);
-		HashMap<String, String> m = new HashMap<String, String>();
-		m.put("foo", "urn:foo");
-		NamespaceContext ctx = new SimpleNamespaceContext(m);
-		XpathEngine engine = newXpathEngine();
-		engine.setNamespaceContext(ctx);
+        NamedNodeMap attributes = aNode.getAttributes();
+        int numAttrs = attributes.getLength();
+        assertEquals(testAttrNames.length, numAttrs);
+        for (int i = 0; i < testAttrNames.length; ++i) {
+            Node attrNode = attributes.getNamedItem(testAttrNames[i]);
+            assertNotNull(attrNode);
+            assertEquals(Node.ATTRIBUTE_NODE, attrNode.getNodeType());
+        }
+    }
 
-		NodeList l = engine.getMatchingNodes("//foo:bar", d);
-		assertEquals(1, l.getLength());
-		assertEquals(Node.ELEMENT_NODE, l.item(0).getNodeType());
+    @Test
+    public void testEvaluate() throws Exception {
+        String result = newXpathEngine().evaluate("count(test//node())",
+                testDocument);
+        assertEquals("3 elements and 3 text nodes", "6", result);
+    }
 
-		String s = engine.evaluate("count(foo:test//node())", d);
-		assertEquals("1", s);
-	}
+    @Test
+    public void testXpathPrefixChange() throws Exception {
+        String testDoc = "<t:test xmlns:t=\"urn:foo\"><t:bar/></t:test>";
+        Document d = documentUtils.buildControlDocument(testDoc);
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("foo", "urn:foo");
+        NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XpathEngine engine = newXpathEngine();
+        engine.setNamespaceContext(ctx);
 
-	// http://sourceforge.net/forum/forum.php?thread_id=1832061&forum_id=73274
-	@Test
-	public void testXpathExistsWithNsAndLocalNameSelector() throws Exception {
-		String testDoc =
-		        "<MtcEnv Version=\"1.0\" xmlns=\"http://www.Mtc.com/schemas\" xmlns:bms=\"http://www.cieca.com/BMS\"> "
-		                + "<EnvContext> "
-		                + "<NameValuePair> "
-		                + "<Name>Timestamp</Name> "
-		                + "<Value>2007-07-26T11:59:00</Value> "
-		                + "</NameValuePair> "
-		                + "</EnvContext> "
-		                + "<EnvBodyList> "
-		                + "<EnvBody> "
-		                + "<Metadata> "
-		                + "<Identifier>CIECABMSAssignmentAddRq</Identifier> "
-		                + "</Metadata> "
-		                + "<Content> "
-		                + "<bms:CIECA> "
-		                + "<bms:AssignmentAddRq> "
-		                + "<bms:RqUID>3744f84b-ac18-5303-0082-764bdeb20df9</bms:RqUID> "
-		                + "</bms:AssignmentAddRq> "
-		                + "</bms:CIECA> "
-		                + "</Content> "
-		                + "</EnvBody> "
-		                + "</EnvBodyList> "
-		                + "</MtcEnv>";
-		Document d = XMLUnit.buildControlDocument(testDoc);
+        NodeList l = engine.getMatchingNodes("//foo:bar", d);
+        assertEquals(1, l.getLength());
+        assertEquals(Node.ELEMENT_NODE, l.item(0).getNodeType());
 
-		XpathEngine engine = newXpathEngine();
-		NodeList l =
-		        engine.getMatchingNodes("//*[local-name()='RqUID'][namespace-uri()='http://www.cieca.com/BMS']", d);
-		assertEquals(1, l.getLength());
-	}
+        String s = engine.evaluate("count(foo:test//node())", d);
+        assertEquals("1", s);
+    }
 
-	@Before
-	public void setUp() throws Exception {
-		testDocument = XMLUnit.buildControlDocument(testString);
-	}
+    // http://sourceforge.net/forum/forum.php?thread_id=1832061&forum_id=73274
+    @Test
+    public void testXpathExistsWithNsAndLocalNameSelector() throws Exception {
+        String testDoc =
+                "<MtcEnv Version=\"1.0\" xmlns=\"http://www.Mtc.com/schemas\" xmlns:bms=\"http://www.cieca.com/BMS\"> "
+                        + "<EnvContext> "
+                        + "<NameValuePair> "
+                        + "<Name>Timestamp</Name> "
+                        + "<Value>2007-07-26T11:59:00</Value> "
+                        + "</NameValuePair> "
+                        + "</EnvContext> "
+                        + "<EnvBodyList> "
+                        + "<EnvBody> "
+                        + "<Metadata> "
+                        + "<Identifier>CIECABMSAssignmentAddRq</Identifier> "
+                        + "</Metadata> "
+                        + "<Content> "
+                        + "<bms:CIECA> "
+                        + "<bms:AssignmentAddRq> "
+                        + "<bms:RqUID>3744f84b-ac18-5303-0082-764bdeb20df9</bms:RqUID> "
+                        + "</bms:AssignmentAddRq> "
+                        + "</bms:CIECA> "
+                        + "</Content> "
+                        + "</EnvBody> "
+                        + "</EnvBodyList> "
+                        + "</MtcEnv>";
+        Document d = documentUtils.buildControlDocument(testDoc);
 
-	@Test
-	public void testEvaluateInvalidXPath() throws Exception {
-		String xpath = "count(test//*[@attrOne='open source])";
-		try {
-			String result = newXpathEngine().evaluate(xpath, testDocument);
-			fail("expected Exception to be thrown but wasn't");
-		} catch (XpathException ex) {
-			// expected
-		} catch (ConfigurationException ex) {
-			// acceptable in the JAXP 1.2 case
-		}
-	}
+        XpathEngine engine = newXpathEngine();
+        NodeList l =
+                engine.getMatchingNodes("//*[local-name()='RqUID'][namespace-uri()='http://www.cieca.com/BMS']", d);
+        assertEquals(1, l.getLength());
+    }
+
+    @Test
+    public void testEvaluateInvalidXPath() throws Exception {
+        String xpath = "count(test//*[@attrOne='open source])";
+        try {
+            String result = newXpathEngine().evaluate(xpath, testDocument);
+            fail("expected Exception to be thrown but wasn't");
+        } catch (XpathException ex) {
+            // expected
+        } catch (ConfigurationException ex) {
+            // acceptable in the JAXP 1.2 case
+        }
+    }
 }

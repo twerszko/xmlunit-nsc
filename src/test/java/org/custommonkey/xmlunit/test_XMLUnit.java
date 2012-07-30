@@ -41,6 +41,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Document;
 
@@ -71,10 +72,10 @@ public class test_XMLUnit extends TestCase {
      * Test overiding the SAX parser used to parse control documents
      */
     public void testSetControlParser() throws Exception {
-        Object before = XMLUnit.newControlParser();
-        XMLUnit.setControlParser(getDocumentBuilderFactoryImplClass());
+        Object before = new DocumentUtils(properties).newControlParser();
+        new DocumentUtils(properties).setControlParser(getDocumentBuilderFactoryImplClass());
         assertEquals("should be different", false,
-                before == XMLUnit.newControlParser());
+                before == new DocumentUtils(properties).newControlParser());
     }
 
     public void testIgnoreWhitespace() throws Exception {
@@ -93,10 +94,10 @@ public class test_XMLUnit extends TestCase {
      * Test overiding the SAX parser used to parse test documents
      */
     public void testSetTestParser() throws Exception {
-        Object before = XMLUnit.newTestParser();
-        XMLUnit.setTestParser(getDocumentBuilderFactoryImplClass());
+        Object before = new DocumentUtils(properties).newTestParser();
+        new DocumentUtils(properties).setTestParser(getDocumentBuilderFactoryImplClass());
         assertEquals("should be different", false,
-                before == XMLUnit.newTestParser());
+                before == new DocumentUtils(properties).newTestParser());
     }
 
     public void testSetTransformerFactory() throws Exception {
@@ -107,7 +108,7 @@ public class test_XMLUnit extends TestCase {
     }
 
     public void testStripWhitespaceTransform() throws Exception {
-        Document doc = XMLUnit.buildTestDocument(
+        Document doc = new DocumentUtils(properties).buildTestDocument(
                 test_Constants.XML_WITH_WHITESPACE);
         Transform transform = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc);
         Diff diff = new Diff(properties, test_Constants.XML_WITHOUT_WHITESPACE, transform);

@@ -45,6 +45,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -99,10 +100,15 @@ public class Diff implements DifferenceListener, ComparisonController {
     /**
      * Construct a Diff that compares the XML read from two Readers
      */
+    // TODO Simplify constructors
     public Diff(@Nullable XMLUnitProperties properties, Reader control, Reader test)
             throws SAXException, IOException {
-        this(properties, XMLUnit.buildDocument(XMLUnit.newControlParser(), control),
-                XMLUnit.buildDocument(XMLUnit.newTestParser(), test));
+
+        this(properties,
+                new DocumentUtils(properties).buildDocument(
+                        new DocumentUtils(properties).newControlParser(), control),
+                new DocumentUtils(properties).buildDocument(
+                        new DocumentUtils(properties).newTestParser(), test));
     }
 
     /**
@@ -118,7 +124,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      */
     public Diff(@Nullable XMLUnitProperties properties, String control, Transform testTransform)
             throws IOException, TransformerException, SAXException {
-        this(properties, XMLUnit.buildControlDocument(control),
+        this(properties, new DocumentUtils(properties).buildControlDocument(control),
                 testTransform.getResultDocument());
     }
 
@@ -127,8 +133,10 @@ public class Diff implements DifferenceListener, ComparisonController {
      */
     public Diff(@Nullable XMLUnitProperties properties, InputSource control, InputSource test)
             throws SAXException, IOException {
-        this(properties, XMLUnit.buildDocument(XMLUnit.newControlParser(), control),
-                XMLUnit.buildDocument(XMLUnit.newTestParser(), test));
+        this(properties, new DocumentUtils(properties).buildDocument(
+                new DocumentUtils(properties).newControlParser(), control),
+                new DocumentUtils(properties).buildDocument(
+                        new DocumentUtils(properties).newTestParser(), test));
     }
 
     /**

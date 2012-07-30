@@ -25,7 +25,10 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XMLUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -40,6 +43,13 @@ public class XpathEvaluatesToValueTest {
         HashMap<String, String> m = new HashMap<String, String>();
         m.put(PREFIX, TEST_NS);
         NS_CONTEXT = new SimpleNamespaceContext(m);
+    }
+
+    private DocumentUtils documentUtils;
+
+    @Before
+    public void setUp() {
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
     }
 
     private static final String XPATH_VALUES_CONTROL_XML =
@@ -61,7 +71,7 @@ public class XpathEvaluatesToValueTest {
     // TODO Refactor
     @Test
     public void testXpathEvaluatesTo() throws Exception {
-        Document inDocument1 = XMLUnit.buildControlDocument(XPATH_VALUES_CONTROL_XML);
+        Document inDocument1 = documentUtils.buildControlDocument(XPATH_VALUES_CONTROL_XML);
 
         assertThat(new XpathWrapper("//outer/@attr", inDocument1), xpathEvaluatesTo("urk"));
         try {
@@ -72,7 +82,7 @@ public class XpathEvaluatesToValueTest {
 
         assertThat(new XpathWrapper("count(//@attr)", inDocument1), xpathEvaluatesTo("2"));
 
-        Document inDocument2 = XMLUnit.buildTestDocument(XPATH_VALUES_TEST_XML);
+        Document inDocument2 = documentUtils.buildTestDocument(XPATH_VALUES_TEST_XML);
         assertThat(new XpathWrapper("//inner/@attr", inDocument2), xpathEvaluatesTo("ugh"));
         try {
             assertThat(new XpathWrapper("//outer/@attr", inDocument2), xpathEvaluatesTo("yeah"));
@@ -84,7 +94,7 @@ public class XpathEvaluatesToValueTest {
 
     @Test
     public void testXpathEvaluatesToNS() throws Exception {
-        Document inDocument1 = XMLUnit.buildControlDocument(XPATH_VALUES_CONTROL_XMLNS);
+        Document inDocument1 = documentUtils.buildControlDocument(XPATH_VALUES_CONTROL_XMLNS);
         try {
             assertThat(new XpathWrapper("//outer/@attr", inDocument1), xpathEvaluatesTo("urk"));
             fail("Expected assertion to fail #1");
@@ -105,7 +115,7 @@ public class XpathEvaluatesToValueTest {
         }
         assertThat(new XpathWrapper("count(//@attr)", inDocument1), xpathEvaluatesTo("2").using(xmlUnitWithCotext));
 
-        Document inDocument2 = XMLUnit.buildTestDocument(XPATH_VALUES_TEST_XMLNS);
+        Document inDocument2 = documentUtils.buildTestDocument(XPATH_VALUES_TEST_XMLNS);
         assertThat(new XpathWrapper("//" + PREFIX + ":inner/@attr", inDocument2),
                 xpathEvaluatesTo("ugh").using(xmlUnitWithCotext));
         try {
@@ -137,7 +147,7 @@ public class XpathEvaluatesToValueTest {
                         "</table>" +
                         "</div>";
 
-        Document htmlDoc = XMLUnit.buildControlDocument(html);
+        Document htmlDoc = documentUtils.buildControlDocument(html);
 
         // then
         assertThat(new XpathWrapper("count(//td)", htmlDoc), xpathEvaluatesTo("25"));

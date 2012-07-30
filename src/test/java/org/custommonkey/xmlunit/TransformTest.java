@@ -55,6 +55,7 @@ import javax.xml.transform.URIResolver;
 import net.sf.xmlunit.TestResources;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -72,9 +73,12 @@ public class TransformTest {
 
     private File animalXsl;
 
+    private XMLUnitProperties properties;
+
     @Before
     public void setUp() throws Exception {
         animalXsl = TestResources.ANIMAL_XSL.getFile();
+        properties = new XMLUnitProperties();
     }
 
     @Test
@@ -104,7 +108,7 @@ public class TransformTest {
     @Test
     public void should_be_identical_when_identity_transform() throws SAXException, IOException, TransformerException {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(FLEABALL);
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
         Transform transform = new Transform(controlDoc);
 
         // when
@@ -131,7 +135,7 @@ public class TransformTest {
     @Test
     public void should_transform_from_document() throws SAXException, IOException, TransformerException {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(FLEABALL);
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
         Transform transform = new Transform(controlDoc, animalXsl);
 
         // when
@@ -144,7 +148,7 @@ public class TransformTest {
     @Test
     public void should_transform_from_file_reader_string() throws SAXException, IOException, TransformerException {
         // given
-        Document controlDoc = XMLUnit.buildControlDocument(FLEABALL);
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
         FileReader reader = new FileReader(animalXsl);
         try {
             char[] animalXSL = new char[1024];

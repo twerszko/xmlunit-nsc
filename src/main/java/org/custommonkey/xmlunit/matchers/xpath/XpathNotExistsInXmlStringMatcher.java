@@ -16,10 +16,10 @@ package org.custommonkey.xmlunit.matchers.xpath;
 
 import java.io.IOException;
 
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
@@ -65,7 +65,8 @@ public class XpathNotExistsInXmlStringMatcher extends AbstractXmlUnitMatcher<Str
         int matches;
 
         try {
-            inDocument = XMLUnit.buildControlDocument(actualXmlDoc);
+            DocumentUtils documentUtils = new DocumentUtils(getXmlUnit().getProperties());
+            inDocument = documentUtils.buildControlDocument(actualXmlDoc);
 
             XpathEngine simpleXpathEngine = getXmlUnit().newXpathEngine();
             NodeList nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, inDocument);

@@ -19,7 +19,7 @@ import javax.xml.transform.TransformerException;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
-import org.custommonkey.xmlunit.util.DomUtils;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
@@ -43,7 +43,7 @@ public class XpathExistsInDocumentMatcher extends AbstractXmlUnitMatcher<Documen
     public void describeTo(Description description) {
         String documentString;
         try {
-            documentString = DomUtils.documentToString(actualDocument);
+            documentString = DocumentUtils.documentToString(actualDocument);
         } catch (TransformerException e) {
             documentString = "";
         }
@@ -56,7 +56,7 @@ public class XpathExistsInDocumentMatcher extends AbstractXmlUnitMatcher<Documen
     protected void describeMismatchSafely(Document item, Description description) {
         String documentString;
         try {
-            documentString = DomUtils.documentToString(actualDocument);
+            documentString = DocumentUtils.documentToString(actualDocument);
         } catch (TransformerException e) {
             documentString = "";
         }

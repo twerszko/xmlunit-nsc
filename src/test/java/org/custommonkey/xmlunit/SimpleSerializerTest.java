@@ -42,6 +42,7 @@ import java.io.IOException;
 
 import javax.xml.transform.OutputKeys;
 
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -51,17 +52,19 @@ import org.xml.sax.SAXException;
 
 public class SimpleSerializerTest {
     private SimpleSerializer serializer;
+    private DocumentUtils documentUtils;
 
     @Before
     public void setUp() {
         serializer = new SimpleSerializer();
+        documentUtils = new DocumentUtils(new XMLUnitProperties());
     }
 
     @Test
     public void should_serialize() throws SAXException, IOException {
         // given
         String simpleXML = "<season><spring id=\"1\"><eg>daffodils</eg></spring></season>";
-        Document doc = XMLUnit.buildControlDocument(simpleXML);
+        Document doc = documentUtils.buildControlDocument(simpleXML);
 
         // when
         serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
@@ -77,7 +80,7 @@ public class SimpleSerializerTest {
     @Test
     public void should_serialize2() throws SAXException, IOException {
         // given
-        Document doc = XMLUnit.buildControlDocument("<test/>");
+        Document doc = documentUtils.buildControlDocument("<test/>");
         serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
         // when
