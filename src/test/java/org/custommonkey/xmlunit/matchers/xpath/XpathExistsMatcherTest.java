@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class XpathExistsMatcherTest {
 
     @Before
     public void setUp() {
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
     }
 
     @SuppressWarnings("unused")

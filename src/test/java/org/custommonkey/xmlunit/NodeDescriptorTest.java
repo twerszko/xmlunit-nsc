@@ -57,7 +57,7 @@ public class NodeDescriptorTest {
 
     @Before
     public void setUp() {
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
         aDocument = documentUtils.newControlParser().newDocument();
     }
 

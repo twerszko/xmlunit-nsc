@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2010, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,63 +31,63 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 package org.custommonkey.xmlunit;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.util.Linqy;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Tracks Nodes visited by the DifferenceEngine and converts that
- * information into an Xpath-String to supply to the NodeDetail of a
- * Difference instance.
- *
- * <p>The tracker has the concept of a level which corresponds to the
- * depth of the tree it has visited.  The {@link #indent indent}
- * method creates a new level, making the tracker walk prepare to walk
- * down the tree, the {@link #outdent outdent} method moves one level
- * up and any information about the previous level is discarded.</p>
- *
- * <p>At each level there may be a current Node - the last one for
- * which {@link #visitedNode visitedNode} or {@link #visited visited}
- * has been called - and maybe a current attribute at this node - the
- * last one for which {@link #visitedAttribute visitedAttribute} or
- * {@link #visited visited} has been called.  Attributes are assumed
- * to be at the same level as the nodes they belong to.</p>
-
+ * Tracks Nodes visited by the DifferenceEngine and converts that information
+ * into an Xpath-String to supply to the NodeDetail of a Difference instance.
+ * 
+ * <p>
+ * The tracker has the concept of a level which corresponds to the depth of the
+ * tree it has visited. The {@link #indent indent} method creates a new level,
+ * making the tracker walk prepare to walk down the tree, the {@link #outdent
+ * outdent} method moves one level up and any information about the previous
+ * level is discarded.
+ * </p>
+ * 
+ * <p>
+ * At each level there may be a current Node - the last one for which
+ * {@link #visitedNode visitedNode} or {@link #visited visited} has been called
+ * - and maybe a current attribute at this node - the last one for which
+ * {@link #visitedAttribute visitedAttribute} or {@link #visited visited} has
+ * been called. Attributes are assumed to be at the same level as the nodes they
+ * belong to.
+ * </p>
+ * 
  * @see NodeDetail#getXpathLocation()
  * @see Difference#getControlNodeDetail
  * @see Difference#getTestNodeDetail
  */
 public class XpathNodeTracker implements XMLConstants {
     private XPathContext ctx;
-    private final LinkedList<TrackingEntry> levels =
-        new LinkedList<TrackingEntry>();
+    private final LinkedList<TrackingEntry> levels = new LinkedList<TrackingEntry>();
 
     /**
      * Simple constructor
-     */ 
+     */
     public XpathNodeTracker() {
         ctx = new XPathContext();
         newLevel();
     }
 
     /**
-     * Clear state data.
-     * Call if required to reuse an existing instance.
+     * Clear state data. Call if required to reuse an existing instance.
      */
     public void reset() {
         ctx = new XPathContext();
@@ -97,13 +97,16 @@ public class XpathNodeTracker implements XMLConstants {
 
     /**
      * Call before examining child nodes one level of indentation into DOM
-     *
-     * <p>Any subsequent call to {@link #visited visited} is assumed
-     * to belong to nodes one level deeper into the tree than the
-     * nodes visited before calling {@link #indent indent}.</p>
-     *
-     * <p>As a side effect, the current attribute - if any - is
-     * reset.</p>
+     * 
+     * <p>
+     * Any subsequent call to {@link #visited visited} is assumed to belong to
+     * nodes one level deeper into the tree than the nodes visited before
+     * calling {@link #indent indent}.
+     * </p>
+     * 
+     * <p>
+     * As a side effect, the current attribute - if any - is reset.
+     * </p>
      */
     public void indent() {
         newLevel();
@@ -115,8 +118,8 @@ public class XpathNodeTracker implements XMLConstants {
     }
 
     /**
-     * Call after processing attributes of an element and turning to
-     * compare the child nodes.
+     * Call after processing attributes of an element and turning to compare the
+     * child nodes.
      */
     public void clearTrackedAttribute() {
         if (levels.size() > 0) {
@@ -125,14 +128,15 @@ public class XpathNodeTracker implements XMLConstants {
     }
 
     /**
-     * Call after examining child nodes, ie before returning back one
-     * level of indentation from DOM.
-     *
-     * <p>Any subsequent call to {@link #visited visited} is assumed
-     * to belong to nodes one level closer to the root of the tree
-     * than the nodes visited before calling {@link #outdent
-     * outdent}.</p>
-     */ 
+     * Call after examining child nodes, ie before returning back one level of
+     * indentation from DOM.
+     * 
+     * <p>
+     * Any subsequent call to {@link #visited visited} is assumed to belong to
+     * nodes one level closer to the root of the tree than the nodes visited
+     * before calling {@link #outdent outdent}.
+     * </p>
+     */
     public void outdent() {
         if (levels.size() < 2) {
             reset();
@@ -144,16 +148,19 @@ public class XpathNodeTracker implements XMLConstants {
 
     /**
      * Call when visiting a node whose xpath location needs tracking
-     *
-     * <p>Delegates to {@link #visitedAttribute visitedAttribute} for
-     * attribute nodes, {@link #visitedNode visitedNode} for elements,
-     * texts, CDATA sections, comments or processing instructions and
-     * ignores any other type of node.</p>
-     *
-     * @param node the Node being visited - must not be null.
+     * 
+     * <p>
+     * Delegates to {@link #visitedAttribute visitedAttribute} for attribute
+     * nodes, {@link #visitedNode visitedNode} for elements, texts, CDATA
+     * sections, comments or processing instructions and ignores any other type
+     * of node.
+     * </p>
+     * 
+     * @param node
+     *            the Node being visited - must not be null.
      */
     public void visited(Node node) {
-        switch(node.getNodeType()) {
+        switch (node.getNodeType()) {
         case Node.ATTRIBUTE_NODE:
             visitedAttribute(getNodeName(node));
             break;
@@ -177,15 +184,17 @@ public class XpathNodeTracker implements XMLConstants {
     }
 
     /**
-     * Invoked by {@link #visited visited} when visited is an element,
-     * text, CDATA section, comment or processing instruction.
-     *
-     * @param visited the visited node - Unit tests call this with
-     * null values, so it is not safe to assume it will never be null.
-     * It will never be null when the {@link #visited visited} method
-     * delegates here.
-     * @param value the local name of the element or an XPath
-     * identifier matching the type of node.
+     * Invoked by {@link #visited visited} when visited is an element, text,
+     * CDATA section, comment or processing instruction.
+     * 
+     * @param visited
+     *            the visited node - Unit tests call this with null values, so
+     *            it is not safe to assume it will never be null. It will never
+     *            be null when the {@link #visited visited} method delegates
+     *            here.
+     * @param value
+     *            the local name of the element or an XPath identifier matching
+     *            the type of node.
      */
     protected void visitedNode(Node visited, String value) {
         levels.getLast().trackNode(visited, value);
@@ -193,47 +202,53 @@ public class XpathNodeTracker implements XMLConstants {
 
     /**
      * Invoked by {@link #visited visited} when visiting an attribute node.
-     *
-     * @param visited the local name of the attribute.
+     * 
+     * @param visited
+     *            the local name of the attribute.
      */
     protected void visitedAttribute(String visited) {
         levels.getLast().trackAttribute(new QName(visited));
     }
 
     /**
-     * Preload the items in a NodeList by visiting each in turn
-     * Required for pieces of test XML whose node children can be visited
-     * out of sequence by a DifferenceEngine comparison
-     *
-     * <p>Makes the nodes of this list known as nodes that are
-     * visitable at the current level and makes the last child node
-     * the current node as a side effect.</p>
-     *
-     * @param nodeList the items to preload
+     * Preload the items in a NodeList by visiting each in turn Required for
+     * pieces of test XML whose node children can be visited out of sequence by
+     * a DifferenceEngine comparison
+     * 
+     * <p>
+     * Makes the nodes of this list known as nodes that are visitable at the
+     * current level and makes the last child node the current node as a side
+     * effect.
+     * </p>
+     * 
+     * @param nodeList
+     *            the items to preload
      */
     public void preloadNodeList(NodeList nodeList) {
         preloadChildren(new IterableNodeList(nodeList));
     }
 
     /**
-     * Preload the items in a List by visiting each in turn
-     * Required for pieces of test XML whose node children can be visited
-     * out of sequence by a DifferenceEngine comparison
-     *
-     * <p>Makes the nodes of this list known as nodes that are
-     * visitable at the current level and makes the last child node
-     * the current node as a side effect.</p>
-     *
-     * @param nodeList the items to preload
+     * Preload the items in a List by visiting each in turn Required for pieces
+     * of test XML whose node children can be visited out of sequence by a
+     * DifferenceEngine comparison
+     * 
+     * <p>
+     * Makes the nodes of this list known as nodes that are visitable at the
+     * current level and makes the last child node the current node as a side
+     * effect.
+     * </p>
+     * 
+     * @param nodeList
+     *            the items to preload
      */
-    public void preloadChildList(List nodeList) {
-        Iterable<Node> nodes = Linqy.cast(nodeList);
-        preloadChildren(nodes);
+    public void preloadChildList(List<Node> nodeList) {
+        preloadChildren(nodeList);
     }
 
     /**
      * @return the last visited node as an xpath-location String
-     */ 
+     */
     public String toXpathString() {
         return ctx.getXPath();
     }
@@ -250,15 +265,18 @@ public class XpathNodeTracker implements XMLConstants {
     }
 
     /**
-     * Preload the nodes by visiting each in turn.
-     * Required for pieces of test XML whose node children can be visited
-     * out of sequence by a DifferenceEngine comparison
-     *
-     * <p>Makes the nodes of this list known as nodes that are
-     * visitable at the current level and makes the last child node
-     * the current node as a side effect.</p>
-     *
-     * @param nodeList the items to preload
+     * Preload the nodes by visiting each in turn. Required for pieces of test
+     * XML whose node children can be visited out of sequence by a
+     * DifferenceEngine comparison
+     * 
+     * <p>
+     * Makes the nodes of this list known as nodes that are visitable at the
+     * current level and makes the last child node the current node as a side
+     * effect.
+     * </p>
+     * 
+     * @param nodeList
+     *            the items to preload
      */
     private void preloadChildren(Iterable<Node> nodeList) {
         levels.getLast().trackNodesAsWellAsValues(true);
@@ -269,11 +287,11 @@ public class XpathNodeTracker implements XMLConstants {
     }
 
     /**
-     * Holds node tracking details - one instance is used for each
-     * level of indentation in a DOM
-     *
-     * Provides reference between a String-ified Node value and the
-     * xpath index of that value
+     * Holds node tracking details - one instance is used for each level of
+     * indentation in a DOM
+     * 
+     * Provides reference between a String-ified Node value and the xpath index
+     * of that value
      */
     private final class TrackingEntry {
         // Is the XPathContext looking at an attribute?
@@ -295,8 +313,11 @@ public class XpathNodeTracker implements XMLConstants {
 
         /**
          * Keep a reference to the current visited (non-attribute) node
-         * @param visited the non-attribute node visited
-         * @param value the String-ified value of the non-attribute node visited
+         * 
+         * @param visited
+         *            the non-attribute node visited
+         * @param value
+         *            the String-ified value of the non-attribute node visited
          */
         private void trackNode(final Node visited, final String value) {
             if (trackNodeReferences && visited != null) {
@@ -305,7 +326,7 @@ public class XpathNodeTracker implements XMLConstants {
 
             int currentIndex = 0;
             if (nodeReferenceMap == null || visited == null ||
-                !nodeReferenceMap.containsKey(visited)) {
+                    !nodeReferenceMap.containsKey(visited)) {
                 currentIndex = nextIndex++;
             } else {
                 currentIndex = nodeReferenceMap.get(visited).intValue();
@@ -321,9 +342,14 @@ public class XpathNodeTracker implements XMLConstants {
                     // unit tests and in this case it is always
                     // expected to be an element node
                     i = new XPathContext.NodeInfo() {
-                            public short getType() { return Node.ELEMENT_NODE; }
-                            public QName getName() { return new QName(value); }
-                        };
+                        public short getType() {
+                            return Node.ELEMENT_NODE;
+                        }
+
+                        public QName getName() {
+                            return new QName(value);
+                        }
+                    };
                 }
                 ctx.appendChildren(Linqy.singleton(i));
             }
@@ -336,7 +362,9 @@ public class XpathNodeTracker implements XMLConstants {
 
         /**
          * Keep a reference to the visited attribute at the current visited node
-         * @param value the attribute visited
+         * 
+         * @param value
+         *            the attribute visited
          */
         private void trackAttribute(QName visited) {
             if (atAttribute) {

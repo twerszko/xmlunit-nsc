@@ -60,6 +60,9 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
 
+import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -77,29 +80,37 @@ import org.xml.sax.SAXException;
 public class DiffTest {
     private Document aDocument;
 
-    protected XMLUnitProperties properties;
+    protected XmlUnitProperties properties;
 
     @Before
     public void setUp() throws Exception {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
         aDocument = new DocumentUtils(properties).newControlParser().newDocument();
     }
 
-    protected Diff prepareDiff(XMLUnitProperties properties, Document control, Document test) {
+    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) {
         return new Diff(properties, control, test);
     }
 
-    protected Diff prepareDiff(XMLUnitProperties properties, String control, String test) throws SAXException,
+    protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws SAXException,
+            IOException {
+        try {
+            return new DiffBuilder(properties)
+                    .withControlDocument(control)
+                    .withTestDocument(test)
+                    .build();
+        } catch (BuilderException e) {
+            // TODO handle exceptions better
+            throw new IOException(e);
+        }
+    }
+
+    protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws SAXException,
             IOException {
         return new Diff(properties, control, test);
     }
 
-    protected Diff prepareDiff(XMLUnitProperties properties, Reader control, Reader test) throws SAXException,
-            IOException {
-        return new Diff(properties, control, test);
-    }
-
-    protected Diff prepareDiff(XMLUnitProperties properties, String control, String test,
+    protected Diff prepareDiff(XmlUnitProperties properties, String control, String test,
             DifferenceEngineContract engine)
             throws SAXException, IOException {
 
@@ -462,10 +473,10 @@ public class DiffTest {
         boolean whitespaceAwareDiffSimilar = true;
         boolean whitespaceIgnoredDiffSimilar = false;
 
-        XMLUnitProperties properties1 = new XMLUnitProperties();
+        XmlUnitProperties properties1 = new XmlUnitProperties();
         properties1.setIgnoreWhitespace(false);
 
-        XMLUnitProperties properties2 = new XMLUnitProperties();
+        XmlUnitProperties properties2 = new XmlUnitProperties();
         properties2.setIgnoreWhitespace(true);
 
         // given

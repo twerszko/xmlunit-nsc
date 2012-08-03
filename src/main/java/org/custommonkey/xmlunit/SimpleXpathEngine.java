@@ -72,11 +72,11 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
 
     private NamespaceContext ctx = SimpleNamespaceContext.EMPTY_CONTEXT;
 
-    private final XMLUnitProperties properties;
+    private final XmlUnitProperties properties;
 
-    public SimpleXpathEngine(@Nullable XMLUnitProperties properties) {
+    public SimpleXpathEngine(@Nullable XmlUnitProperties properties) {
         if (properties == null) {
-            this.properties = new XMLUnitProperties();
+            this.properties = new XmlUnitProperties();
         } else {
             this.properties = properties.clone();
         }
@@ -266,8 +266,10 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
     private String getNamespaceDeclarations() {
         StringBuffer nsDecls = new StringBuffer();
         String quoteStyle = "'";
-        for (Iterator keys = ctx.getPrefixes(); keys.hasNext();) {
-            String prefix = (String) keys.next();
+
+        Iterator<String> prefixes = ctx.getPrefixes();
+        while (prefixes.hasNext()) {
+            String prefix = prefixes.next();
             String uri = ctx.getNamespaceURI(prefix);
             if (uri == null) {
                 continue;

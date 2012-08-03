@@ -53,7 +53,7 @@ public class ElementNameAndTextQualifierTest {
 
     @Before
     public void setUp() throws Exception {
-        document = new DocumentUtils(new XMLUnitProperties()).newControlParser().newDocument();
+        document = new DocumentUtils(new XmlUnitProperties()).newControlParser().newDocument();
         elementNameAndTextQualifier = new ElementNameAndTextQualifier();
     }
 

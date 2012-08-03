@@ -191,7 +191,7 @@ public class ValidatorTest {
     }
 
     private Document getDocument(String fromXML) throws Exception {
-        return new DocumentUtils(new XMLUnitProperties()).buildControlDocument(fromXML);
+        return new DocumentUtils(new XmlUnitProperties()).buildControlDocument(fromXML);
     }
 
     private void removeTempDTDFile() throws Exception {

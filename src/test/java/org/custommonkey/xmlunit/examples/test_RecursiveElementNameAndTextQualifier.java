@@ -39,10 +39,11 @@ package org.custommonkey.xmlunit.examples;
 import static org.fest.assertions.api.Assertions.assertThat;
 import junit.framework.TestCase;
 
-import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.ElementQualifier;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Document;
@@ -60,11 +61,11 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
     private static final String TEXT_A = "textA";
     private static final String TEXT_B = "textB";
     private Document document;
-    private XMLUnitProperties properties;
+    private XmlUnitProperties properties;
 
     @Before
     public void setUp() throws Exception {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
         document = new DocumentUtils(properties).newControlParser().newDocument();
     }
 
@@ -136,16 +137,25 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
     public void testThread1440169() throws Exception {
         String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
         String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
-        Diff d = new Diff(properties, s1, s2);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(s1)
+                .withTestDocument(s2)
+                .build();
         assertFalse(d.similar());
 
         // reset
-        d = new Diff(properties, s1, s2);
+        d = new DiffBuilder(properties)
+                .withControlDocument(s1)
+                .withTestDocument(s2)
+                .build();
         d.overrideElementQualifier(new ElementNameAndTextQualifier());
         assertFalse(d.similar());
 
         // reset once again
-        d = new Diff(properties, s1, s2);
+        d = new DiffBuilder(properties)
+                .withControlDocument(s1)
+                .withTestDocument(s2)
+                .build();
         d.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertTrue(d.similar());
 
@@ -171,7 +181,10 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                         + "  </tr>\n"
                         + "</table>\n";
 
-        Diff d = new Diff(properties, control, test);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertTrue(d.toString(), d.similar());
     }
@@ -182,7 +195,7 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
      *      =73273
      */
     public void testOpenDiscussionThread2948995_1() throws Exception {
-        Diff myDiff = new Diff(properties, "<root>"
+        String control = "<root>"
                 + "  <ent>"
                 + "    <value>"
                 + "      <int>1</int>"
@@ -199,25 +212,30 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                 + "      <int>4</int>"
                 + "    </value>"
                 + "  </ent>"
-                + "</root>",
-                "<root>"
-                        + "  <ent>"
-                        + "    <value>"
-                        + "      <int>2</int>"
-                        + "    </value>"
-                        + "    <value>"
-                        + "      <int>1</int>"
-                        + "    </value>"
-                        + "  </ent>"
-                        + "  <ent>"
-                        + "    <value>"
-                        + "      <int>3</int>"
-                        + "    </value>"
-                        + "    <value>"
-                        + "      <int>4</int>"
-                        + "    </value>"
-                        + "  </ent>"
-                        + "</root>");
+                + "</root>";
+        String test = "<root>"
+                + "  <ent>"
+                + "    <value>"
+                + "      <int>2</int>"
+                + "    </value>"
+                + "    <value>"
+                + "      <int>1</int>"
+                + "    </value>"
+                + "  </ent>"
+                + "  <ent>"
+                + "    <value>"
+                + "      <int>3</int>"
+                + "    </value>"
+                + "    <value>"
+                + "      <int>4</int>"
+                + "    </value>"
+                + "  </ent>"
+                + "</root>";
+
+        Diff myDiff = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         myDiff.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertThat(myDiff.similar()).isTrue();
     }
@@ -228,7 +246,7 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
      *      =73273
      */
     public void testOpenDiscussionThread2948995_2() throws Exception {
-        Diff myDiff = new Diff(properties, "<root>"
+        String control = "<root>"
                 + "  <ent>"
                 + "    <value>"
                 + "      <int>1</int>"
@@ -245,25 +263,30 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                 + "      <int>4</int>"
                 + "    </value>"
                 + "  </ent>"
-                + "</root>",
-                "<root>"
-                        + "  <ent>"
-                        + "    <value>"
-                        + "      <int>1</int>"
-                        + "    </value>"
-                        + "    <value>"
-                        + "      <int>2</int>"
-                        + "    </value>"
-                        + "  </ent>"
-                        + "  <ent>"
-                        + "    <value>"
-                        + "      <int>4</int>"
-                        + "    </value>"
-                        + "    <value>"
-                        + "      <int>3</int>"
-                        + "    </value>"
-                        + "  </ent>"
-                        + "</root>");
+                + "</root>";
+        String test = "<root>"
+                + "  <ent>"
+                + "    <value>"
+                + "      <int>1</int>"
+                + "    </value>"
+                + "    <value>"
+                + "      <int>2</int>"
+                + "    </value>"
+                + "  </ent>"
+                + "  <ent>"
+                + "    <value>"
+                + "      <int>4</int>"
+                + "    </value>"
+                + "    <value>"
+                + "      <int>3</int>"
+                + "    </value>"
+                + "  </ent>"
+                + "</root>";
+
+        Diff myDiff = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         myDiff.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertThat(myDiff.similar()).isTrue();
     }

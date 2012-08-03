@@ -34,16 +34,31 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package org.custommonkey.xmlunit.diff;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 
 import javax.annotation.Nullable;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
+import org.custommonkey.xmlunit.ComparisonController;
+import org.custommonkey.xmlunit.DetailedDiff;
+import org.custommonkey.xmlunit.Difference;
+import org.custommonkey.xmlunit.DifferenceEngine;
+import org.custommonkey.xmlunit.DifferenceEngineContract;
+import org.custommonkey.xmlunit.DifferenceListener;
+import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
+import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
+import org.custommonkey.xmlunit.ElementNameQualifier;
+import org.custommonkey.xmlunit.ElementQualifier;
+import org.custommonkey.xmlunit.MatchTracker;
+import org.custommonkey.xmlunit.NewDifferenceEngine;
+import org.custommonkey.xmlunit.Transform;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
@@ -75,7 +90,7 @@ import org.xml.sax.SAXException;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class Diff implements DifferenceListener, ComparisonController {
-    private final XMLUnitProperties properties;
+    private final XmlUnitProperties properties;
 
     private final Document controlDoc;
     private final Document testDoc;
@@ -90,18 +105,10 @@ public class Diff implements DifferenceListener, ComparisonController {
     private MatchTracker matchTrackerDelegate;
 
     /**
-     * Construct a Diff that compares the XML in two Strings
-     */
-    public Diff(@Nullable XMLUnitProperties properties, String control, String test)
-            throws SAXException, IOException {
-        this(properties, new StringReader(control), new StringReader(test));
-    }
-
-    /**
      * Construct a Diff that compares the XML read from two Readers
      */
     // TODO Simplify constructors
-    public Diff(@Nullable XMLUnitProperties properties, Reader control, Reader test)
+    public Diff(@Nullable XmlUnitProperties properties, Reader control, Reader test)
             throws SAXException, IOException {
 
         this(properties,
@@ -114,7 +121,7 @@ public class Diff implements DifferenceListener, ComparisonController {
     /**
      * Construct a Diff that compares the XML in two Documents
      */
-    public Diff(@Nullable XMLUnitProperties properties, Document controlDoc, Document testDoc) {
+    public Diff(@Nullable XmlUnitProperties properties, Document controlDoc, Document testDoc) {
         this(properties, controlDoc, testDoc, (DifferenceEngineContract) null);
     }
 
@@ -122,7 +129,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      * Construct a Diff that compares the XML in a control Document against the
      * result of a transformation
      */
-    public Diff(@Nullable XMLUnitProperties properties, String control, Transform testTransform)
+    public Diff(@Nullable XmlUnitProperties properties, String control, Transform testTransform)
             throws IOException, TransformerException, SAXException {
         this(properties, new DocumentUtils(properties).buildControlDocument(control),
                 testTransform.getResultDocument());
@@ -131,19 +138,21 @@ public class Diff implements DifferenceListener, ComparisonController {
     /**
      * Construct a Diff that compares the XML read from two JAXP InputSources
      */
-    public Diff(@Nullable XMLUnitProperties properties, InputSource control, InputSource test)
+    public Diff(@Nullable XmlUnitProperties properties, InputSource control, InputSource test)
             throws SAXException, IOException {
         this(properties, new DocumentUtils(properties).buildDocument(
                 new DocumentUtils(properties).newControlParser(), control),
                 new DocumentUtils(properties).buildDocument(
-                        new DocumentUtils(properties).newTestParser(), test));
+                        new DocumentUtils(properties).newTestParser(), test), null, new ElementNameQualifier());
     }
 
     /**
      * Construct a Diff that compares the XML in two JAXP DOMSources
      */
-    public Diff(@Nullable XMLUnitProperties properties, DOMSource control, DOMSource test) {
-        this(properties, control.getNode().getOwnerDocument(),
+    public Diff(@Nullable XmlUnitProperties properties, DOMSource control, DOMSource test) {
+        this(
+                properties,
+                control.getNode().getOwnerDocument(),
                 test.getNode().getOwnerDocument());
     }
 
@@ -151,8 +160,12 @@ public class Diff implements DifferenceListener, ComparisonController {
      * Construct a Diff that compares the XML in two Documents using a specific
      * DifferenceEngine
      */
-    public Diff(@Nullable XMLUnitProperties properties, Document controlDoc, Document testDoc,
+    public Diff(
+            @Nullable XmlUnitProperties properties,
+            Document controlDoc,
+            Document testDoc,
             DifferenceEngineContract comparator) {
+
         this(properties, controlDoc, testDoc, comparator, new ElementNameQualifier());
     }
 
@@ -160,12 +173,15 @@ public class Diff implements DifferenceListener, ComparisonController {
      * Construct a Diff that compares the XML in two Documents using a specific
      * DifferenceEngine and ElementQualifier
      */
-    public Diff(@Nullable XMLUnitProperties properties, Document controlDoc, Document testDoc,
+    public Diff(
+            @Nullable XmlUnitProperties properties,
+            Document controlDoc,
+            Document testDoc,
             DifferenceEngineContract comparator,
             ElementQualifier elementQualifier) {
 
         if (properties == null) {
-            this.properties = new XMLUnitProperties();
+            this.properties = new XmlUnitProperties();
         } else {
             this.properties = properties.clone();
         }
@@ -185,6 +201,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      *            a prototypical instance
      */
     protected Diff(Diff prototype) {
+        // TODO clone?
         this(prototype.properties, prototype.controlDoc, prototype.testDoc, prototype.differenceEngine,
                 prototype.elementQualifierDelegate);
         this.differenceListenerDelegate = prototype.differenceListenerDelegate;
@@ -456,16 +473,17 @@ public class Diff implements DifferenceListener, ComparisonController {
      * constructor.
      */
     private DifferenceEngineContract getDifferenceEngine() {
-        if (differenceEngine == null) {
-            if (properties.getIgnoreAttributeOrder()
-                    &&
-                    (!usesUnknownElementQualifier()
-                    || properties.getCompareUnmatched())) {
-                return new NewDifferenceEngine(properties, this, matchTrackerDelegate);
-            }
-            return new DifferenceEngine(properties, this, matchTrackerDelegate);
+        if (differenceEngine != null) {
+            return differenceEngine;
         }
-        return differenceEngine;
+
+        if (properties.getIgnoreAttributeOrder()
+                &&
+                (!usesUnknownElementQualifier()
+                || properties.getCompareUnmatched())) {
+            return new NewDifferenceEngine(properties, this, matchTrackerDelegate);
+        }
+        return new DifferenceEngine(properties, this, matchTrackerDelegate);
     }
 
     private boolean usesUnknownElementQualifier() {

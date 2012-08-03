@@ -73,7 +73,7 @@ import org.w3c.dom.Text;
 public class DifferenceEngine
         implements DifferenceEngineContract {
 
-    private final XMLUnitProperties properties;
+    private final XmlUnitProperties properties;
 
     private static final String NULL_NODE = "null";
     private static final String NOT_NULL_NODE = "not null";
@@ -91,7 +91,7 @@ public class DifferenceEngine
      *            by this class should halt further comparison or not
      * @see ComparisonController#haltComparison(Difference)
      */
-    public DifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller) {
+    public DifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller) {
         this(properties, controller, null);
     }
 
@@ -107,11 +107,11 @@ public class DifferenceEngine
      * @see ComparisonController#haltComparison(Difference)
      * @see MatchTracker#matchFound(Difference)
      */
-    public DifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller,
+    public DifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
             MatchTracker matchTracker) {
 
         if (properties == null) {
-            this.properties = new XMLUnitProperties();
+            this.properties = new XmlUnitProperties();
         } else {
             this.properties = properties.clone();
         }

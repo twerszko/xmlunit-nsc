@@ -24,7 +24,7 @@ import java.io.StringReader;
 import org.custommonkey.xmlunit.CountingNodeTester;
 import org.custommonkey.xmlunit.NodeTest;
 import org.custommonkey.xmlunit.NodeTester;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Node;
@@ -46,7 +46,7 @@ public class NoteTestPassesMatcherTest {
 
     @Test
     public void testNodeTest() throws Exception {
-        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+        DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
 
         NodeTester tester = new CountingNodeTester(1);
 

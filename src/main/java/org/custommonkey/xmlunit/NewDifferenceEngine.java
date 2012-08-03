@@ -100,7 +100,7 @@ public class NewDifferenceEngine
         KNOWN_SELECTORS = Collections.unmodifiableMap(m);
     }
 
-    private final XMLUnitProperties properties;
+    private final XmlUnitProperties properties;
 
     private final ComparisonController controller;
     private MatchTracker matchTracker;
@@ -113,7 +113,7 @@ public class NewDifferenceEngine
      *            by this class should halt further comparison or not
      * @see ComparisonController#haltComparison(Difference)
      */
-    public NewDifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller) {
+    public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller) {
         this(properties, controller, null);
     }
 
@@ -129,11 +129,11 @@ public class NewDifferenceEngine
      * @see ComparisonController#haltComparison(Difference)
      * @see MatchTracker#matchFound(Difference)
      */
-    public NewDifferenceEngine(@Nullable XMLUnitProperties properties, ComparisonController controller,
+    public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
             MatchTracker matchTracker) {
 
         if (properties == null) {
-            this.properties = new XMLUnitProperties();
+            this.properties = new XmlUnitProperties();
         } else {
             this.properties = properties.clone();
         }

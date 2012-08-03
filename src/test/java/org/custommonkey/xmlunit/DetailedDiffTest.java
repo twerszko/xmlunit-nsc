@@ -47,6 +47,9 @@ import java.util.List;
 
 import net.sf.xmlunit.TestResources;
 
+import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
@@ -66,25 +69,25 @@ import org.xml.sax.SAXException;
 public class DetailedDiffTest extends DiffTest {
 
     @Override
-    protected Diff prepareDiff(XMLUnitProperties properties, Document control, Document test) {
+    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) {
         return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 
     @Override
-    protected Diff prepareDiff(XMLUnitProperties properties, String control, String test) throws SAXException,
+    protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws SAXException,
             IOException {
         return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 
     @Override
-    protected Diff prepareDiff(XMLUnitProperties properties, Reader control, Reader test) throws SAXException,
+    protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws SAXException,
             IOException {
         return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 
     @Override
     protected Diff prepareDiff(
-            XMLUnitProperties properties,
+            XmlUnitProperties properties,
             String control,
             String test,
             DifferenceEngineContract engine)
@@ -93,15 +96,15 @@ public class DetailedDiffTest extends DiffTest {
         return new DetailedDiff(super.prepareDiff(properties, control, test, engine));
     }
 
-    private XMLUnitProperties properties;
+    private XmlUnitProperties properties;
 
     @Before
     public void before() {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
     }
 
     @Test
-    public void should_check_all_differences_in_first_forecast() throws SAXException, IOException {
+    public void should_check_all_differences_in_first_forecast() throws BuilderException {
         // given
         String firstForecast =
                 "<weather>" +
@@ -111,7 +114,10 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new Diff(properties, firstForecast, secondForecast);
+        Diff multipleDifferences = new DiffBuilder(properties)
+                .withControlDocument(firstForecast)
+                .withTestDocument(secondForecast)
+                .build();
         DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
         List<Difference> differences = detailedDiff.getAllDifferences();
 
@@ -125,7 +131,7 @@ public class DetailedDiffTest extends DiffTest {
     }
 
     @Test
-    public void should_check_all_differences_in_second_forecast() throws SAXException, IOException {
+    public void should_check_all_differences_in_second_forecast() throws SAXException, IOException, BuilderException {
         // given
         String firstForecast =
                 "<weather>" +
@@ -135,7 +141,10 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new Diff(properties, secondForecast, firstForecast);
+        Diff multipleDifferences = new DiffBuilder(properties)
+                .withControlDocument(secondForecast)
+                .withTestDocument(firstForecast)
+                .build();
         DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
         List<Difference> differences = detailedDiff.getAllDifferences();
 
@@ -149,7 +158,8 @@ public class DetailedDiffTest extends DiffTest {
     }
 
     @Test
-    public void should_pass_when_DetailedDiff_decorated_with_DetailedDiff() throws SAXException, IOException {
+    public void should_pass_when_DetailedDiff_decorated_with_DetailedDiff() throws SAXException, IOException,
+            BuilderException {
         // given
         String firstForecast =
                 "<weather>" +
@@ -159,7 +169,10 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new Diff(properties, firstForecast, secondForecast);
+        Diff multipleDifferences = new DiffBuilder(properties)
+                .withControlDocument(firstForecast)
+                .withTestDocument(secondForecast)
+                .build();
         DetailedDiff detailedDiff = new DetailedDiff(new DetailedDiff(multipleDifferences));
         List<Difference> differences = detailedDiff.getAllDifferences();
 
@@ -224,14 +237,17 @@ public class DetailedDiffTest extends DiffTest {
 
     @Test
     public void should_see_all_differences_even_if_diff_would_say_halt_comparison()
-            throws SAXException, IOException {
+            throws SAXException, IOException, BuilderException {
 
         // given
         String control = "<a><b/><c/></a>";
         String test = "<a><c/></a>";
 
         // when
-        Diff d = new Diff(properties, control, test);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         DetailedDiff dd = new DetailedDiff(d);
 
         List<Difference> differences = dd.getAllDifferences();
@@ -244,14 +260,17 @@ public class DetailedDiffTest extends DiffTest {
 
     @Test
     public void should_see_all_differences_even_if_diff_says_halt_comparison()
-            throws SAXException, IOException {
+            throws SAXException, IOException, BuilderException {
 
         // given
         String control = "<a><b/><c/></a>";
         String test = "<a><c/></a>";
 
         // when
-        Diff diff = new Diff(properties, control, test);
+        Diff diff = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         diff.similar();
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -265,11 +284,12 @@ public class DetailedDiffTest extends DiffTest {
     /**
      * @throws IOException
      * @throws SAXException
+     * @throws BuilderException
      * @see http 
      *      ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
      */
     @Test
-    public void should_check_issue_from_forum_thread_1691528() throws SAXException, IOException {
+    public void should_check_issue_from_forum_thread_1691528() throws SAXException, IOException, BuilderException {
         // given
         String control =
                 "<table border=\"1\">" +
@@ -292,7 +312,10 @@ public class DetailedDiffTest extends DiffTest {
                         "</table>";
 
         // when
-        DetailedDiff diff = new DetailedDiff(new Diff(properties, control, test));
+        DetailedDiff diff = new DetailedDiff(new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build());
         List<Difference> differences = diff.getAllDifferences();
 
         // then
@@ -306,13 +329,14 @@ public class DetailedDiffTest extends DiffTest {
      * 
      * @throws IOException
      * @throws SAXException
+     * @throws BuilderException
      * 
      * @see https
      *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
      *      &amp;group_id=23187&amp;atid=377768
      */
     @Test
-    public void should_check_xpath_of_missing_node() throws SAXException, IOException {
+    public void should_check_xpath_of_missing_node() throws SAXException, IOException, BuilderException {
         // given
         String control =
                 "<books>" +
@@ -332,7 +356,10 @@ public class DetailedDiffTest extends DiffTest {
 
         // when
         properties.setIgnoreWhitespace(true);
-        Diff diff = new Diff(properties, control, test);
+        Diff diff = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -351,7 +378,7 @@ public class DetailedDiffTest extends DiffTest {
     }
 
     @Test
-    public void should_check_xpath_of_missing_node_reverse() throws SAXException, IOException {
+    public void should_check_xpath_of_missing_node_reverse() throws SAXException, IOException, BuilderException {
         // given
         String control =
                 "<books>" +
@@ -371,7 +398,10 @@ public class DetailedDiffTest extends DiffTest {
 
         // when
         properties.setIgnoreWhitespace(true);
-        Diff diff = new Diff(properties, test, control);
+        Diff diff = new DiffBuilder(properties)
+                .withControlDocument(test)
+                .withTestDocument(control)
+                .build();
         diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Difference> differences = detailedDiff.getAllDifferences();

@@ -4,9 +4,9 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.xpath.XpathWrapper;
 
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
+import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -29,7 +29,7 @@ public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<X
             Document actualDocument) throws ConfigurationException, XpathException {
 
         XpathEngine xpath = getXmlUnit().newXpathEngine();
-        XMLUnitProperties properties = getXmlUnit().getProperties();
+        XmlUnitProperties properties = getXmlUnit().getProperties();
 
         DocumentUtils documentUtils = new DocumentUtils(getXmlUnit().getProperties());
 

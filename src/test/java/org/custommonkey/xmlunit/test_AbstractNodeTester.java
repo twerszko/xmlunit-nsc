@@ -71,7 +71,7 @@ public class test_AbstractNodeTester {
                 + "&my;"
                 + "<![CDATA[baz]]>"
                 + "</foo>";
-        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+        DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
         NodeTest nt = new NodeTest(documentUtils, testXml);
         ExactlyOncePerMethod tester = new ExactlyOncePerMethod();
         nt.performTest(tester, new short[] {

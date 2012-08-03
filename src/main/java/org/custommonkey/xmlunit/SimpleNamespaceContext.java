@@ -46,35 +46,35 @@ import com.google.common.collect.Maps;
  * Implementation of NamespaceContext that's backed by a map.
  */
 public class SimpleNamespaceContext implements NamespaceContext {
-	/* prefix -> NS URI */
-	private final Map<String, String> prefixMap;
+    /* prefix -> NS URI */
+    private final Map<String, String> prefixMap;
 
-	/**
-	 * An empty context containing no prefixes at all.
-	 */
-	public static final SimpleNamespaceContext EMPTY_CONTEXT =
-	        new SimpleNamespaceContext(Collections.EMPTY_MAP);
+    /**
+     * An empty context containing no prefixes at all.
+     */
+    public static final SimpleNamespaceContext EMPTY_CONTEXT =
+            new SimpleNamespaceContext(Collections.<String, String> emptyMap());
 
-	/**
-	 * Creates a NamespaceContext backed by the given map.
-	 * 
-	 * <p>
-	 * Copies the map, changes made to the given map after calling the
-	 * constructor are not reflected into the NamespaceContext.
-	 * </p>
-	 * 
-	 * @param prefixMap
-	 *            maps prefix to Namespace URI
-	 */
-	public SimpleNamespaceContext(Map<String, String> prefixMap) {
-		this.prefixMap = Maps.newHashMap(prefixMap);
-	}
+    /**
+     * Creates a NamespaceContext backed by the given map.
+     * 
+     * <p>
+     * Copies the map, changes made to the given map after calling the
+     * constructor are not reflected into the NamespaceContext.
+     * </p>
+     * 
+     * @param prefixMap
+     *            maps prefix to Namespace URI
+     */
+    public SimpleNamespaceContext(Map<String, String> prefixMap) {
+        this.prefixMap = Maps.newHashMap(prefixMap);
+    }
 
-	public String getNamespaceURI(String prefix) {
-		return (String) prefixMap.get(prefix);
-	}
+    public String getNamespaceURI(String prefix) {
+        return (String) prefixMap.get(prefix);
+    }
 
-	public Iterator<String> getPrefixes() {
-		return prefixMap.keySet().iterator();
-	}
+    public Iterator<String> getPrefixes() {
+        return prefixMap.keySet().iterator();
+    }
 }

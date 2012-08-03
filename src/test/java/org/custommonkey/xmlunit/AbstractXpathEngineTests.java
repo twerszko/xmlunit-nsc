@@ -72,7 +72,7 @@ public abstract class AbstractXpathEngineTests {
 
     @Before
     public void setUp() throws Exception {
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
         testDocument = documentUtils.buildControlDocument(testString);
     }
 

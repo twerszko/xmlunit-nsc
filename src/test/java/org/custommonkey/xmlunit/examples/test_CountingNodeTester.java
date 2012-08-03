@@ -41,8 +41,8 @@ import java.io.StringReader;
 import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.NodeTest;
-import org.custommonkey.xmlunit.NodeTestException;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.exceptions.NodeTestException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Node;
@@ -58,7 +58,7 @@ public class test_CountingNodeTester extends TestCase {
 
     @Before
     public void setUp() {
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
     }
 
     public void testPositivePath() throws Exception {

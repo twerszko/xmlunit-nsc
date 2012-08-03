@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Element;
 
 /**

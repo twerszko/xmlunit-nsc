@@ -43,6 +43,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +64,7 @@ public class NodeInputStreamTest {
 
     @Before
     public void setUp() throws SAXException, IOException {
-        Document document = new DocumentUtils(new XMLUnitProperties()).buildControlDocument(frog);
+        Document document = new DocumentUtils(new XmlUnitProperties()).buildControlDocument(frog);
         nodeStream = new NodeInputStream(document);
     }
 
@@ -79,7 +80,7 @@ public class NodeInputStreamTest {
         StringReader controlReader = new StringReader(frog);
 
         // when
-        Diff diff = new Diff(new XMLUnitProperties(), controlReader, testReader);
+        Diff diff = new Diff(new XmlUnitProperties(), controlReader, testReader);
 
         // then
         assertThat(diff.identical()).isTrue();

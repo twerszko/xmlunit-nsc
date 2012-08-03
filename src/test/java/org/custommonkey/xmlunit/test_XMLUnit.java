@@ -40,6 +40,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -50,11 +52,11 @@ import org.w3c.dom.Document;
  */
 public class test_XMLUnit extends TestCase {
 
-    private XMLUnitProperties properties;
+    private XmlUnitProperties properties;
 
     @Before
     public void setUp() {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
     }
 
     /**
@@ -83,11 +85,19 @@ public class test_XMLUnit extends TestCase {
         String test = "<test>  monkey   </test>";
         String control = "<test>monkey</test>";
         assertEquals("Should be similar", true,
-                new Diff(properties, control, test).similar());
+                new DiffBuilder(properties)
+                        .withControlDocument(control)
+                        .withTestDocument(test)
+                        .build()
+                        .similar());
 
         properties.setIgnoreWhitespace(false);
         assertEquals("Should be different", false,
-                new Diff(properties, control, test).similar());
+                new DiffBuilder(properties)
+                        .withControlDocument(control)
+                        .withTestDocument(test)
+                        .build()
+                        .similar());
     }
 
     /**

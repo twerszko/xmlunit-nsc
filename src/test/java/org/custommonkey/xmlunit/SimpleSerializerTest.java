@@ -57,7 +57,7 @@ public class SimpleSerializerTest {
     @Before
     public void setUp() {
         serializer = new SimpleSerializer();
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
     }
 
     @Test

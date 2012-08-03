@@ -1,6 +1,6 @@
 /*
  ******************************************************************
-Copyright (c) 2006-2008, Jeff Martin, Tim Bacon
+Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,44 +36,63 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.exceptions;
 
+import org.custommonkey.xmlunit.NodeTest;
+import org.w3c.dom.Node;
+
 /**
- * Exception an {@link org.custommonkey.xmlunit.XpathEngine XpathEngine} is
- * allowed to throw.
+ * Thrown by a NodeTest that fails. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 
+ * @see NodeTest
  */
 @SuppressWarnings("serial")
-public class XpathException extends XMLUnitException {
+public class NodeTestException extends Exception {
+    private transient final Node node;
 
     /**
-     * Inititializes the exeption.
+     * Constructor for specific node and message
      * 
-     * @param cause
-     *            the root cause of the exception
+     * @param message
+     * @param node
      */
-    public XpathException(Throwable cause) {
-        this(cause != null ? cause.getMessage() : null, cause);
+    public NodeTestException(String message, Node node) {
+        super(message);
+        this.node = node;
     }
 
     /**
-     * Inititializes the exeption.
+     * Constructor for message only
      * 
      * @param message
-     *            the detail message
-     * @param cause
-     *            the root cause of the exception
      */
-    public XpathException(String message) {
+    public NodeTestException(String message) {
         this(message, null);
     }
 
     /**
-     * Inititializes the exeption.
-     * 
-     * @param message
-     *            the detail message
-     * @param cause
-     *            the root cause of the exception
+     * @return true if a node was passed to constructor
      */
-    public XpathException(String message, Throwable cause) {
-        super(message, cause);
+    public boolean hasNode() {
+        return node != null;
+    }
+
+    /**
+     * @return the node passed to constructor, or null if no node was passed
+     */
+    public Node getNode() {
+        return node;
+    }
+
+    /**
+     * @return the exception message and node information if available
+     */
+    public String getMessage() {
+        StringBuffer stringBuffer = new StringBuffer(super.getMessage());
+        if (hasNode()) {
+            stringBuffer.append(' ')
+                    .append(getNode().toString());
+        }
+        return stringBuffer.toString();
     }
 }

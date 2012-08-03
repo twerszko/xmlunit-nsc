@@ -42,6 +42,9 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.util.List;
 
+import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -98,7 +101,7 @@ public class DifferenceTest {
     @Test
     public void should_check_toString2() {
         // given
-        Document document = new DocumentUtils(new XMLUnitProperties()).newControlParser().newDocument();
+        Document document = new DocumentUtils(new XmlUnitProperties()).newControlParser().newDocument();
         Node controlNode = document.createComment("control");
         NodeDetail controlNodeDetail = new NodeDetail(
                 controlNode.getNodeValue(),
@@ -129,11 +132,14 @@ public class DifferenceTest {
 
     // bug 2386807
     @Test
-    public void should_check_xpath_of_missing_attribute() throws SAXException, IOException {
+    public void should_check_xpath_of_missing_attribute() throws SAXException, IOException, BuilderException {
         // given
         String control = "<foo><bar a=\"x\" y=\"z\"/></foo>";
         String test = "<foo><bar a=\"x\"/></foo>";
-        Diff diff = new Diff(new XMLUnitProperties(), control, test);
+        Diff diff = new DiffBuilder(null)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         DetailedDiff detailedDiff = new DetailedDiff(diff);
 
         // when

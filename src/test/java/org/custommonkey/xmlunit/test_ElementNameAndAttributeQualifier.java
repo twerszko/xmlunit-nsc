@@ -39,6 +39,8 @@ package org.custommonkey.xmlunit;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -241,17 +243,23 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
                 + "</dependency_info> "
                 + "</method> "
                 + "</class>";
-        Diff d = new Diff(new XMLUnitProperties(), control, test);
+        Diff d = new DiffBuilder(null)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         assertFalse(d.similar());
 
         // reset
-        d = new Diff(new XMLUnitProperties(), control, test);
+        d = new DiffBuilder(null)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideElementQualifier(new ElementNameAndAttributeQualifier());
         assertTrue(d.similar());
     }
 
     public void setUp() throws Exception {
-        document = new DocumentUtils(new XMLUnitProperties()).newControlParser().newDocument();
+        document = new DocumentUtils(new XmlUnitProperties()).newControlParser().newDocument();
     }
 
     public static TestSuite suite() {

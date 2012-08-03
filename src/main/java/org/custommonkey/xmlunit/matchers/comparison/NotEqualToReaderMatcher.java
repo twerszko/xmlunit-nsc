@@ -17,8 +17,8 @@ package org.custommonkey.xmlunit.matchers.comparison;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;

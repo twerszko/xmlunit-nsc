@@ -40,6 +40,8 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Node;
 
@@ -111,13 +113,19 @@ public class test_ForumMessage4406472 extends TestCase {
     }
 
     public void testOriginal() throws Exception {
-        Diff d = new Diff(new XMLUnitProperties(), doc1, doc2);
+        Diff d = new DiffBuilder(null)
+                .withControlDocument(doc1)
+                .withTestDocument(doc2)
+                .build();
         d.overrideDifferenceListener(new OriginalDifferenceListener());
         assertTrue(d.toString(), d.similar());
     }
 
     public void testModified() throws Exception {
-        Diff d = new Diff(new XMLUnitProperties(), doc1, doc2);
+        Diff d = new DiffBuilder(null)
+                .withControlDocument(doc1)
+                .withTestDocument(doc2)
+                .build();
         d.overrideDifferenceListener(new ModifiedDifferenceListener());
         assertTrue(d.toString(), d.similar());
     }

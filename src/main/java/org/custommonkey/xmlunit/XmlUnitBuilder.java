@@ -5,13 +5,13 @@ import javax.annotation.Nullable;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
 public class XmlUnitBuilder {
-    private final XMLUnitProperties properties;
+    private final XmlUnitProperties properties;
 
     public XmlUnitBuilder() {
-        this.properties = new XMLUnitProperties();
+        this.properties = new XmlUnitProperties();
     }
 
-    public XmlUnitBuilder(XMLUnitProperties properties) {
+    public XmlUnitBuilder(XmlUnitProperties properties) {
         if (properties == null) {
             throw new IllegalArgumentException("Properties cannot be null!");
         }

@@ -27,7 +27,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.xmlunit.xpath.XpathWrapper;
 
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -172,13 +172,13 @@ public class XpathsEqualMatcherTest {
     }
 
     private XpathWrapper getTestXpath(String testXpath, String testXml) throws SAXException, IOException {
-        Document testDocument = new DocumentUtils(new XMLUnitProperties()).buildTestDocument(testXml);
+        Document testDocument = new DocumentUtils(new XmlUnitProperties()).buildTestDocument(testXml);
         XpathWrapper xpath = new XpathWrapper(testXpath, testDocument);
         return xpath;
     }
 
     private XpathWrapper getControlXpath(String controlXpath, String controlXml) throws SAXException, IOException {
-        Document testDocument = new DocumentUtils(new XMLUnitProperties()).buildControlDocument(controlXml);
+        Document testDocument = new DocumentUtils(new XmlUnitProperties()).buildControlDocument(controlXml);
         XpathWrapper xpath = new XpathWrapper(controlXpath, testDocument);
         return xpath;
     }

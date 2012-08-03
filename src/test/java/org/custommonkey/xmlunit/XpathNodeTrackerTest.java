@@ -53,7 +53,7 @@ import org.w3c.dom.Text;
 public class XpathNodeTrackerTest {
     private XpathNodeTracker xpathNodeTracker;
     private static final Node DUMMY_NODE = null;
-    private DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+    private DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
 
     @Before
     public void setUp() {

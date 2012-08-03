@@ -39,10 +39,10 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 
-import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.w3c.dom.Node;
 
 public class test_CaseInsensitiveDifferenceListener extends TestCase {
@@ -58,7 +58,10 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
                 CDATA.toUpperCase(Locale.US),
                 CMMT.toUpperCase(Locale.US),
                 TEXT.toUpperCase(Locale.US));
-        Diff d = new Diff(new XMLUnitProperties(), control, test);
+        Diff d = new DiffBuilder(null)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
 
         CaseInsensitiveDifferenceListener c =
                 new CaseInsensitiveDifferenceListener(new DifferenceListener() {

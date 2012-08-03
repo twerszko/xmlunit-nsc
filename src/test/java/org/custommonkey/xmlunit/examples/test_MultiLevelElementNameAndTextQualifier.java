@@ -38,10 +38,11 @@ package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
 
-import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.ElementQualifier;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,10 +59,10 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
     private static final String TEXT_B = "textB";
     private Document document;
 
-    private XMLUnitProperties properties;
+    private XmlUnitProperties properties;
 
     public void setUp() throws Exception {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
         document = new DocumentUtils(properties).newControlParser().newDocument();
     }
 
@@ -133,16 +134,25 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
     public void testThread1440169() throws Exception {
         String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
         String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
-        Diff d = new Diff(new XMLUnitProperties(), s1, s2);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(s1)
+                .withTestDocument(s2)
+                .build();
         assertFalse(d.similar());
 
         // reset
-        d = new Diff(properties, s1, s2);
+        d = new DiffBuilder(properties)
+                .withControlDocument(s1)
+                .withTestDocument(s2)
+                .build();
         d.overrideElementQualifier(new ElementNameAndTextQualifier());
         assertFalse(d.similar());
 
         // reset once again
-        d = new Diff(properties, s1, s2);
+        d = new DiffBuilder(properties)
+                .withControlDocument(s1)
+                .withTestDocument(s2)
+                .build();
         d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         assertTrue(d.similar());
 
@@ -168,17 +178,26 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
                         + "  </tr>\n"
                         + "</table>\n";
 
-        Diff d = new Diff(properties, control, test);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         assertFalse(d.toString(), d.similar());
 
         properties.setIgnoreWhitespace(true);
-        d = new Diff(properties, control, test);
+        d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         assertTrue(d.toString(), d.similar());
         properties.setIgnoreWhitespace(false);
 
-        d = new Diff(properties, control, test);
+        d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2,
                 true));
         assertTrue(d.toString(), d.similar());

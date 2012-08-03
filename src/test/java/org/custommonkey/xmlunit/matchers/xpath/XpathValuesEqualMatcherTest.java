@@ -26,7 +26,7 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -72,7 +72,7 @@ public class XpathValuesEqualMatcherTest {
 
     @Before
     public void setUp() {
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
     }
 
     @Test

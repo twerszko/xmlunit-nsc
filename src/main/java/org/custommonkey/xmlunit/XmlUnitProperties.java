@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
-public class XMLUnitProperties implements Cloneable {
+public class XmlUnitProperties implements Cloneable {
 
     private boolean ignoreWhitespace = false;
     private boolean normalizeWhitespace = false;
@@ -286,9 +286,9 @@ public class XMLUnitProperties implements Cloneable {
     }
 
     @Override
-    public XMLUnitProperties clone() {
+    public XmlUnitProperties clone() {
         try {
-            return (XMLUnitProperties) super.clone();
+            return (XmlUnitProperties) super.clone();
         } catch (CloneNotSupportedException e) {
             return null;
         }

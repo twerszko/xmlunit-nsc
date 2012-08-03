@@ -15,8 +15,8 @@
 package org.custommonkey.xmlunit.matchers;
 
 import org.custommonkey.xmlunit.NodeTest;
-import org.custommonkey.xmlunit.NodeTestException;
 import org.custommonkey.xmlunit.NodeTester;
+import org.custommonkey.xmlunit.exceptions.NodeTestException;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 

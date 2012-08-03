@@ -41,6 +41,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 
 /**
@@ -127,7 +129,10 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
         String control = "<clouds><cloud name=\"cumulus\" rain=\"maybe\">fluffy</cloud></clouds>";
         String similarTest = "<clouds><cloud name=\"cirrus\" rain=\"no\">wispy</cloud></clouds>";
 
-        Diff diff = new Diff(new XMLUnitProperties(), control, similarTest);
+        Diff diff = new DiffBuilder(null)
+                .withControlDocument(control)
+                .withTestDocument(similarTest)
+                .build();
         diff.overrideDifferenceListener(listener);
         assertTrue("similar " + diff.toString(),
                 diff.similar());
@@ -135,18 +140,27 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
                 !diff.identical());
 
         DetailedDiff detailedDiff = new DetailedDiff(
-                new Diff(new XMLUnitProperties(), control, similarTest));
+                new DiffBuilder(null)
+                        .withControlDocument(control)
+                        .withTestDocument(similarTest)
+                        .build());
         assertEquals("2 attribute and 1 text values",
                 3, detailedDiff.getAllDifferences().size());
 
         String dissimilarTest = "<clouds><cloud name=\"nimbus\"/></clouds>";
-        Diff dissimilarDiff = new Diff(new XMLUnitProperties(), control, dissimilarTest);
+        Diff dissimilarDiff = new DiffBuilder(null)
+                .withControlDocument(control)
+                .withTestDocument(dissimilarTest)
+                .build();
         dissimilarDiff.overrideDifferenceListener(listener);
         assertTrue("not similar " + dissimilarDiff.toString(),
                 !dissimilarDiff.similar());
 
         DetailedDiff dissimilarDetailedDiff = new DetailedDiff(
-                new Diff(new XMLUnitProperties(), control, dissimilarTest));
+                new DiffBuilder(null)
+                        .withControlDocument(control)
+                        .withTestDocument(dissimilarTest)
+                        .build());
         dissimilarDetailedDiff.overrideDifferenceListener(listener);
         List differences = dissimilarDetailedDiff.getAllDifferences();
         assertEquals(
@@ -174,7 +188,10 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
                 + "<street-address>20 east cheap</street-address>"
                 + "</location>";
 
-        Diff d = new Diff(new XMLUnitProperties(), xmlString1, xmlString2);
+        Diff d = new DiffBuilder(null)
+                .withControlDocument(xmlString1)
+                .withTestDocument(xmlString2)
+                .build();
         d.overrideDifferenceListener(listener);
         assertFalse(d.similar());
         assertTrue("postcode was matched against postcode1",

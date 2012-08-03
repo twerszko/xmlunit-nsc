@@ -42,6 +42,7 @@ import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 
+import org.custommonkey.xmlunit.exceptions.NodeTestException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Node;
@@ -81,7 +82,7 @@ public class NodeTestTest {
 
     @Test
     public void testFiltering() throws Exception {
-        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+        DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
 
         nodeTest = new NodeTest(documentUtils,
                 new StringReader("<message><hello>folks</hello></message>"));
@@ -100,7 +101,7 @@ public class NodeTestTest {
 
     @Test
     public void testNodeTesting() throws Exception {
-        DocumentUtils documentUtils = new DocumentUtils(new XMLUnitProperties());
+        DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
 
         String xml = "<keyboard><qwerty>standard</qwerty></keyboard>";
         nodeTest = new NodeTest(documentUtils, new StringReader(xml));

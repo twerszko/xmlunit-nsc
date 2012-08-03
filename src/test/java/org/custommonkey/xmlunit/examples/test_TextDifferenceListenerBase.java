@@ -37,10 +37,11 @@ package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
 
-import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.junit.Before;
 import org.w3c.dom.Node;
 
@@ -54,11 +55,11 @@ public class test_TextDifferenceListenerBase extends TestCase {
     private static final String C_TEXT = "controlText";
     private static final String T_TEXT = "testText";
 
-    private XMLUnitProperties properties;
+    private XmlUnitProperties properties;
 
     @Before
     public void setUp() {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
     }
 
     public void testTextDifferenceDelegations() throws Exception {
@@ -97,7 +98,10 @@ public class test_TextDifferenceListenerBase extends TestCase {
             }
         };
 
-        Diff d = new Diff(properties, control, test);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideDifferenceListener(b);
 
         assertTrue(d.identical());
@@ -120,7 +124,10 @@ public class test_TextDifferenceListenerBase extends TestCase {
             }
         };
 
-        Diff d = new Diff(properties, control, test);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideDifferenceListener(b);
 
         assertTrue(d.identical());
@@ -145,7 +152,10 @@ public class test_TextDifferenceListenerBase extends TestCase {
                     }
                 }) {};
 
-        Diff d = new Diff(properties, control, test);
+        Diff d = new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build();
         d.overrideDifferenceListener(b);
 
         assertTrue(d.identical());

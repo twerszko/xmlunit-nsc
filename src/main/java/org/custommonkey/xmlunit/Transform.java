@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
@@ -42,28 +42,30 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
+
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.exceptions.XMLUnitException;
-import net.sf.xmlunit.exceptions.XMLUnitException;
 import net.sf.xmlunit.transform.Transformation;
-import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
+
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 /**
- * Handy wrapper for an XSLT transformation performed using JAXP/Trax.
- * Note that transformation is not actually performed until a call to
- * <code>getResultXXX</code> method, and Templates are not used.
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * Handy wrapper for an XSLT transformation performed using JAXP/Trax. Note that
+ * transformation is not actually performed until a call to
+ * <code>getResultXXX</code> method, and Templates are not used. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class Transform {
     private static final File PWD = new File(".");
@@ -74,27 +76,30 @@ public class Transform {
 
     /**
      * Create a transformation using String input XML and String stylesheet
+     * 
      * @param input
      * @param stylesheet
      */
     public Transform(String input, String stylesheet) {
         this(input == null ? null : Input.fromMemory(input),
-             stylesheet == null ? null : Input.fromMemory(stylesheet));
+                stylesheet == null ? null : Input.fromMemory(stylesheet));
     }
 
     /**
      * Create a transformation using String input XML and stylesheet in a File
+     * 
      * @param input
      * @param stylesheet
      */
     public Transform(String input, File stylesheet) {
         this(input == null ? null : Input.fromMemory(input),
-             stylesheet == null ? null : Input.fromFile(stylesheet));
+                stylesheet == null ? null : Input.fromFile(stylesheet));
     }
 
     /**
-     * Create a transformation using InputSource input XML and
-     * InputSource stylesheet
+     * Create a transformation using InputSource input XML and InputSource
+     * stylesheet
+     * 
      * @param input
      * @param stylesheet
      */
@@ -103,18 +108,20 @@ public class Transform {
     }
 
     /**
-     * Create a transformation using InputSource input XML and
-     * stylesheet in a File
+     * Create a transformation using InputSource input XML and stylesheet in a
+     * File
+     * 
      * @param input
      * @param stylesheet
      */
     public Transform(InputSource input, File stylesheet) {
         this(new SAXSource(input),
-             stylesheet == null ? null : Input.fromFile(stylesheet).build());
+                stylesheet == null ? null : Input.fromFile(stylesheet).build());
     }
 
     /**
      * Create a transformation that allows us to serialize a DOM Node
+     * 
      * @param source
      */
     public Transform(Node sourceNode) {
@@ -123,31 +130,34 @@ public class Transform {
 
     /**
      * Create a transformation from an input Node and stylesheet in a String
+     * 
      * @param sourceNode
      * @param stylesheet
      */
     public Transform(Node sourceNode, String stylesheet) {
         this(sourceNode == null ? null : Input.fromNode(sourceNode),
-             stylesheet == null ? null : Input.fromMemory(stylesheet));
+                stylesheet == null ? null : Input.fromMemory(stylesheet));
     }
 
     /**
      * Create a transformation from an input Node and stylesheet in a File
+     * 
      * @param sourceNode
      * @param stylesheet
      */
     public Transform(Node sourceNode, File stylesheet) {
         this(sourceNode == null ? null : Input.fromNode(sourceNode),
-             stylesheet == null ? null : Input.fromFile(stylesheet));
+                stylesheet == null ? null : Input.fromFile(stylesheet));
     }
 
     private Transform(Input.Builder input, Input.Builder stylesheet) {
         this(input == null ? null : input.build(),
-             stylesheet == null ? null : stylesheet.build());
+                stylesheet == null ? null : stylesheet.build());
     }
 
     /**
      * Create a transformation using Source input XML and Source stylesheet
+     * 
      * @param inputReader
      * @param stylesheetReader
      */
@@ -162,11 +172,12 @@ public class Transform {
 
     /**
      * Ensure that the source has a systemId
+     * 
      * @param source
      */
     private void provideSystemIdIfRequired(Source source) {
-        if (source!=null && (source.getSystemId() == null
-                             || source.getSystemId().length() == 0)) {
+        if (source != null && (source.getSystemId() == null
+                || source.getSystemId().length() == 0)) {
             source.setSystemId(getDefaultSystemId());
         }
     }
@@ -179,51 +190,56 @@ public class Transform {
             return PWD.toURL().toExternalForm();
         } catch (MalformedURLException e) {
             throw new XMLUnitRuntimeException("Unable to determine current "
-                                              + "working directory!", e);
+                    + "working directory!", e);
         }
     }
+
     /**
      * Perform the actual transformation
+     * 
      * @param result
      * @throws TransformerException
      */
     protected void transformTo(final Result result) throws TransformerException {
         withExceptionHandling(new Trans<Object>() {
-                public Object transform() {
-                    transformation.transformTo(result);
-                    return null;
-                }
-            });
+            public Object transform() {
+                transformation.transformTo(result);
+                return null;
+            }
+        });
     }
 
     /**
      * Perform the XSLT transformation specified in the constructor
+     * 
      * @return the result as a String
      * @throws TransformerException
      */
     public String getResultString() throws TransformerException {
         return withExceptionHandling(new Trans<String>() {
-                public String transform() {
-                    return transformation.transformToString();
-                }
-            });
+            public String transform() {
+                return transformation.transformToString();
+            }
+        });
     }
 
     /**
      * Perform the XSLT transformation specified in the constructor
+     * 
      * @return the result as a DOM Document
      * @throws TransformerException
      */
     public Document getResultDocument() throws TransformerException {
         return withExceptionHandling(new Trans<Document>() {
-                public Document transform() {
-                    return transformation.transformToDocument();
-                }
-            });
+            public Document transform() {
+                return transformation.transformToDocument();
+            }
+        });
     }
 
     /**
      * Override an output property specified in the transformation stylesheet
+     * 
      * @param name
      * @param value
      */
@@ -233,12 +249,12 @@ public class Transform {
 
     /**
      * Override output properties specified in the transformation stylesheet
+     * 
      * @param outputProperties
      * @see Transformer#setOutputProperties(java.util.Properties)
      */
     public void setOutputProperties(Properties outputProperties) {
-        for (Enumeration e = outputProperties.propertyNames();
-             e.hasMoreElements(); ) {
+        for (Enumeration e = outputProperties.propertyNames(); e.hasMoreElements();) {
             Object key = e.nextElement();
             if (key != null) {
                 String name = key.toString();
@@ -252,6 +268,7 @@ public class Transform {
 
     /**
      * Add a parameter for the transformation
+     * 
      * @param name
      * @param value
      * @see Transformer#setParameter(java.lang.String, java.lang.Object)
@@ -263,6 +280,7 @@ public class Transform {
 
     /**
      * See a parameter used for the transformation
+     * 
      * @param name
      * @return the parameter value
      * @see Transformer#getParameter(java.lang.String)
@@ -272,7 +290,8 @@ public class Transform {
     }
 
     /**
-     * Clear parameters used for the transformation 
+     * Clear parameters used for the transformation
+     * 
      * @see Transformer#clearParameters()
      */
     public void clearParameters() {
@@ -282,6 +301,7 @@ public class Transform {
 
     /**
      * Set the URIResolver for the transformation
+     * 
      * @see Transformer#setURIResolver(javax.xml.transform.URIResolver)
      */
     public void setURIResolver(URIResolver uriResolver) {
@@ -290,6 +310,7 @@ public class Transform {
 
     /**
      * Set the ErrorListener for the transformation
+     * 
      * @see Transformer#setErrorListener(javax.xml.transform.ErrorListener)
      */
     public void setErrorListener(ErrorListener errorListener) {
@@ -297,7 +318,7 @@ public class Transform {
     }
 
     private static <R> R withExceptionHandling(Trans<R> trans)
-        throws TransformerException {
+            throws TransformerException {
         try {
             return trans.transform();
         } catch (net.sf.xmlunit.exceptions.ConfigurationException ex) {

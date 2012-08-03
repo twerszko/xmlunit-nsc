@@ -29,7 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.custommonkey.xmlunit.XMLUnitProperties;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
@@ -40,6 +40,7 @@ import org.xml.sax.SAXException;
  * Class containing convenience methods related to DOM
  * 
  */
+// TODO maybe change of name?
 public class DocumentUtils {
 
     private DocumentBuilderFactory controlBuilderFactory;
@@ -47,11 +48,11 @@ public class DocumentUtils {
     private EntityResolver testEntityResolver = null;
     private EntityResolver controlEntityResolver = null;
 
-    private DocumentUtils() {
-        this(new XMLUnitProperties());
+    public DocumentUtils() {
+        this(new XmlUnitProperties());
     }
 
-    public DocumentUtils(XMLUnitProperties properties) {
+    public DocumentUtils(XmlUnitProperties properties) {
         properties = properties.clone();
 
         controlBuilderFactory = DocumentBuilderFactory.newInstance();

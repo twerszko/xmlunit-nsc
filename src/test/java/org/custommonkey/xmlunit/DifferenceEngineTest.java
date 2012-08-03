@@ -88,12 +88,12 @@ public class DifferenceEngineTest {
     private final static String ATTR_A = "These boots were made for walking";
     private final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
-    protected XMLUnitProperties properties;
+    protected XmlUnitProperties properties;
     private DocumentUtils documentUtils;
 
     @Before
     public void setUp() throws Exception {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
 
         resetListener();
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);

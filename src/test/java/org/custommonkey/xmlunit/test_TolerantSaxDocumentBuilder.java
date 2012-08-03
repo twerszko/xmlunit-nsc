@@ -64,7 +64,7 @@ public class test_TolerantSaxDocumentBuilder {
 
     @Before
     public void setUp() throws Exception {
-        documentUtils = new DocumentUtils(new XMLUnitProperties());
+        documentUtils = new DocumentUtils(new XmlUnitProperties());
         builder = new TolerantSaxDocumentBuilder(documentUtils.newTestParser());
         parser = SAXParserFactory.newInstance().newSAXParser();
     }

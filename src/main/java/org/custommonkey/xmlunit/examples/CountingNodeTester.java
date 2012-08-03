@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import org.custommonkey.xmlunit.NodeTest;
-import org.custommonkey.xmlunit.NodeTestException;
 import org.custommonkey.xmlunit.NodeTester;
+import org.custommonkey.xmlunit.exceptions.NodeTestException;
 import org.w3c.dom.Node;
 
 /**

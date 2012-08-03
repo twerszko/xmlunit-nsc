@@ -38,6 +38,8 @@ package org.custommonkey.xmlunit;
 
 import java.util.List;
 
+import org.custommonkey.xmlunit.diff.Diff;
+
 import com.google.common.collect.Lists;
 
 /**

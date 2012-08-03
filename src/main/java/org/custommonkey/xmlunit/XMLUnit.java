@@ -45,6 +45,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
+import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -59,7 +62,7 @@ import org.xml.sax.SAXException;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public final class XMLUnit {
-    private final XMLUnitProperties properties;
+    private final XmlUnitProperties properties;
 
     private static TransformerFactory transformerFactory;
     private static SAXParserFactory saxParserFactory;
@@ -97,7 +100,7 @@ public final class XMLUnit {
      * 
      * @param properties
      */
-    XMLUnit(XMLUnitProperties properties) {
+    XMLUnit(XmlUnitProperties properties) {
         this.properties = properties.clone();
     }
 
@@ -106,7 +109,7 @@ public final class XMLUnit {
      * 
      * @return
      */
-    public XMLUnitProperties getProperties() {
+    public XmlUnitProperties getProperties() {
         return properties.clone();
     }
 
@@ -374,10 +377,14 @@ public final class XMLUnit {
      * @return Diff object describing differences in documents
      * @throws SAXException
      * @throws IOException
+     * @throws BuilderException
      */
-    public Diff compareXML(String control, String test)
-            throws SAXException, IOException {
-        return new Diff(properties, control, test);
+    public Diff compareXML(String control, String test) throws BuilderException {
+        // TODO more specific exception?
+
+        return new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test).build();
     }
 
     /**

@@ -54,6 +54,7 @@ import javax.xml.transform.URIResolver;
 
 import net.sf.xmlunit.TestResources;
 
+import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -73,12 +74,12 @@ public class TransformTest {
 
     private File animalXsl;
 
-    private XMLUnitProperties properties;
+    private XmlUnitProperties properties;
 
     @Before
     public void setUp() throws Exception {
         animalXsl = TestResources.ANIMAL_XSL.getFile();
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
     }
 
     @Test
@@ -99,7 +100,7 @@ public class TransformTest {
         Transform transform = new Transform(FLEABALL, animalXsl);
 
         // when
-        Diff diff = new Diff(new XMLUnitProperties(), DOG, transform);
+        Diff diff = new Diff(new XmlUnitProperties(), DOG, transform);
 
         // then
         assertThat(diff.identical()).isTrue();
@@ -113,7 +114,7 @@ public class TransformTest {
 
         // when
         Document testDoc = transform.getResultDocument();
-        Diff diff = new Diff(new XMLUnitProperties(), controlDoc, testDoc);
+        Diff diff = new Diff(new XmlUnitProperties(), controlDoc, testDoc);
 
         // then
         assertThat(diff.identical()).isTrue();

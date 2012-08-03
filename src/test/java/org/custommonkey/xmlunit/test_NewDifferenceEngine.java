@@ -79,11 +79,11 @@ public class test_NewDifferenceEngine extends TestCase {
     private final static String ATTR_A = "These boots were made for walking";
     private final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
-    protected XMLUnitProperties properties;
+    protected XmlUnitProperties properties;
 
     @Before
     public void setUp() throws Exception {
-        properties = new XMLUnitProperties();
+        properties = new XmlUnitProperties();
 
         resetListener();
         engine = new NewDifferenceEngine(properties, PSEUDO_DIFF);
@@ -219,7 +219,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testXpathLocation12() throws Exception {
-        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DETAILED_DIFF);
+        engine = new NewDifferenceEngine(new XmlUnitProperties(), PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
@@ -231,7 +231,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testXpathLocation13() throws Exception {
-        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DETAILED_DIFF);
+        engine = new NewDifferenceEngine(new XmlUnitProperties(), PSEUDO_DETAILED_DIFF);
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><?item data?></stuff>";
         listenToDifferences(control, test);
@@ -245,7 +245,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testXpathLocation14() throws Exception {
-        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DETAILED_DIFF);
+        engine = new NewDifferenceEngine(new XmlUnitProperties(), PSEUDO_DETAILED_DIFF);
         String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
         String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
@@ -259,7 +259,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     public void testIssue1027863() throws Exception {
-        engine = new NewDifferenceEngine(new XMLUnitProperties(), PSEUDO_DIFF);
+        engine = new NewDifferenceEngine(new XmlUnitProperties(), PSEUDO_DIFF);
         String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
         String test = "<stuff><item id=\"2\"/></stuff>";
         listenToDifferences(control, test);
@@ -388,7 +388,7 @@ public class test_NewDifferenceEngine extends TestCase {
         Element test = document.createElement("foo");
         final int[] count = new int[1];
         NewDifferenceEngine d =
-                new NewDifferenceEngine(new XMLUnitProperties(), new SimpleComparisonController(),
+                new NewDifferenceEngine(new XmlUnitProperties(), new SimpleComparisonController(),
                         new MatchTracker() {
                             public void matchFound(Difference d) {
                                 count[0]++;

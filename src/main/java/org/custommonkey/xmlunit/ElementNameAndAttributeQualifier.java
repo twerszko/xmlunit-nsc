@@ -39,6 +39,8 @@ package org.custommonkey.xmlunit;
 import java.util.Arrays;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
+
+import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
