@@ -40,17 +40,22 @@ package org.custommonkey.xmlunit.exceptions;
  * Base class of any checked exception that can be thrown within XMLUnit.
  */
 @SuppressWarnings("serial")
-public abstract class XMLUnitException extends Exception {
+public class XmlUnitException extends Exception {
 
-    /**
-     * Inititializes the exeption.
-     * 
-     * @param message
-     *            the detail message
-     * @param cause
-     *            the root cause of the exception
-     */
-    protected XMLUnitException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	/**
+	 * Inititializes the exeption.
+	 * 
+	 * @param message
+	 *            the detail message
+	 * @param cause
+	 *            the root cause of the exception
+	 */
+	public XmlUnitException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public XmlUnitException(Throwable cause) {
+		super(cause);
+	}
+
 }

@@ -52,99 +52,104 @@ import org.w3c.dom.Document;
  */
 public class test_XMLUnit extends TestCase {
 
-    private XmlUnitProperties properties;
+	private XmlUnitProperties properties;
 
-    @Before
-    public void setUp() {
-        properties = new XmlUnitProperties();
-    }
+	@Override
+	@Before
+	public void setUp() {
+		properties = new XmlUnitProperties();
+	}
 
-    /**
-     * Contructs a new test case.
-     */
-    public test_XMLUnit(String name) {
-        super(name);
-    }
+	/**
+	 * Contructs a new test case.
+	 */
+	public test_XMLUnit(String name) {
+		super(name);
+	}
 
-    private String getDocumentBuilderFactoryImplClass() {
-        return DocumentBuilderFactory.newInstance().getClass().getName();
-    }
+	private String getDocumentBuilderFactoryImplClass() {
+		return DocumentBuilderFactory.newInstance().getClass().getName();
+	}
 
-    /**
-     * Test overiding the SAX parser used to parse control documents
-     */
-    public void testSetControlParser() throws Exception {
-        Object before = new DocumentUtils(properties).newControlParser();
-        new DocumentUtils(properties).setControlParser(getDocumentBuilderFactoryImplClass());
-        assertEquals("should be different", false,
-                before == new DocumentUtils(properties).newControlParser());
-    }
+	/**
+	 * Test overiding the SAX parser used to parse control documents
+	 */
+	public void testSetControlParser() throws Exception {
+		Object before = new DocumentUtils(properties).newControlParser();
+		new DocumentUtils(properties).setControlParser(getDocumentBuilderFactoryImplClass());
+		assertEquals("should be different", false,
+		        before == new DocumentUtils(properties).newControlParser());
+	}
 
-    public void testIgnoreWhitespace() throws Exception {
-        properties.setIgnoreWhitespace(true);
-        String test = "<test>  monkey   </test>";
-        String control = "<test>monkey</test>";
-        assertEquals("Should be similar", true,
-                new DiffBuilder(properties)
-                        .withControlDocument(control)
-                        .withTestDocument(test)
-                        .build()
-                        .similar());
+	public void testIgnoreWhitespace() throws Exception {
+		properties.setIgnoreWhitespace(true);
+		String test = "<test>  monkey   </test>";
+		String control = "<test>monkey</test>";
+		assertEquals("Should be similar", true,
+		        new DiffBuilder(properties)
+		                .withControlDocument(control)
+		                .withTestDocument(test)
+		                .build()
+		                .similar());
 
-        properties.setIgnoreWhitespace(false);
-        assertEquals("Should be different", false,
-                new DiffBuilder(properties)
-                        .withControlDocument(control)
-                        .withTestDocument(test)
-                        .build()
-                        .similar());
-    }
+		properties.setIgnoreWhitespace(false);
+		assertEquals("Should be different", false,
+		        new DiffBuilder(properties)
+		                .withControlDocument(control)
+		                .withTestDocument(test)
+		                .build()
+		                .similar());
+	}
 
-    /**
-     * Test overiding the SAX parser used to parse test documents
-     */
-    public void testSetTestParser() throws Exception {
-        Object before = new DocumentUtils(properties).newTestParser();
-        new DocumentUtils(properties).setTestParser(getDocumentBuilderFactoryImplClass());
-        assertEquals("should be different", false,
-                before == new DocumentUtils(properties).newTestParser());
-    }
+	/**
+	 * Test overiding the SAX parser used to parse test documents
+	 */
+	public void testSetTestParser() throws Exception {
+		Object before = new DocumentUtils(properties).newTestParser();
+		new DocumentUtils(properties).setTestParser(getDocumentBuilderFactoryImplClass());
+		assertEquals("should be different", false,
+		        before == new DocumentUtils(properties).newTestParser());
+	}
 
-    public void testSetTransformerFactory() throws Exception {
-        Object before = XMLUnit.getTransformerFactory();
-        XMLUnit.setTransformerFactory(before.getClass().getName());
-        assertEquals("should be different", false,
-                before == XMLUnit.getTransformerFactory());
-    }
+	public void testSetTransformerFactory() throws Exception {
+		Object before = XMLUnit.getTransformerFactory();
+		XMLUnit.setTransformerFactory(before.getClass().getName());
+		assertEquals("should be different", false,
+		        before == XMLUnit.getTransformerFactory());
+	}
 
-    public void testStripWhitespaceTransform() throws Exception {
-        Document doc = new DocumentUtils(properties).buildTestDocument(
-                test_Constants.XML_WITH_WHITESPACE);
-        Transform transform = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc);
-        Diff diff = new Diff(properties, test_Constants.XML_WITHOUT_WHITESPACE, transform);
-        assertTrue(diff.similar());
-    }
+	public void testStripWhitespaceTransform() throws Exception {
+		Document doc = new DocumentUtils(properties).buildTestDocument(
+		        test_Constants.XML_WITH_WHITESPACE);
+		Transform transform = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc);
+		// TODO simpify?
+		Diff diff = new DiffBuilder(properties)
+		        .withControlDocument(test_Constants.XML_WITHOUT_WHITESPACE)
+		        .withTestDocument(transform)
+		        .build();
+		assertTrue(diff.similar());
+	}
 
-    public void testXSLTVersion() {
-        XMLUnit xmlUnit = new XmlUnitBuilder().build();
+	public void testXSLTVersion() {
+		XMLUnit xmlUnit = new XmlUnitBuilder().build();
 
-        assertEquals("1.0", xmlUnit.getProperties().getXsltVersion());
-        assertEquals(XSLTConstants.XSLT_START, xmlUnit.getXSLTStart());
+		assertEquals("1.0", xmlUnit.getProperties().getXsltVersion());
+		assertEquals(XSLTConstants.XSLT_START, xmlUnit.getXSLTStart());
 
-        xmlUnit = new XmlUnitBuilder().usingXsltVersion("2.0").build();
-        assertTrue(xmlUnit.getXSLTStart()
-                .startsWith(XSLTConstants.XSLT_START_NO_VERSION));
-        assertTrue(xmlUnit.getXSLTStart().endsWith("\"2.0\">"));
+		xmlUnit = new XmlUnitBuilder().usingXsltVersion("2.0").build();
+		assertTrue(xmlUnit.getXSLTStart()
+		        .startsWith(XSLTConstants.XSLT_START_NO_VERSION));
+		assertTrue(xmlUnit.getXSLTStart().endsWith("\"2.0\">"));
 
-        try {
-            new XmlUnitBuilder().usingXsltVersion("foo").build();
-            fail("foo is not a number");
-        } catch (ConfigurationException expected) {
-        }
-        try {
-            new XmlUnitBuilder().usingXsltVersion("-1.0").build();
-            fail("-1.0 is negative");
-        } catch (ConfigurationException expected) {
-        }
-    }
+		try {
+			new XmlUnitBuilder().usingXsltVersion("foo").build();
+			fail("foo is not a number");
+		} catch (ConfigurationException expected) {
+		}
+		try {
+			new XmlUnitBuilder().usingXsltVersion("-1.0").build();
+			fail("-1.0 is negative");
+		} catch (ConfigurationException expected) {
+		}
+	}
 }

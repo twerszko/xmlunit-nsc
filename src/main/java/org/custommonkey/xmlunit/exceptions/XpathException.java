@@ -41,7 +41,7 @@ package org.custommonkey.xmlunit.exceptions;
  * allowed to throw.
  */
 @SuppressWarnings("serial")
-public class XpathException extends XMLUnitException {
+public class XpathException extends XmlUnitException {
 
     /**
      * Inititializes the exeption.

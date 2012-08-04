@@ -43,7 +43,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.custommonkey.xmlunit.builders.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -54,48 +56,51 @@ import org.xml.sax.SAXException;
 import com.google.common.io.Closeables;
 
 public class NodeInputStreamTest {
-    private NodeInputStream nodeStream;
-    private final String frog =
-            "<frog>" +
-                    "<!-- eats slugs and snails -->" +
-                    "<frogspawn>fertilised egg</frogspawn>" +
-                    "<tadpole juvenile=\"true\"/>" +
-                    "</frog>";
+	private NodeInputStream nodeStream;
+	private final String frog =
+	        "<frog>" +
+	                "<!-- eats slugs and snails -->" +
+	                "<frogspawn>fertilised egg</frogspawn>" +
+	                "<tadpole juvenile=\"true\"/>" +
+	                "</frog>";
 
-    @Before
-    public void setUp() throws SAXException, IOException {
-        Document document = new DocumentUtils(new XmlUnitProperties()).buildControlDocument(frog);
-        nodeStream = new NodeInputStream(document);
-    }
+	@Before
+	public void setUp() throws SAXException, IOException {
+		Document document = new DocumentUtils(new XmlUnitProperties()).buildControlDocument(frog);
+		nodeStream = new NodeInputStream(document);
+	}
 
-    @After
-    public void tearDown() {
-        Closeables.closeQuietly(nodeStream);
-    }
+	@After
+	public void tearDown() {
+		Closeables.closeQuietly(nodeStream);
+	}
 
-    @Test
-    public void should_read() throws SAXException, IOException {
-        // given
-        Reader testReader = new InputStreamReader(nodeStream);
-        StringReader controlReader = new StringReader(frog);
+	@Test
+	public void should_read() throws BuilderException {
+		// given
+		Reader testReader = new InputStreamReader(nodeStream);
+		StringReader controlReader = new StringReader(frog);
 
-        // when
-        Diff diff = new Diff(new XmlUnitProperties(), controlReader, testReader);
+		// when
+		Diff diff = new DiffBuilder(null)
+		        .withControlDocument(controlReader)
+		        .withTestDocument(testReader)
+		        .build();
 
-        // then
-        assertThat(diff.identical()).isTrue();
-    }
+		// then
+		assertThat(diff.identical()).isTrue();
+	}
 
-    @Test
-    public void should_get_available() throws IOException {
-        // when
-        int availableAtStart = nodeStream.available();
-        nodeStream.read();
-        int availableAfterRead = nodeStream.available();
+	@Test
+	public void should_get_available() throws IOException {
+		// when
+		int availableAtStart = nodeStream.available();
+		nodeStream.read();
+		int availableAfterRead = nodeStream.available();
 
-        // then
-        assertThat(availableAtStart).isGreaterThan(0);
-        assertThat(availableAfterRead).isEqualTo(availableAtStart - 1);
-    }
+		// then
+		assertThat(availableAtStart).isGreaterThan(0);
+		assertThat(availableAfterRead).isEqualTo(availableAtStart - 1);
+	}
 
 }
