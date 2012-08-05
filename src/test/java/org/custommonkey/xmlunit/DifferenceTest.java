@@ -42,7 +42,7 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.util.List;
 
-import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;

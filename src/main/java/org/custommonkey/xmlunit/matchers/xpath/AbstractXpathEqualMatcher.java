@@ -6,7 +6,7 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
-import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;

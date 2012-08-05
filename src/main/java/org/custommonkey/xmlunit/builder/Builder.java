@@ -1,4 +1,4 @@
-package org.custommonkey.xmlunit.builders;
+package org.custommonkey.xmlunit.builder;
 
 public interface Builder<T> {
     T build() throws BuilderException;

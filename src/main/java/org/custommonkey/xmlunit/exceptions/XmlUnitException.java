@@ -40,7 +40,7 @@ package org.custommonkey.xmlunit.exceptions;
  * Base class of any checked exception that can be thrown within XMLUnit.
  */
 @SuppressWarnings("serial")
-public class XmlUnitException extends Exception {
+public abstract class XmlUnitException extends Exception {
 
 	/**
 	 * Inititializes the exeption.
@@ -56,6 +56,10 @@ public class XmlUnitException extends Exception {
 
 	public XmlUnitException(Throwable cause) {
 		super(cause);
+	}
+
+	public XmlUnitException(String message) {
+		super(message);
 	}
 
 }

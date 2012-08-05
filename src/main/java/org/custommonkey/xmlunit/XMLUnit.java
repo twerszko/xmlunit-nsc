@@ -45,7 +45,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
-import org.custommonkey.xmlunit.builders.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
@@ -317,14 +316,10 @@ public final class XMLUnit {
 	 * @throws IOException
 	 */
 	public Diff compareXML(InputSource control, InputSource test) throws XmlUnitException {
-		try {
-			return new DiffBuilder(properties)
-			        .withControlDocument(control)
-			        .withTestDocument(test)
-			        .build();
-		} catch (BuilderException e) {
-			throw new XmlUnitException(e);
-		}
+		return new DiffBuilder(properties)
+		        .withControlDocument(control)
+		        .withTestDocument(test)
+		        .build();
 	}
 
 	/**
@@ -338,14 +333,10 @@ public final class XMLUnit {
 	 * @throws XmlUnitException
 	 */
 	public Diff compareXML(Reader control, Reader test) throws XmlUnitException {
-		try {
-			return new DiffBuilder(properties)
-			        .withControlDocument(control)
-			        .withTestDocument(test)
-			        .build();
-		} catch (BuilderException e) {
-			throw new XmlUnitException(e);
-		}
+		return new DiffBuilder(properties)
+		        .withControlDocument(control)
+		        .withTestDocument(test)
+		        .build();
 	}
 
 	/**
@@ -359,14 +350,10 @@ public final class XMLUnit {
 	 * @throws XmlUnitException
 	 */
 	public Diff compareXML(String control, Reader test) throws XmlUnitException {
-		try {
-			return new DiffBuilder(properties)
-			        .withControlDocument(new StringReader(control))
-			        .withTestDocument(test)
-			        .build();
-		} catch (BuilderException e) {
-			throw new XmlUnitException(e);
-		}
+		return new DiffBuilder(properties)
+		        .withControlDocument(new StringReader(control))
+		        .withTestDocument(test)
+		        .build();
 	}
 
 	/**
@@ -381,14 +368,10 @@ public final class XMLUnit {
 	 */
 	public Diff compareXML(Reader control, String test)
 	        throws XmlUnitException {
-		try {
-			return new DiffBuilder(properties)
-			        .withControlDocument(control)
-			        .withTestDocument(test)
-			        .build();
-		} catch (BuilderException e) {
-			throw new XmlUnitException(e);
-		}
+		return new DiffBuilder(properties)
+		        .withControlDocument(control)
+		        .withTestDocument(test)
+		        .build();
 	}
 
 	/**
@@ -402,14 +385,10 @@ public final class XMLUnit {
 	 * @throws XmlUnitException
 	 */
 	public Diff compareXML(String control, String test) throws XmlUnitException {
-		try {
-			return new DiffBuilder(properties)
-			        .withControlDocument(control)
-			        .withTestDocument(test)
-			        .build();
-		} catch (BuilderException e) {
-			throw new XmlUnitException(e);
-		}
+		return new DiffBuilder(properties)
+		        .withControlDocument(control)
+		        .withTestDocument(test)
+		        .build();
 	}
 
 	/**
@@ -423,14 +402,10 @@ public final class XMLUnit {
 	 * @throws XmlUnitException
 	 */
 	public Diff compareXML(Document control, Document test) throws XmlUnitException {
-		try {
-			return new DiffBuilder(properties)
-			        .withControlDocument(control)
-			        .withTestDocument(test)
-			        .build();
-		} catch (BuilderException e) {
-			throw new XmlUnitException(e);
-		}
+		return new DiffBuilder(properties)
+		        .withControlDocument(control)
+		        .withTestDocument(test)
+		        .build();
 	}
 
 	/**

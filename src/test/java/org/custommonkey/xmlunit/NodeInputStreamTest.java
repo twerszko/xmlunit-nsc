@@ -43,7 +43,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.custommonkey.xmlunit.builders.BuilderException;
+import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
