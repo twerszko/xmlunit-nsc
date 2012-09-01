@@ -46,9 +46,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
 
 import net.sf.xmlunit.TestResources;
 
@@ -59,6 +61,25 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class ValidatorTest {
+
+    // RELAX NG support; read more: http://stackoverflow.com/a/2104332/563175
+    private final String RELAX_NG_SCHEMA_FACTORY_KEY =
+            SchemaFactory.class.getName() + ":" + XMLConstants.RELAXNG_NS_URI;
+    private final String RELAX_NG_SCHEMA_FACTORY_CLASS = "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory";
+    private final String systemRelaxNgSchemaFactory = System.getProperty(RELAX_NG_SCHEMA_FACTORY_KEY);
+
+    private void replaceRelaxNgSchemaFactorySysProp() {
+        System.setProperty(RELAX_NG_SCHEMA_FACTORY_KEY, RELAX_NG_SCHEMA_FACTORY_CLASS);
+    }
+
+    private void restoreRelaxNgSchemaFactorySysProp() {
+        if (systemRelaxNgSchemaFactory == null) {
+            Properties sysProps = System.getProperties();
+            sysProps.remove(RELAX_NG_SCHEMA_FACTORY_KEY);
+        } else {
+            System.setProperty(RELAX_NG_SCHEMA_FACTORY_KEY, systemRelaxNgSchemaFactory);
+        }
+    }
 
     @Test
     public void should_check_if_schema_is_valid() throws IOException {
@@ -217,46 +238,61 @@ public class ValidatorTest {
 
     @Test
     public void should_check_if_relaxNG_schema_is_valid() throws IOException {
-        // given
-        StreamSource source = new StreamSource(TestResources.BOOK_RNG.getFile());
-        Validator validator = new Validator(XMLConstants.RELAXNG_NS_URI);
+        replaceRelaxNgSchemaFactorySysProp();
+        try {
+            // given
+            StreamSource source = new StreamSource(TestResources.BOOK_RNG.getFile());
+            Validator validator = new Validator(XMLConstants.RELAXNG_NS_URI);
 
-        // when
-        validator.addSchemaSource(source);
+            // when
+            validator.addSchemaSource(source);
 
-        // then
-        assertTrue(validator.isSchemaValid());
+            // then
+            assertTrue(validator.isSchemaValid());
+        } finally {
+            restoreRelaxNgSchemaFactorySysProp();
+        }
     }
 
     @Test
     public void should_check_valid_instance_with_relaxNG_schema() throws IOException {
-        // given
-        StreamSource source = new StreamSource(TestResources.BOOK_RNG.getFile());
-        StreamSource instance = new StreamSource(TestResources.BOOK_XSD_GENERATED_NO_SCHEMA.getFile());
-        Validator validator = new Validator(XMLConstants.RELAXNG_NS_URI);
+        replaceRelaxNgSchemaFactorySysProp();
+        try {
+            // given
+            StreamSource source = new StreamSource(TestResources.BOOK_RNG.getFile());
+            StreamSource instance = new StreamSource(TestResources.BOOK_XSD_GENERATED_NO_SCHEMA.getFile());
+            Validator validator = new Validator(XMLConstants.RELAXNG_NS_URI);
 
-        // when
-        validator.addSchemaSource(source);
+            // when
+            validator.addSchemaSource(source);
 
-        // then
-        assertTrue(validator.isInstanceValid(instance));
+            // then
+            assertTrue(validator.isInstanceValid(instance));
+        } finally {
+            restoreRelaxNgSchemaFactorySysProp();
+        }
     }
 
     @Test
     public void XtestBadInstanceIsInvalidRNG() throws IOException {
-        // given
-        StreamSource source = new StreamSource(TestResources.BOOK_RNG.getFile());
-        StreamSource instance = new StreamSource(TestResources.INVALID_BOOK.getFile());
-        Validator validator = new Validator(XMLConstants.RELAXNG_NS_URI);
+        replaceRelaxNgSchemaFactorySysProp();
+        try {
+            // given
+            StreamSource source = new StreamSource(TestResources.BOOK_RNG.getFile());
+            StreamSource instance = new StreamSource(TestResources.INVALID_BOOK.getFile());
+            Validator validator = new Validator(XMLConstants.RELAXNG_NS_URI);
 
-        // when
-        validator.addSchemaSource(source);
-        List<SAXParseException> listOfErrors = validator.getInstanceErrors(instance);
+            // when
+            validator.addSchemaSource(source);
+            List<SAXParseException> listOfErrors = validator.getInstanceErrors(instance);
 
-        // then
-        assertThat(listOfErrors.size(), is(greaterThan(0)));
-        for (SAXParseException ex : listOfErrors) {
-            assertTrue(ex instanceof SAXParseException);
+            // then
+            assertThat(listOfErrors.size(), is(greaterThan(0)));
+            for (SAXParseException ex : listOfErrors) {
+                assertTrue(ex instanceof SAXParseException);
+            }
+        } finally {
+            restoreRelaxNgSchemaFactorySysProp();
         }
     }
 

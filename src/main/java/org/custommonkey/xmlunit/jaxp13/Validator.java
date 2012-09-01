@@ -39,7 +39,6 @@ package org.custommonkey.xmlunit.jaxp13;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.validation.SchemaFactory;
 
@@ -62,13 +61,6 @@ import org.xml.sax.SAXParseException;
  * </p>
  */
 public class Validator {
-
-    // RELAX NG support; read more: http://stackoverflow.com/a/2104332/563175
-    static {
-        System.setProperty(SchemaFactory.class.getName() + ":" + XMLConstants.RELAXNG_NS_URI,
-                "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory");
-    }
-
     private final ArrayList<Source> sources = new ArrayList<Source>();
     private final JAXPValidator validator;
 
