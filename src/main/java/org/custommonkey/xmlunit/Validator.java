@@ -283,6 +283,7 @@ public class Validator extends DefaultHandler {
     /**
      * Assert that a document is valid.
      */
+    // TODO remove junit
     public void assertIsValid() {
         if (!isValid()) {
             junit.framework.Assert.fail(messages.toString());
@@ -394,8 +395,7 @@ public class Validator extends DefaultHandler {
         this.schemaSource = schemaSource;
     }
 
-    private static void addSchemaSources(Object schemaSources,
-            List<Source> targetList) {
+    private void addSchemaSources(Object schemaSources, List<Source> targetList) {
         // TODO split
         if (schemaSources instanceof String) {
             targetList.add(new StreamSource((String) schemaSources));

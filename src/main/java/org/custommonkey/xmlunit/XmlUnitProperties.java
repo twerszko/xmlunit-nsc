@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
@@ -20,6 +21,8 @@ public class XmlUnitProperties implements Cloneable {
     private boolean ignoreAttributeOrder = true;
     private boolean expandEntityReference = false;
     private boolean ignoreDiffBetweenTextAndCDATA = false;
+    private Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass;
+    private Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass;
 
     public boolean getIgnoreWhitespace() {
         return ignoreWhitespace;
@@ -283,6 +286,31 @@ public class XmlUnitProperties implements Cloneable {
      */
     public boolean getIgnoreDiffBetweenTextAndCDATA() {
         return ignoreDiffBetweenTextAndCDATA;
+    }
+
+    // TODO docu
+    /**
+     * Override the <code>DocumentBuilderFactory</code> used to instantiate
+     * parsers for the test XML in an XMLTestCase.
+     */
+    @Nullable
+    public Class<? extends DocumentBuilderFactory> getControlDocumentBuilderFactoryClass() {
+        return controlDocumentBuilderFactoryClass;
+    }
+
+    public void setControlDocumentBuilderFactoryClass(
+            @Nullable Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactory) {
+        this.controlDocumentBuilderFactoryClass = controlDocumentBuilderFactory;
+    }
+
+    @Nullable
+    public Class<? extends DocumentBuilderFactory> getTestDocumentBuilderFactoryClass() {
+        return testDocumentBuilderFactoryClass;
+    }
+
+    public void setTestDocumentBuilderFactoryClass(
+            @Nullable Class<? extends DocumentBuilderFactory> testDocumentBuilderFactory) {
+        this.testDocumentBuilderFactoryClass = testDocumentBuilderFactory;
     }
 
     @Override

@@ -1,16 +1,18 @@
-//  Copyright 2012 Tomasz Werszko
-//		
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//	
-//	Unless required by applicable law or agreed to in writing, software
-//	distributed under the License is distributed on an "AS IS" BASIS,
-//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//	See the License for the specific language governing permissions and
-//	limitations under the License.
+/*  
+    Copyright 2012 Tomasz Werszko
+    	
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ */
 
 package org.custommonkey.xmlunit.util;
 
@@ -43,8 +45,8 @@ import org.xml.sax.SAXException;
 // TODO maybe change of name?
 public class DocumentUtils {
 
-    private DocumentBuilderFactory controlBuilderFactory;
-    private DocumentBuilderFactory testBuilderFactory;
+    private final DocumentBuilderFactory controlBuilderFactory;
+    private final DocumentBuilderFactory testBuilderFactory;
     private EntityResolver testEntityResolver = null;
     private EntityResolver controlEntityResolver = null;
 
@@ -55,13 +57,30 @@ public class DocumentUtils {
     public DocumentUtils(XmlUnitProperties properties) {
         properties = properties.clone();
 
-        controlBuilderFactory = DocumentBuilderFactory.newInstance();
+        Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass =
+                properties.getControlDocumentBuilderFactoryClass();
+        Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass =
+                properties.getTestDocumentBuilderFactoryClass();
+
+        if (controlDocumentBuilderFactoryClass == null) {
+            controlBuilderFactory = DocumentBuilderFactory.newInstance();
+        } else {
+            controlBuilderFactory = DocumentBuilderFactory.newInstance(
+                    controlDocumentBuilderFactoryClass.getName(),
+                    getClass().getClassLoader());
+        }
         controlBuilderFactory.setNamespaceAware(true);
         controlBuilderFactory.setIgnoringElementContentWhitespace(properties.getIgnoreWhitespace());
         controlBuilderFactory.setExpandEntityReferences(properties.getExpandEntityReferences());
         controlBuilderFactory.setCoalescing(properties.getIgnoreDiffBetweenTextAndCDATA());
 
-        testBuilderFactory = DocumentBuilderFactory.newInstance();
+        if (testDocumentBuilderFactoryClass == null) {
+            testBuilderFactory = DocumentBuilderFactory.newInstance();
+        } else {
+            testBuilderFactory = DocumentBuilderFactory.newInstance(
+                    testDocumentBuilderFactoryClass.getName(),
+                    getClass().getClassLoader());
+        }
         testBuilderFactory.setNamespaceAware(true);
         testBuilderFactory.setIgnoringElementContentWhitespace(properties.getIgnoreWhitespace());
         testBuilderFactory.setExpandEntityReferences(properties.getExpandEntityReferences());
@@ -69,18 +88,6 @@ public class DocumentUtils {
     }
 
     // TODO constructor without properties
-
-    /**
-     * Override the <code>DocumentBuilderFactory</code> used to instantiate
-     * parsers for the control XML.
-     */
-    public void setControlDocumentBuilderFactory(DocumentBuilderFactory factory) {
-        if (factory == null) {
-            throw new IllegalArgumentException("Cannot set control DocumentBuilderFactory to null!");
-        }
-        controlBuilderFactory = factory;
-    }
-
     /**
      * Get the <code>DocumentBuilderFactory</code> instance used to instantiate
      * parsers for the control XML.
@@ -99,17 +106,6 @@ public class DocumentUtils {
      */
     public DocumentBuilderFactory getTestDocumentBuilderFactory() {
         return testBuilderFactory;
-    }
-
-    /**
-     * Override the <code>DocumentBuilderFactory</code> used to instantiate
-     * parsers for the test XML in an XMLTestCase.
-     */
-    public void setTestDocumentBuilderFactory(DocumentBuilderFactory factory) {
-        if (factory == null) {
-            throw new IllegalArgumentException("Cannot set test DocumentBuilderFactory to null!");
-        }
-        testBuilderFactory = factory;
     }
 
     /**
@@ -229,38 +225,13 @@ public class DocumentUtils {
     }
 
     /**
-     * Overide the DocumentBuilder to use to parse control documents. This is
-     * useful when comparing the output of two different parsers. Note: setting
-     * the control parser before any test cases are run will affect the test
-     * parser as well.
-     */
-    // TODO
-    public void setControlParser(String className) {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", className);
-        controlBuilderFactory = DocumentBuilderFactory.newInstance();
-        controlBuilderFactory.setNamespaceAware(true);
-    }
-
-    /**
-     * Overide the DocumentBuilder to use to parser test documents. This is
-     * useful when comparing the output of two different parsers. Note: setting
-     * the test parser before any test cases are run will affect the control
-     * parser as well.
-     */
-    // TODO
-    public void setTestParser(String className) {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", className);
-        testBuilderFactory = DocumentBuilderFactory.newInstance();
-        testBuilderFactory.setNamespaceAware(true);
-    }
-
-    /**
      * Get the <code>DocumentBuilder</code> instance used to parse the control
      * XML.
      * 
      * @return parser for control values
      * @throws ConfigurationException
      */
+    // TODO change name?
     public DocumentBuilder newControlParser()
             throws ConfigurationException {
         try {

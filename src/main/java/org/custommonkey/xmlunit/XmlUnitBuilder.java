@@ -1,6 +1,7 @@
 package org.custommonkey.xmlunit;
 
 import javax.annotation.Nullable;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
@@ -176,6 +177,19 @@ public class XmlUnitBuilder {
      */
     public XmlUnitBuilder ignoringDiffBetweenTextAndCDATA(boolean ignore) {
         properties.setIgnoreDiffBetweenTextAndCDATA(ignore);
+        return this;
+    }
+
+    // TODO: docu
+    public XmlUnitBuilder usingControlDocumentBuilderFactoryClass(
+            @Nullable Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactory) {
+        properties.setControlDocumentBuilderFactoryClass(controlDocumentBuilderFactory);
+        return this;
+    }
+
+    public XmlUnitBuilder usingTestDocumentBuilderFactory(
+            @Nullable Class<? extends DocumentBuilderFactory> testDocumentBuilderFactory) {
+        properties.setTestDocumentBuilderFactoryClass(testDocumentBuilderFactory);
         return this;
     }
 

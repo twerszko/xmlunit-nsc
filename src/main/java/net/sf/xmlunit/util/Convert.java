@@ -10,17 +10,17 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -32,8 +32,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
 import net.sf.xmlunit.exceptions.ConfigurationException;
 import net.sf.xmlunit.exceptions.XMLUnitException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -42,13 +44,16 @@ import org.xml.sax.InputSource;
  * Conversion methods.
  */
 public final class Convert {
-    private Convert() { }
+    private Convert() {
+    }
 
     /**
      * Creates a SAX InputSource from a TraX Source.
-     *
-     * <p>May use an XSLT identity transformation if SAXSource cannot
-     * convert it directly.</p>
+     * 
+     * <p>
+     * May use an XSLT identity transformation if SAXSource cannot convert it
+     * directly.
+     * </p>
      */
     public static InputSource toInputSource(Source s) {
         try {
@@ -60,7 +65,7 @@ public final class Convert {
                 Transformer t = fac.newTransformer();
                 t.transform(s, r);
                 s = new StreamSource(new ByteArrayInputStream(bos
-                                                              .toByteArray()));
+                        .toByteArray()));
                 is = SAXSource.sourceToInputSource(s);
             }
             return is;
@@ -73,32 +78,34 @@ public final class Convert {
 
     /**
      * Creates a DOM Document from a TraX Source.
-     *
-     * <p>If the source is a {@link DOMSource} holding a Document
-     * Node, this one will be returned.  Otherwise {@link
-     * #toInputSource} and a namespace aware DocumentBuilder (created
-     * by the default DocumentBuilderFactory) will be used to read the
-     * source.  This may involve an XSLT identity transform in
-     * toInputSource.</p>
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} holding a Document Node, this one
+     * will be returned. Otherwise {@link #toInputSource} and a namespace aware
+     * DocumentBuilder (created by the default DocumentBuilderFactory) will be
+     * used to read the source. This may involve an XSLT identity transform in
+     * toInputSource.
+     * </p>
      */
     public static Document toDocument(Source s) {
         Document d = tryExtractDocFromDOMSource(s);
-        return d != null ? d 
-            : toDocument(s, DocumentBuilderFactory.newInstance());
+        return d != null ? d
+                : toDocument(s, DocumentBuilderFactory.newInstance());
     }
 
     /**
      * Creates a DOM Document from a TraX Source.
-     *
-     * <p>If the source is a {@link DOMSource} holding a Document
-     * Node, this one will be returned.  Otherwise {@link
-     * #toInputSource} and a namespace aware DocumentBuilder (created
-     * by given DocumentBuilderFactory) will be used to read the
-     * source.  This may involve an XSLT identity transform in
-     * toInputSource.</p>
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} holding a Document Node, this one
+     * will be returned. Otherwise {@link #toInputSource} and a namespace aware
+     * DocumentBuilder (created by given DocumentBuilderFactory) will be used to
+     * read the source. This may involve an XSLT identity transform in
+     * toInputSource.
+     * </p>
      */
     public static Document toDocument(Source s,
-                                      DocumentBuilderFactory factory) {
+            DocumentBuilderFactory factory) {
         Document d = tryExtractDocFromDOMSource(s);
         if (d == null) {
             InputSource is = toInputSource(s);
@@ -134,7 +141,7 @@ public final class Convert {
     private static Document tryExtractDocFromDOMSource(Source s) {
         Node n = tryExtractNodeFromDOMSource(s);
         if (n != null && n instanceof Document) {
-            @SuppressWarnings("unchecked") Document d = (Document) n;
+            Document d = (Document) n;
             return d;
         }
         return null;
@@ -142,31 +149,35 @@ public final class Convert {
 
     /**
      * Creates a DOM Node from a TraX Source.
-     *
-     * <p>If the source is a {@link DOMSource} its Node will be
-     * returned, otherwise this delegates to {@link #toDocument}.</p>
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} its Node will be returned, otherwise
+     * this delegates to {@link #toDocument}.
+     * </p>
      */
     public static Node toNode(Source s) {
         Node n = tryExtractNodeFromDOMSource(s);
-        return n != null ? n 
-            : toDocument(s, DocumentBuilderFactory.newInstance());
+        return n != null ? n
+                : toDocument(s, DocumentBuilderFactory.newInstance());
     }
 
     /**
      * Creates a DOM Node from a TraX Source.
-     *
-     * <p>If the source is a {@link DOMSource} its Node will be
-     * returned, otherwise this delegates to {@link #toDocument}.</p>
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} its Node will be returned, otherwise
+     * this delegates to {@link #toDocument}.
+     * </p>
      */
     public static Node toNode(Source s,
-                              DocumentBuilderFactory factory) {
+            DocumentBuilderFactory factory) {
         Node n = tryExtractNodeFromDOMSource(s);
         return n != null ? n : toDocument(s, factory);
     }
 
     private static Node tryExtractNodeFromDOMSource(Source s) {
         if (s instanceof DOMSource) {
-            @SuppressWarnings("unchecked") DOMSource ds = (DOMSource) s;
+            DOMSource ds = (DOMSource) s;
             return ds.getNode();
         }
         return null;
@@ -176,9 +187,9 @@ public final class Convert {
      * Creates a JAXP NamespaceContext from a Map prefix =&gt; Namespace URI.
      */
     public static NamespaceContext
-        toNamespaceContext(Map<String, String> prefix2URI) {
+            toNamespaceContext(Map<String, String> prefix2URI) {
         final Map<String, String> copy =
-            new LinkedHashMap<String, String>(prefix2URI);
+                new LinkedHashMap<String, String>(prefix2URI);
         return new NamespaceContext() {
             public String getNamespaceURI(String prefix) {
                 if (prefix == null) {

@@ -10,18 +10,21 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.exceptions;
 
 /**
  * Base class of any Exception thrown within XMLUnit.
  */
+@SuppressWarnings("serial")
 public class XMLUnitException extends RuntimeException {
     /**
      * Inititializes the exception.
-     *
-     * @param message the detail message
-     * @param cause the root cause of the exception
+     * 
+     * @param message
+     *            the detail message
+     * @param cause
+     *            the root cause of the exception
      */
     public XMLUnitException(String message, Throwable cause) {
         super(message, cause);
@@ -29,8 +32,9 @@ public class XMLUnitException extends RuntimeException {
 
     /**
      * Inititializes an exception without cause.
-     *
-     * @param message the detail message
+     * 
+     * @param message
+     *            the detail message
      */
     public XMLUnitException(String message) {
         this(message, null);
@@ -38,8 +42,9 @@ public class XMLUnitException extends RuntimeException {
 
     /**
      * Inititializes an exception using the wrapped exception's message.
-     *
-     * @param cause the root cause of the exception
+     * 
+     * @param cause
+     *            the root cause of the exception
      */
     public XMLUnitException(Throwable cause) {
         this(cause != null ? cause.getMessage() : null, cause);
