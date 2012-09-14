@@ -21,6 +21,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,48 +45,19 @@ import org.xml.sax.SAXException;
  * 
  */
 // TODO maybe change of name?
+@NotThreadSafe
 public class DocumentUtils {
 
-    private final DocumentBuilderFactory controlBuilderFactory;
-    private final DocumentBuilderFactory testBuilderFactory;
-    private EntityResolver testEntityResolver = null;
-    private EntityResolver controlEntityResolver = null;
+    private final XmlUnitProperties properties;
+    private EntityResolver testEntityResolver;
+    private EntityResolver controlEntityResolver;
 
     public DocumentUtils() {
         this(new XmlUnitProperties());
     }
 
     public DocumentUtils(XmlUnitProperties properties) {
-        properties = properties.clone();
-
-        Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass =
-                properties.getControlDocumentBuilderFactoryClass();
-        Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass =
-                properties.getTestDocumentBuilderFactoryClass();
-
-        if (controlDocumentBuilderFactoryClass == null) {
-            controlBuilderFactory = DocumentBuilderFactory.newInstance();
-        } else {
-            controlBuilderFactory = DocumentBuilderFactory.newInstance(
-                    controlDocumentBuilderFactoryClass.getName(),
-                    getClass().getClassLoader());
-        }
-        controlBuilderFactory.setNamespaceAware(true);
-        controlBuilderFactory.setIgnoringElementContentWhitespace(properties.getIgnoreWhitespace());
-        controlBuilderFactory.setExpandEntityReferences(properties.getExpandEntityReferences());
-        controlBuilderFactory.setCoalescing(properties.getIgnoreDiffBetweenTextAndCDATA());
-
-        if (testDocumentBuilderFactoryClass == null) {
-            testBuilderFactory = DocumentBuilderFactory.newInstance();
-        } else {
-            testBuilderFactory = DocumentBuilderFactory.newInstance(
-                    testDocumentBuilderFactoryClass.getName(),
-                    getClass().getClassLoader());
-        }
-        testBuilderFactory.setNamespaceAware(true);
-        testBuilderFactory.setIgnoringElementContentWhitespace(properties.getIgnoreWhitespace());
-        testBuilderFactory.setExpandEntityReferences(properties.getExpandEntityReferences());
-        testBuilderFactory.setCoalescing(properties.getIgnoreDiffBetweenTextAndCDATA());
+        this.properties = properties.clone();
     }
 
     // TODO constructor without properties
@@ -94,8 +67,10 @@ public class DocumentUtils {
      * 
      * @return factory for control parsers
      */
-    public DocumentBuilderFactory getControlDocumentBuilderFactory() {
-        return controlBuilderFactory;
+    public DocumentBuilderFactory newControlDocumentBuilderFactory() {
+        Class<? extends DocumentBuilderFactory> controlFactoryClass =
+                properties.getControlDocumentBuilderFactoryClass();
+        return newDocumentBuilderFactory(controlFactoryClass);
     }
 
     /**
@@ -104,8 +79,27 @@ public class DocumentUtils {
      * 
      * @return factory for test parsers
      */
-    public DocumentBuilderFactory getTestDocumentBuilderFactory() {
-        return testBuilderFactory;
+    public DocumentBuilderFactory newTestDocumentBuilderFactory() {
+        Class<? extends DocumentBuilderFactory> testFactoryClass =
+                properties.getTestDocumentBuilderFactoryClass();
+        return newDocumentBuilderFactory(testFactoryClass);
+    }
+
+    private DocumentBuilderFactory newDocumentBuilderFactory(
+            @Nullable Class<? extends DocumentBuilderFactory> factoryClass) {
+
+        DocumentBuilderFactory factory;
+        if (factoryClass == null) {
+            factory = DocumentBuilderFactory.newInstance();
+        } else {
+            factory = DocumentBuilderFactory.newInstance(factoryClass.getName(), factoryClass.getClassLoader());
+        }
+        factory.setNamespaceAware(true);
+        factory.setIgnoringElementContentWhitespace(properties.getIgnoreWhitespace());
+        factory.setExpandEntityReferences(properties.getExpandEntityReferences());
+        factory.setCoalescing(properties.getIgnoreDiffBetweenTextAndCDATA());
+
+        return factory;
     }
 
     /**
@@ -147,9 +141,8 @@ public class DocumentUtils {
      * @throws SAXException
      * @throws IOException
      */
-    public Document buildControlDocument(String fromXML)
-            throws SAXException, IOException {
-        return buildDocument(newControlParser(), new StringReader(fromXML));
+    public Document buildControlDocument(String fromXML) throws SAXException, IOException {
+        return buildDocument(newControlDocumentBuilder(), new StringReader(fromXML));
     }
 
     /**
@@ -163,7 +156,7 @@ public class DocumentUtils {
      */
     public Document buildControlDocument(InputSource fromSource)
             throws IOException, SAXException {
-        return buildDocument(newControlParser(), fromSource);
+        return buildDocument(newControlDocumentBuilder(), fromSource);
     }
 
     /**
@@ -177,7 +170,7 @@ public class DocumentUtils {
      */
     public Document buildTestDocument(String fromXML)
             throws SAXException, IOException {
-        return buildDocument(newTestParser(), new StringReader(fromXML));
+        return buildDocument(newTestDocumentBuilder(), new StringReader(fromXML));
     }
 
     /**
@@ -191,7 +184,7 @@ public class DocumentUtils {
      */
     public Document buildTestDocument(InputSource fromSource)
             throws IOException, SAXException {
-        return buildDocument(newTestParser(), fromSource);
+        return buildDocument(newTestDocumentBuilder(), fromSource);
     }
 
     /**
@@ -232,10 +225,9 @@ public class DocumentUtils {
      * @throws ConfigurationException
      */
     // TODO change name?
-    public DocumentBuilder newControlParser()
-            throws ConfigurationException {
+    public DocumentBuilder newControlDocumentBuilder() throws ConfigurationException {
         try {
-            DocumentBuilder builder = controlBuilderFactory.newDocumentBuilder();
+            DocumentBuilder builder = newControlDocumentBuilderFactory().newDocumentBuilder();
             if (controlEntityResolver != null) {
                 builder.setEntityResolver(controlEntityResolver);
             }
@@ -251,10 +243,9 @@ public class DocumentUtils {
      * @return parser for test values
      * @throws ConfigurationException
      */
-    public DocumentBuilder newTestParser()
-            throws ConfigurationException {
+    public DocumentBuilder newTestDocumentBuilder() throws ConfigurationException {
         try {
-            DocumentBuilder builder = testBuilderFactory.newDocumentBuilder();
+            DocumentBuilder builder = newTestDocumentBuilderFactory().newDocumentBuilder();
             if (testEntityResolver != null) {
                 builder.setEntityResolver(testEntityResolver);
             }
@@ -262,6 +253,20 @@ public class DocumentUtils {
         } catch (ParserConfigurationException ex) {
             throw new ConfigurationException(ex);
         }
+    }
+
+    /**
+     * Get a fresh transformer to use for XSLT transformations (and by
+     * implication serialization and XPaths).
+     * 
+     * @return a new instance of the default transformer factory
+     */
+    public TransformerFactory newTransformerFactory() {
+        TransformerFactory tf = TransformerFactory.newInstance();
+        if (properties.getUriResolver() != null) {
+            tf.setURIResolver(properties.getUriResolver());
+        }
+        return tf;
     }
 
     /**

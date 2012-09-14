@@ -76,7 +76,7 @@ public class NodeTest {
      */
     public NodeTest(DocumentUtils documentUtils, Reader reader) throws SAXException,
             IOException {
-        this(documentUtils.buildDocument(documentUtils.newControlParser(), reader));
+        this(documentUtils.buildDocument(documentUtils.newControlDocumentBuilder(), reader));
     }
 
     /**
@@ -84,7 +84,7 @@ public class NodeTest {
      */
     public NodeTest(DocumentUtils documentUtils, InputSource src) throws SAXException,
             IOException {
-        this(documentUtils.buildDocument(documentUtils.newControlParser(), src));
+        this(documentUtils.buildDocument(documentUtils.newControlDocumentBuilder(), src));
     }
 
     /**

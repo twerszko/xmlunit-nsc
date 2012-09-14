@@ -62,7 +62,7 @@ public class test_HTMLDocumentBuilder {
     public void setUp() throws Exception {
         DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
         xHtmlDocument = documentUtils.buildControlDocument(xHtml);
-        builder = new TolerantSaxDocumentBuilder(documentUtils.newTestParser());
+        builder = new TolerantSaxDocumentBuilder(documentUtils.newTestDocumentBuilder());
         parser = new HTMLDocumentBuilder(builder);
     }
 

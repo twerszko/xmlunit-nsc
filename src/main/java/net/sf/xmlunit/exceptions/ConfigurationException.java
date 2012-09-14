@@ -10,13 +10,14 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.exceptions;
 
 /**
- * Exception thrown when anything inside JAXP throws a
- * *ConfigurationException.
+ * Exception thrown when anything inside JAXP throws a *ConfigurationException.
  */
+// TODO: remove
+@SuppressWarnings("serial")
 public class ConfigurationException extends XMLUnitException {
     public ConfigurationException(Throwable cause) {
         super(cause);

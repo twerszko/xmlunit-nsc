@@ -36,10 +36,10 @@ public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<X
 		DocumentUtils documentUtils = new DocumentUtils(getXmlUnit().getProperties());
 
 		expectedXpathDocument = asXpathResultDocument(
-		        documentUtils.newControlParser(),
+		        documentUtils.newControlDocumentBuilder(),
 		        xpath.getMatchingNodes(expectedXpath, expectedDocument));
 		actualXpathDocument = asXpathResultDocument(
-		        documentUtils.newTestParser(),
+		        documentUtils.newTestDocumentBuilder(),
 		        xpath.getMatchingNodes(actualXpath, actualDocument));
 		Diff diff;
 		try {

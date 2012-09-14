@@ -41,13 +41,16 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.TransformerException;
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
+import net.sf.xmlunit.builder.Input;
+import net.sf.xmlunit.builder.Transform;
+import net.sf.xmlunit.builder.Transform.TransformationResult;
+
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
-import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -225,8 +228,15 @@ public final class XMLUnit {
      * @param forDocument
      * @return a <code>Transform</code> to do the whitespace stripping
      */
-    public Transform getStripWhitespaceTransform(Document forDocument) {
-        return new Transform(forDocument, getStripWhitespaceStylesheet());
+    public TransformationResult getStripWhitespaceTransform(Document forDocument) {
+        Source source = Input.fromDocument(forDocument).build();
+        Source stylesheet = Input.fromMemory(getStripWhitespaceStylesheet()).build();
+
+        TransformationResult transformationResult = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .usingFactory(XMLUnit.getTransformerFactory())
+                .build();
+        return transformationResult;
     }
 
     /**
@@ -249,12 +259,7 @@ public final class XMLUnit {
     }
 
     private Document stripWhiteSpaceUsingXSLT(Document forDoc) {
-        try {
-            Transform whitespaceStripper = getStripWhitespaceTransform(forDoc);
-            return whitespaceStripper.getResultDocument();
-        } catch (TransformerException e) {
-            throw new XMLUnitRuntimeException(e.getMessage(), e.getCause());
-        }
+        return getStripWhitespaceTransform(forDoc).toDocument();
     }
 
     private static Document stripWhiteSpaceWithoutXSLT(Document forDoc) {
@@ -290,8 +295,17 @@ public final class XMLUnit {
      * @param forDocument
      * @return a <code>Transform</code> to do the whitespace stripping
      */
-    public Transform getStripCommentsTransform(Document forDocument) {
-        return new Transform(forDocument, getStripCommentsStylesheet());
+    public TransformationResult getStripCommentsTransform(Document forDocument) {
+        Source source = Input.fromNode(forDocument).build();
+        String stylesheetString = getStripCommentsStylesheet();
+        Source stylesheet = Input.fromMemory(stylesheetString).build();
+
+        TransformationResult transformationResult = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .usingFactory(XMLUnit.getTransformerFactory())
+                .build();
+
+        return transformationResult;
     }
 
     /**

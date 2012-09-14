@@ -67,6 +67,7 @@ import org.xml.sax.InputSource;
  * Examples and more at <a
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
+@Deprecated
 public class Transform {
     private static final File PWD = new File(".");
 
@@ -150,6 +151,7 @@ public class Transform {
                 stylesheet == null ? null : Input.fromFile(stylesheet));
     }
 
+    // TODO decrease number of constructors
     private Transform(Input.Builder input, Input.Builder stylesheet) {
         this(input == null ? null : input.build(),
                 stylesheet == null ? null : stylesheet.build());

@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,22 +31,32 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Properties;
+
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
+
+import net.sf.xmlunit.builder.Input;
+import net.sf.xmlunit.builder.Transform;
+import net.sf.xmlunit.builder.Transform.Builder;
+
 import org.w3c.dom.Node;
 
 /**
  * Adapter class to present the content of a DOM Node (e.g. a Document) as an
- * InputStream using a DOM to Stream transformation.
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * InputStream using a DOM to Stream transformation. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class NodeInputStream extends InputStream {
     private final Node rootNode;
@@ -56,7 +66,9 @@ public class NodeInputStream extends InputStream {
 
     /**
      * Simple constructor
-     * @param rootNode the node to be presented as an input stream
+     * 
+     * @param rootNode
+     *            the node to be presented as an input stream
      */
     public NodeInputStream(Node rootNode) {
         this(rootNode, null);
@@ -64,43 +76,61 @@ public class NodeInputStream extends InputStream {
 
     /**
      * Simple constructor
-     * @param rootNode the node to be presented as an input stream
+     * 
+     * @param rootNode
+     *            the node to be presented as an input stream
      */
     public NodeInputStream(Node rootNode, Properties outputProperties) {
         this.rootNode = rootNode;
         nodeContentBytes = new ByteArrayOutputStream();
-        this.outputProperties = outputProperties;
+        if (outputProperties == null) {
+            this.outputProperties = new Properties();
+        } else {
+            this.outputProperties = outputProperties;
+        }
     }
 
     /**
      * Do the actual work of serializing the node to bytes
-     * @throws IOException if serialization goes awry
+     * 
+     * @throws IOException
+     *             if serialization goes awry
      */
     private void ensureContentAvailable() throws IOException {
         if (nodeContentBytes.size() > 0) {
             return;
         }
         try {
-            Transform serializeTransform = new Transform(rootNode);
-            if (outputProperties!=null) {
-                serializeTransform.setOutputProperties(outputProperties);
+            Source source = Input.fromNode(rootNode).build();
+            Builder transformBuilder = Transform.source(source)
+                    .usingFactory(XMLUnit.getTransformerFactory());
+            Iterator<Entry<Object, Object>> it = outputProperties.entrySet().iterator();
+            while (it.hasNext()) {
+                Entry<Object, Object> entry = it.next();
+                String key = (String) entry.getKey();
+                String value = (String) entry.getValue();
+                if (key != null && value != null) {
+                    transformBuilder.withOutputProperty(key, value);
+                }
             }
+
             StreamResult byteResult = new StreamResult(nodeContentBytes);
-            serializeTransform.transformTo(byteResult);
+            transformBuilder.build().to(byteResult);
         } catch (Exception e) {
             throw new IOException("Unable to serialize document to outputstream: "
-                                  + e.toString());
+                    + e.toString());
         }
     }
 
     /**
      * InputStream method
+     * 
      * @return byte as read
      * @throws IOException
      */
     public int read() throws IOException {
         ensureContentAvailable();
-        if (reallyAvailable()==0) {
+        if (reallyAvailable() == 0) {
             return -1;
         }
         int contentByte = nodeContentBytes.toByteArray()[atPos];
@@ -109,8 +139,9 @@ public class NodeInputStream extends InputStream {
     }
 
     /**
-     * InputStream method
-     * Note that calling close allows a repeated read of the content
+     * InputStream method Note that calling close allows a repeated read of the
+     * content
+     * 
      * @throws IOException
      */
     public void close() throws IOException {
@@ -119,6 +150,7 @@ public class NodeInputStream extends InputStream {
 
     /**
      * InputStream method
+     * 
      * @return number of bytes available
      */
     public int available() throws IOException {

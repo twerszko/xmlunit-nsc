@@ -87,7 +87,7 @@ public class test_NewDifferenceEngine extends TestCase {
 
         resetListener();
         engine = new NewDifferenceEngine(properties, PSEUDO_DIFF);
-        DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlParser();
+        DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
         document = documentBuilder.newDocument();
     }
 

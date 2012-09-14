@@ -85,7 +85,7 @@ public class DiffTest {
 	@Before
 	public void setUp() throws Exception {
 		properties = new XmlUnitProperties();
-		aDocument = new DocumentUtils(properties).newControlParser().newDocument();
+		aDocument = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
 	}
 
 	protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) {
@@ -1012,7 +1012,7 @@ public class DiffTest {
 	@Test
 	public void should_check_normalization() {
 		// given
-		Document control = new DocumentUtils(properties).newControlParser().newDocument();
+		Document control = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
 		Element root = control.createElement("root");
 		control.appendChild(root);
 		root.appendChild(control.createTextNode("Text 1"));
@@ -1021,7 +1021,7 @@ public class DiffTest {
 		root.appendChild(inner);
 		inner.appendChild(control.createTextNode("Text 3 and 4"));
 
-		Document test = new DocumentUtils(properties).newTestParser().newDocument();
+		Document test = new DocumentUtils(properties).newTestDocumentBuilder().newDocument();
 		root = test.createElement("root");
 		test.appendChild(root);
 		root.appendChild(test.createTextNode("Text 1 and 2"));

@@ -101,7 +101,7 @@ public class DifferenceTest {
     @Test
     public void should_check_toString2() {
         // given
-        Document document = new DocumentUtils(new XmlUnitProperties()).newControlParser().newDocument();
+        Document document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
         Node controlNode = document.createComment("control");
         NodeDetail controlNodeDetail = new NodeDetail(
                 controlNode.getNodeValue(),

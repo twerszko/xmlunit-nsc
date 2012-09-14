@@ -2,6 +2,7 @@ package org.custommonkey.xmlunit;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.URIResolver;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
@@ -187,9 +188,17 @@ public class XmlUnitBuilder {
         return this;
     }
 
-    public XmlUnitBuilder usingTestDocumentBuilderFactory(
+    public XmlUnitBuilder usingTestDocumentBuilderFactoryClass(
             @Nullable Class<? extends DocumentBuilderFactory> testDocumentBuilderFactory) {
         properties.setTestDocumentBuilderFactoryClass(testDocumentBuilderFactory);
+        return this;
+    }
+
+    /**
+     * Sets the URIResolver to use during transformations.
+     */
+    public XmlUnitBuilder usingUriResolver(@Nullable URIResolver uriResolver) {
+        properties.setUriResolver(uriResolver);
         return this;
     }
 

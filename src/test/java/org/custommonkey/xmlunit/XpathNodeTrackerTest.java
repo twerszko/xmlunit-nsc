@@ -124,7 +124,7 @@ public class XpathNodeTrackerTest {
 
     @Test
     public void should_check_nodes() {
-        Document doc = documentUtils.newControlParser().newDocument();
+        Document doc = documentUtils.newControlDocumentBuilder().newDocument();
         Element element = doc.createElementNS("http://example.com/xmlunit", "eg:root");
         xpathNodeTracker.visited(element);
         assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]");
@@ -156,7 +156,7 @@ public class XpathNodeTrackerTest {
 
     @Test
     public void should_check_repeat_nodes_for_test_tracker() {
-        Document doc = documentUtils.newControlParser().newDocument();
+        Document doc = documentUtils.newControlDocumentBuilder().newDocument();
         final Element element = doc.createElement("repeated");
         final Element copy = doc.createElement("repeated");
 
@@ -190,7 +190,7 @@ public class XpathNodeTrackerTest {
 
     @Test
     public void should_check_repeat_nodes_for_control_tracker() {
-        Document doc = documentUtils.newControlParser().newDocument();
+        Document doc = documentUtils.newControlDocumentBuilder().newDocument();
         Element element = doc.createElement("repeated");
 
         xpathNodeTracker.visited(element);

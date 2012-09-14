@@ -66,7 +66,7 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
-        document = new DocumentUtils(properties).newControlParser().newDocument();
+        document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
     }
 
     // copy of ElementNameAndTextQualifier test

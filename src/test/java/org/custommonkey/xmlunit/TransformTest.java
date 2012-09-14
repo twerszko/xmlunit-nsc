@@ -48,10 +48,14 @@ import java.io.FileReader;
 
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 import net.sf.xmlunit.TestResources;
+import net.sf.xmlunit.builder.Input;
+import net.sf.xmlunit.builder.Transform;
+import net.sf.xmlunit.builder.Transform.TransformationResult;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
@@ -65,189 +69,269 @@ import org.w3c.dom.Document;
 import com.google.common.io.Closeables;
 
 public class TransformTest {
-	private static final String FLEABALL = "<fleaball><animal><shaggy>dog</shaggy></animal></fleaball>";
+    private static final String FLEABALL = "<fleaball><animal><shaggy>dog</shaggy></animal></fleaball>";
 
-	private final static String DOG = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>";
+    private final static String DOG = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>";
 
-	private final static String LINE_SEPARATOR = System.getProperty("line.separator");
+    private final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
-	private File animalXsl;
+    private File animalXsl;
 
-	private XmlUnitProperties properties;
+    private XmlUnitProperties properties;
 
-	@Before
-	public void setUp() throws Exception {
-		animalXsl = TestResources.ANIMAL_XSL.getFile();
-		properties = new XmlUnitProperties();
-	}
+    @Before
+    public void setUp() throws Exception {
+        animalXsl = TestResources.ANIMAL_XSL.getFile();
+        properties = new XmlUnitProperties();
+    }
 
-	@Test
-	public void should_transform_simple_xml() throws TransformerException {
-		// given
-		Transform transform = new Transform(FLEABALL, animalXsl);
+    @Test
+    public void should_transform_simple_xml() throws TransformerException {
+        // given
+        Source source = Input.fromMemory(FLEABALL).build();
+        Source stylesheet = Input.fromFile(animalXsl).build();
 
-		// when
-		String resultString = transform.getResultString();
+        // when
+        TransformationResult result = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .build();
+        String resultString = result.toString();
 
-		// then
-		assertThat(stripLineSeparators(resultString)).isEqualTo(DOG);
-	}
+        // then
+        assertThat(stripLineSeparators(resultString)).isEqualTo(DOG);
+    }
 
-	@Test
-	public void should_be_identical() throws Exception {
-		// given
-		Transform transform = new Transform(FLEABALL, animalXsl);
+    @Test
+    public void should_be_identical() throws Exception {
+        // given
+        Source source = Input.fromMemory(FLEABALL).build();
+        Source stylesheet = Input.fromFile(animalXsl).build();
 
-		// when
-		Diff diff = new DiffBuilder(properties)
-		        .withControlDocument(DOG)
-		        .withTestDocument(transform)
-		        .build();
+        // when
+        TransformationResult result = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .build();
+        Document resultDocument = result.toDocument();
 
-		// then
-		assertThat(diff.identical()).isTrue();
-	}
+        Diff diff = new DiffBuilder(properties)
+                .withControlDocument(DOG)
+                .withTestDocument(resultDocument)
+                .build();
 
-	@Test
-	public void should_be_identical_when_identity_transform() throws Exception {
-		// given
-		Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
-		Transform transform = new Transform(controlDoc);
+        // then
+        assertThat(diff.identical()).isTrue();
+    }
 
-		// when
-		Document testDoc = transform.getResultDocument();
-		Diff diff = new DiffBuilder(null)
-		        .withControlDocument(controlDoc)
-		        .withTestDocument(testDoc)
-		        .build();
+    @Test
+    public void should_be_identical_when_identity_transform() throws Exception {
+        // given
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
+        Source source = Input.fromNode(controlDoc).build();
 
-		// then
-		assertThat(diff.identical()).isTrue();
-	}
+        // when
+        Document testDoc = Transform.source(source).build().toDocument();
+        Diff diff = new DiffBuilder(null)
+                .withControlDocument(controlDoc)
+                .withTestDocument(testDoc)
+                .build();
 
-	@Test
-	public void should_transform_to_html() throws TransformerException {
-		// given
-		Transform transform = new Transform(FLEABALL, animalXsl);
+        // then
+        assertThat(diff.identical()).isTrue();
+    }
 
-		// when
-		transform.setOutputProperty(OutputKeys.METHOD, "html");
-		String resultString = transform.getResultString();
+    @Test
+    public void should_transform_to_html() throws TransformerException {
+        // given
+        Source source = Input.fromMemory(FLEABALL).build();
+        Source stylesheet = Input.fromFile(animalXsl).build();
 
-		// then
-		assertThat(resultString).isNotEqualTo(DOG);
-	}
+        // when
+        String resultString = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .withOutputProperty(OutputKeys.METHOD, "html")
+                .build()
+                .toString();
 
-	@Test
-	public void should_transform_from_document() throws Exception {
-		// given
-		Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
-		Transform transform = new Transform(controlDoc, animalXsl);
+        // then
+        assertThat(resultString).isNotEqualTo(DOG);
+    }
 
-		// when
-		String resultString = transform.getResultString();
+    @Test
+    public void should_transform_from_document() throws Exception {
+        // given
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
+        Source source = Input.fromDocument(controlDoc).build();
+        Source stylesheet = Input.fromFile(animalXsl).build();
 
-		// then
-		assertThat(stripLineSeparators(resultString)).isEqualTo(DOG);
-	}
+        // when
+        String resultString = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .build()
+                .toString();
 
-	@Test
-	public void should_transform_from_file_reader_string() throws Exception {
-		// given
-		Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
-		FileReader reader = new FileReader(animalXsl);
-		try {
-			char[] animalXSL = new char[1024];
-			int length = reader.read(animalXSL);
-			String stringFromReader = new String(animalXSL, 0, length);
+        // then
+        assertThat(stripLineSeparators(resultString)).isEqualTo(DOG);
+    }
 
-			// when
-			Transform transform = new Transform(controlDoc, stringFromReader);
-			String resultString = transform.getResultString();
+    @Test
+    public void should_transform_from_file_reader_string() throws Exception {
+        // given
+        Document controlDoc = new DocumentUtils(properties).buildControlDocument(FLEABALL);
+        FileReader reader = new FileReader(animalXsl);
+        try {
+            Source source = Input.fromDocument(controlDoc).build();
+            Source stylesheet = Input.fromReader(reader).build();
 
-			// then
-			assertThat(stripLineSeparators(resultString)).isEqualTo(DOG);
-		} finally {
-			Closeables.closeQuietly(reader);
-		}
-	}
+            // when
+            String resultString = Transform.source(source)
+                    .withStylesheet(stylesheet)
+                    .build()
+                    .toString();
 
-	/**
-	 * Raised by Craig Strong 04.04.2002
-	 * 
-	 * @throws TransformerException
-	 */
-	@Test
-	public void should_transform_with_xsl_with_include() throws TransformerException {
-		// given
-		String input = "<bug><animal>creepycrawly</animal></bug>";
+            // then
+            assertThat(stripLineSeparators(resultString)).isEqualTo(DOG);
+        } finally {
+            Closeables.closeQuietly(reader);
+        }
+    }
 
-		String xslWithInclude =
-		        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-		                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">" +
-		                "<xsl:output method=\"xml\" version=\"1.0\" indent=\"no\"/>" +
-		                "<xsl:template match=\"bug\">" +
-		                "<xsl:apply-templates select=\"animal\"/>" +
-		                "</xsl:template>" +
-		                "<xsl:include href=\"" + animalXsl.toURI() + "\"/>" +
-		                "</xsl:stylesheet>";
+    /**
+     * Raised by Craig Strong 04.04.2002
+     * 
+     * @throws TransformerException
+     */
+    @Test
+    public void should_transform_with_xsl_with_include() throws TransformerException {
+        // given
+        String input = "<bug><animal>creepycrawly</animal></bug>";
 
-		// when
-		Transform transform = new Transform(input, xslWithInclude);
-		transform.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		String resultString = transform.getResultString();
+        String xslWithInclude =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                        "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">" +
+                        "<xsl:output method=\"xml\" version=\"1.0\" indent=\"no\"/>" +
+                        "<xsl:template match=\"bug\">" +
+                        "<xsl:apply-templates select=\"animal\"/>" +
+                        "</xsl:template>" +
+                        "<xsl:include href=\"" + animalXsl.toURI() + "\"/>" +
+                        "</xsl:stylesheet>";
 
-		// then
-		assertThat(resultString).isEqualTo("<creepycrawly/>");
-	}
+        // when
+        Source source = Input.fromMemory(input).build();
+        Source stylesheet = Input.fromMemory(xslWithInclude).build();
 
-	/**
-	 * Issue 1742826
-	 * 
-	 * @throws TransformerException
-	 */
-	@Test
-	public void should_get_exception_when_incorrect_include_uri() throws TransformerException {
-		// given
-		String xsl =
-		        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-		                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">" +
-		                "<xsl:include href=\"urn:bar\"/>" +
-		                "</xsl:stylesheet>";
+        String resultString = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .withOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+                .build()
+                .toString();
 
-		String inputXml = "<foo/>";
+        // then
+        assertThat(resultString).isEqualTo("<creepycrawly/>");
+    }
 
-		ErrorListener errorListener = XMLUnit.getTransformerFactory().getErrorListener();
+    /**
+     * Issue 1742826
+     * 
+     * @throws TransformerException
+     */
+    @Test
+    // TODO:
+            public
+            void should_get_exception_when_incorrect_include_uri() throws TransformerException {
+        // given
+        String xsl =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                        "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">" +
+                        "<xsl:include href=\"urn:bar\"/>" +
+                        "</xsl:stylesheet>";
 
-		try {
-			// when
-			URIResolver mockedResolver = mock(URIResolver.class);
-			when(mockedResolver.resolve("urn:bar", new File(".").toURI().toString())).thenReturn(null);
-			ErrorListener mockedErrorListener = mock(ErrorListener.class);
+        String inputXml = "<foo/>";
 
-			XMLUnit.setURIResolver(mockedResolver);
-			XMLUnit.getTransformerFactory().setErrorListener(mockedErrorListener);
+        Source source = Input.fromMemory(inputXml).build();
+        Source stylesheet = Input.fromMemory(xsl).build();
 
-			Transform transform = new Transform(inputXml, xsl);
+        ErrorListener errorListener = XMLUnit.getTransformerFactory().getErrorListener();
 
-			try {
-				transform.getResultString();
+        try {
+            // when
+            URIResolver mockedResolver = mock(URIResolver.class);
+            when(mockedResolver.resolve("urn:bar", new File(".").toURI().toString())).thenReturn(null);
+            ErrorListener mockedErrorListener = mock(ErrorListener.class);
 
-				fail("should fail because of unknown include URI");
-			} catch (ConfigurationException tce) {
-				// expected exception because of unknown protocol "urn"
-			}
+            XMLUnit.setURIResolver(mockedResolver);
+            XMLUnit.getTransformerFactory().setErrorListener(mockedErrorListener);
 
-			// then
-			verify(mockedResolver, times(1)).resolve("urn:bar", new File(".").toURI().toString());
-			verify(mockedErrorListener, times(1)).fatalError(Mockito.any(TransformerException.class));
-		} finally {
-			XMLUnit.setURIResolver(null);
-			XMLUnit.getTransformerFactory().setErrorListener(errorListener);
-		}
-	}
+            try {
+                Transform.source(source)
+                        .withStylesheet(stylesheet)
+                        .usingFactory(XMLUnit.getTransformerFactory())
+                        .build()
+                        .toString();
 
-	private String stripLineSeparators(String text) {
-		return text.replace(LINE_SEPARATOR, "");
-	}
+                fail("should fail because of unknown include URI");
+            } catch (net.sf.xmlunit.exceptions.ConfigurationException tce) {
+                // expected exception because of unknown protocol "urn"
+            }
+
+            // then
+            verify(mockedResolver, times(1)).resolve("urn:bar", "");
+            // TODO: verify
+            // verify(mockedResolver, times(1)).resolve("urn:bar", new
+            // File(".").toURI().toString());
+            verify(mockedErrorListener, times(1)).fatalError(Mockito.any(TransformerException.class));
+        } finally {
+            XMLUnit.setURIResolver(null);
+            XMLUnit.getTransformerFactory().setErrorListener(errorListener);
+        }
+    }
+
+    /**
+     * Issue 1742826
+     * 
+     * @throws TransformerException
+     */
+    @Test
+    public void should_get_exception_when_incorrect_include_uri_() throws TransformerException {
+        // given
+        String xsl =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                        "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">" +
+                        "<xsl:include href=\"urn:bar\"/>" +
+                        "</xsl:stylesheet>";
+
+        String inputXml = "<foo/>";
+
+        ErrorListener errorListener = XMLUnit.getTransformerFactory().getErrorListener();
+
+        try {
+            // when
+            URIResolver mockedResolver = mock(URIResolver.class);
+            when(mockedResolver.resolve("urn:bar", new File(".").toURI().toString())).thenReturn(null);
+            ErrorListener mockedErrorListener = mock(ErrorListener.class);
+
+            XMLUnit.setURIResolver(mockedResolver);
+            XMLUnit.getTransformerFactory().setErrorListener(mockedErrorListener);
+
+            org.custommonkey.xmlunit.Transform transform = new org.custommonkey.xmlunit.Transform(inputXml, xsl);
+
+            try {
+                transform.getResultString();
+
+                fail("should fail because of unknown include URI");
+            } catch (ConfigurationException tce) {
+                // expected exception because of unknown protocol "urn"
+            }
+
+            // then
+            verify(mockedResolver, times(1)).resolve("urn:bar", new File(".").toURI().toString());
+            verify(mockedErrorListener, times(1)).fatalError(Mockito.any(TransformerException.class));
+        } finally {
+            XMLUnit.setURIResolver(null);
+            XMLUnit.getTransformerFactory().setErrorListener(errorListener);
+        }
+    }
+
+    private String stripLineSeparators(String text) {
+        return text.replace(LINE_SEPARATOR, "");
+    }
 }

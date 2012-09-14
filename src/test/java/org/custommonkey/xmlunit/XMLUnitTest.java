@@ -36,62 +36,58 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Document;
 
-/**
- * Test case for XMLUnit
- */
-public class test_XMLUnit extends TestCase {
+public class XMLUnitTest {
 
     private XmlUnitProperties properties;
 
-    @Override
     @Before
     public void setUp() {
         properties = new XmlUnitProperties();
     }
 
     /**
-     * Contructs a new test case.
-     */
-    public test_XMLUnit(String name) {
-        super(name);
-    }
-
-    /**
      * Test overiding the SAX parser used to parse control documents
      */
+    @Test
     public void testSetControlParser() throws Exception {
         // given
-        DocumentBuilder builderBefore = new DocumentUtils(properties).newControlParser();
+        DocumentBuilder builderBefore = new DocumentUtils(properties).newControlDocumentBuilder();
         DocumentBuilderFactory controlDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
 
         // when
         properties.setControlDocumentBuilderFactoryClass(controlDocumentBuilderFactory.getClass());
-        DocumentBuilder builderAfter = new DocumentUtils(properties).newControlParser();
+        DocumentBuilder builderAfter = new DocumentUtils(properties).newControlDocumentBuilder();
 
         // then
         assertFalse(builderBefore == builderAfter);
     }
 
+    @Test
     public void testSetDocumentBuilderFactory() throws Exception {
         // given
-        DocumentBuilder builderBefore = new DocumentUtils(properties).newTestParser();
+        DocumentBuilder builderBefore = new DocumentUtils(properties).newTestDocumentBuilder();
         DocumentBuilderFactory testDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
 
         // when
         properties.setTestDocumentBuilderFactoryClass(testDocumentBuilderFactory.getClass());
-        DocumentBuilder builderAfter = new DocumentUtils(properties).newTestParser();
+        DocumentBuilder builderAfter = new DocumentUtils(properties).newTestDocumentBuilder();
 
         // then
         assertFalse(builderBefore == builderAfter);
@@ -99,26 +95,28 @@ public class test_XMLUnit extends TestCase {
 
     // TODO more casses of loading different document builder factories
 
+    @Test
     public void testIgnoreWhitespace() throws Exception {
         properties.setIgnoreWhitespace(true);
         String test = "<test>  monkey   </test>";
         String control = "<test>monkey</test>";
-        assertEquals("Should be similar", true,
-                new DiffBuilder(properties)
-                        .withControlDocument(control)
-                        .withTestDocument(test)
-                        .build()
-                        .similar());
+        assertThat(new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build()
+                .similar())
+                .isTrue();
 
         properties.setIgnoreWhitespace(false);
-        assertEquals("Should be different", false,
-                new DiffBuilder(properties)
-                        .withControlDocument(control)
-                        .withTestDocument(test)
-                        .build()
-                        .similar());
+        assertThat(new DiffBuilder(properties)
+                .withControlDocument(control)
+                .withTestDocument(test)
+                .build()
+                .similar())
+                .isFalse();
     }
 
+    @Test
     public void testSetTransformerFactory() throws Exception {
         Object before = XMLUnit.getTransformerFactory();
         XMLUnit.setTransformerFactory(before.getClass().getName());
@@ -126,18 +124,22 @@ public class test_XMLUnit extends TestCase {
                 before == XMLUnit.getTransformerFactory());
     }
 
+    @Test
     public void testStripWhitespaceTransform() throws Exception {
         Document doc = new DocumentUtils(properties).buildTestDocument(
                 test_Constants.XML_WITH_WHITESPACE);
-        Transform transform = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc);
+
+        Document transformedDocument = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc)
+                .toDocument();
         // TODO simpify?
         Diff diff = new DiffBuilder(properties)
                 .withControlDocument(test_Constants.XML_WITHOUT_WHITESPACE)
-                .withTestDocument(transform)
+                .withTestDocument(transformedDocument)
                 .build();
         assertTrue(diff.similar());
     }
 
+    @Test
     public void testXSLTVersion() {
         XMLUnit xmlUnit = new XmlUnitBuilder().build();
 

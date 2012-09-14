@@ -98,7 +98,7 @@ public class DifferenceEngineTest {
         resetListener();
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);
         documentUtils = new DocumentUtils(properties);
-        DocumentBuilder documentBuilder = documentUtils.newControlParser();
+        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
         document = documentBuilder.newDocument();
     }
 

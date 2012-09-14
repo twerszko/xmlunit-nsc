@@ -259,7 +259,7 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
     }
 
     public void setUp() throws Exception {
-        document = new DocumentUtils(new XmlUnitProperties()).newControlParser().newDocument();
+        document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
     }
 
     public static TestSuite suite() {
