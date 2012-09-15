@@ -41,7 +41,6 @@ import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.junit.Before;
 import org.w3c.dom.Node;
 
@@ -57,6 +56,7 @@ public class test_TextDifferenceListenerBase extends TestCase {
 
     private XmlUnitProperties properties;
 
+    @Override
     @Before
     public void setUp() {
         properties = new XmlUnitProperties();
@@ -69,6 +69,7 @@ public class test_TextDifferenceListenerBase extends TestCase {
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
         TextDifferenceListenerBase b = new TextDifferenceListenerBase(null) {
+            @Override
             protected int attributeDifference(Difference d) {
                 assertEquals(C_ATTR, d.getControlNodeDetail().getValue());
                 assertEquals(T_ATTR, d.getTestNodeDetail().getValue());
@@ -76,6 +77,7 @@ public class test_TextDifferenceListenerBase extends TestCase {
                 return 1;
             }
 
+            @Override
             protected int cdataDifference(Difference d) {
                 assertEquals(C_CDATA, d.getControlNodeDetail().getValue());
                 assertEquals(T_CDATA, d.getTestNodeDetail().getValue());
@@ -83,6 +85,7 @@ public class test_TextDifferenceListenerBase extends TestCase {
                 return 1;
             }
 
+            @Override
             protected int commentDifference(Difference d) {
                 assertEquals(C_CMMT, d.getControlNodeDetail().getValue());
                 assertEquals(T_CMMT, d.getTestNodeDetail().getValue());
@@ -90,6 +93,7 @@ public class test_TextDifferenceListenerBase extends TestCase {
                 return 1;
             }
 
+            @Override
             protected int textDifference(Difference d) {
                 assertEquals(C_TEXT, d.getControlNodeDetail().getValue());
                 assertEquals(T_TEXT, d.getTestNodeDetail().getValue());
@@ -98,9 +102,9 @@ public class test_TextDifferenceListenerBase extends TestCase {
             }
         };
 
-        Diff d = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         d.overrideDifferenceListener(b);
 
@@ -118,15 +122,16 @@ public class test_TextDifferenceListenerBase extends TestCase {
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
         TextDifferenceListenerBase b = new TextDifferenceListenerBase(null) {
+            @Override
             protected int textualDifference(Difference d) {
                 invocations[0]++;
                 return 1;
             }
         };
 
-        Diff d = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         d.overrideDifferenceListener(b);
 
@@ -152,9 +157,9 @@ public class test_TextDifferenceListenerBase extends TestCase {
                     }
                 }) {};
 
-        Diff d = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         d.overrideDifferenceListener(b);
 

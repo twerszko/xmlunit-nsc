@@ -42,7 +42,6 @@ import junit.framework.TestCase;
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.w3c.dom.Node;
 
 public class test_CaseInsensitiveDifferenceListener extends TestCase {
@@ -58,9 +57,9 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
                 CDATA.toUpperCase(Locale.US),
                 CMMT.toUpperCase(Locale.US),
                 TEXT.toUpperCase(Locale.US));
-        Diff d = new DiffBuilder(null)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff d = Diff.newDiff(null)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
 
         CaseInsensitiveDifferenceListener c =

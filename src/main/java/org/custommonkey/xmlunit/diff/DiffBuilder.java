@@ -21,13 +21,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 //TODO Add docu
-public class DiffBuilder implements Builder<Diff> {
-
-    private final XmlUnitProperties properties;
+public class DiffBuilder {
+    private XmlUnitProperties properties;
     private final DocumentUtils documentUtils;
 
-    private Document controlDocument;
     private Document testDocument;
+    private Document controlDocument;
 
     private DifferenceEngineContract differenceEngineContract = null;
     private ElementQualifier elementQualifier = new ElementNameQualifier();
@@ -40,102 +39,6 @@ public class DiffBuilder implements Builder<Diff> {
         }
 
         documentUtils = new DocumentUtils(this.properties);
-    }
-
-    public DiffBuilder withElementQualifier(ElementQualifier elementQualifier) {
-        if (elementQualifier == null) {
-            throw new IllegalArgumentException("ElementQualifier cannot be null");
-        }
-        this.elementQualifier = elementQualifier;
-        return this;
-    }
-
-    public DiffBuilder withDifferenceEngineContract(@Nullable DifferenceEngineContract differenceEngineContract) {
-        this.differenceEngineContract = differenceEngineContract;
-        return this;
-    }
-
-    public DiffBuilder withControlDocument(String controlDocString) throws BuilderException {
-        if (controlDocString == null) {
-            throw new IllegalArgumentException("String cannot be null");
-        }
-        this.controlDocument = prepareDocumentFrom(new StringReader(controlDocString),
-                documentUtils.newControlDocumentBuilder());
-        return this;
-    }
-
-    public DiffBuilder withControlDocument(Reader controlDocReader) throws BuilderException {
-        if (controlDocReader == null) {
-            throw new IllegalArgumentException("Reader cannot be null");
-        }
-        this.controlDocument = prepareDocumentFrom(controlDocReader, documentUtils.newControlDocumentBuilder());
-        return this;
-    }
-
-    public DiffBuilder withControlDocument(Document controlDoc) throws BuilderException {
-        if (controlDoc == null) {
-            throw new IllegalArgumentException("Document cannot be null");
-        }
-        this.controlDocument = controlDoc;
-        return this;
-    }
-
-    public DiffBuilder withControlDocument(DOMSource controlDomSource) throws BuilderException {
-        if (controlDomSource == null) {
-            throw new IllegalArgumentException("DOMSource cannot be null");
-        }
-        this.controlDocument = controlDomSource.getNode().getOwnerDocument();
-        return this;
-    }
-
-    public DiffBuilder withControlDocument(InputSource controlDomSource) throws BuilderException {
-        if (controlDomSource == null) {
-            throw new IllegalArgumentException("InputSource cannot be null");
-        }
-
-        this.controlDocument = prepareDocumentFrom(controlDomSource, documentUtils.newControlDocumentBuilder());
-        return this;
-    }
-
-    public DiffBuilder withTestDocument(String testDocString) throws BuilderException {
-        if (testDocString == null) {
-            throw new IllegalArgumentException("String cannot be null");
-        }
-        this.testDocument = prepareDocumentFrom(new StringReader(testDocString), documentUtils.newTestDocumentBuilder());
-        return this;
-    }
-
-    public DiffBuilder withTestDocument(Reader testDocReader) throws BuilderException {
-        if (testDocReader == null) {
-            throw new IllegalArgumentException("Reader cannot be null");
-        }
-        this.testDocument = prepareDocumentFrom(testDocReader, documentUtils.newTestDocumentBuilder());
-        return this;
-    }
-
-    public DiffBuilder withTestDocument(Document testDoc) throws BuilderException {
-        if (testDoc == null) {
-            throw new IllegalArgumentException("Document cannot be null");
-        }
-        this.testDocument = testDoc;
-        return this;
-    }
-
-    public DiffBuilder withTestDocument(DOMSource testDomSource) throws BuilderException {
-        if (testDomSource == null) {
-            throw new IllegalArgumentException("DOMSource cannot be null");
-        }
-        this.testDocument = testDomSource.getNode().getOwnerDocument();
-        return this;
-    }
-
-    public DiffBuilder withTestDocument(InputSource testDomSource) throws BuilderException {
-        if (testDomSource == null) {
-            throw new IllegalArgumentException("InputSource cannot be null");
-        }
-
-        this.testDocument = prepareDocumentFrom(testDomSource, documentUtils.newTestDocumentBuilder());
-        return this;
     }
 
     private Document prepareDocumentFrom(InputSource inputSource, DocumentBuilder parser) throws BuilderException {
@@ -162,6 +65,48 @@ public class DiffBuilder implements Builder<Diff> {
         }
     }
 
+    public DiffTestDocBuilder betweenControlDocument(Document controlDoc) {
+        if (controlDoc == null) {
+            throw new IllegalArgumentException("Document cannot be null");
+        }
+        this.controlDocument = controlDoc;
+        return new DiffTestDocBuilder();
+    }
+
+    public DiffTestDocBuilder betweenControlDocument(DOMSource controlDomSource) {
+        if (controlDomSource == null) {
+            throw new IllegalArgumentException("DOMSource cannot be null");
+        }
+        this.controlDocument = controlDomSource.getNode().getOwnerDocument();
+        return new DiffTestDocBuilder();
+    }
+
+    public DiffTestDocBuilder betweenControlDocument(InputSource controlInputSource) throws BuilderException {
+        if (controlInputSource == null) {
+            throw new IllegalArgumentException("InputSource cannot be null");
+        }
+
+        this.controlDocument = prepareDocumentFrom(controlInputSource, documentUtils.newControlDocumentBuilder());
+        return new DiffTestDocBuilder();
+    }
+
+    public DiffTestDocBuilder betweenControlDocument(String controlDocString) throws BuilderException {
+        if (controlDocString == null) {
+            throw new IllegalArgumentException("String cannot be null");
+        }
+        this.controlDocument = prepareDocumentFrom(new StringReader(controlDocString),
+                documentUtils.newControlDocumentBuilder());
+        return new DiffTestDocBuilder();
+    }
+
+    public DiffTestDocBuilder betweenControlDocument(Reader controlDocReader) throws BuilderException {
+        if (controlDocReader == null) {
+            throw new IllegalArgumentException("Reader cannot be null");
+        }
+        this.controlDocument = prepareDocumentFrom(controlDocReader, documentUtils.newControlDocumentBuilder());
+        return new DiffTestDocBuilder();
+    }
+
     private void validate() throws BuilderException {
         if (controlDocument == null) {
             throw new BuilderException("Control document must be provided!");
@@ -174,13 +119,82 @@ public class DiffBuilder implements Builder<Diff> {
         }
     }
 
-    public Diff build() throws BuilderException {
-        validate();
-        return new Diff(
-                properties,
-                controlDocument,
-                testDocument,
-                differenceEngineContract,
-                elementQualifier);
+    public class DiffTestDocBuilder {
+
+        private DiffTestDocBuilder() {
+        }
+
+        public DiffPropertiesBuilder andTestDocument(Document testDoc) throws BuilderException {
+            if (testDoc == null) {
+                throw new IllegalArgumentException("Document cannot be null");
+            }
+            testDocument = testDoc;
+            return new DiffPropertiesBuilder();
+        }
+
+        public DiffPropertiesBuilder andTestDocument(DOMSource testDomSource) throws BuilderException {
+            if (testDomSource == null) {
+                throw new IllegalArgumentException("DOMSource cannot be null");
+            }
+            testDocument = testDomSource.getNode().getOwnerDocument();
+            return new DiffPropertiesBuilder();
+        }
+
+        public DiffPropertiesBuilder andTestDocument(InputSource testDomSource) throws BuilderException {
+            if (testDomSource == null) {
+                throw new IllegalArgumentException("InputSource cannot be null");
+            }
+
+            testDocument = prepareDocumentFrom(testDomSource, documentUtils.newTestDocumentBuilder());
+            return new DiffPropertiesBuilder();
+        }
+
+        public DiffPropertiesBuilder andTestDocument(String testDocString) throws BuilderException {
+            if (testDocString == null) {
+                throw new IllegalArgumentException("String cannot be null");
+            }
+            testDocument = prepareDocumentFrom(new StringReader(testDocString),
+                    documentUtils.newTestDocumentBuilder());
+            return new DiffPropertiesBuilder();
+        }
+
+        public DiffPropertiesBuilder andTestDocument(Reader testDocReader) throws BuilderException {
+            if (testDocReader == null) {
+                throw new IllegalArgumentException("Reader cannot be null");
+            }
+            testDocument = prepareDocumentFrom(testDocReader, documentUtils.newTestDocumentBuilder());
+            return new DiffPropertiesBuilder();
+        }
+
+    }
+
+    public class DiffPropertiesBuilder implements Builder<Diff> {
+
+        private DiffPropertiesBuilder() {
+        }
+
+        public DiffPropertiesBuilder usingDifferenceEngineContract(@Nullable DifferenceEngineContract contract) {
+            differenceEngineContract = contract;
+            return this;
+        }
+
+        public DiffPropertiesBuilder withElementQualifier(ElementQualifier qualifier) {
+            if (elementQualifier == null) {
+                throw new IllegalArgumentException("ElementQualifier cannot be null");
+            }
+            elementQualifier = qualifier;
+            return this;
+        }
+
+        public Diff build() throws BuilderException {
+            validate();
+            return new Diff(
+                    properties,
+                    controlDocument,
+                    testDocument,
+                    differenceEngineContract,
+                    elementQualifier);
+        }
+
     }
 }

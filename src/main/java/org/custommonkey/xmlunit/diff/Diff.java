@@ -99,7 +99,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      * Construct a Diff that compares the XML in two Documents using a specific
      * DifferenceEngine and ElementQualifier
      */
-    public Diff(
+    Diff(
             @Nullable XmlUnitProperties properties,
             Document controlDoc,
             Document testDoc,
@@ -414,5 +414,9 @@ public class Diff implements DifferenceListener, ComparisonController {
                 && !(elementQualifierDelegate instanceof ElementNameQualifier)
                 && !(elementQualifierDelegate instanceof ElementNameAndTextQualifier)
                 && !(elementQualifierDelegate instanceof ElementNameAndAttributeQualifier);
+    }
+
+    public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
+        return new DiffBuilder(properties);
     }
 }

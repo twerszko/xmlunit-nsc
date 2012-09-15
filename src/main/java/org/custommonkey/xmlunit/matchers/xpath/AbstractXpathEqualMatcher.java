@@ -8,7 +8,6 @@ import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -43,9 +42,9 @@ public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<X
                 xpath.getMatchingNodes(actualXpath, actualDocument));
         Diff diff;
         try {
-            diff = new DiffBuilder(properties)
-                    .withControlDocument(expectedXpathDocument)
-                    .withTestDocument(actualXpathDocument)
+            diff = Diff.newDiff(properties)
+                    .betweenControlDocument(expectedXpathDocument)
+                    .andTestDocument(actualXpathDocument)
                     .build();
         } catch (BuilderException e) {
             throw new IllegalArgumentException("Unexpected error!", e);

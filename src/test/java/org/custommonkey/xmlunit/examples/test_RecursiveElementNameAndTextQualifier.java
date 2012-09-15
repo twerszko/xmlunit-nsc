@@ -43,7 +43,6 @@ import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.ElementQualifier;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Document;
@@ -63,6 +62,7 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
     private Document document;
     private XmlUnitProperties properties;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
@@ -137,24 +137,24 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
     public void testThread1440169() throws Exception {
         String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
         String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
-        Diff d = new DiffBuilder(properties)
-                .withControlDocument(s1)
-                .withTestDocument(s2)
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(s1)
+                .andTestDocument(s2)
                 .build();
         assertFalse(d.similar());
 
         // reset
-        d = new DiffBuilder(properties)
-                .withControlDocument(s1)
-                .withTestDocument(s2)
+        d = Diff.newDiff(properties)
+                .betweenControlDocument(s1)
+                .andTestDocument(s2)
                 .build();
         d.overrideElementQualifier(new ElementNameAndTextQualifier());
         assertFalse(d.similar());
 
         // reset once again
-        d = new DiffBuilder(properties)
-                .withControlDocument(s1)
-                .withTestDocument(s2)
+        d = Diff.newDiff(properties)
+                .betweenControlDocument(s1)
+                .andTestDocument(s2)
                 .build();
         d.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertTrue(d.similar());
@@ -181,9 +181,9 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                         + "  </tr>\n"
                         + "</table>\n";
 
-        Diff d = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         d.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertTrue(d.toString(), d.similar());
@@ -232,9 +232,9 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                 + "  </ent>"
                 + "</root>";
 
-        Diff myDiff = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff myDiff = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         myDiff.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertThat(myDiff.similar()).isTrue();
@@ -283,9 +283,9 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                 + "  </ent>"
                 + "</root>";
 
-        Diff myDiff = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff myDiff = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         myDiff.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
         assertThat(myDiff.similar()).isTrue();

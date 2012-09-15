@@ -41,7 +41,6 @@ import net.sf.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -134,9 +133,9 @@ public class TransformTest {
                 .build();
         Document resultDocument = result.toDocument();
 
-        Diff diff = new DiffBuilder(properties)
-                .withControlDocument(DOG)
-                .withTestDocument(resultDocument)
+        Diff diff = Diff.newDiff(properties)
+                .betweenControlDocument(DOG)
+                .andTestDocument(resultDocument)
                 .build();
 
         // then
@@ -151,9 +150,9 @@ public class TransformTest {
 
         // when
         Document testDoc = Transform.source(source).build().toDocument();
-        Diff diff = new DiffBuilder(null)
-                .withControlDocument(controlDoc)
-                .withTestDocument(testDoc)
+        Diff diff = Diff.newDiff(null)
+                .betweenControlDocument(controlDoc)
+                .andTestDocument(testDoc)
                 .build();
 
         // then

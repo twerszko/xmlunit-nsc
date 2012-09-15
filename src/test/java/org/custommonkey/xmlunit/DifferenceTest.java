@@ -44,7 +44,6 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -136,9 +135,9 @@ public class DifferenceTest {
         // given
         String control = "<foo><bar a=\"x\" y=\"z\"/></foo>";
         String test = "<foo><bar a=\"x\"/></foo>";
-        Diff diff = new DiffBuilder(null)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff diff = Diff.newDiff(null)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         DetailedDiff detailedDiff = new DetailedDiff(diff);
 

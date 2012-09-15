@@ -62,7 +62,6 @@ import net.sf.xmlunit.TestResources;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -90,9 +89,9 @@ public class DiffTest {
 
     protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) {
         try {
-            return new DiffBuilder(properties)
-                    .withControlDocument(control)
-                    .withTestDocument(test)
+            return Diff.newDiff(properties)
+                    .betweenControlDocument(control)
+                    .andTestDocument(test)
                     .build();
         } catch (BuilderException e) {
             // TODO handle exceptions better
@@ -103,9 +102,9 @@ public class DiffTest {
     protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws SAXException,
             IOException {
         try {
-            return new DiffBuilder(properties)
-                    .withControlDocument(control)
-                    .withTestDocument(test)
+            return Diff.newDiff(properties)
+                    .betweenControlDocument(control)
+                    .andTestDocument(test)
                     .build();
         } catch (BuilderException e) {
             // TODO handle exceptions better
@@ -116,9 +115,9 @@ public class DiffTest {
     protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws SAXException,
             IOException {
         try {
-            return new DiffBuilder(properties)
-                    .withControlDocument(control)
-                    .withTestDocument(test)
+            return Diff.newDiff(properties)
+                    .betweenControlDocument(control)
+                    .andTestDocument(test)
                     .build();
         } catch (BuilderException e) {
             // TODO handle exceptions better
@@ -130,14 +129,11 @@ public class DiffTest {
             DifferenceEngineContract engine)
             throws SAXException, IOException {
 
-        Document controlDocument = new DocumentUtils(properties).buildControlDocument(control);
-        Document testDocument = new DocumentUtils(properties).buildTestDocument(test);
-
         try {
-            return new DiffBuilder(properties)
-                    .withControlDocument(control)
-                    .withTestDocument(test)
-                    .withDifferenceEngineContract(engine)
+            return Diff.newDiff(properties)
+                    .betweenControlDocument(control)
+                    .andTestDocument(test)
+                    .usingDifferenceEngineContract(engine)
                     .build();
         } catch (BuilderException e) {
             // TODO handle exceptions better

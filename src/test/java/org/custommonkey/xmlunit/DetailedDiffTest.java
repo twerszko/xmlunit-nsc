@@ -49,7 +49,6 @@ import net.sf.xmlunit.TestResources;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
@@ -90,8 +89,7 @@ public class DetailedDiffTest extends DiffTest {
             XmlUnitProperties properties,
             String control,
             String test,
-            DifferenceEngineContract engine)
-            throws SAXException, IOException {
+            DifferenceEngineContract engine) throws SAXException, IOException {
 
         return new DetailedDiff(super.prepareDiff(properties, control, test, engine));
     }
@@ -114,9 +112,9 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new DiffBuilder(properties)
-                .withControlDocument(firstForecast)
-                .withTestDocument(secondForecast)
+        Diff multipleDifferences = Diff.newDiff(properties)
+                .betweenControlDocument(firstForecast)
+                .andTestDocument(secondForecast)
                 .build();
         DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -141,9 +139,9 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new DiffBuilder(properties)
-                .withControlDocument(secondForecast)
-                .withTestDocument(firstForecast)
+        Diff multipleDifferences = Diff.newDiff(properties)
+                .betweenControlDocument(secondForecast)
+                .andTestDocument(firstForecast)
                 .build();
         DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -169,9 +167,9 @@ public class DetailedDiffTest extends DiffTest {
         String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
         // when
-        Diff multipleDifferences = new DiffBuilder(properties)
-                .withControlDocument(firstForecast)
-                .withTestDocument(secondForecast)
+        Diff multipleDifferences = Diff.newDiff(properties)
+                .betweenControlDocument(firstForecast)
+                .andTestDocument(secondForecast)
                 .build();
         DetailedDiff detailedDiff = new DetailedDiff(new DetailedDiff(multipleDifferences));
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -194,9 +192,9 @@ public class DetailedDiffTest extends DiffTest {
         test = TestResources.DETAIL_TEST.getFile();
 
         properties.setIgnoreWhitespace(true);
-        Diff prototype = new DiffBuilder(properties)
-                .withControlDocument(new FileReader(control))
-                .withTestDocument(new FileReader(test))
+        Diff prototype = Diff.newDiff(properties)
+                .betweenControlDocument(new FileReader(control))
+                .andTestDocument(new FileReader(test))
                 .build();
         DetailedDiff detailedDiff = new DetailedDiff(prototype);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -246,9 +244,9 @@ public class DetailedDiffTest extends DiffTest {
         String test = "<a><c/></a>";
 
         // when
-        Diff d = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         DetailedDiff dd = new DetailedDiff(d);
 
@@ -269,10 +267,11 @@ public class DetailedDiffTest extends DiffTest {
         String test = "<a><c/></a>";
 
         // when
-        Diff diff = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff diff = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
+
         diff.similar();
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Difference> differences = detailedDiff.getAllDifferences();
@@ -314,10 +313,11 @@ public class DetailedDiffTest extends DiffTest {
                         "</table>";
 
         // when
-        DetailedDiff diff = new DetailedDiff(new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
-                .build());
+        DetailedDiff diff = new DetailedDiff(
+                Diff.newDiff(properties)
+                        .betweenControlDocument(control)
+                        .andTestDocument(test)
+                        .build());
         List<Difference> differences = diff.getAllDifferences();
 
         // then
@@ -358,9 +358,9 @@ public class DetailedDiffTest extends DiffTest {
 
         // when
         properties.setIgnoreWhitespace(true);
-        Diff diff = new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        Diff diff = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build();
         diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         DetailedDiff detailedDiff = new DetailedDiff(diff);
@@ -400,9 +400,9 @@ public class DetailedDiffTest extends DiffTest {
 
         // when
         properties.setIgnoreWhitespace(true);
-        Diff diff = new DiffBuilder(properties)
-                .withControlDocument(test)
-                .withTestDocument(control)
+        Diff diff = Diff.newDiff(properties)
+                .betweenControlDocument(test)
+                .andTestDocument(control)
                 .build();
         diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
         DetailedDiff detailedDiff = new DetailedDiff(diff);
@@ -429,7 +429,7 @@ public class DetailedDiffTest extends DiffTest {
      * @throws SAXException
      */
     @Test
-    public void should_compare_unmatched() throws SAXException, IOException {
+    public void should_compare_unmatched() throws Exception {
         // given
         String control =
                 "<root><a>1</a>" +
@@ -463,7 +463,7 @@ public class DetailedDiffTest extends DiffTest {
      * @throws SAXException
      */
     @Test
-    public void should_not_compare_unmatched() throws SAXException, IOException {
+    public void should_not_compare_unmatched() throws Exception {
         // given
         String control = "<root><a>1</a>" +
                 "<b>1</b>" +
@@ -511,7 +511,7 @@ public class DetailedDiffTest extends DiffTest {
      *      &amp;group_id=23187&amp;atid=377768
      */
     @Test
-    public void should_check_issue_3062518() throws SAXException, IOException {
+    public void should_check_issue_3062518() throws Exception {
         // given
         String control =
                 "<Fruits>" +

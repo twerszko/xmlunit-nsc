@@ -46,7 +46,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -100,17 +99,17 @@ public class XMLUnitTest {
         properties.setIgnoreWhitespace(true);
         String test = "<test>  monkey   </test>";
         String control = "<test>monkey</test>";
-        assertThat(new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        assertThat(Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build()
                 .similar())
                 .isTrue();
 
         properties.setIgnoreWhitespace(false);
-        assertThat(new DiffBuilder(properties)
-                .withControlDocument(control)
-                .withTestDocument(test)
+        assertThat(Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
                 .build()
                 .similar())
                 .isFalse();
@@ -132,9 +131,9 @@ public class XMLUnitTest {
         Document transformedDocument = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc)
                 .toDocument();
         // TODO simpify?
-        Diff diff = new DiffBuilder(properties)
-                .withControlDocument(test_Constants.XML_WITHOUT_WHITESPACE)
-                .withTestDocument(transformedDocument)
+        Diff diff = Diff.newDiff(properties)
+                .betweenControlDocument(test_Constants.XML_WITHOUT_WHITESPACE)
+                .andTestDocument(transformedDocument)
                 .build();
         assertTrue(diff.similar());
     }

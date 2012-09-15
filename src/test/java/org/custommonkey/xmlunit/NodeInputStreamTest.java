@@ -45,7 +45,6 @@ import java.io.StringReader;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -82,9 +81,9 @@ public class NodeInputStreamTest {
         StringReader controlReader = new StringReader(frog);
 
         // when
-        Diff diff = new DiffBuilder(null)
-                .withControlDocument(controlReader)
-                .withTestDocument(testReader)
+        Diff diff = Diff.newDiff(null)
+                .betweenControlDocument(controlReader)
+                .andTestDocument(testReader)
                 .build();
 
         // then

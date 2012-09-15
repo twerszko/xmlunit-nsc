@@ -41,7 +41,6 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Node;
 
@@ -69,7 +68,7 @@ public class test_ForumMessage4406472 extends TestCase {
                     + "</p:Book>";
 
     private class OriginalDifferenceListener implements DifferenceListener {
-        private DifferenceType[] IGNORE = new DifferenceType[] {
+        private final DifferenceType[] IGNORE = new DifferenceType[] {
                 DifferenceType.ATTR_VALUE,
                 DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
                 DifferenceType.TEXT_VALUE,
@@ -89,7 +88,7 @@ public class test_ForumMessage4406472 extends TestCase {
     }
 
     private class ModifiedDifferenceListener implements DifferenceListener {
-        private DifferenceType[] IGNORE = new DifferenceType[] {
+        private final DifferenceType[] IGNORE = new DifferenceType[] {
                 DifferenceType.ATTR_VALUE,
                 DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
                 DifferenceType.TEXT_VALUE,
@@ -113,18 +112,18 @@ public class test_ForumMessage4406472 extends TestCase {
     }
 
     public void testOriginal() throws Exception {
-        Diff d = new DiffBuilder(null)
-                .withControlDocument(doc1)
-                .withTestDocument(doc2)
+        Diff d = Diff.newDiff(null)
+                .betweenControlDocument(doc1)
+                .andTestDocument(doc2)
                 .build();
         d.overrideDifferenceListener(new OriginalDifferenceListener());
         assertTrue(d.toString(), d.similar());
     }
 
     public void testModified() throws Exception {
-        Diff d = new DiffBuilder(null)
-                .withControlDocument(doc1)
-                .withTestDocument(doc2)
+        Diff d = Diff.newDiff(null)
+                .betweenControlDocument(doc1)
+                .andTestDocument(doc2)
                 .build();
         d.overrideDifferenceListener(new ModifiedDifferenceListener());
         assertTrue(d.toString(), d.similar());
