@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.validation;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,32 +28,35 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Validator implementation that uses "the old way" of validating an
- * XML input by parsing the input.
- *
- * <p>Even though this implementation supports W3C Schema you
- * shouldn't use it for that language but rather use
- * JAXPValidator.</p>
+ * Validator implementation that uses "the old way" of validating an XML input
+ * by parsing the input.
+ * 
+ * <p>
+ * Even though this implementation supports W3C Schema you shouldn't use it for
+ * that language but rather use JAXPValidator.
+ * </p>
  */
 public class ParsingValidator extends Validator {
     private final String language;
 
     public ParsingValidator(String language) {
         if (!Languages.W3C_XML_SCHEMA_NS_URI.equals(language)
-            && !Languages.XML_DTD_NS_URI.equals(language)) {
+                && !Languages.XML_DTD_NS_URI.equals(language)) {
             throw new IllegalArgumentException("only DTD and W3C Schema"
-                                               + " validation are supported by"
-                                               + " ParsingValidator");
+                    + " validation are supported by"
+                    + " ParsingValidator");
         }
         this.language = language;
     }
 
-    @Override public ValidationResult validateSchema() {
+    @Override
+    public ValidationResult validateSchema() {
         throw new XMLUnitException("Schema validation is not supported by"
-                                   + " ParsingValidator");
+                + " ParsingValidator");
     }
 
-    @Override public ValidationResult validateInstance(Source s) {
+    @Override
+    public ValidationResult validateInstance(Source s) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -61,7 +64,7 @@ public class ParsingValidator extends Validator {
             SAXParser parser = factory.newSAXParser();
             if (Languages.W3C_XML_SCHEMA_NS_URI.equals(language)) {
                 parser.setProperty(Properties.SCHEMA_LANGUAGE,
-                                   Languages.W3C_XML_SCHEMA_NS_URI);
+                        Languages.W3C_XML_SCHEMA_NS_URI);
             }
             final Source[] source = getSchemaSources();
             Handler handler = new Handler();
@@ -72,7 +75,7 @@ public class ParsingValidator extends Validator {
                         schemaSource[i] = Convert.toInputSource(source[i]);
                     }
                     parser.setProperty(Properties.SCHEMA_SOURCE,
-                                       schemaSource);
+                            schemaSource);
                 } else if (source.length == 1) {
                     handler.setSchemaSystemId(source[0].getSystemId());
                 }
@@ -103,25 +106,28 @@ public class ParsingValidator extends Validator {
 
     private static class Properties {
         static final String SCHEMA_LANGUAGE =
-            "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+                "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
 
         static final String SCHEMA_SOURCE =
-            "http://java.sun.com/xml/jaxp/properties/schemaSource";
+                "http://java.sun.com/xml/jaxp/properties/schemaSource";
     }
 
     private class Handler extends DefaultHandler {
         private final ValidationHandler v = new ValidationHandler();
         private String systemId;
 
-        @Override public void error(SAXParseException e) {
+        @Override
+        public void error(SAXParseException e) {
             v.error(e);
         }
 
-        @Override public void fatalError(SAXParseException e) {
+        @Override
+        public void fatalError(SAXParseException e) {
             v.fatalError(e);
         }
 
-        @Override public void warning(SAXParseException e) {
+        @Override
+        public void warning(SAXParseException e) {
             v.warning(e);
         }
 
@@ -129,12 +135,12 @@ public class ParsingValidator extends Validator {
             systemId = id;
         }
 
-        @Override public InputSource resolveEntity(String publicId,
-                                                   String systemId)
-            throws java.io.IOException, SAXException {
+        @Override
+        public InputSource resolveEntity(String publicId,
+                String systemId)
+                throws java.io.IOException, SAXException {
             if (this.systemId != null &&
-                (getSchemaURI() == null || getSchemaURI().equals(publicId))
-                ) {
+                    (getSchemaURI() == null || getSchemaURI().equals(publicId))) {
                 return new InputSource(this.systemId);
             }
             return super.resolveEntity(publicId, systemId);

@@ -46,24 +46,24 @@ import com.google.common.io.Closeables;
 
 public class DoctypeInputStreamTest extends AbstractDoctypeTests {
 
-	private static final String ISO_8859_1 = "ISO-8859-1";
+    private static final String ISO_8859_1 = "ISO-8859-1";
 
-	private InputStream stringToInputStream(String content) throws IOException {
-		InputStream is = new ByteArrayInputStream(content.getBytes(ISO_8859_1));
-		return is;
-	}
+    private InputStream stringToInputStream(String content) throws IOException {
+        InputStream is = new ByteArrayInputStream(content.getBytes(ISO_8859_1));
+        return is;
+    }
 
-	@Override
-	protected String getDoctyped(String expected, String input, String docType, String systemId) throws IOException {
-		InputStream is = null;
-		try {
-			is = stringToInputStream(input);
-			DoctypeInputStream doctypeInputStream =
-			        new DoctypeInputStream(is, ISO_8859_1, docType, systemId);
+    @Override
+    protected String getDoctyped(String expected, String input, String docType, String systemId) throws IOException {
+        InputStream is = null;
+        try {
+            is = stringToInputStream(input);
+            DoctypeInputStream doctypeInputStream =
+                    new DoctypeInputStream(is, ISO_8859_1, docType, systemId);
 
-			return IOUtils.toString(doctypeInputStream, ISO_8859_1);
-		} finally {
-			Closeables.closeQuietly(is);
-		}
-	}
+            return IOUtils.toString(doctypeInputStream, ISO_8859_1);
+        } finally {
+            Closeables.closeQuietly(is);
+        }
+    }
 }

@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.xpath;
 
 import java.util.Map;
@@ -41,8 +41,8 @@ public class JAXPXPathEngine implements XPathEngine {
     }
 
     /**
-     * Create an XPathEngine that uses JAXP's default XPathFactory
-     * under the covers.
+     * Create an XPathEngine that uses JAXP's default XPathFactory under the
+     * covers.
      */
     public JAXPXPathEngine() {
         this(XPathFactory.newInstance());
@@ -54,9 +54,8 @@ public class JAXPXPathEngine implements XPathEngine {
     public Iterable<Node> selectNodes(String xPath, Source s) {
         try {
             return new IterableNodeList(
-                (NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),
-                                          XPathConstants.NODESET)
-                                        );
+                    (NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),
+                            XPathConstants.NODESET));
         } catch (XPathExpressionException ex) {
             throw new XMLUnitException(ex);
         }

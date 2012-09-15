@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 import java.util.Map;
@@ -22,9 +22,9 @@ import org.w3c.dom.Node;
 public interface NodeMatcher {
 
     /**
-     * Matches control and test nodes against each other, returns the
-     * matching pairs.
+     * Matches control and test nodes against each other, returns the matching
+     * pairs.
      */
     Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes,
-                                          Iterable<Node> testNodes);
+            Iterable<Node> testNodes);
 }

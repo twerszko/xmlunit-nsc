@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.transform;
 
 import java.io.StringWriter;
@@ -31,13 +31,17 @@ import org.w3c.dom.Document;
 
 /**
  * Provides a convenience layer over TraX.
- *
- * <p>Apart from IllegalArgumentExceptions if you try to pass in null
- * values only the transform methods will ever throw exceptions and
- * these will be XMLUnit's runtime exceptions.</p>
- *
- * <p>Each invocation of a transform method will use a fresh
- * Transformer instance, the transform methods are thread-safe.</p>
+ * 
+ * <p>
+ * Apart from IllegalArgumentExceptions if you try to pass in null values only
+ * the transform methods will ever throw exceptions and these will be XMLUnit's
+ * runtime exceptions.
+ * </p>
+ * 
+ * <p>
+ * Each invocation of a transform method will use a fresh Transformer instance,
+ * the transform methods are thread-safe.
+ * </p>
  */
 public final class Transformation {
     private Source source;
@@ -50,15 +54,20 @@ public final class Transformation {
 
     public Transformation() {
     }
+
     /**
-     * @param s the source to transform - must not be null.
+     * @param s
+     *            the source to transform - must not be null.
      */
     public Transformation(Source s) {
         setSource(s);
     }
+
     /**
      * Set the source document to transform.
-     * @param s the source to transform - must not be null.
+     * 
+     * @param s
+     *            the source to transform - must not be null.
      */
     public void setSource(Source s) {
         if (s == null) {
@@ -66,19 +75,25 @@ public final class Transformation {
         }
         source = s;
     }
+
     /**
      * Set the stylesheet to use.
-     * @param s the stylesheet to use - may be null in which case an
-     * identity transformation will be performed.
+     * 
+     * @param s
+     *            the stylesheet to use - may be null in which case an identity
+     *            transformation will be performed.
      */
     public void setStylesheet(Source s) {
         styleSheet = s;
     }
+
     /**
      * Add a named output property.
-     *
-     * @param name name of the property - must not be null
-     * @param value value of the property - must not be null
+     * 
+     * @param name
+     *            name of the property - must not be null
+     * @param value
+     *            value of the property - must not be null
      */
     public void addOutputProperty(String name, String value) {
         if (name == null) {
@@ -89,17 +104,21 @@ public final class Transformation {
         }
         output.setProperty(name, value);
     }
+
     /**
      * Clear all output properties.
      */
     public void clearOutputProperties() {
         output.clear();
     }
+
     /**
      * Add a named parameter.
-     *
-     * @param name name of the parameter - must not be null
-     * @param value value of the parameter - may be null
+     * 
+     * @param name
+     *            name of the parameter - must not be null
+     * @param value
+     *            value of the parameter - may be null
      */
     public void addParameter(String name, Object value) {
         if (name == null) {
@@ -107,52 +126,66 @@ public final class Transformation {
         }
         params.put(name, value);
     }
+
     /**
      * Clear all output parameters.
      */
     public void clearParameters() {
         params.clear();
     }
+
     /**
      * Set the TraX factory to use.
-     *
-     * @param f the factory to use - may be null in which case the
-     * default factory will be used.
+     * 
+     * @param f
+     *            the factory to use - may be null in which case the default
+     *            factory will be used.
      */
     public void setFactory(TransformerFactory f) {
         factory = f;
     }
+
     /**
      * Set the resolver to use for document() and xsl:include/import
-     *
-     * <p>The resolver will <b>not</b> be attached to the factory.</p>
-     *
-     * @param r the resolver - may be null in which case no explicit
-     * resolver will be used
+     * 
+     * <p>
+     * The resolver will <b>not</b> be attached to the factory.
+     * </p>
+     * 
+     * @param r
+     *            the resolver - may be null in which case no explicit resolver
+     *            will be used
      */
     public void setURIResolver(URIResolver r) {
         uriResolver = r;
     }
+
     /**
      * Set the error listener for the transformation.
-     *
-     * <p>The listener will <b>not</b> be attached to the factory.</p>
-     *
-     * @param l the listener - may be null in which case no listener
-     * will be used
+     * 
+     * <p>
+     * The listener will <b>not</b> be attached to the factory.
+     * </p>
+     * 
+     * @param l
+     *            the listener - may be null in which case no listener will be
+     *            used
      */
     public void setErrorListener(ErrorListener l) {
         errorListener = l;
     }
+
     /**
      * Perform the transformation.
-     *
-     * @param r where to send the transformation result - must not be null
-     * @exception IllegalArgumentException if source or result are null
-     * @exception ConfigurationException if the TraX system isn't
-     * configured properly
-     * @exception XMLUnitException if the transformation throws an
-     * exception
+     * 
+     * @param r
+     *            where to send the transformation result - must not be null
+     * @exception IllegalArgumentException
+     *                if source or result are null
+     * @exception ConfigurationException
+     *                if the TraX system isn't configured properly
+     * @exception XMLUnitException
+     *                if the transformation throws an exception
      */
     public void transformTo(Result r) {
         if (source == null) {
@@ -189,30 +222,34 @@ public final class Transformation {
             throw new XMLUnitException(e);
         }
     }
+
     /**
-     * Convenience method that returns the result of the
-     * transformation as a String.
-     *
-     * @exception IllegalArgumentException if source is null
-     * @exception ConfigurationException if the TraX system isn't
-     * configured properly
-     * @exception XMLUnitException if the transformation throws an
-     * exception
+     * Convenience method that returns the result of the transformation as a
+     * String.
+     * 
+     * @exception IllegalArgumentException
+     *                if source is null
+     * @exception ConfigurationException
+     *                if the TraX system isn't configured properly
+     * @exception XMLUnitException
+     *                if the transformation throws an exception
      */
     public String transformToString() {
         StringWriter sw = new StringWriter();
         transformTo(new StreamResult(sw));
         return sw.toString();
     }
+
     /**
-     * Convenience method that returns the result of the
-     * transformation as a Document.
-     *
-     * @exception IllegalArgumentException if source is null
-     * @exception ConfigurationException if the TraX system isn't
-     * configured properly
-     * @exception XMLUnitException if the transformation throws an
-     * exception
+     * Convenience method that returns the result of the transformation as a
+     * Document.
+     * 
+     * @exception IllegalArgumentException
+     *                if source is null
+     * @exception ConfigurationException
+     *                if the TraX system isn't configured properly
+     * @exception XMLUnitException
+     *                if the transformation throws an exception
      */
     public Document transformToDocument() {
         DOMResult r = new DOMResult();

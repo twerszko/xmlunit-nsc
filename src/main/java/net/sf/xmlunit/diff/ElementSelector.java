@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 import org.w3c.dom.Element;
@@ -20,8 +20,8 @@ import org.w3c.dom.Element;
  */
 public interface ElementSelector {
     /**
-     * Determine whether the two elements from the control and test
-     * XML can be compared.
+     * Determine whether the two elements from the control and test XML can be
+     * compared.
      */
     boolean canBeCompared(Element controlElement, Element testElement);
 }

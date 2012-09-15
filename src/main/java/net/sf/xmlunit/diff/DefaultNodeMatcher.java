@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 import java.util.LinkedHashMap;
@@ -43,7 +43,7 @@ public class DefaultNodeMatcher implements NodeMatcher {
     }
 
     public Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes,
-                                                 Iterable<Node> testNodes) {
+            Iterable<Node> testNodes) {
         Map<Node, Node> matches = new LinkedHashMap<Node, Node>();
         List<Node> controlList = Linqy.asList(controlNodes);
         List<Node> testList = Linqy.asList(testNodes);
@@ -57,8 +57,8 @@ public class DefaultNodeMatcher implements NodeMatcher {
         for (int i = 0; i < controlSize; i++) {
             Node control = controlList.get(i);
             Match testMatch = findMatchingNode(control, testList,
-                                               lastMatch.index,
-                                               unmatchedTestIndexes);
+                    lastMatch.index,
+                    unmatchedTestIndexes);
             if (testMatch != null) {
                 unmatchedTestIndexes.remove(testMatch.index);
                 matches.put(control, testMatch.node);
@@ -68,9 +68,9 @@ public class DefaultNodeMatcher implements NodeMatcher {
     }
 
     private Match findMatchingNode(final Node searchFor,
-                                   final List<Node> searchIn,
-                                   final int indexOfLastMatch,
-                                   final Set<Integer> availableIndexes) {
+            final List<Node> searchIn,
+            final int indexOfLastMatch,
+            final Set<Integer> availableIndexes) {
         final int searchSize = searchIn.size();
         for (int i = indexOfLastMatch + 1; i < searchSize; i++) {
             if (!availableIndexes.contains(Integer.valueOf(i))) {
@@ -96,12 +96,13 @@ public class DefaultNodeMatcher implements NodeMatcher {
             return elementSelector.canBeCompared((Element) n1, (Element) n2);
         }
         return nodeTypeMatcher.canBeCompared(n1.getNodeType(),
-                                             n2.getNodeType());
+                n2.getNodeType());
     }
 
     private class Match {
         private final Node node;
         private final int index;
+
         private Match(Node match, int index) {
             this.node = match;
             this.index = index;
@@ -118,8 +119,8 @@ public class DefaultNodeMatcher implements NodeMatcher {
     public static class DefaultNodeTypeMatcher implements NodeTypeMatcher {
         public boolean canBeCompared(short controlType, short testType) {
             return controlType == testType
-                || (controlType == CDATA && testType == TEXT)
-                || (controlType == TEXT && testType == CDATA);
+                    || (controlType == CDATA && testType == TEXT)
+                    || (controlType == TEXT && testType == CDATA);
         }
     }
 }

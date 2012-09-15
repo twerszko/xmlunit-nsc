@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007 Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
@@ -45,7 +45,7 @@ public interface XMLConstants {
      * &lt;?xml&gt; declaration
      */
     public static final String XML_DECLARATION =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
 
     /**
      * xmlns attribute prefix
@@ -98,7 +98,7 @@ public interface XMLConstants {
      * "!DOCTYPE"
      */
     public static final String START_DOCTYPE = "!DOCTYPE ";
-    
+
     /**
      * "/"
      */
@@ -113,17 +113,17 @@ public interface XMLConstants {
      * "]"
      */
     public static final String XPATH_NODE_INDEX_END = "]";
-    
+
     /**
      * "comment()"
      */
     public static final String XPATH_COMMENT_IDENTIFIER = "comment()";
-    
+
     /**
      * "processing-instruction()"
      */
     public static final String XPATH_PROCESSING_INSTRUCTION_IDENTIFIER = "processing-instruction()";
-    
+
     /**
      * "text()"
      */
@@ -137,24 +137,20 @@ public interface XMLConstants {
     /**
      * http://www.w3.org/2001/XMLSchema
      */
-    public static final String W3C_XML_SCHEMA_NS_URI
-        = "http://www.w3.org/2001/XMLSchema";
+    public static final String W3C_XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
     /**
      * http://www.w3.org/2001/XMLSchema-instance
      */
-    public static final String W3C_XML_SCHEMA_INSTANCE_NS_URI
-        = "http://www.w3.org/2001/XMLSchema-instance";
+    public static final String W3C_XML_SCHEMA_INSTANCE_NS_URI = "http://www.w3.org/2001/XMLSchema-instance";
 
     /**
      * "schemaLocation"
      */
-    public static final String W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR
-        = "schemaLocation";
+    public static final String W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR = "schemaLocation";
 
     /**
      * "noNamespaceSchemaLocation"
      */
-    String W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR
-        = "noNamespaceSchemaLocation";
+    String W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR = "noNamespaceSchemaLocation";
 }

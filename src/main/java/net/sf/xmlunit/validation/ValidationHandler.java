@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.validation;
 
 import java.util.Collections;
@@ -24,7 +24,7 @@ import org.xml.sax.SAXParseException;
  */
 final class ValidationHandler implements ErrorHandler {
     private List<ValidationProblem> problems =
-        new LinkedList<ValidationProblem>();
+            new LinkedList<ValidationProblem>();
     private boolean valid = true;
     // fatal errors are re-thrown by the parser
     private SAXParseException lastFatalError = null;
@@ -33,9 +33,9 @@ final class ValidationHandler implements ErrorHandler {
         if (e != lastFatalError) {
             valid = false;
             problems.add(ValidationProblem.fromException(e,
-                                                         ValidationProblem
-                                                         .ProblemType.ERROR)
-                         );
+                    ValidationProblem
+                    .ProblemType.ERROR)
+                    );
         }
     }
 
@@ -43,19 +43,18 @@ final class ValidationHandler implements ErrorHandler {
         valid = false;
         lastFatalError = e;
         problems.add(ValidationProblem.fromException(e,
-                                                     ValidationProblem
-                                                     .ProblemType.ERROR));
+                ValidationProblem
+                .ProblemType.ERROR));
     }
 
     public void warning(SAXParseException e) {
         problems.add(ValidationProblem.fromException(e,
-                                                     ValidationProblem
-                                                     .ProblemType.WARNING));
+                ValidationProblem
+                .ProblemType.WARNING));
     }
 
     ValidationResult getResult() {
         return new ValidationResult(valid,
-                                    Collections.unmodifiableList(problems)
-                                    );
+                Collections.unmodifiableList(problems));
     }
 }

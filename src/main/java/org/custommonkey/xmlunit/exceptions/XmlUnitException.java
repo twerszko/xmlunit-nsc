@@ -42,24 +42,24 @@ package org.custommonkey.xmlunit.exceptions;
 @SuppressWarnings("serial")
 public abstract class XmlUnitException extends Exception {
 
-	/**
-	 * Inititializes the exeption.
-	 * 
-	 * @param message
-	 *            the detail message
-	 * @param cause
-	 *            the root cause of the exception
-	 */
-	public XmlUnitException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * Inititializes the exeption.
+     * 
+     * @param message
+     *            the detail message
+     * @param cause
+     *            the root cause of the exception
+     */
+    public XmlUnitException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public XmlUnitException(Throwable cause) {
-		super(cause);
-	}
+    public XmlUnitException(Throwable cause) {
+        super(cause);
+    }
 
-	public XmlUnitException(String message) {
-		super(message);
-	}
+    public XmlUnitException(String message) {
+        super(message);
+    }
 
 }

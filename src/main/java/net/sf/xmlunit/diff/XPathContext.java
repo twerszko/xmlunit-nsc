@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class XPathContext {
         Level current = path.getLast();
         for (QName attribute : attributes) {
             current.attributes.put(attribute,
-                                   new Level(ATTR + getName(attribute)));
+                    new Level(ATTR + getName(attribute)));
         }
     }
 
@@ -112,7 +112,7 @@ public class XPathContext {
             case Node.ELEMENT_NODE:
                 String name = getName(child.getName());
                 l = new Level(name + OPEN + add1OrIncrement(name, elements)
-                              + CLOSE);
+                        + CLOSE);
                 break;
             default:
                 // more or less ignore
@@ -142,9 +142,9 @@ public class XPathContext {
     }
 
     /**
-     * Increments the value name maps to or adds 1 as value if name
-     * isn't present inside the map.
-     *
+     * Increments the value name maps to or adds 1 as value if name isn't
+     * present inside the map.
+     * 
      * @return the new mapping for name
      */
     private static int add1OrIncrement(String name, Map<String, Integer> map) {
@@ -158,6 +158,7 @@ public class XPathContext {
         private final String expression;
         private List<Level> children = new ArrayList<Level>();
         private Map<QName, Level> attributes = new HashMap<QName, Level>();
+
         private Level(String expression) {
             this.expression = expression;
         }
@@ -165,17 +166,25 @@ public class XPathContext {
 
     public static interface NodeInfo {
         QName getName();
+
         short getType();
     }
 
     public static final class DOMNodeInfo implements NodeInfo {
         private QName name;
         private short type;
+
         public DOMNodeInfo(Node n) {
             name = Nodes.getQName(n);
             type = n.getNodeType();
         }
-        public QName getName() { return name; }
-        public short getType() { return type; }
+
+        public QName getName() {
+            return name;
+        }
+
+        public short getType() {
+            return type;
+        }
     }
 }

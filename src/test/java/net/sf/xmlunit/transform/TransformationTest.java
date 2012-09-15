@@ -29,29 +29,29 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 public class TransformationTest {
-	private Transformation transformation;
+    private Transformation transformation;
 
-	@Before
-	public void createTransformation() throws IOException {
-		transformation = new Transformation(Input.fromFile(TestResources.DOG_FILE.getFile()).build());
-		transformation.setStylesheet(Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build());
-	}
+    @Before
+    public void createTransformation() throws IOException {
+        transformation = new Transformation(Input.fromFile(TestResources.DOG_FILE.getFile()).build());
+        transformation.setStylesheet(Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build());
+    }
 
-	@Test
-	public void transformAnimalToString() {
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>", transformation.transformToString());
-	}
+    @Test
+    public void transformAnimalToString() {
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>", transformation.transformToString());
+    }
 
-	@Test
-	public void transformAnimalToDocument() {
-		Document doc = transformation.transformToDocument();
-		assertEquals("dog", doc.getDocumentElement().getTagName());
-	}
+    @Test
+    public void transformAnimalToDocument() {
+        Document doc = transformation.transformToDocument();
+        assertEquals("dog", doc.getDocumentElement().getTagName());
+    }
 
-	@Test
-	public void transformAnimalToHtml() {
-		transformation.addOutputProperty(OutputKeys.METHOD, "html");
-		assertThat(transformation.transformToString(), not("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"));
-	}
+    @Test
+    public void transformAnimalToHtml() {
+        transformation.addOutputProperty(OutputKeys.METHOD, "html");
+        assertThat(transformation.transformToString(), not("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"));
+    }
 
 }

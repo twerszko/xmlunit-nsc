@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-        * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
           notice, this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
           copyright notice, this list of conditions and the following
           disclaimer in the documentation and/or other materials provided
           with the distribution.
-        * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
           of its contributors may be used to endorse or promote products
           derived from this software without specific prior written
           permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
@@ -43,18 +43,24 @@ import org.w3c.dom.Element;
  * Interface used by the DifferenceEngine class to determine which elements can
  * be compared within a NodeList of child nodes.
  * 
- * <br />Examples and more at 
- * <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
- * @see DifferenceEngine#compareNodeList(NodeList, NodeList, int, DifferenceListener, ElementQualifier)
+ * <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 
+ * @see DifferenceEngine#compareNodeList(NodeList, NodeList, int,
+ *      DifferenceListener, ElementQualifier)
  * @see Diff#overrideElementQualifier(ElementQualifier)
  */
 
 public interface ElementQualifier {
     /**
      * Determine whether two elements are comparable
-     * @param control an Element from the control XML NodeList
-     * @param test an Element from the test XML NodeList
+     * 
+     * @param control
+     *            an Element from the control XML NodeList
+     * @param test
+     *            an Element from the test XML NodeList
      * @return true if the elements are comparable, false otherwise
      */
-    boolean qualifyForComparison(Element control, Element test); 
+    boolean qualifyForComparison(Element control, Element test);
 }

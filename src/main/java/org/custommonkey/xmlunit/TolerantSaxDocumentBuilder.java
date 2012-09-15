@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
@@ -56,16 +56,17 @@ import org.xml.sax.helpers.DefaultHandler;
  * Uses Sax events from the <code>ContentHandler</code> and
  * <code>LexicalHandler</code> interfaces to build a DOM document in a tolerant
  * fashion -- it can cope with start tags without end tags, and end tags without
- * start tags for example.
- * Although this subverts the idea of XML being well-formed, it is intended
- * for use with HTML pages so that they can be transformed into DOM
- * trees, without being XHTML to start with.
- * Note that this class currently does not handle entity, DTD or CDATA tags.
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * start tags for example. Although this subverts the idea of XML being
+ * well-formed, it is intended for use with HTML pages so that they can be
+ * transformed into DOM trees, without being XHTML to start with. Note that this
+ * class currently does not handle entity, DTD or CDATA tags. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 
  * @see HTMLDocumentBuilder#parse
  */
 public class TolerantSaxDocumentBuilder
-    extends DefaultHandler implements LexicalHandler {
+        extends DefaultHandler implements LexicalHandler {
     private final DocumentBuilder documentBuilder;
     private final StringBuffer traceBuffer;
     private Document currentDocument;
@@ -73,12 +74,14 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * Constructor for specific JAXP parser
-     * @param documentBuilder the JAXP parser to use to construct an empty
-     *  DOM document that will be built up with SAX calls
+     * 
+     * @param documentBuilder
+     *            the JAXP parser to use to construct an empty DOM document that
+     *            will be built up with SAX calls
      * @throws ParserConfigurationException
      */
     public TolerantSaxDocumentBuilder(DocumentBuilder documentBuilder)
-        throws ParserConfigurationException {
+            throws ParserConfigurationException {
         this.documentBuilder = documentBuilder;
         this.traceBuffer = new StringBuffer();
     }
@@ -99,6 +102,7 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * ContentHandler method
+     * 
      * @throws SAXException
      */
     public void startDocument() throws SAXException {
@@ -110,6 +114,7 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * ContentHandler method
+     * 
      * @throws SAXException
      */
     public void endDocument() throws SAXException {
@@ -120,7 +125,7 @@ public class TolerantSaxDocumentBuilder
      * ContentHandler method.
      */
     public void characters(char[] data, int start, int length) {
-        if (length >= 0)  {
+        if (length >= 0) {
             String characterData = new String(data, start, length);
             trace("characters:" + characterData);
             if (currentElement == null) {
@@ -136,10 +141,11 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * ContentHandler method
+     * 
      * @throws SAXException
      */
     public void startElement(String namespaceURI, String localName,
-                             String qName, Attributes atts) throws SAXException {
+            String qName, Attributes atts) throws SAXException {
         trace("startElement:" + localName + "~" + qName);
         Element newElement = createElement(namespaceURI, qName, atts);
         appendNode(newElement);
@@ -148,12 +154,13 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * ContentHandler method
+     * 
      * @throws SAXException
      */
     public void endElement(String namespaceURI, String localName,
-                           String qName) throws SAXException {
+            String qName) throws SAXException {
         trace("endElement:" + localName + "~" + qName);
-        if (currentElement==null) {
+        if (currentElement == null) {
             warn(qName + ": endElement before any startElement");
             return;
         }
@@ -165,19 +172,19 @@ public class TolerantSaxDocumentBuilder
         while (!(foundTagToEnd || atDocumentRoot)) {
             parentNode = currentElement.getParentNode();
 
-            if (parentNode.getNodeType()==Node.ELEMENT_NODE) {
+            if (parentNode.getNodeType() == Node.ELEMENT_NODE) {
                 foundTagToEnd = isElementMatching(currentElement, qName);
                 currentElement = (Element) parentNode;
-            } else if (parentNode.getNodeType()==Node.DOCUMENT_NODE) {
+            } else if (parentNode.getNodeType() == Node.DOCUMENT_NODE) {
                 atDocumentRoot = true;
-                if (startElement==currentDocument.getDocumentElement()) {
+                if (startElement == currentDocument.getDocumentElement()) {
                     foundTagToEnd = isElementMatching(startElement, qName);
                 } else {
                     currentElement = startElement;
                 }
             } else {
                 throw new IllegalArgumentException("Closing element " + qName
-                                                   + ": expecting a parent ELEMENT_NODE but found " + parentNode);
+                        + ": expecting a parent ELEMENT_NODE but found " + parentNode);
             }
         }
         if (!foundTagToEnd) {
@@ -186,12 +193,13 @@ public class TolerantSaxDocumentBuilder
     }
 
     private boolean isElementMatching(Element anElement, String qname) {
-        return anElement.getNodeName()!=null
-            && anElement.getNodeName().equals(qname);
+        return anElement.getNodeName() != null
+                && anElement.getNodeName().equals(qname);
     }
 
     /**
      * Unhandled ContentHandler method
+     * 
      * @throws SAXException
      */
     public void endPrefixMapping(String prefix) throws SAXException {
@@ -200,110 +208,121 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * Unhandled ContentHandler method
+     * 
      * @throws SAXException
      */
-    public void ignorableWhitespace (char ch[], int start, int length)
-        throws SAXException {
+    public void ignorableWhitespace(char ch[], int start, int length)
+            throws SAXException {
         unhandled("ignorableWhitespace");
     }
 
     /**
      * ContentHandler method
+     * 
      * @throws SAXException
      */
     public void processingInstruction(String target, String data)
-        throws SAXException {
+            throws SAXException {
         trace("processingInstruction");
         ProcessingInstruction instruction =
-            currentDocument.createProcessingInstruction(target, data);
+                currentDocument.createProcessingInstruction(target, data);
         appendNode(instruction);
     }
 
     /**
      * Unhandled ContentHandler method
      */
-    public void setDocumentLocator (Locator locator) {
+    public void setDocumentLocator(Locator locator) {
         unhandled("setDocumentLocator");
     }
 
     /**
      * Unhandled ContentHandler method
+     * 
      * @throws SAXException
      */
-    public void skippedEntity (String name) throws SAXException {
+    public void skippedEntity(String name) throws SAXException {
         unhandled("skippedEntity");
     }
 
     /**
      * Unhandled ContentHandler method
+     * 
      * @throws SAXException
      */
-    public void startPrefixMapping (String prefix, String uri)
-        throws SAXException {
+    public void startPrefixMapping(String prefix, String uri)
+            throws SAXException {
         unhandled("startPrefixMapping");
     }
 
     /**
-     * Unhandled LexicalHandler method.
-     * DOM currently doesn't allow DTD to be retrofitted onto a Document.
+     * Unhandled LexicalHandler method. DOM currently doesn't allow DTD to be
+     * retrofitted onto a Document.
+     * 
      * @throws SAXException
      */
-    public void startDTD (String name, String publicId,
-                          String systemId) throws SAXException {
+    public void startDTD(String name, String publicId,
+            String systemId) throws SAXException {
         unhandled("startDTD");
     }
 
     /**
      * Unhandled LexicalHandler method
+     * 
      * @throws SAXException
      */
-    public void endDTD ()
-        throws SAXException {
+    public void endDTD()
+            throws SAXException {
         unhandled("endDTD");
     }
 
     /**
      * Unhandled LexicalHandler method
+     * 
      * @throws SAXException
      */
-    public void startEntity (String name)
-        throws SAXException {
+    public void startEntity(String name)
+            throws SAXException {
         unhandled("startEntity");
     }
 
     /**
      * Unhandled LexicalHandler method
+     * 
      * @throws SAXException
      */
-    public void endEntity (String name)
-        throws SAXException {
+    public void endEntity(String name)
+            throws SAXException {
         unhandled("endEntity");
     }
 
     /**
      * Unhandled LexicalHandler method
+     * 
      * @throws SAXException
      */
-    public void startCDATA ()
-        throws SAXException {
+    public void startCDATA()
+            throws SAXException {
         unhandled("startCDATA");
     }
 
     /**
      * Unhandled LexicalHandler method
+     * 
      * @throws SAXException
      */
-    public void endCDATA ()
-        throws SAXException {
+    public void endCDATA()
+            throws SAXException {
         unhandled("endCDATA");
     }
 
     /**
      * LexicalHandler method
+     * 
      * @throws SAXException
      */
     public void comment(char ch[], int start, int length)
-        throws SAXException     {
+            throws SAXException {
         String commentText = new String(ch, start, length);
         trace("comment:" + commentText);
         Comment comment = currentDocument.createComment(commentText);
@@ -312,6 +331,7 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * Log an unhandled ContentHandler or LexicalHandler method
+     * 
      * @param method
      */
     private void unhandled(String method) {
@@ -320,6 +340,7 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * Log a warning about badly formed markup
+     * 
      * @param msg
      */
     private void warn(String msg) {
@@ -327,8 +348,9 @@ public class TolerantSaxDocumentBuilder
     }
 
     /**
-     * Log a handled ContentHandler or LexicalHandler method
-     * for tracing / debug purposes
+     * Log a handled ContentHandler or LexicalHandler method for tracing / debug
+     * purposes
+     * 
      * @param method
      */
     private void trace(String method) {
@@ -337,37 +359,39 @@ public class TolerantSaxDocumentBuilder
 
     /**
      * Create a DOM Element for insertion into the current document
+     * 
      * @param namespaceURI
      * @param qName
      * @param attributes
      * @return the created Element
      */
     private Element createElement(String namespaceURI, String qName,
-                                  Attributes attributes) {
+            Attributes attributes) {
         Element newElement = currentDocument.createElement(qName);
 
         if (namespaceURI != null && namespaceURI.length() > 0) {
             newElement.setPrefix(namespaceURI);
         }
 
-        for(int i = 0; attributes != null && i < attributes.getLength(); ++i) {
+        for (int i = 0; attributes != null && i < attributes.getLength(); ++i) {
             newElement.setAttribute(attributes.getQName(i),
-                                    attributes.getValue(i));
+                    attributes.getValue(i));
         }
 
         return newElement;
     }
 
     /**
-     * Append a node to the current document or the current element in the document
+     * Append a node to the current document or the current element in the
+     * document
+     * 
      * @param appendNode
      */
     private void appendNode(Node appendNode) {
-        if (currentElement==null) {
+        if (currentElement == null) {
             currentDocument.appendChild(appendNode);
         } else {
             currentElement.appendChild(appendNode);
         }
     }
 }
-

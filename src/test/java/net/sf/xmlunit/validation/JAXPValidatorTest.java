@@ -31,65 +31,65 @@ import org.junit.Test;
 
 public class JAXPValidatorTest {
 
-	@Test
-	public void shouldSuccessfullyValidateSchema() throws IOException {
-		JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
-		ValidationResult r = v.validateSchema();
-		assertTrue(r.isValid());
-		assertFalse(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldSuccessfullyValidateSchema() throws IOException {
+        JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
+        ValidationResult r = v.validateSchema();
+        assertTrue(r.isValid());
+        assertFalse(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldSuccessfullyValidateInstance() throws IOException {
-		JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
-		ValidationResult r = v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
-		assertTrue(r.isValid());
-		assertFalse(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldSuccessfullyValidateInstance() throws IOException {
+        JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
+        ValidationResult r = v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
+        assertTrue(r.isValid());
+        assertFalse(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldFailOnBrokenSchema() throws IOException {
-		JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BROKEN_XSD.getFile()));
-		ValidationResult r = v.validateSchema();
-		assertFalse(r.isValid());
-		assertTrue(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldFailOnBrokenSchema() throws IOException {
+        JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BROKEN_XSD.getFile()));
+        ValidationResult r = v.validateSchema();
+        assertFalse(r.isValid());
+        assertTrue(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldFailOnBrokenInstance() throws IOException {
-		JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
-		ValidationResult r = v.validateInstance(new StreamSource(TestResources.INVALID_BOOK.getFile()));
-		assertFalse(r.isValid());
-		assertTrue(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldFailOnBrokenInstance() throws IOException {
+        JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
+        ValidationResult r = v.validateInstance(new StreamSource(TestResources.INVALID_BOOK.getFile()));
+        assertFalse(r.isValid());
+        assertTrue(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldThrowWhenValidatingInstanceAndSchemaIsInvalid() throws IOException {
-		JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BROKEN_XSD.getFile()));
-		try {
-			v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
-			fail("should have thrown an exception");
-		} catch (Exception e) {
-			assertThat(e, instanceOf(XMLUnitException.class));
-		}
-	}
+    @Test
+    public void shouldThrowWhenValidatingInstanceAndSchemaIsInvalid() throws IOException {
+        JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BROKEN_XSD.getFile()));
+        try {
+            v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
+            fail("should have thrown an exception");
+        } catch (Exception e) {
+            assertThat(e, instanceOf(XMLUnitException.class));
+        }
+    }
 
-	@Test
-	public void shouldThrowWhenValidatingInstanceAndSchemaIsNotThere() throws IOException {
-		JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		File tempFile = File.createTempFile("xmlunit", ".xsd");
-		tempFile.delete();
-		v.setSchemaSource(new StreamSource(tempFile));
-		try {
-			v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
-			fail("should have thrown an exception");
-		} catch (Exception e) {
-			assertThat(e, instanceOf(XMLUnitException.class));
-		}
-	}
+    @Test
+    public void shouldThrowWhenValidatingInstanceAndSchemaIsNotThere() throws IOException {
+        JAXPValidator v = new JAXPValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        File tempFile = File.createTempFile("xmlunit", ".xsd");
+        tempFile.delete();
+        v.setSchemaSource(new StreamSource(tempFile));
+        try {
+            v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
+            fail("should have thrown an exception");
+        } catch (Exception e) {
+            assertThat(e, instanceOf(XMLUnitException.class));
+        }
+    }
 }

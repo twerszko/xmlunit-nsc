@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 /**
@@ -19,8 +19,8 @@ package net.sf.xmlunit.diff;
 public class Comparison {
 
     /**
-     * The details of a target (usually some representation of an XML
-     * Node) that took part in the comparison.
+     * The details of a target (usually some representation of an XML Node) that
+     * took part in the comparison.
      */
     public static class Detail {
         private final Object target;
@@ -36,23 +36,31 @@ public class Comparison {
         /**
          * The actual target.
          */
-        public Object getTarget() { return target; }
+        public Object getTarget() {
+            return target;
+        }
+
         /**
          * XPath leading to the target.
          */
-        public String getXPath() { return xpath; }
+        public String getXPath() {
+            return xpath;
+        }
+
         /**
          * The value for comparison found at the current target.
          */
-        public Object getValue() { return value; }
+        public Object getValue() {
+            return value;
+        }
     }
 
     private final Detail control, test;
     private final ComparisonType type;
 
     public Comparison(ComparisonType t, Object controlTarget,
-                      String controlXPath, Object controlValue,
-                      Object testTarget, String testXPath, Object testValue) {
+            String controlXPath, Object controlValue,
+            Object testTarget, String testXPath, Object testValue) {
         type = t;
         control = new Detail(controlTarget, controlXPath, controlValue);
         test = new Detail(testTarget, testXPath, testValue);

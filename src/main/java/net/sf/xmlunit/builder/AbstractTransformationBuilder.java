@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.builder;
 
 import javax.xml.transform.Source;
@@ -20,36 +20,44 @@ import net.sf.xmlunit.transform.Transformation;
 
 /**
  * Base class providing the common logic of the XSLT related builders.
- *
- * <p>Not intended to be used outside of this package.</p>
- *
- * <p>I wish there was a way to say <code>implements B</code>.</p>
+ * 
+ * <p>
+ * Not intended to be used outside of this package.
+ * </p>
+ * 
+ * <p>
+ * I wish there was a way to say <code>implements B</code>.
+ * </p>
  */
-abstract class
-    AbstractTransformationBuilder<B extends TransformationBuilderBase<B>>
-    implements TransformationBuilderBase<B> {
+abstract class AbstractTransformationBuilder<B extends TransformationBuilderBase<B>>
+        implements TransformationBuilderBase<B> {
 
     private final Transformation helper;
 
     protected AbstractTransformationBuilder(Source s) {
         helper = new Transformation(s);
     }
+
     public B withStylesheet(Source s) {
         helper.setStylesheet(s);
         return asB();
     }
+
     public B withOutputProperty(String name, String value) {
         helper.addOutputProperty(name, value);
         return asB();
     }
+
     public B withParameter(String name, Object value) {
         helper.addParameter(name, value);
         return asB();
     }
+
     public B usingFactory(TransformerFactory f) {
         helper.setFactory(f);
         return asB();
     }
+
     public B withURIResolver(URIResolver r) {
         helper.setURIResolver(r);
         return asB();

@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,24 +31,24 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 package org.custommonkey.xmlunit.examples;
 
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 
 /**
- * Expects texts to be floating point numbers and treats them as
- * identical if they only differ by a given tolerance value (or less).
+ * Expects texts to be floating point numbers and treats them as identical if
+ * they only differ by a given tolerance value (or less).
  */
 public class FloatingPointTolerantDifferenceListener
-    extends TextDifferenceListenerBase {
+        extends TextDifferenceListenerBase {
 
     private final double tolerance;
 
     public FloatingPointTolerantDifferenceListener(DifferenceListener delegateTo,
-                                                   double tolerance) {
+            double tolerance) {
         super(delegateTo);
         this.tolerance = tolerance;
     }
@@ -61,8 +61,8 @@ public class FloatingPointTolerantDifferenceListener
                 double controlVal = Double.parseDouble(control);
                 double testVal = Double.parseDouble(test);
                 return Math.abs(controlVal - testVal) < tolerance
-                    ? DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL
-                    : DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
+                        ? DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL
+                        : DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
             } catch (NumberFormatException nfe) {
                 // ignore, delegate to nested DifferenceListener
             }

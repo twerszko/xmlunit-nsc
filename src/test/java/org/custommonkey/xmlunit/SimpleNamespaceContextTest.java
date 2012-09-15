@@ -49,67 +49,67 @@ import com.google.common.collect.Maps;
 
 public class SimpleNamespaceContextTest {
 
-	@Test
-	public void should_check_if_empty_context_is_empty() {
-		// given
-		SimpleNamespaceContext emptyContext = SimpleNamespaceContext.EMPTY_CONTEXT;
+    @Test
+    public void should_check_if_empty_context_is_empty() {
+        // given
+        SimpleNamespaceContext emptyContext = SimpleNamespaceContext.EMPTY_CONTEXT;
 
-		// when
-		Iterator<String> prefixes = emptyContext.getPrefixes();
+        // when
+        Iterator<String> prefixes = emptyContext.getPrefixes();
 
-		// then
-		assertThat(prefixes.hasNext()).isFalse();
-	}
+        // then
+        assertThat(prefixes.hasNext()).isFalse();
+    }
 
-	@Test
-	public void should_check_map_with_prefixes() {
-		// given
-		Map<String, String> prefixMap = Maps.newHashMap();
-		String URI = "urn:example";
-		prefixMap.put("foo", URI);
-		prefixMap.put("bar", URI);
+    @Test
+    public void should_check_map_with_prefixes() {
+        // given
+        Map<String, String> prefixMap = Maps.newHashMap();
+        String URI = "urn:example";
+        prefixMap.put("foo", URI);
+        prefixMap.put("bar", URI);
 
-		// when
-		SimpleNamespaceContext ctx = new SimpleNamespaceContext(prefixMap);
-		List<String> prefixes = Lists.newArrayList();
-		Iterator<String> it = ctx.getPrefixes();
-		while (it.hasNext()) {
-			prefixes.add(it.next());
-		}
+        // when
+        SimpleNamespaceContext ctx = new SimpleNamespaceContext(prefixMap);
+        List<String> prefixes = Lists.newArrayList();
+        Iterator<String> it = ctx.getPrefixes();
+        while (it.hasNext()) {
+            prefixes.add(it.next());
+        }
 
-		// then
-		assertThat(ctx.getNamespaceURI("foo")).isEqualTo(URI);
-		assertThat(ctx.getNamespaceURI("bar")).isEqualTo(URI);
-		assertThat(prefixes).hasSize(2);
-		assertThat(prefixes).contains("foo", "bar");
-	}
+        // then
+        assertThat(ctx.getNamespaceURI("foo")).isEqualTo(URI);
+        assertThat(ctx.getNamespaceURI("bar")).isEqualTo(URI);
+        assertThat(prefixes).hasSize(2);
+        assertThat(prefixes).contains("foo", "bar");
+    }
 
-	@Test
-	public void should_check_if_prefix_map_is_copied_defensively() {
-		// given
-		Map<String, String> prefixMap = Maps.newHashMap();
-		String URI = "urn:example";
-		prefixMap.put("foo", URI);
-		prefixMap.put("bar", URI);
+    @Test
+    public void should_check_if_prefix_map_is_copied_defensively() {
+        // given
+        Map<String, String> prefixMap = Maps.newHashMap();
+        String URI = "urn:example";
+        prefixMap.put("foo", URI);
+        prefixMap.put("bar", URI);
 
-		// when
-		SimpleNamespaceContext ctx = new SimpleNamespaceContext(prefixMap);
+        // when
+        SimpleNamespaceContext ctx = new SimpleNamespaceContext(prefixMap);
 
-		// change a mapping
-		prefixMap.put("foo", URI + "foo");
-		// add a new one
-		prefixMap.put("foo" + "foo", URI);
+        // change a mapping
+        prefixMap.put("foo", URI + "foo");
+        // add a new one
+        prefixMap.put("foo" + "foo", URI);
 
-		List<String> prefixes = Lists.newArrayList();
-		Iterator<String> it = ctx.getPrefixes();
-		while (it.hasNext()) {
-			prefixes.add(it.next());
-		}
+        List<String> prefixes = Lists.newArrayList();
+        Iterator<String> it = ctx.getPrefixes();
+        while (it.hasNext()) {
+            prefixes.add(it.next());
+        }
 
-		// then
-		assertThat(ctx.getNamespaceURI("bar")).isEqualTo(URI);
-		assertThat(ctx.getNamespaceURI("foo")).isEqualTo(URI);
-		assertThat(prefixes).hasSize(2);
-		assertThat(prefixes).contains("foo", "bar");
-	}
+        // then
+        assertThat(ctx.getNamespaceURI("bar")).isEqualTo(URI);
+        assertThat(ctx.getNamespaceURI("foo")).isEqualTo(URI);
+        assertThat(prefixes).hasSize(2);
+        assertThat(prefixes).contains("foo", "bar");
+    }
 }

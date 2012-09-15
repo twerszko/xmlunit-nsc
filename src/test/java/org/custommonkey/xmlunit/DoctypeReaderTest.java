@@ -45,106 +45,106 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 public class DoctypeReaderTest extends AbstractDoctypeTests {
-	private static final String NEWLINE = System.getProperty("line.separator");
+    private static final String NEWLINE = System.getProperty("line.separator");
 
-	@Test
-	public void should_get_content() throws IOException {
-		// given
-		String source = "WooPDeDoO!" + NEWLINE + "GooRanga!" + NEWLINE + " plIng! ";
-		StringReader sourceReader = new StringReader(source);
+    @Test
+    public void should_get_content() throws IOException {
+        // given
+        String source = "WooPDeDoO!" + NEWLINE + "GooRanga!" + NEWLINE + " plIng! ";
+        StringReader sourceReader = new StringReader(source);
 
-		// when
-		DoctypeReader doctypeReader = new DoctypeReader(sourceReader, "nonsense", "words");
+        // when
+        DoctypeReader doctypeReader = new DoctypeReader(sourceReader, "nonsense", "words");
 
-		// then
-		assertThat(doctypeReader.getContent()).isEqualTo(source);
-		// can get content indefinitely from this reader
-		assertThat(doctypeReader.getContent()).isEqualTo(source);
-	}
+        // then
+        assertThat(doctypeReader.getContent()).isEqualTo(source);
+        // can get content indefinitely from this reader
+        assertThat(doctypeReader.getContent()).isEqualTo(source);
+    }
 
-	private DoctypeReader initDummyDoctypeReader() {
-		StringReader sourceReader = new StringReader("yabba");
-		DoctypeReader doctypeReader = new DoctypeReader(sourceReader, "yabba", "don\'t");
-		return doctypeReader;
-	}
+    private DoctypeReader initDummyDoctypeReader() {
+        StringReader sourceReader = new StringReader("yabba");
+        DoctypeReader doctypeReader = new DoctypeReader(sourceReader, "yabba", "don\'t");
+        return doctypeReader;
+    }
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void should_replace_doctype_internal_DTD() {
-		// given
-		DoctypeReader doctypeReader = initDummyDoctypeReader();
-		String input =
-		        "<!DOCTYPE cartoons [" +
-		                "<!ELEMENT name (#PCDATA)> \n" +
-		                "<!ELEMENT toon (name)> \n" +
-		                "<!ELEMENT cartoons (toon*)> \n" + "\n]>";
-		StringBuffer buf = new StringBuffer(input);
-		String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">";
+    @SuppressWarnings("deprecation")
+    @Test
+    public void should_replace_doctype_internal_DTD() {
+        // given
+        DoctypeReader doctypeReader = initDummyDoctypeReader();
+        String input =
+                "<!DOCTYPE cartoons [" +
+                        "<!ELEMENT name (#PCDATA)> \n" +
+                        "<!ELEMENT toon (name)> \n" +
+                        "<!ELEMENT cartoons (toon*)> \n" + "\n]>";
+        StringBuffer buf = new StringBuffer(input);
+        String expected = "<!DOCTYPE ni SYSTEM \"shrubbery\">";
 
-		// when
-		String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
+        // when
+        String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
 
-		// then
-		assertThat(replacedDoctype).isEqualTo(expected);
-	}
+        // then
+        assertThat(replacedDoctype).isEqualTo(expected);
+    }
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void should_replace_doctype_external_DTD() {
-		// given
-		DoctypeReader doctypeReader = initDummyDoctypeReader();
-		String expected = "<! DOCTYPE ni SYSTEM \"shrubbery\">";
-		String input = "<! DOCTYPE PUBLIC \"yak\" SYSTEM \"llama\">";
-		StringBuffer buf = new StringBuffer(input);
+    @SuppressWarnings("deprecation")
+    @Test
+    public void should_replace_doctype_external_DTD() {
+        // given
+        DoctypeReader doctypeReader = initDummyDoctypeReader();
+        String expected = "<! DOCTYPE ni SYSTEM \"shrubbery\">";
+        String input = "<! DOCTYPE PUBLIC \"yak\" SYSTEM \"llama\">";
+        StringBuffer buf = new StringBuffer(input);
 
-		// when
-		String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
+        // when
+        String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
 
-		// then
-		assertThat(replacedDoctype).isEqualTo(expected);
-	}
+        // then
+        assertThat(replacedDoctype).isEqualTo(expected);
+    }
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void should_replace_doctype_no_DTD() {
-		// given
-		DoctypeReader doctypeReader = initDummyDoctypeReader();
-		String input = "<!DOCTYPE ni SYSTEM \"shrubbery\">";
-		StringBuffer buf = new StringBuffer(NO_DTD_XML);
+    @SuppressWarnings("deprecation")
+    @Test
+    public void should_replace_doctype_no_DTD() {
+        // given
+        DoctypeReader doctypeReader = initDummyDoctypeReader();
+        String input = "<!DOCTYPE ni SYSTEM \"shrubbery\">";
+        StringBuffer buf = new StringBuffer(NO_DTD_XML);
 
-		// when
-		String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
+        // when
+        String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
 
-		// then
-		assertThat(replacedDoctype).isEqualTo(input + NO_DTD_XML);
-	}
+        // then
+        assertThat(replacedDoctype).isEqualTo(input + NO_DTD_XML);
+    }
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void should_replace_doctype_no_DTD_but_XML_decl() {
-		// given
-		DoctypeReader doctypeReader = initDummyDoctypeReader();
-		String input = XMLConstants.XML_DECLARATION + NO_DTD_XML;
-		String expected =
-		        XMLConstants.XML_DECLARATION +
-		                "<!DOCTYPE ni SYSTEM \"shrubbery\">" +
-		                NO_DTD_XML;
-		StringBuffer buf = new StringBuffer(input);
+    @SuppressWarnings("deprecation")
+    @Test
+    public void should_replace_doctype_no_DTD_but_XML_decl() {
+        // given
+        DoctypeReader doctypeReader = initDummyDoctypeReader();
+        String input = XMLConstants.XML_DECLARATION + NO_DTD_XML;
+        String expected =
+                XMLConstants.XML_DECLARATION +
+                        "<!DOCTYPE ni SYSTEM \"shrubbery\">" +
+                        NO_DTD_XML;
+        StringBuffer buf = new StringBuffer(input);
 
-		// when
-		String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
+        // when
+        String replacedDoctype = doctypeReader.replaceDoctype(buf, "ni", "shrubbery");
 
-		// then
-		assertThat(replacedDoctype).isEqualTo(expected);
-	}
+        // then
+        assertThat(replacedDoctype).isEqualTo(expected);
+    }
 
-	@Override
-	protected String getDoctyped(String expected, String input, String docType, String systemId)
-	        throws IOException {
+    @Override
+    protected String getDoctyped(String expected, String input, String docType, String systemId)
+            throws IOException {
 
-		DoctypeReader doctypeReader =
-		        new DoctypeReader(new StringReader(expected), docType, systemId);
+        DoctypeReader doctypeReader =
+                new DoctypeReader(new StringReader(expected), docType, systemId);
 
-		return IOUtils.toString(doctypeReader);
-	}
+        return IOUtils.toString(doctypeReader);
+    }
 }

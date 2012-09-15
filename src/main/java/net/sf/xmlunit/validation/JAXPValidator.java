@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.validation;
 
 import javax.xml.transform.Source;
@@ -40,7 +40,8 @@ public class JAXPValidator extends Validator {
         return factory == null ? SchemaFactory.newInstance(language) : factory;
     }
 
-    @Override public ValidationResult validateSchema() {
+    @Override
+    public ValidationResult validateSchema() {
         ValidationHandler v = new ValidationHandler();
         SchemaFactory f = getFactory();
         f.setErrorHandler(v);
@@ -58,7 +59,8 @@ public class JAXPValidator extends Validator {
         return v.getResult();
     }
 
-    @Override public ValidationResult validateInstance(Source s) {
+    @Override
+    public ValidationResult validateInstance(Source s) {
         Schema schema;
         try {
             schema = getFactory().newSchema(getSchemaSources());

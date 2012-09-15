@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 import java.util.Map;
@@ -26,14 +26,14 @@ public interface DifferenceEngine {
     void addComparisonListener(ComparisonListener l);
 
     /**
-     * Registers a listener that is notified of each comparison with
-     * outcome {@link ComparisonResult#EQUAL}.
+     * Registers a listener that is notified of each comparison with outcome
+     * {@link ComparisonResult#EQUAL}.
      */
     void addMatchListener(ComparisonListener l);
 
     /**
-     * Registers a listener that is notified of each comparison with
-     * outcome other than {@link ComparisonResult#EQUAL}.
+     * Registers a listener that is notified of each comparison with outcome
+     * other than {@link ComparisonResult#EQUAL}.
      */
     void addDifferenceListener(ComparisonListener l);
 
@@ -43,20 +43,22 @@ public interface DifferenceEngine {
     void setNodeMatcher(NodeMatcher n);
 
     /**
-     * Determines whether the comparison should stop after given
-     * difference has been found.
+     * Determines whether the comparison should stop after given difference has
+     * been found.
      */
     void setDifferenceEvaluator(DifferenceEvaluator e);
 
     /**
-     * Establish a namespace context that will be used in {@link
-     * Comparison.Detail#getXPath Comparison.Detail#getXPath}.
-     *
-     * <p>Without a namespace context (or with an empty context) the
-     * XPath expressions will only use local names for elements and
-     * attributes.</p>
-     *
-     * @param uri2Prefix maps from namespace URI to prefix.
+     * Establish a namespace context that will be used in
+     * {@link Comparison.Detail#getXPath Comparison.Detail#getXPath}.
+     * 
+     * <p>
+     * Without a namespace context (or with an empty context) the XPath
+     * expressions will only use local names for elements and attributes.
+     * </p>
+     * 
+     * @param uri2Prefix
+     *            maps from namespace URI to prefix.
      */
     void setNamespaceContext(Map<String, String> uri2Prefix);
 

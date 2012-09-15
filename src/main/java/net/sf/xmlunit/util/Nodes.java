@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.util;
 
 import java.util.LinkedHashMap;
@@ -31,27 +31,26 @@ import org.w3c.dom.Text;
  * Utility algorithms that work on DOM nodes.
  */
 public final class Nodes {
-    private Nodes() { }
+    private Nodes() {
+    }
 
     /**
-     * Extracts a Node's name, namespace URI (if any) and prefix as a
-     * QName.
+     * Extracts a Node's name, namespace URI (if any) and prefix as a QName.
      */
     public static QName getQName(Node n) {
         String s = n.getLocalName();
         String p = n.getPrefix();
         return s != null
-            ? new QName(n.getNamespaceURI(), s,
-                        p != null ? p: XMLConstants.DEFAULT_NS_PREFIX)
-            : new QName(n.getNodeName());
+                ? new QName(n.getNamespaceURI(), s,
+                        p != null ? p : XMLConstants.DEFAULT_NS_PREFIX)
+                : new QName(n.getNodeName());
     }
 
     /**
-     * Tries to merge all direct Text and CDATA children of the given
-     * Node and concatenates their value.
-     *
-     * @return an empty string if the Node has no Text or CDATA
-     * children.
+     * Tries to merge all direct Text and CDATA children of the given Node and
+     * concatenates their value.
+     * 
+     * @return an empty string if the Node has no Text or CDATA children.
      */
     public static String getMergedNestedText(Node n) {
         StringBuilder sb = new StringBuilder();
@@ -83,10 +82,10 @@ public final class Nodes {
     }
 
     /**
-     * Creates a new Node (of the same type as the original node) that
-     * is similar to the orginal but doesn't contain any empty text or
-     * CDATA nodes and where all textual content including attribute
-     * values or comments are trimmed.
+     * Creates a new Node (of the same type as the original node) that is
+     * similar to the orginal but doesn't contain any empty text or CDATA nodes
+     * and where all textual content including attribute values or comments are
+     * trimmed.
      */
     public static Node stripWhitespace(Node original) {
         Node cloned = original.cloneNode(true);
@@ -96,14 +95,15 @@ public final class Nodes {
     }
 
     /**
-     * Creates a new Node (of the same type as the original node) that
-     * is similar to the orginal but doesn't contain any empty text or
-     * CDATA nodes and where all textual content including attribute
-     * values or comments are trimmed and normalized.
-     *
-     * <p>"normalized" in this context means all whitespace characters
-     * are replaced by space characters and consecutive whitespace
-     * characaters are collapsed.</p>
+     * Creates a new Node (of the same type as the original node) that is
+     * similar to the orginal but doesn't contain any empty text or CDATA nodes
+     * and where all textual content including attribute values or comments are
+     * trimmed and normalized.
+     * 
+     * <p>
+     * "normalized" in this context means all whitespace characters are replaced
+     * by space characters and consecutive whitespace characaters are collapsed.
+     * </p>
      */
     public static Node normalizeWhitespace(Node original) {
         Node cloned = original.cloneNode(true);
@@ -113,9 +113,11 @@ public final class Nodes {
     }
 
     /**
-     * Trims textual content of this node, removes empty text and
-     * CDATA children, recurses into its child nodes.
-     * @param normalize whether to normalize whitespace as well
+     * Trims textual content of this node, removes empty text and CDATA
+     * children, recurses into its child nodes.
+     * 
+     * @param normalize
+     *            whether to normalize whitespace as well
      */
     private static void handleWsRec(Node n, boolean normalize) {
         if (n instanceof CharacterData || n instanceof ProcessingInstruction) {
@@ -129,8 +131,8 @@ public final class Nodes {
         for (Node child : new IterableNodeList(n.getChildNodes())) {
             handleWsRec(child, normalize);
             if (!(n instanceof Attr)
-                && (child instanceof Text || child instanceof CDATASection)
-                && child.getNodeValue().length() == 0) {
+                    && (child instanceof Text || child instanceof CDATASection)
+                    && child.getNodeValue().length() == 0) {
                 toRemove.add(child);
             }
         }
@@ -150,10 +152,11 @@ public final class Nodes {
 
     /**
      * Normalize a string.
-     *
-     * <p>"normalized" in this context means all whitespace characters
-     * are replaced by space characters and consecutive whitespace
-     * characaters are collapsed.</p>
+     * 
+     * <p>
+     * "normalized" in this context means all whitespace characters are replaced
+     * by space characters and consecutive whitespace characaters are collapsed.
+     * </p>
      */
     static String normalize(String s) {
         StringBuilder sb = new StringBuilder();

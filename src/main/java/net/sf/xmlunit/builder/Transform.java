@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.builder;
 
 import javax.xml.transform.Result;
@@ -29,15 +29,18 @@ public final class Transform {
          */
         TransformationResult build();
     }
+
     public interface TransformationResult {
         /**
          * Output the result to a TraX Result.
          */
         void to(Result r);
+
         /**
          * Output the result to a String.
          */
         String toString();
+
         /**
          * Output the result to a DOM Document.
          */
@@ -45,20 +48,25 @@ public final class Transform {
     }
 
     private static class TransformationBuilder
-        extends AbstractTransformationBuilder<Builder>
-        implements Builder, TransformationResult {
+            extends AbstractTransformationBuilder<Builder>
+            implements Builder, TransformationResult {
         private TransformationBuilder(Source s) {
             super(s);
         }
+
         public TransformationResult build() {
             return this;
         }
-        @Override public String toString() {
+
+        @Override
+        public String toString() {
             return getHelper().transformToString();
         }
+
         public Document toDocument() {
             return getHelper().transformToDocument();
         }
+
         public void to(Result r) {
             getHelper().transformTo(r);
         }

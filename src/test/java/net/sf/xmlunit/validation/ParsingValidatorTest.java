@@ -26,43 +26,43 @@ import org.junit.Test;
 
 public class ParsingValidatorTest {
 
-	@Test
-	public void shouldSuccessfullyValidateSchemaInstance() throws IOException {
-		ParsingValidator v =
-		        new ParsingValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
-		ValidationResult r = v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
-		assertTrue(r.isValid());
-		assertFalse(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldSuccessfullyValidateSchemaInstance() throws IOException {
+        ParsingValidator v =
+                new ParsingValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
+        ValidationResult r = v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
+        assertTrue(r.isValid());
+        assertFalse(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldFailOnBrokenSchemaInstance() throws IOException {
-		ParsingValidator v =
-		        new ParsingValidator(Languages.W3C_XML_SCHEMA_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
-		ValidationResult r = v.validateInstance(new StreamSource(TestResources.INVALID_BOOK.getFile()));
-		assertFalse(r.isValid());
-		assertTrue(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldFailOnBrokenSchemaInstance() throws IOException {
+        ParsingValidator v =
+                new ParsingValidator(Languages.W3C_XML_SCHEMA_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_XSD.getFile()));
+        ValidationResult r = v.validateInstance(new StreamSource(TestResources.INVALID_BOOK.getFile()));
+        assertFalse(r.isValid());
+        assertTrue(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldSuccessfullyValidateDTDInstance() throws IOException {
-		ParsingValidator v =
-		        new ParsingValidator(Languages.XML_DTD_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_DTD.getFile()));
-		ValidationResult r = v.validateInstance(new StreamSource(TestResources.BOOK_WITH_DOC_TYPE.getFile()));
-		assertTrue(r.isValid());
-		assertFalse(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldSuccessfullyValidateDTDInstance() throws IOException {
+        ParsingValidator v =
+                new ParsingValidator(Languages.XML_DTD_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_DTD.getFile()));
+        ValidationResult r = v.validateInstance(new StreamSource(TestResources.BOOK_WITH_DOC_TYPE.getFile()));
+        assertTrue(r.isValid());
+        assertFalse(r.getProblems().iterator().hasNext());
+    }
 
-	@Test
-	public void shouldFailOnBrokenDTDInstance() throws IOException {
-		ParsingValidator v =
-		        new ParsingValidator(Languages.XML_DTD_NS_URI);
-		v.setSchemaSource(new StreamSource(TestResources.BOOK_DTD.getFile()));
-		ValidationResult r = v.validateInstance(new StreamSource(TestResources.INVALID_BOOK_WITH_DOC_TYPE.getFile()));
-		assertFalse(r.isValid());
-		assertTrue(r.getProblems().iterator().hasNext());
-	}
+    @Test
+    public void shouldFailOnBrokenDTDInstance() throws IOException {
+        ParsingValidator v =
+                new ParsingValidator(Languages.XML_DTD_NS_URI);
+        v.setSchemaSource(new StreamSource(TestResources.BOOK_DTD.getFile()));
+        ValidationResult r = v.validateInstance(new StreamSource(TestResources.INVALID_BOOK_WITH_DOC_TYPE.getFile()));
+        assertFalse(r.isValid());
+        assertTrue(r.getProblems().iterator().hasNext());
+    }
 }

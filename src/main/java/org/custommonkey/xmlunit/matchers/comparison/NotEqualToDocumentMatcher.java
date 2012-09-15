@@ -31,53 +31,53 @@ import org.w3c.dom.Document;
  */
 public class NotEqualToDocumentMatcher extends AbstractXmlUnitMatcher<Document> {
 
-	private final Document expectedDoc;
-	private Document actualDoc;
+    private final Document expectedDoc;
+    private Document actualDoc;
 
-	public NotEqualToDocumentMatcher(Document expectedDoc) {
-		this.expectedDoc = expectedDoc;
-	}
+    public NotEqualToDocumentMatcher(Document expectedDoc) {
+        this.expectedDoc = expectedDoc;
+    }
 
-	public void describeTo(Description description) {
-		String documentString;
-		try {
-			documentString = DocumentUtils.documentToString(expectedDoc);
-		} catch (TransformerException e) {
-			documentString = "";
-		}
+    public void describeTo(Description description) {
+        String documentString;
+        try {
+            documentString = DocumentUtils.documentToString(expectedDoc);
+        } catch (TransformerException e) {
+            documentString = "";
+        }
 
-		description.appendText("Xml document not equal to " + quote(documentString));
-	}
+        description.appendText("Xml document not equal to " + quote(documentString));
+    }
 
-	@Override
-	protected void describeMismatchSafely(Document item, Description mismatchDescription) {
-		super.describeMismatchSafely(item, mismatchDescription);
-		String documentString;
-		try {
-			documentString = DocumentUtils.documentToString(actualDoc);
-		} catch (TransformerException e) {
-			documentString = "";
-		}
-		mismatchDescription.appendText(quote(documentString));
-	}
+    @Override
+    protected void describeMismatchSafely(Document item, Description mismatchDescription) {
+        super.describeMismatchSafely(item, mismatchDescription);
+        String documentString;
+        try {
+            documentString = DocumentUtils.documentToString(actualDoc);
+        } catch (TransformerException e) {
+            documentString = "";
+        }
+        mismatchDescription.appendText(quote(documentString));
+    }
 
-	@Override
-	public boolean matchesSafely(Document actualDoc) {
-		XMLUnit xmlUnit = getXmlUnit();
-		this.actualDoc = actualDoc;
+    @Override
+    public boolean matchesSafely(Document actualDoc) {
+        XMLUnit xmlUnit = getXmlUnit();
+        this.actualDoc = actualDoc;
 
-		Diff diff;
-		try {
-			diff = xmlUnit.compareXML(expectedDoc, actualDoc);
-		} catch (XmlUnitException e) {
-			throw new IllegalArgumentException("Failed to compare documents.", e);
-		}
-		return !diff.similar();
-	}
+        Diff diff;
+        try {
+            diff = xmlUnit.compareXML(expectedDoc, actualDoc);
+        } catch (XmlUnitException e) {
+            throw new IllegalArgumentException("Failed to compare documents.", e);
+        }
+        return !diff.similar();
+    }
 
-	@Factory
-	public static NotEqualToDocumentMatcher notEqualToXmlDocument(Document expectedDoc) {
-		return new NotEqualToDocumentMatcher(expectedDoc);
-	}
+    @Factory
+    public static NotEqualToDocumentMatcher notEqualToXmlDocument(Document expectedDoc) {
+        return new NotEqualToDocumentMatcher(expectedDoc);
+    }
 
 }

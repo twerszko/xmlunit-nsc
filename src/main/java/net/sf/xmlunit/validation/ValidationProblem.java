@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.validation;
 
 import org.xml.sax.SAXParseException;
@@ -19,7 +19,9 @@ import org.xml.sax.SAXParseException;
  * A validation "problem" which may be an error or a warning.
  */
 public class ValidationProblem {
-    public static enum ProblemType {ERROR, WARNING};
+    public static enum ProblemType {
+        ERROR, WARNING
+    };
 
     public static final int UNKNOWN = -1;
 
@@ -28,7 +30,7 @@ public class ValidationProblem {
     private final String message;
 
     public ValidationProblem(String message, int line, int column,
-                             ProblemType type) {
+            ProblemType type) {
         this.message = message;
         this.line = line;
         this.column = column;
@@ -64,13 +66,13 @@ public class ValidationProblem {
     }
 
     static ValidationProblem fromException(SAXParseException e,
-                                           ProblemType type) {
+            ProblemType type) {
         return new ValidationProblem(e.getMessage(),
-                                     e.getLineNumber() > 0
-                                     ? e.getLineNumber() : UNKNOWN,
-                                     e.getColumnNumber() > 0
-                                     ? e.getColumnNumber() : UNKNOWN,
-                                     type);
+                e.getLineNumber() > 0
+                        ? e.getLineNumber() : UNKNOWN,
+                e.getColumnNumber() > 0
+                        ? e.getColumnNumber() : UNKNOWN,
+                type);
     }
 
 }

@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.xpath;
 
 import java.util.Map;
@@ -22,18 +22,21 @@ import org.w3c.dom.Node;
  */
 public interface XPathEngine {
     /**
-     * Returns a potentially empty collection of Nodes matching an
-     * XPath expression.
+     * Returns a potentially empty collection of Nodes matching an XPath
+     * expression.
      */
     Iterable<Node> selectNodes(String xPath, Source s);
+
     /**
      * Evaluates an XPath expression and stringifies the result.
      */
     String evaluate(String xPath, Source s);
+
     /**
      * Establish a namespace context.
-     *
-     * @param prefix2Uri maps from prefix to namespace URI.
+     * 
+     * @param prefix2Uri
+     *            maps from prefix to namespace URI.
      */
     void setNamespaceContext(Map<String, String> prefix2Uri);
 }

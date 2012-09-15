@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
@@ -55,10 +55,12 @@ import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * Build a DOM document from HTML content converting from 'plain' HTML into
- * 'XHTML' along the way with the help of a TolerantSaxDocumentBuilder and
- * the Swing html parser classes.
- * This allows XML assertions to be made against badly formed HTML.
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 'XHTML' along the way with the help of a TolerantSaxDocumentBuilder and the
+ * Swing html parser classes. This allows XML assertions to be made against
+ * badly formed HTML. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 
  * @see TolerantSaxDocumentBuilder
  */
 public class HTMLDocumentBuilder {
@@ -68,20 +70,21 @@ public class HTMLDocumentBuilder {
 
     /**
      * Constructor
-     * @param tolerantSaxDocumentBuilder the instance that will receive SAX
-     *  calls generated as the HTML is parsed and build up a DOM Document
+     * 
+     * @param tolerantSaxDocumentBuilder
+     *            the instance that will receive SAX calls generated as the HTML
+     *            is parsed and build up a DOM Document
      */
     public HTMLDocumentBuilder(
-                               TolerantSaxDocumentBuilder tolerantSaxDocumentBuilder) {
+            TolerantSaxDocumentBuilder tolerantSaxDocumentBuilder) {
         this.tolerantSaxDocumentBuilder = tolerantSaxDocumentBuilder;
         this.swingEvent2SaxAdapter = new SwingEvent2SaxAdapter();
         this.traceBuffer = new StringBuffer();
     }
 
     /**
-     * @return a DOM document parsed from the Reader via an SwingEvent2SaxAdapter
-     * and TolerantSaxBuilder.
-     * Not thread-safe!
+     * @return a DOM document parsed from the Reader via an
+     *         SwingEvent2SaxAdapter and TolerantSaxBuilder. Not thread-safe!
      * @see TolerantSaxDocumentBuilder
      */
     public Document parse(Reader reader) throws SAXException, IOException {
@@ -92,9 +95,8 @@ public class HTMLDocumentBuilder {
     }
 
     /**
-     * @return a DOM document parsed from the String via an SwingEvent2SaxAdapter
-     * and TolerantSaxBuilder.
-     * Not thread-safe!
+     * @return a DOM document parsed from the String via an
+     *         SwingEvent2SaxAdapter and TolerantSaxBuilder. Not thread-safe!
      * @see TolerantSaxDocumentBuilder
      */
     public Document parse(String htmlString) throws SAXException, IOException {
@@ -110,15 +112,17 @@ public class HTMLDocumentBuilder {
 
     /**
      * Append to the log built up during parsing
-     * @param msg what to append
+     * 
+     * @param msg
+     *            what to append
      */
     private void trace(String msg) {
         traceBuffer.append(msg).append('\n');
     }
 
     /**
-     * Adapts Swing HTML callback messages to Sax equivalents, passing them
-     * to a Sax-aware ContentHandler.
+     * Adapts Swing HTML callback messages to Sax equivalents, passing them to a
+     * Sax-aware ContentHandler.
      */
     public class SwingEvent2SaxAdapter extends HTMLEditorKit.ParserCallback {
         private static final boolean IGNORE_HTML_CHAR_SET = true;
@@ -140,7 +144,7 @@ public class HTMLDocumentBuilder {
          * Perform Swing-HTML-parse-event-to-Sax-event conversion
          */
         public void parse(Reader reader, ContentHandler saxContentHandler)
-            throws SAXException, IOException {
+                throws SAXException, IOException {
             this.saxContentHandler = saxContentHandler;
             preParse();
             delegator.parse(reader, this, IGNORE_HTML_CHAR_SET);
@@ -149,6 +153,7 @@ public class HTMLDocumentBuilder {
 
         /**
          * Equivalent to Sax <code>startDocument</code>
+         * 
          * @throws SAXException
          */
         private void preParse() throws SAXException {
@@ -158,8 +163,9 @@ public class HTMLDocumentBuilder {
 
         /**
          * Equivalent to Sax <code>endDocument</code>
-         * @throws SAXException if any SAXExceptions have occurred during
-         *  parsing
+         * 
+         * @throws SAXException
+         *             if any SAXExceptions have occurred during parsing
          */
         private void postParse() throws SAXException {
             try {
@@ -191,7 +197,7 @@ public class HTMLDocumentBuilder {
                 }
                 if (startPos < data.length) {
                     saxContentHandler.characters(data, startPos,
-                                                 data.length - startPos);
+                            data.length - startPos);
                 }
             } catch (SAXException e) {
                 handleSAXException(e);
@@ -202,6 +208,7 @@ public class HTMLDocumentBuilder {
          * Adjusts the start offset into the character array for the fact that
          * the Swing HTML parser doesn't handle simple tags with explicit
          * closing angle brackets e.g. &lt;hr/&gt;
+         * 
          * @param data
          * @return offset of actual character data into the array
          */
@@ -213,15 +220,15 @@ public class HTMLDocumentBuilder {
         }
 
         /**
-         * Equivalent to Sax LexicalHandler <code>comment</code> method.
-         * If the supplied ContentHandler is also an LexicalHandler then the
-         * cast will be made and the sax event passed on.
+         * Equivalent to Sax LexicalHandler <code>comment</code> method. If the
+         * supplied ContentHandler is also an LexicalHandler then the cast will
+         * be made and the sax event passed on.
          */
         public void handleComment(char[] data, int pos) {
             if (saxContentHandler instanceof LexicalHandler) {
                 try {
-                    ((LexicalHandler)saxContentHandler).comment(data,
-                                                                0, data.length);
+                    ((LexicalHandler) saxContentHandler).comment(data,
+                            0, data.length);
                 } catch (SAXException e) {
                     handleSAXException(e);
                 }
@@ -234,10 +241,10 @@ public class HTMLDocumentBuilder {
          * Equivalent to Sax <code>startElement</code>
          */
         public void handleStartTag(javax.swing.text.html.HTML.Tag tag,
-                                   javax.swing.text.MutableAttributeSet attributeSet, int pos) {
+                javax.swing.text.MutableAttributeSet attributeSet, int pos) {
             try {
                 saxContentHandler.startElement("", "", tag.toString(),
-                                               convertToSaxAttributes(attributeSet));
+                        convertToSaxAttributes(attributeSet));
             } catch (SAXException e) {
                 handleSAXException(e);
             }
@@ -260,7 +267,7 @@ public class HTMLDocumentBuilder {
          * <code>endElement</code>
          */
         public void handleSimpleTag(javax.swing.text.html.HTML.Tag tag,
-                                    javax.swing.text.MutableAttributeSet attributeSet, int pos) {
+                javax.swing.text.MutableAttributeSet attributeSet, int pos) {
             handleStartTag(tag, attributeSet, pos);
             handleEndTag(tag, pos);
             lastTagWasSimpleTag = true;
@@ -270,26 +277,26 @@ public class HTMLDocumentBuilder {
          * Swing-HTML-parser template method, no ContentHandler equivalent.
          * These errors are generally recoverable, so they are logged.
          */
-        public void handleError(String errorMsg, int pos){
+        public void handleError(String errorMsg, int pos) {
             trace("HTML ERROR: " + errorMsg);
         }
 
         /**
          * Simple conversion method.
+         * 
          * @param attributeSet
          * @return Sax CDATA Attributes from the Swing MutableAttributeSet
          */
         private Attributes convertToSaxAttributes(
-                                                  MutableAttributeSet attributeSet) {
+                MutableAttributeSet attributeSet) {
             Object attrName, attrValue;
 
             attributes.clear();
-            for(Enumeration en = attributeSet.getAttributeNames();
-                en.hasMoreElements(); ) {
+            for (Enumeration en = attributeSet.getAttributeNames(); en.hasMoreElements();) {
                 attrName = en.nextElement();
                 attrValue = attributeSet.getAttribute(attrName);
                 attributes.addAttribute("", "", attrName.toString(),
-                                        "CDATA", attrValue.toString());
+                        "CDATA", attrValue.toString());
             }
 
             return attributes;
@@ -300,11 +307,10 @@ public class HTMLDocumentBuilder {
          */
         private void handleSAXException(SAXException e) {
             trace("SAX Error: " + e.getMessage());
-            if (firstUnhandledException==null) {
+            if (firstUnhandledException == null) {
                 firstUnhandledException = e;
             }
         }
     }
 
 }
-

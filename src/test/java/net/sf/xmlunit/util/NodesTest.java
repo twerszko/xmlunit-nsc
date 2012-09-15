@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.util;
 
 import java.util.Map;
@@ -42,12 +42,14 @@ public class NodesTest {
 
     private Document doc;
 
-    @Before public void createDoc() throws Exception {
+    @Before
+    public void createDoc() throws Exception {
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .newDocument();
+                .newDocument();
     }
 
-    @Test public void qNameOfElementWithNoNs() {
+    @Test
+    public void qNameOfElementWithNoNs() {
         Element e = doc.createElement(FOO);
         QName q = Nodes.getQName(e);
         assertEquals(FOO, q.getLocalPart());
@@ -56,7 +58,8 @@ public class NodesTest {
         assertEquals(new QName(FOO), q);
     }
 
-    @Test public void qNameOfElementWithNsNoPrefix() {
+    @Test
+    public void qNameOfElementWithNsNoPrefix() {
         Element e = doc.createElementNS(SOME_URI, FOO);
         QName q = Nodes.getQName(e);
         assertEquals(FOO, q.getLocalPart());
@@ -65,7 +68,8 @@ public class NodesTest {
         assertEquals(new QName(SOME_URI, FOO), q);
     }
 
-    @Test public void qNameOfElementWithNsAndPrefix() {
+    @Test
+    public void qNameOfElementWithNsAndPrefix() {
         Element e = doc.createElementNS(SOME_URI, FOO);
         e.setPrefix(BAR);
         QName q = Nodes.getQName(e);
@@ -76,26 +80,30 @@ public class NodesTest {
         assertEquals(new QName(SOME_URI, FOO, BAR), q);
     }
 
-    @Test public void mergeNoTexts() {
+    @Test
+    public void mergeNoTexts() {
         Element e = doc.createElement(FOO);
         assertEquals("", Nodes.getMergedNestedText(e));
     }
 
-    @Test public void mergeSingleTextNode() {
+    @Test
+    public void mergeSingleTextNode() {
         Element e = doc.createElement(FOO);
         Text t = doc.createTextNode(BAR);
         e.appendChild(t);
         assertEquals(BAR, Nodes.getMergedNestedText(e));
     }
 
-    @Test public void mergeSingleCDATASection() {
+    @Test
+    public void mergeSingleCDATASection() {
         Element e = doc.createElement(FOO);
         CDATASection t = doc.createCDATASection(BAR);
         e.appendChild(t);
         assertEquals(BAR, Nodes.getMergedNestedText(e));
     }
 
-    @Test public void mergeIgnoresTextOfChildren() {
+    @Test
+    public void mergeIgnoresTextOfChildren() {
         Element e = doc.createElement(FOO);
         Element c = doc.createElement("child");
         Text t = doc.createTextNode(BAR);
@@ -104,14 +112,16 @@ public class NodesTest {
         assertEquals("", Nodes.getMergedNestedText(e));
     }
 
-    @Test public void mergeIgnoresComments() {
+    @Test
+    public void mergeIgnoresComments() {
         Element e = doc.createElement(FOO);
         Comment c = doc.createComment(BAR);
         e.appendChild(c);
         assertEquals("", Nodes.getMergedNestedText(e));
     }
 
-    @Test public void mergeMultipleChildren() {
+    @Test
+    public void mergeMultipleChildren() {
         Element e = doc.createElement(FOO);
         CDATASection c = doc.createCDATASection(BAR);
         e.appendChild(c);
@@ -121,13 +131,15 @@ public class NodesTest {
         assertEquals(BAR + BAR, Nodes.getMergedNestedText(e));
     }
 
-    @Test public void attributeMapNoAttributes() {
+    @Test
+    public void attributeMapNoAttributes() {
         Element e = doc.createElement(FOO);
         Map<QName, String> m = Nodes.getAttributes(e);
         assertEquals(0, m.size());
     }
 
-    @Test public void attributeMapNoNS() {
+    @Test
+    public void attributeMapNoNS() {
         Element e = doc.createElement(FOO);
         e.setAttribute(FOO, BAR);
         Map<QName, String> m = Nodes.getAttributes(e);
@@ -135,7 +147,8 @@ public class NodesTest {
         assertEquals(BAR, m.get(new QName(FOO)));
     }
 
-    @Test public void attributeMapwithNS() {
+    @Test
+    public void attributeMapwithNS() {
         Element e = doc.createElement(FOO);
         e.setAttributeNS(SOME_URI, FOO, BAR);
         Map<QName, String> m = Nodes.getAttributes(e);
@@ -146,14 +159,14 @@ public class NodesTest {
 
     private Document handleWsSetup() {
         return Convert.toDocument(Input.fromMemory(
-            "<root>\n"
-            + "<!-- trim\tme -->\n"
-            + "<child attr=' trim me ' attr2='not me'>\n"
-            + " trim me \n"
-            + "</child><![CDATA[ trim me ]]>\n"
-            + "<?target  trim me ?>\n"
-            + "<![CDATA[          ]]>\n"
-            + "</root>").build());
+                "<root>\n"
+                        + "<!-- trim\tme -->\n"
+                        + "<child attr=' trim me ' attr2='not me'>\n"
+                        + " trim me \n"
+                        + "</child><![CDATA[ trim me ]]>\n"
+                        + "<?target  trim me ?>\n"
+                        + "<![CDATA[          ]]>\n"
+                        + "</root>").build());
     }
 
     private Map.Entry<Document, Node> stripWsSetup() {
@@ -163,9 +176,11 @@ public class NodesTest {
             public Document getKey() {
                 return toTest;
             }
+
             public Node getValue() {
                 return stripped;
             }
+
             public Node setValue(Node n) {
                 throw new UnsupportedOperationException();
             }
@@ -179,25 +194,29 @@ public class NodesTest {
             public Document getKey() {
                 return toTest;
             }
+
             public Node getValue() {
                 return stripped;
             }
+
             public Node setValue(Node n) {
                 throw new UnsupportedOperationException();
             }
         };
     }
 
-    @Test public void stripWhitespaceWorks() {
+    @Test
+    public void stripWhitespaceWorks() {
         handleWsWorks(stripWsSetup(), "trim\tme");
     }
 
-    @Test public void normalizeWhitespaceWorks() {
+    @Test
+    public void normalizeWhitespaceWorks() {
         handleWsWorks(normalizeWsSetup(), "trim me");
     }
 
     private void handleWsWorks(Map.Entry<Document, Node> s,
-                               String commentContent) {
+            String commentContent) {
         assertTrue(s.getValue() instanceof Document);
         NodeList top = s.getValue().getChildNodes();
         assertEquals(1, top.getLength());
@@ -206,25 +225,25 @@ public class NodesTest {
         NodeList rootsChildren = top.item(0).getChildNodes();
         assertEquals(4, rootsChildren.getLength());
         assertTrue("should be comment, is " + rootsChildren.item(0).getClass(),
-                   rootsChildren.item(0) instanceof Comment);
+                rootsChildren.item(0) instanceof Comment);
         assertEquals(commentContent,
-                     ((Comment) rootsChildren.item(0)).getData());
+                ((Comment) rootsChildren.item(0)).getData());
         assertTrue("should be element, is " + rootsChildren.item(1).getClass(),
-                   rootsChildren.item(1) instanceof Element);
+                rootsChildren.item(1) instanceof Element);
         assertEquals("child", rootsChildren.item(1).getNodeName());
         assertTrue("should be cdata, is " + rootsChildren.item(2).getClass(),
-                   rootsChildren.item(2) instanceof CDATASection);
+                rootsChildren.item(2) instanceof CDATASection);
         assertEquals("trim me",
-                     ((CDATASection) rootsChildren.item(2)).getData());
+                ((CDATASection) rootsChildren.item(2)).getData());
         assertTrue("should be PI, is " + rootsChildren.item(3).getClass(),
-                   rootsChildren.item(3) instanceof ProcessingInstruction);
+                rootsChildren.item(3) instanceof ProcessingInstruction);
         assertEquals("trim me",
-                     ((ProcessingInstruction) rootsChildren.item(3)).getData());
+                ((ProcessingInstruction) rootsChildren.item(3)).getData());
         Node child = rootsChildren.item(1);
         NodeList grandChildren = child.getChildNodes();
         assertEquals(1, grandChildren.getLength());
         assertTrue("should be text, is " + grandChildren.item(0).getClass(),
-                   grandChildren.item(0) instanceof Text);
+                grandChildren.item(0) instanceof Text);
         assertEquals("trim me", ((Text) grandChildren.item(0)).getData());
         NamedNodeMap attrs = child.getAttributes();
         assertEquals(2, attrs.getLength());
@@ -234,11 +253,13 @@ public class NodesTest {
         assertEquals("not me", a2.getValue());
     }
 
-    @Test public void stripWhitespaceDoesntAlterOriginal() {
+    @Test
+    public void stripWhitespaceDoesntAlterOriginal() {
         handleWsDoesntAlterOriginal(stripWsSetup());
     }
 
-    @Test public void normalizeWhitespaceDoesntAlterOriginal() {
+    @Test
+    public void normalizeWhitespaceDoesntAlterOriginal() {
         handleWsDoesntAlterOriginal(normalizeWsSetup());
     }
 
@@ -251,32 +272,32 @@ public class NodesTest {
         assertEquals(10, rootsChildren.getLength());
         assertNewlineTextNode(rootsChildren.item(0));
         assertTrue("should be comment, is " + rootsChildren.item(1).getClass(),
-                   rootsChildren.item(1) instanceof Comment);
+                rootsChildren.item(1) instanceof Comment);
         assertEquals(" trim\tme ", ((Comment) rootsChildren.item(1)).getData());
         assertNewlineTextNode(rootsChildren.item(2));
         assertTrue("should be element, is " + rootsChildren.item(3).getClass(),
-                   rootsChildren.item(3) instanceof Element);
+                rootsChildren.item(3) instanceof Element);
         assertEquals("child", rootsChildren.item(3).getNodeName());
         assertTrue("should be cdata, is " + rootsChildren.item(4).getClass(),
-                   rootsChildren.item(4) instanceof CDATASection);
+                rootsChildren.item(4) instanceof CDATASection);
         assertEquals(" trim me ",
-                     ((CDATASection) rootsChildren.item(4)).getData());
+                ((CDATASection) rootsChildren.item(4)).getData());
         assertNewlineTextNode(rootsChildren.item(5));
         assertTrue("should be PI, is " + rootsChildren.item(6).getClass(),
-                   rootsChildren.item(6) instanceof ProcessingInstruction);
+                rootsChildren.item(6) instanceof ProcessingInstruction);
         assertEquals("trim me ",
-                     ((ProcessingInstruction) rootsChildren.item(6)).getData());
+                ((ProcessingInstruction) rootsChildren.item(6)).getData());
         assertNewlineTextNode(rootsChildren.item(7));
         assertTrue("should be cdata, is " + rootsChildren.item(8).getClass(),
-                   rootsChildren.item(8) instanceof CDATASection);
+                rootsChildren.item(8) instanceof CDATASection);
         assertEquals("          ",
-                     ((CDATASection) rootsChildren.item(8)).getData());
+                ((CDATASection) rootsChildren.item(8)).getData());
         assertNewlineTextNode(rootsChildren.item(9));
         Node child = rootsChildren.item(3);
         NodeList grandChildren = child.getChildNodes();
         assertEquals(1, grandChildren.getLength());
         assertTrue("should be text, is " + grandChildren.item(0).getClass(),
-                   grandChildren.item(0) instanceof Text);
+                grandChildren.item(0) instanceof Text);
         assertEquals("\n trim me \n", ((Text) grandChildren.item(0)).getData());
         NamedNodeMap attrs = child.getAttributes();
         assertEquals(2, attrs.getLength());
@@ -288,11 +309,12 @@ public class NodesTest {
 
     private static void assertNewlineTextNode(Node n) {
         assertTrue("should be text, is " + n.getClass(),
-                   n instanceof Text);
+                n instanceof Text);
         assertEquals("\n", ((Text) n).getData());
     }
 
-    @Test public void normalize() {
+    @Test
+    public void normalize() {
         assertSame("foo", Nodes.normalize("foo"));
         assertSame("foo bar", Nodes.normalize("foo bar"));
         assertEquals("foo bar", Nodes.normalize("foo\nbar"));

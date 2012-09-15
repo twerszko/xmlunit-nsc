@@ -44,8 +44,8 @@ import org.custommonkey.xmlunit.XpathEngine;
  */
 public class test_Jaxp13XpathEngine extends AbstractXpathEngineTests {
 
-	protected XpathEngine newXpathEngine() {
-		return new Jaxp13XpathEngine();
-	}
+    protected XpathEngine newXpathEngine() {
+        return new Jaxp13XpathEngine();
+    }
 
 }

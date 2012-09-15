@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.input;
 
 import javax.xml.transform.Source;
@@ -19,8 +19,8 @@ import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.Nodes;
 
 /**
- * A source that is obtained from a different source by removing all
- * empty text nodes and trimming the non-empty ones.
+ * A source that is obtained from a different source by removing all empty text
+ * nodes and trimming the non-empty ones.
  */
 public class WhitespaceStrippedSource extends DOMSource {
 

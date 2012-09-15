@@ -37,97 +37,97 @@ import org.xml.sax.InputSource;
 
 public class ConvertTest {
 
-	private static void convertToInputSourceAndAssert(Source s) throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document d = b.parse(Convert.toInputSource(s));
-		documentAsserts(d);
-	}
+    private static void convertToInputSourceAndAssert(Source s) throws Exception {
+        DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document d = b.parse(Convert.toInputSource(s));
+        documentAsserts(d);
+    }
 
-	private static void documentAsserts(Document d) {
-		assertThat(d, IsNull.notNullValue());
-		assertThat(d.getDocumentElement().getTagName(), is("animal"));
-	}
+    private static void documentAsserts(Document d) {
+        assertThat(d, IsNull.notNullValue());
+        assertThat(d.getDocumentElement().getTagName(), is("animal"));
+    }
 
-	@Test
-	public void streamSourceToInputSource() throws Exception {
-		convertToInputSourceAndAssert(new StreamSource(TestResources.ANIMAL_FILE.getFile()));
-	}
+    @Test
+    public void streamSourceToInputSource() throws Exception {
+        convertToInputSourceAndAssert(new StreamSource(TestResources.ANIMAL_FILE.getFile()));
+    }
 
-	@Test
-	public void domSourceToInputSource() throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
-		convertToInputSourceAndAssert(new DOMSource(d));
-	}
+    @Test
+    public void domSourceToInputSource() throws Exception {
+        DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
+        convertToInputSourceAndAssert(new DOMSource(d));
+    }
 
-	@Test
-	public void saxSourceToInputSource() throws Exception {
-		InputSource s = new InputSource(new FileInputStream(TestResources.ANIMAL_FILE.getFile()));
-		convertToInputSourceAndAssert(new SAXSource(s));
-	}
+    @Test
+    public void saxSourceToInputSource() throws Exception {
+        InputSource s = new InputSource(new FileInputStream(TestResources.ANIMAL_FILE.getFile()));
+        convertToInputSourceAndAssert(new SAXSource(s));
+    }
 
-	private static void convertToDocumentAndAssert(Source s) {
-		documentAsserts(Convert.toDocument(s));
-	}
+    private static void convertToDocumentAndAssert(Source s) {
+        documentAsserts(Convert.toDocument(s));
+    }
 
-	@Test
-	public void streamSourceToDocument() throws Exception {
-		convertToDocumentAndAssert(new StreamSource(TestResources.ANIMAL_FILE.getFile()));
-	}
+    @Test
+    public void streamSourceToDocument() throws Exception {
+        convertToDocumentAndAssert(new StreamSource(TestResources.ANIMAL_FILE.getFile()));
+    }
 
-	@Test
-	public void domSourceToDocument() throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
-		convertToDocumentAndAssert(new DOMSource(d));
-		assertSame(d, Convert.toDocument(new DOMSource(d)));
-	}
+    @Test
+    public void domSourceToDocument() throws Exception {
+        DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
+        convertToDocumentAndAssert(new DOMSource(d));
+        assertSame(d, Convert.toDocument(new DOMSource(d)));
+    }
 
-	@Test
-	public void saxSourceToDocument() throws Exception {
-		InputSource s = new InputSource(new FileInputStream(TestResources.ANIMAL_FILE.getFile()));
-		convertToDocumentAndAssert(new SAXSource(s));
-	}
+    @Test
+    public void saxSourceToDocument() throws Exception {
+        InputSource s = new InputSource(new FileInputStream(TestResources.ANIMAL_FILE.getFile()));
+        convertToDocumentAndAssert(new SAXSource(s));
+    }
 
-	@Test
-	public void domElementToDocument() throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
-		convertToDocumentAndAssert(new DOMSource(d.getDocumentElement()));
-		assertNotSame(d, Convert.toDocument(new DOMSource(d.getDocumentElement())));
-	}
+    @Test
+    public void domElementToDocument() throws Exception {
+        DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
+        convertToDocumentAndAssert(new DOMSource(d.getDocumentElement()));
+        assertNotSame(d, Convert.toDocument(new DOMSource(d.getDocumentElement())));
+    }
 
-	private static void convertToNodeAndAssert(Source s) {
-		Node n = Convert.toNode(s);
-		Document d = n instanceof Document ? (Document) n : n.getOwnerDocument();
-		documentAsserts(d);
-	}
+    private static void convertToNodeAndAssert(Source s) {
+        Node n = Convert.toNode(s);
+        Document d = n instanceof Document ? (Document) n : n.getOwnerDocument();
+        documentAsserts(d);
+    }
 
-	@Test
-	public void streamSourceToNode() throws Exception {
-		convertToNodeAndAssert(new StreamSource(TestResources.ANIMAL_FILE.getFile()));
-	}
+    @Test
+    public void streamSourceToNode() throws Exception {
+        convertToNodeAndAssert(new StreamSource(TestResources.ANIMAL_FILE.getFile()));
+    }
 
-	@Test
-	public void domSourceToNode() throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
-		convertToNodeAndAssert(new DOMSource(d));
-		assertSame(d, Convert.toNode(new DOMSource(d)));
-	}
+    @Test
+    public void domSourceToNode() throws Exception {
+        DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
+        convertToNodeAndAssert(new DOMSource(d));
+        assertSame(d, Convert.toNode(new DOMSource(d)));
+    }
 
-	@Test
-	public void saxSourceToNode() throws Exception {
-		InputSource s = new InputSource(new FileInputStream(TestResources.ANIMAL_FILE.getFile()));
-		convertToNodeAndAssert(new SAXSource(s));
-	}
+    @Test
+    public void saxSourceToNode() throws Exception {
+        InputSource s = new InputSource(new FileInputStream(TestResources.ANIMAL_FILE.getFile()));
+        convertToNodeAndAssert(new SAXSource(s));
+    }
 
-	@Test
-	public void domElementToNode() throws Exception {
-		DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
-		convertToNodeAndAssert(new DOMSource(d.getDocumentElement()));
-		assertSame(d.getDocumentElement(), Convert.toNode(new DOMSource(d.getDocumentElement())));
-	}
+    @Test
+    public void domElementToNode() throws Exception {
+        DocumentBuilder b = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document d = b.parse(TestResources.ANIMAL_FILE.getFile());
+        convertToNodeAndAssert(new DOMSource(d.getDocumentElement()));
+        assertSame(d.getDocumentElement(), Convert.toNode(new DOMSource(d.getDocumentElement())));
+    }
 
 }

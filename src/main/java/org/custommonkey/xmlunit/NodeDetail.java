@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,23 +31,24 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 package org.custommonkey.xmlunit;
 
 import org.w3c.dom.Node;
 
 /**
- * Parameter class for holding information about a <code>Node</code> within
- * a Difference instance  
+ * Parameter class for holding information about a <code>Node</code> within a
+ * Difference instance
+ * 
  * @see Difference#getControlNodeDetail
  * @see Difference#getTestNodeDetail
  */
 public class NodeDetail {
     private final String value;
-    private final Node node; 
+    private final Node node;
     private final String xpathLocation;
-        
+
     /**
      * Constructor for NodeDetail.
      */
@@ -56,10 +57,10 @@ public class NodeDetail {
         this.node = node;
         this.xpathLocation = xpathLocation;
     }
-        
-        
+
     /**
      * Returns the node.
+     * 
      * @return Node
      */
     public Node getNode() {
@@ -68,6 +69,7 @@ public class NodeDetail {
 
     /**
      * Returns the value.
+     * 
      * @return String
      */
     public String getValue() {
@@ -76,6 +78,7 @@ public class NodeDetail {
 
     /**
      * Returns the xpathLocation.
+     * 
      * @return String
      */
     public String getXpathLocation() {

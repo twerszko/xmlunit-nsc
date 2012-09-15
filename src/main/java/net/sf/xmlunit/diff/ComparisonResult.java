@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 /**
@@ -22,8 +22,8 @@ public enum ComparisonResult {
      */
     EQUAL,
     /**
-     * The two nodes are different but similar enough to satisfy a
-     * weak equality constraint
+     * The two nodes are different but similar enough to satisfy a weak equality
+     * constraint
      */
     SIMILAR,
     /**
@@ -31,10 +31,10 @@ public enum ComparisonResult {
      */
     DIFFERENT,
     /**
-     * The two nodes are different and comparison should stop
-     * immediately.
-     *
-     * <p>Only used as a return type by {@link DifferenceEvaluator}
+     * The two nodes are different and comparison should stop immediately.
+     * 
+     * <p>
+     * Only used as a return type by {@link DifferenceEvaluator}
      */
     CRITICAL,
 }

@@ -21,24 +21,24 @@ import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.hamcrest.TypeSafeMatcher;
 
 public abstract class AbstractXmlUnitMatcher<T> extends TypeSafeMatcher<T> {
-	protected XMLUnit xmlUnit;
+    protected XMLUnit xmlUnit;
 
-	public AbstractXmlUnitMatcher<T> using(@Nullable XMLUnit xmlUnit) {
-		this.xmlUnit = xmlUnit;
-		return this;
-	}
+    public AbstractXmlUnitMatcher<T> using(@Nullable XMLUnit xmlUnit) {
+        this.xmlUnit = xmlUnit;
+        return this;
+    }
 
-	protected XMLUnit getXmlUnit() {
-		XMLUnit xmlUnit;
-		if (this.xmlUnit == null) {
-			xmlUnit = new XmlUnitBuilder().build();
-		} else {
-			xmlUnit = this.xmlUnit;
-		}
-		return xmlUnit;
-	}
+    protected XMLUnit getXmlUnit() {
+        XMLUnit xmlUnit;
+        if (this.xmlUnit == null) {
+            xmlUnit = new XmlUnitBuilder().build();
+        } else {
+            xmlUnit = this.xmlUnit;
+        }
+        return xmlUnit;
+    }
 
-	protected String quote(String string) {
-		return "\"" + string + "\"";
-	}
+    protected String quote(String string) {
+        return "\"" + string + "\"";
+    }
 }

@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-        * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
           notice, this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
           copyright notice, this list of conditions and the following
           disclaimer in the documentation and/or other materials provided
           with the distribution.
-        * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
           of its contributors may be used to endorse or promote products
           derived from this software without specific prior written
           permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit.examples;
 
@@ -44,28 +44,29 @@ import org.custommonkey.xmlunit.ElementQualifier;
  * Compares all Element and Text nodes in two pieces of XML. Allows elements of
  * complex, deeply nested types that are returned in different orders but have
  * the same content to be recognized as comparable.
- *
- * @author Frank Callahan 
+ * 
+ * @author Frank Callahan
  */
 public class RecursiveElementNameAndTextQualifier implements ElementQualifier {
 
     /**
-     * Uses element names and the text nested an arbitrary level of
-     * child elements deeper into the element to compare
-     * elements. Checks all nodes, not just first child element.
+     * Uses element names and the text nested an arbitrary level of child
+     * elements deeper into the element to compare elements. Checks all nodes,
+     * not just first child element.
      * 
-     * <p> Does not ignore empty text nodes.
+     * <p>
+     * Does not ignore empty text nodes.
      */
     public RecursiveElementNameAndTextQualifier() {
     }
 
     /**
-     * Returns result of recursive comparison of all the nodes of a
-     * control and test element.
+     * Returns result of recursive comparison of all the nodes of a control and
+     * test element.
      */
     public boolean qualifyForComparison(Element currentControl,
-                                        Element currentTest) {
+            Element currentTest) {
         return ElementSelectors.byNameAndTextRec.canBeCompared(currentControl,
-                                                               currentTest);
+                currentTest);
     }
 }

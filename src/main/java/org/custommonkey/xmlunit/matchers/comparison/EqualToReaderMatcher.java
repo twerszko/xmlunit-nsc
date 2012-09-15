@@ -29,37 +29,37 @@ import org.hamcrest.Factory;
  */
 public class EqualToReaderMatcher extends AbstractXmlUnitMatcher<Reader> {
 
-	private final Reader expectedReader;
+    private final Reader expectedReader;
 
-	public EqualToReaderMatcher(Reader expectedReader) {
-		this.expectedReader = expectedReader;
-	}
+    public EqualToReaderMatcher(Reader expectedReader) {
+        this.expectedReader = expectedReader;
+    }
 
-	public void describeTo(Description description) {
-		description.appendText("reader containing xml equal to xml contained in given reader");
-	}
+    public void describeTo(Description description) {
+        description.appendText("reader containing xml equal to xml contained in given reader");
+    }
 
-	@Override
-	protected void describeMismatchSafely(Reader item, Description mismatchDescription) {
-		mismatchDescription.appendText("was reader containing xml not equal to xml contained in given reader");
-	}
+    @Override
+    protected void describeMismatchSafely(Reader item, Description mismatchDescription) {
+        mismatchDescription.appendText("was reader containing xml not equal to xml contained in given reader");
+    }
 
-	@Override
-	public boolean matchesSafely(Reader actualReader) {
-		XMLUnit xmlUnit = getXmlUnit();
+    @Override
+    public boolean matchesSafely(Reader actualReader) {
+        XMLUnit xmlUnit = getXmlUnit();
 
-		Diff diff;
-		try {
-			diff = xmlUnit.compareXML(expectedReader, actualReader);
-		} catch (XmlUnitException e) {
-			throw new IllegalArgumentException("Failed to compare documents.", e);
-		}
-		return diff.similar();
-	}
+        Diff diff;
+        try {
+            diff = xmlUnit.compareXML(expectedReader, actualReader);
+        } catch (XmlUnitException e) {
+            throw new IllegalArgumentException("Failed to compare documents.", e);
+        }
+        return diff.similar();
+    }
 
-	@Factory
-	public static EqualToReaderMatcher equalToXmlReader(Reader expectedReader) {
-		return new EqualToReaderMatcher(expectedReader);
-	}
+    @Factory
+    public static EqualToReaderMatcher equalToXmlReader(Reader expectedReader) {
+        return new EqualToReaderMatcher(expectedReader);
+    }
 
 }

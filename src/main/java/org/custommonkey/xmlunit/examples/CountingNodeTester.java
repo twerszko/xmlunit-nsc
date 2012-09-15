@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2001-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit.examples;
 
@@ -42,9 +42,11 @@ import org.custommonkey.xmlunit.exceptions.NodeTestException;
 import org.w3c.dom.Node;
 
 /**
- * Counts the number of nodes in a document to allow assertions to be made
- *  using a NodeTest.
- * <br />Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * Counts the number of nodes in a document to allow assertions to be made using
+ * a NodeTest. <br />
+ * Examples and more at <a
+ * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * 
  * @see NodeTest
  */
 public class CountingNodeTester implements NodeTester {
@@ -57,6 +59,7 @@ public class CountingNodeTester implements NodeTester {
 
     /**
      * A single Node is always valid
+     * 
      * @param aNode
      * @param forTest
      */
@@ -65,19 +68,20 @@ public class CountingNodeTester implements NodeTester {
     }
 
     /**
-     * Called by NodeTest when all nodes have been iterated over: time to see
-     * if all the nodes that were expected were found.
-     * Note that this method also invokes {@link #resetCounter resetCounter}
-     * so that the instance can be reused.
-     * @exception true if expected num nodes == actual num nodes,
-     * false otherwise
+     * Called by NodeTest when all nodes have been iterated over: time to see if
+     * all the nodes that were expected were found. Note that this method also
+     * invokes {@link #resetCounter resetCounter} so that the instance can be
+     * reused.
+     * 
+     * @exception true
+     *                if expected num nodes == actual num nodes, false otherwise
      */
     public void noMoreNodes(NodeTest forTest) throws NodeTestException {
         int testedNodes = actualNumNodes;
         resetCounter();
         if (testedNodes != expectedNumNodes) {
             throw new NodeTestException("Counted " + testedNodes
-                                        + " node(s) but expected " + expectedNumNodes);
+                    + " node(s) but expected " + expectedNumNodes);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2008, Stefan Bodewig
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,23 +31,25 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
 /**
  * Listener for callbacks from a {@link DifferenceEngine#compare
- * DifferenceEngine comparison} that is notified on each and every
- * comparision that resulted in a match.
+ * DifferenceEngine comparison} that is notified on each and every comparision
+ * that resulted in a match.
  */
 public interface MatchTracker {
     /**
      * Receive notification that 2 match.
-     * @param match a Difference instance as defined in {@link
-     * DifferenceConstants DifferenceConstants} describing the test
-     * that matched and containing the detail of the nodes that have
-     * been compared
+     * 
+     * @param match
+     *            a Difference instance as defined in
+     *            {@link DifferenceConstants DifferenceConstants} describing the
+     *            test that matched and containing the detail of the nodes that
+     *            have been compared
      */
     void matchFound(Difference difference);
 }

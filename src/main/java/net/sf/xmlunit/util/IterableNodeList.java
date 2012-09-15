@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.util;
 
 import java.util.Iterator;
@@ -19,8 +19,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Provides an iterable view to a NodeList, the Iterator that can be
- * obtained from this Iterable will be read-only.
+ * Provides an iterable view to a NodeList, the Iterator that can be obtained
+ * from this Iterable will be read-only.
  */
 public final class IterableNodeList implements Iterable<Node> {
     private final NodeList nl;
@@ -37,12 +37,15 @@ public final class IterableNodeList implements Iterable<Node> {
 
     private class NodeListIterator implements Iterator<Node> {
         private int current = 0;
+
         public void remove() {
             throw new UnsupportedOperationException();
         }
+
         public Node next() {
             return nl.item(current++);
         }
+
         public boolean hasNext() {
             return current < length;
         }

@@ -25,49 +25,49 @@ import org.w3c.dom.Document;
  * 
  */
 public class XpathWrapper {
-	private final String xpath;
-	private final Document document;
+    private final String xpath;
+    private final Document document;
 
-	/**
-	 * @param xpath
-	 * @param document
-	 * 
-	 * @throws IllegalArgumentException
-	 *             when at least one parameter is null.
-	 */
-	public XpathWrapper(String xpath, Document document) {
-		if (xpath == null) {
-			throw new IllegalArgumentException("Xpath cannot be null!");
-		}
-		if (document == null) {
-			throw new IllegalArgumentException("Document cannot be null");
-		}
-		this.xpath = xpath;
-		this.document = document;
-	}
+    /**
+     * @param xpath
+     * @param document
+     * 
+     * @throws IllegalArgumentException
+     *             when at least one parameter is null.
+     */
+    public XpathWrapper(String xpath, Document document) {
+        if (xpath == null) {
+            throw new IllegalArgumentException("Xpath cannot be null!");
+        }
+        if (document == null) {
+            throw new IllegalArgumentException("Document cannot be null");
+        }
+        this.xpath = xpath;
+        this.document = document;
+    }
 
-	/**
-	 * @return Xpath string
-	 */
-	public String getXpath() {
-		return xpath;
-	}
+    /**
+     * @return Xpath string
+     */
+    public String getXpath() {
+        return xpath;
+    }
 
-	/**
-	 * @return Document related with xpath string.
-	 */
-	public Document getDocument() {
-		return document;
-	}
+    /**
+     * @return Document related with xpath string.
+     */
+    public Document getDocument() {
+        return document;
+    }
 
-	@Override
-	public String toString() {
-		String xml;
-		try {
-			xml = DocumentUtils.documentToString(document);
-		} catch (TransformerException e) {
-			xml = "invalid xml";
-		}
-		return "XpathWrapper [xpath=" + xpath + ", document=" + xml + "]";
-	}
+    @Override
+    public String toString() {
+        String xml;
+        try {
+            xml = DocumentUtils.documentToString(document);
+        } catch (TransformerException e) {
+            xml = "invalid xml";
+        }
+        return "XpathWrapper [xpath=" + xpath + ", document=" + xml + "]";
+    }
 }

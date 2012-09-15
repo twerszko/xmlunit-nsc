@@ -10,7 +10,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+ */
 package net.sf.xmlunit.diff;
 
 /**
@@ -22,8 +22,8 @@ public enum ComparisonType {
      */
     XML_VERSION,
     /**
-     * Do both documents specify the same standalone declaration in
-     * their XML declaration?
+     * Do both documents specify the same standalone declaration in their XML
+     * declaration?
      */
     XML_STANDALONE,
     /**
@@ -39,13 +39,11 @@ public enum ComparisonType {
      */
     DOCTYPE_NAME,
     /**
-     * If the documents both have DOCTYPEs, compare the PUBLIC
-     * identifiers.
+     * If the documents both have DOCTYPEs, compare the PUBLIC identifiers.
      */
     DOCTYPE_PUBLIC_ID,
     /**
-     * If the documents both have DOCTYPEs, compare the SYSTEM
-     * identifiers.
+     * If the documents both have DOCTYPEs, compare the SYSTEM identifiers.
      */
     DOCTYPE_SYSTEM_ID,
 
@@ -114,13 +112,12 @@ public enum ComparisonType {
     CHILD_NODELIST_SEQUENCE,
 
     /**
-     * Search for a child node matching a specific child node of the
-     * other node.
+     * Search for a child node matching a specific child node of the other node.
      */
     CHILD_LOOKUP,
     /**
-     * Search for an atribute with a name matching a specific
-     * attribute of the other node.
+     * Search for an atribute with a name matching a specific attribute of the
+     * other node.
      */
     ATTR_NAME_LOOKUP,
 }

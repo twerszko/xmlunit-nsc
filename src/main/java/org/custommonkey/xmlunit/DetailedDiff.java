@@ -53,71 +53,71 @@ import com.google.common.collect.Lists;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class DetailedDiff extends Diff {
-	private final List<Difference> allDifferences;
+    private final List<Difference> allDifferences;
 
-	/**
-	 * Create a new instance based on a prototypical Diff instance
-	 * 
-	 * @param prototype
-	 *            the Diff instance for which more detailed difference
-	 *            information is required
-	 */
-	public DetailedDiff(Diff prototype) {
-		super(prototype);
-		allDifferences = Lists.newArrayList();
-	}
+    /**
+     * Create a new instance based on a prototypical Diff instance
+     * 
+     * @param prototype
+     *            the Diff instance for which more detailed difference
+     *            information is required
+     */
+    public DetailedDiff(Diff prototype) {
+        super(prototype);
+        allDifferences = Lists.newArrayList();
+    }
 
-	/**
-	 * DifferenceListener implementation. Add the difference to the list of all
-	 * differences
-	 * 
-	 * @param expected
-	 * @param actual
-	 * @param control
-	 * @param test
-	 * @param comparingWhat
-	 * @return the value supplied by the superclass implementation
-	 */
-	public int differenceFound(Difference difference) {
-		final int returnValue = super.differenceFound(difference);
-		switch (returnValue) {
-		case RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL:
-			return returnValue;
-		case RETURN_ACCEPT_DIFFERENCE:
-			break;
-		case RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR:
-			difference.setRecoverable(true);
-			break;
-		case RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT:
-			difference.setRecoverable(false);
-			break;
-		default:
-			throw new IllegalArgumentException(returnValue
-			        + " is not a defined "
-			        + " DifferenceListener"
-			        + ".RETURN_... value");
-		}
-		allDifferences.add(difference);
-		return returnValue;
-	}
+    /**
+     * DifferenceListener implementation. Add the difference to the list of all
+     * differences
+     * 
+     * @param expected
+     * @param actual
+     * @param control
+     * @param test
+     * @param comparingWhat
+     * @return the value supplied by the superclass implementation
+     */
+    public int differenceFound(Difference difference) {
+        final int returnValue = super.differenceFound(difference);
+        switch (returnValue) {
+        case RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL:
+            return returnValue;
+        case RETURN_ACCEPT_DIFFERENCE:
+            break;
+        case RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR:
+            difference.setRecoverable(true);
+            break;
+        case RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT:
+            difference.setRecoverable(false);
+            break;
+        default:
+            throw new IllegalArgumentException(returnValue
+                    + " is not a defined "
+                    + " DifferenceListener"
+                    + ".RETURN_... value");
+        }
+        allDifferences.add(difference);
+        return returnValue;
+    }
 
-	/**
-	 * ComparisonController implementation.
-	 * 
-	 * @param afterDifference
-	 * @return false always as this class wants to see all differences
-	 */
-	public boolean haltComparison(Difference afterDifference) {
-		return false;
-	}
+    /**
+     * ComparisonController implementation.
+     * 
+     * @param afterDifference
+     * @return false always as this class wants to see all differences
+     */
+    public boolean haltComparison(Difference afterDifference) {
+        return false;
+    }
 
-	/**
-	 * Obtain all the differences found by this instance
-	 * 
-	 * @return a list of {@link Difference differences}
-	 */
-	public List<Difference> getAllDifferences() {
-		compare();
-		return allDifferences;
-	}
+    /**
+     * Obtain all the differences found by this instance
+     * 
+     * @return a list of {@link Difference differences}
+     */
+    public List<Difference> getAllDifferences() {
+        compare();
+        return allDifferences;
+    }
 }

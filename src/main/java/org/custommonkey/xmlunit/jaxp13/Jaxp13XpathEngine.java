@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2006-2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit.jaxp13;
 
@@ -67,8 +67,8 @@ public class Jaxp13XpathEngine implements XpathEngine {
             JAXPXPathEngine e = null;
             if (XMLUnit.getXPathFactory() != null) {
                 e = new JAXPXPathEngine((XPathFactory) Class
-                                        .forName(XMLUnit.getXPathFactory())
-                                        .newInstance());
+                        .forName(XMLUnit.getXPathFactory())
+                        .newInstance());
             } else {
                 e = new JAXPXPathEngine();
             }
@@ -81,28 +81,29 @@ public class Jaxp13XpathEngine implements XpathEngine {
     }
 
     /**
-     * Execute the specified xpath syntax <code>select</code> expression
-     * on the specified document and return the list of nodes (could have
-     * length zero) that match
+     * Execute the specified xpath syntax <code>select</code> expression on the
+     * specified document and return the list of nodes (could have length zero)
+     * that match
+     * 
      * @param select
      * @param document
      * @return list of matching nodes
      */
     public NodeList getMatchingNodes(String select, Document document)
-        throws XpathException {
+            throws XpathException {
         try {
             return new NodeListForIterable(engine
-                                           .selectNodes(select,
-                                                        new DOMSource(document))
-                                           );
+                    .selectNodes(select,
+                            new DOMSource(document)));
         } catch (XMLUnitException ex) {
             throw new XpathException(ex.getCause());
         }
     }
-    
+
     /**
      * Evaluate the result of executing the specified xpath syntax
      * <code>select</code> expression on the specified document
+     * 
      * @param select
      * @param document
      * @return evaluated result
@@ -110,7 +111,7 @@ public class Jaxp13XpathEngine implements XpathEngine {
      * @throws TransformerConfigurationException
      */
     public String evaluate(String select, Document document)
-        throws XpathException {
+            throws XpathException {
         try {
             return engine.evaluate(select, new DOMSource(document));
         } catch (XMLUnitException ex) {
@@ -120,7 +121,7 @@ public class Jaxp13XpathEngine implements XpathEngine {
 
     public void setNamespaceContext(NamespaceContext ctx) {
         engine.setNamespaceContext(XMLUnitNamespaceContext2Jaxp13
-                                   .turnIntoMap(ctx));
+                .turnIntoMap(ctx));
     }
 
     private static class NodeListForIterable implements NodeList {

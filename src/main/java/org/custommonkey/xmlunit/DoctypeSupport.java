@@ -1,5 +1,5 @@
 /*
-******************************************************************
+ ******************************************************************
 Copyright (c) 2007, Jeff Martin, Tim Bacon
 All rights reserved.
 
@@ -7,13 +7,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
+ * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following
       disclaimer in the documentation and/or other materials provided
       with the distribution.
-    * Neither the name of the xmlunit.sourceforge.net nor the names
+ * Neither the name of the xmlunit.sourceforge.net nor the names
       of its contributors may be used to endorse or promote products
       derived from this software without specific prior written
       permission.
@@ -31,8 +31,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-******************************************************************
-*/
+ ******************************************************************
+ */
 
 package org.custommonkey.xmlunit;
 
@@ -43,9 +43,11 @@ import org.custommonkey.xmlunit.util.IntegerBuffer;
 
 /**
  * Contains some common code for DoctypeReader and DoctypeInputStream.
- *
- * <p>When used with DoctypeInputStream it assumes that the whole
- * DOCTYPE declaration consists of US-ASCII characters.</p>
+ * 
+ * <p>
+ * When used with DoctypeInputStream it assumes that the whole DOCTYPE
+ * declaration consists of US-ASCII characters.
+ * </p>
  */
 final class DoctypeSupport {
 
@@ -58,7 +60,7 @@ final class DoctypeSupport {
     final static String DOCTYPE = "DOCTYPE ";
     final static String SYSTEM = " SYSTEM \"";
     private final static int[] DOCTYPE_INTS = {
-        'D', 'O', 'C', 'T', 'Y', 'P', 'E', ' '
+            'D', 'O', 'C', 'T', 'Y', 'P', 'E', ' '
     };
 
     private boolean hasSplit;
@@ -71,15 +73,15 @@ final class DoctypeSupport {
      * Encapsulates a DOCTYPE declaration for the given name and system id.
      */
     DoctypeSupport(String name, String systemId, Readable original,
-                   boolean characters, String encoding) {
+            boolean characters, String encoding) {
         this.original = original;
 
         StringBuffer sb = new StringBuffer(DOCTYPE_OPEN_DECL);
         sb.append(DOCTYPE).append(name).append(SYSTEM)
-            .append(systemId).append('\"').append(DOCTYPE_CLOSE_DECL);
+                .append(systemId).append('\"').append(DOCTYPE_CLOSE_DECL);
         String s = sb.toString();
         IntegerBuffer buf =
-            new IntegerBuffer(s.length() * (characters ? 1 : 2));
+                new IntegerBuffer(s.length() * (characters ? 1 : 2));
 
         if (characters) {
             char[] c = s.toCharArray();
@@ -89,7 +91,7 @@ final class DoctypeSupport {
         } else {
             try {
                 byte[] b = encoding == null
-                    ? s.getBytes() : s.getBytes(encoding);
+                        ? s.getBytes() : s.getBytes(encoding);
                 for (int i = 0; i < b.length; i++) {
                     buf.append(b[i] & 0xFF);
                 }
@@ -103,6 +105,7 @@ final class DoctypeSupport {
 
     /**
      * Reads the next character from the declaration.
+     * 
      * @return -1 if the end of the declaration has been reached.
      */
     int read() throws IOException {
@@ -135,9 +138,9 @@ final class DoctypeSupport {
     }
 
     /**
-     * Reads enough of the original Readable to know where to place
-     * the declaration.  Fills beforeDecl and afterDecl from the data
-     * read ahead.  Swallows the original DOCTYPE if there is one.
+     * Reads enough of the original Readable to know where to place the
+     * declaration. Fills beforeDecl and afterDecl from the data read ahead.
+     * Swallows the original DOCTYPE if there is one.
      */
     private void split() throws IOException {
         hasSplit = true;
@@ -168,7 +171,7 @@ final class DoctypeSupport {
                     } else {
                         // comment or doctype
                         IntegerBuffer b =
-                            new IntegerBuffer(elementOrDeclOr.length);
+                                new IntegerBuffer(elementOrDeclOr.length);
                         b.append(elementOrDeclOr);
                         if (b.indexOf(DOCTYPE_INTS) == -1) {
                             after.append('<');
@@ -210,7 +213,7 @@ final class DoctypeSupport {
                     } else {
                         // comment or doctype
                         IntegerBuffer b =
-                            new IntegerBuffer(elementOrDeclOr.length);
+                                new IntegerBuffer(elementOrDeclOr.length);
                         b.append(elementOrDeclOr);
                         if (b.indexOf(DOCTYPE_INTS) == -1) {
                             after.append('<');
@@ -231,9 +234,9 @@ final class DoctypeSupport {
         }
 
         beforeDoctype = before.size() > 0
-            ? new IntBufferReadable(before) : null;
+                ? new IntBufferReadable(before) : null;
         afterDoctype = after.size() > 0
-            ? new IntBufferReadable(after) : null;
+                ? new IntBufferReadable(after) : null;
     }
 
     private int[] readUntilCloseCharIsReached() throws IOException {
@@ -251,13 +254,15 @@ final class DoctypeSupport {
         }
         return i.toIntArray();
     }
-    
+
     private static class IntBufferReadable implements Readable {
         private final int[] buf;
         private int off;
+
         IntBufferReadable(IntegerBuffer b) {
             buf = b.toIntArray();
         }
+
         public int read() {
             return off >= buf.length ? -1 : buf[off++];
         }
