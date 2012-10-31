@@ -146,7 +146,7 @@ public class ValidatorTest {
         passXMLTestCaseTest(validator);
         // and Document constructor
         Document document = getDocument(noDTD);
-        validator = new Validator(document, systemid, doctype);
+        validator = new Validator(document, systemid, doctype, new XmlUnitProperties());
         assertTrue("Document " + validator.toString(), validator.isValid());
 
         validator = new Validator(new StringReader(noDTD),
@@ -156,7 +156,7 @@ public class ValidatorTest {
         failXMLTestCaseTest(noDTD, systemid, notDoctype);
         failXMLTestCaseTest(validator);
         // and Document constructor
-        validator = new Validator(document, systemid, notDoctype);
+        validator = new Validator(document, systemid, notDoctype, new XmlUnitProperties());
         assertFalse("Document " + validator.toString(), validator.isValid());
     }
 

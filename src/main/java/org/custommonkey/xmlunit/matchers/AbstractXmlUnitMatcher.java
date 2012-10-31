@@ -16,20 +16,20 @@ package org.custommonkey.xmlunit.matchers;
 
 import javax.annotation.Nullable;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.hamcrest.TypeSafeMatcher;
 
 public abstract class AbstractXmlUnitMatcher<T> extends TypeSafeMatcher<T> {
-    protected XMLUnit xmlUnit;
+    protected XmlUnit xmlUnit;
 
-    public AbstractXmlUnitMatcher<T> using(@Nullable XMLUnit xmlUnit) {
+    public AbstractXmlUnitMatcher<T> using(@Nullable XmlUnit xmlUnit) {
         this.xmlUnit = xmlUnit;
         return this;
     }
 
-    protected XMLUnit getXmlUnit() {
-        XMLUnit xmlUnit;
+    protected XmlUnit getXmlUnit() {
+        XmlUnit xmlUnit;
         if (this.xmlUnit == null) {
             xmlUnit = new XmlUnitBuilder().build();
         } else {

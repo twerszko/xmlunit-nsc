@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
@@ -24,6 +25,7 @@ public class XmlUnitProperties implements Cloneable {
     private boolean ignoreDiffBetweenTextAndCDATA = false;
     private Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass;
     private Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass;
+    private Class<? extends TransformerFactory> transformerFactoryClass;
     private URIResolver uriResolver;
 
     public boolean getIgnoreWhitespace() {
@@ -313,6 +315,15 @@ public class XmlUnitProperties implements Cloneable {
     public void setTestDocumentBuilderFactoryClass(
             @Nullable Class<? extends DocumentBuilderFactory> testDocumentBuilderFactory) {
         this.testDocumentBuilderFactoryClass = testDocumentBuilderFactory;
+    }
+
+    public Class<? extends TransformerFactory> getTransformerFactoryClass() {
+        return transformerFactoryClass;
+    }
+
+    public void setTransformerFactoryClass(
+            @Nullable Class<? extends TransformerFactory> transformerFactory) {
+        this.transformerFactoryClass = transformerFactory;
     }
 
     /**

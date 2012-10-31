@@ -151,7 +151,7 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
             throws TransformerException, ConfigurationException, XpathException {
         try {
             StreamSource source = new StreamSource(new StringReader(xslt));
-            TransformerFactory tf = XMLUnit.newTransformerFactory();
+            TransformerFactory tf = XmlUnit.newTransformerFactory();
             ErrorListener el = new ErrorListener() {
                 public void error(TransformerException ex)
                         throws TransformerException {

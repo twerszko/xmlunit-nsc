@@ -32,16 +32,17 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Transform.TransformationResult;
 import net.sf.xmlunit.exceptions.ConfigurationException;
 
-import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.custommonkey.xmlunit.util.XsltUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -255,9 +256,7 @@ public class TransformTest {
      * @throws TransformerException
      */
     @Test
-    // TODO:
-            public
-            void should_get_exception_when_incorrect_include_uri() throws Exception {
+    public void should_get_exception_when_incorrect_include_uri() throws Exception {
         // given
         String xsl =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
@@ -273,36 +272,31 @@ public class TransformTest {
         stylesheet.setSystemId(systemId);
         source.setSystemId(systemId);
 
-        ErrorListener errorListener = XMLUnit.getTransformerFactory().getErrorListener();
+        TransformerFactory factory = new XsltUtils(properties).newTransformerFactory();
+
+        // when
+        URIResolver mockedResolver = mock(URIResolver.class);
+        when(mockedResolver.resolve("urn:bar", systemId)).thenReturn(null);
+        ErrorListener mockedErrorListener = mock(ErrorListener.class);
+
+        factory.setURIResolver(mockedResolver);
+        factory.setErrorListener(mockedErrorListener);
 
         try {
-            // when
-            URIResolver mockedResolver = mock(URIResolver.class);
-            when(mockedResolver.resolve("urn:bar", systemId)).thenReturn(null);
-            ErrorListener mockedErrorListener = mock(ErrorListener.class);
+            Transform.source(source)
+                    .withStylesheet(stylesheet)
+                    .usingFactory(factory)
+                    .withURIResolver(mockedResolver)
+                    .build()
+                    .toString();
 
-            XMLUnit.setURIResolver(mockedResolver);
-            XMLUnit.getTransformerFactory().setErrorListener(mockedErrorListener);
-
-            try {
-                Transform.source(source)
-                        .withStylesheet(stylesheet)
-                        .usingFactory(XMLUnit.getTransformerFactory())
-                        .withURIResolver(mockedResolver)
-                        .build()
-                        .toString();
-
-                fail("should fail because of unknown include URI");
-            } catch (ConfigurationException tce) {
-                // expected exception because of unknown protocol "urn"
-            }
-
-            // then
-            verify(mockedResolver, times(1)).resolve("urn:bar", systemId);
-        } finally {
-            XMLUnit.setURIResolver(null);
-            XMLUnit.getTransformerFactory().setErrorListener(errorListener);
+            fail("should fail because of unknown include URI");
+        } catch (ConfigurationException tce) {
+            // expected exception because of unknown protocol "urn"
         }
+
+        // then
+        verify(mockedResolver, times(1)).resolve("urn:bar", systemId);
     }
 
     private String stripLineSeparators(String text) {

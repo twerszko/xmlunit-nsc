@@ -78,6 +78,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * Examples and more at <a
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
+
+// TODO: Builder
 public class Validator extends DefaultHandler {
     private final InputSource validationInputSource;
     private final StringBuffer messages;
@@ -88,16 +90,6 @@ public class Validator extends DefaultHandler {
     private boolean useSchema = false;
 
     private Boolean isValid;
-
-    /**
-     * Kept for backwards compatibility.
-     * 
-     * @deprecated Use the protected three arg constructor instead.
-     */
-    protected Validator(InputSource inputSource,
-            boolean usingDoctypeReader) {
-        this(inputSource, null, usingDoctypeReader);
-    }
 
     /**
      * Baseline constructor: called by all others
@@ -127,8 +119,8 @@ public class Validator extends DefaultHandler {
      * @param systemID
      * @param doctype
      */
-    public Validator(Document document, String systemID, String doctype) {
-        this(new InputStreamReader(new NodeInputStream(document)),
+    public Validator(Document document, String systemID, String doctype, XmlUnitProperties properties) {
+        this(new InputStreamReader(new NodeInputStream(document, properties)),
                 systemID, doctype);
     }
 
@@ -306,6 +298,7 @@ public class Validator extends DefaultHandler {
     /**
      * @return class name appended with validation messages
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer(super.toString()).append(':');
         return appendMessage(buf).toString();

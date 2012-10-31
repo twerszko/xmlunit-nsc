@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 
 import junit.framework.Assert;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.XpathEngine;
@@ -64,7 +64,7 @@ public class XPathRegexAssert {
     private XPathRegexAssert() {
     }
 
-    public static void assertXPathMatches(@Nullable XMLUnit xmlUnit, String message, String regex,
+    public static void assertXPathMatches(@Nullable XmlUnit xmlUnit, String message, String regex,
             String xpath, Document doc)
             throws XpathException {
 
@@ -76,35 +76,35 @@ public class XPathRegexAssert {
         Assert.assertTrue(message, value.matches(regex));
     }
 
-    public static void assertXPathMatches(XMLUnit xmlUnit, String message, String regex,
+    public static void assertXPathMatches(XmlUnit xmlUnit, String message, String regex,
             String xpath, String xml)
             throws XpathException, SAXException, IOException {
         Document doc = new DocumentUtils(new XmlUnitProperties()).buildControlDocument(xml);
         assertXPathMatches(xmlUnit, message, regex, xpath, doc);
     }
 
-    public static void assertXPathMatches(XMLUnit xmlUnit, String message, String regex,
+    public static void assertXPathMatches(XmlUnit xmlUnit, String message, String regex,
             String xpath, Reader reader)
             throws XpathException, SAXException, IOException {
         Document doc = new DocumentUtils(new XmlUnitProperties()).buildControlDocument(new InputSource(reader));
         assertXPathMatches(xmlUnit, message, regex, xpath, doc);
     }
 
-    public static void assertXPathMatches(XMLUnit xmlUnit, String regex,
+    public static void assertXPathMatches(XmlUnit xmlUnit, String regex,
             String xpath, Document doc)
             throws XpathException {
         assertXPathMatches(xmlUnit, "expected value to match " + regex, regex,
                 xpath, doc);
     }
 
-    public static void assertXPathMatches(XMLUnit xmlUnit, String regex,
+    public static void assertXPathMatches(XmlUnit xmlUnit, String regex,
             String xpath, String xml)
             throws XpathException, SAXException, IOException {
         assertXPathMatches(xmlUnit, "expected value to match " + regex, regex,
                 xpath, xml);
     }
 
-    public static void assertXPathMatches(XMLUnit xmlUnit, String regex,
+    public static void assertXPathMatches(XmlUnit xmlUnit, String regex,
             String xpath, Reader reader)
             throws XpathException, SAXException, IOException {
         assertXPathMatches(xmlUnit, "expected value to match " + regex, regex,

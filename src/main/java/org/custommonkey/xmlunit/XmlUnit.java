@@ -50,6 +50,7 @@ import net.sf.xmlunit.builder.Transform.TransformationResult;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
+import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -62,10 +63,9 @@ import org.xml.sax.SAXException;
  * Examples and more at <a
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
-public final class XMLUnit {
+public final class XmlUnit {
     private final XmlUnitProperties properties;
 
-    private static TransformerFactory transformerFactory;
     private static SAXParserFactory saxParserFactory;
     private static URIResolver uriResolver = null;
     private static String xpathFactoryName = null;
@@ -101,7 +101,7 @@ public final class XMLUnit {
      * 
      * @param properties
      */
-    XMLUnit(XmlUnitProperties properties) {
+    XmlUnit(XmlUnitProperties properties) {
         this.properties = properties.clone();
     }
 
@@ -112,32 +112,6 @@ public final class XMLUnit {
      */
     public XmlUnitProperties getProperties() {
         return properties.clone();
-    }
-
-    /**
-     * Overide the transformer to use for XSLT transformations (and by
-     * implication serialization and XPaths). This is useful when comparing
-     * transformer implementations.
-     */
-    public static void setTransformerFactory(String className) {
-        System.setProperty("javax.xml.transform.TransformerFactory",
-                className);
-        transformerFactory = null;
-        getTransformerFactory();
-    }
-
-    /**
-     * Get the transformer to use for XSLT transformations (and by implication
-     * serialization and XPaths).
-     * 
-     * @return the current transformer factory in use a new instance of the
-     *         default transformer factory
-     */
-    public static TransformerFactory getTransformerFactory() {
-        if (transformerFactory == null) {
-            transformerFactory = newTransformerFactory();
-        }
-        return transformerFactory;
     }
 
     /**
@@ -160,8 +134,6 @@ public final class XMLUnit {
     public static void setURIResolver(URIResolver resolver) {
         if (uriResolver != resolver) {
             uriResolver = resolver;
-            transformerFactory = null;
-            getTransformerFactory();
         }
     }
 
@@ -232,7 +204,7 @@ public final class XMLUnit {
 
         TransformationResult transformationResult = Transform.source(source)
                 .withStylesheet(stylesheet)
-                .usingFactory(XMLUnit.getTransformerFactory())
+                .usingFactory(new XsltUtils(properties).newTransformerFactory())
                 .build();
         return transformationResult;
     }
@@ -248,7 +220,7 @@ public final class XMLUnit {
      * </p>
      */
     public Document getWhitespaceStrippedDocument(Document forDoc) {
-        String factory = getTransformerFactory().getClass().getName();
+        String factory = new XsltUtils(properties).newTransformerFactory().getClass().getName();
         if (XSLTConstants.JAVA5_XSLTC_FACTORY_NAME.equals(factory)) {
             return stripWhiteSpaceWithoutXSLT(forDoc);
         } else {
@@ -300,7 +272,7 @@ public final class XMLUnit {
 
         TransformationResult transformationResult = Transform.source(source)
                 .withStylesheet(stylesheet)
-                .usingFactory(XMLUnit.getTransformerFactory())
+                .usingFactory(new XsltUtils(properties).newTransformerFactory())
                 .build();
 
         return transformationResult;

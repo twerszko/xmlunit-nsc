@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.is;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,7 @@ public class EqualToXmlStringMatcherTest extends AbstractComparisonTest {
     // Bug 585555
     @Test
     public void should_check_if_nused_namespaces_dont_matter() throws Exception {
-        XMLUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
+        XmlUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
         String a =
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                         "<outer xmlns:NS2=\"http://namespace2/foo\">\n" +
@@ -63,7 +63,7 @@ public class EqualToXmlStringMatcherTest extends AbstractComparisonTest {
     // Bug 585555
     @Test
     public void should_check_if_namespace_matters() throws Exception {
-        XMLUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
+        XmlUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
 
         String a =
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

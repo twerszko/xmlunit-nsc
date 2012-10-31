@@ -25,7 +25,7 @@ import net.sf.xmlunit.xpath.XpathWrapper;
 
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -106,7 +106,7 @@ public class XpathValuesEqualMatcherTest {
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
         assertThat(testXpath1, notEqualToXpathValueOf(controlXpath1));
 
-        XMLUnit xmlUnitWithCotext = new XmlUnitBuilder()
+        XmlUnit xmlUnitWithCotext = new XmlUnitBuilder()
                 .withXpathNamespaceContext(NS_CONTEXT)
                 .build();
 
@@ -158,7 +158,7 @@ public class XpathValuesEqualMatcherTest {
         XpathWrapper controlXpath1 = new XpathWrapper("//text()", controlDocument);
         assertThat(testXpath1, notEqualToXpathValueOf(controlXpath1));
 
-        XMLUnit xmlUnitWithCotext = new XmlUnitBuilder()
+        XmlUnit xmlUnitWithCotext = new XmlUnitBuilder()
                 .withXpathNamespaceContext(NS_CONTEXT)
                 .build();
 

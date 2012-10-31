@@ -44,10 +44,12 @@ import static org.junit.Assert.fail;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.custommonkey.xmlunit.util.XsltUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -89,7 +91,7 @@ public class XMLUnitTest {
         DocumentBuilder builderAfter = new DocumentUtils(properties).newTestDocumentBuilder();
 
         // then
-        assertFalse(builderBefore == builderAfter);
+        assertThat(builderBefore).isNotSameAs(builderAfter);
     }
 
     // TODO more casses of loading different document builder factories
@@ -117,10 +119,18 @@ public class XMLUnitTest {
 
     @Test
     public void testSetTransformerFactory() throws Exception {
-        Object before = XMLUnit.getTransformerFactory();
-        XMLUnit.setTransformerFactory(before.getClass().getName());
-        assertEquals("should be different", false,
-                before == XMLUnit.getTransformerFactory());
+        // given
+        TransformerFactory factoryBefore = new XsltUtils(properties).newTransformerFactory();
+        Class<? extends TransformerFactory> factoryClass = factoryBefore.getClass();
+
+        // when
+        properties.setTransformerFactoryClass(factoryClass);
+        TransformerFactory factoryAfter = new XsltUtils(properties).newTransformerFactory();
+
+        // then
+        assertThat(factoryBefore).isNotSameAs(factoryAfter);
+        assertThat(factoryAfter.getClass().getName()).isEqualTo(factoryClass.getName());
+
     }
 
     @Test
@@ -140,7 +150,7 @@ public class XMLUnitTest {
 
     @Test
     public void testXSLTVersion() {
-        XMLUnit xmlUnit = new XmlUnitBuilder().build();
+        XmlUnit xmlUnit = new XmlUnitBuilder().build();
 
         assertEquals("1.0", xmlUnit.getProperties().getXsltVersion());
         assertEquals(XSLTConstants.XSLT_START, xmlUnit.getXSLTStart());

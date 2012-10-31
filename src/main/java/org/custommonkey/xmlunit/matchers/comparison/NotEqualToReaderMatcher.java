@@ -16,7 +16,7 @@ package org.custommonkey.xmlunit.matchers.comparison;
 
 import java.io.Reader;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -46,7 +46,7 @@ public class NotEqualToReaderMatcher extends AbstractXmlUnitMatcher<Reader> {
 
     @Override
     public boolean matchesSafely(Reader actualReader) {
-        XMLUnit xmlUnit = getXmlUnit();
+        XmlUnit xmlUnit = getXmlUnit();
 
         Diff diff;
         try {

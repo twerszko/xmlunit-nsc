@@ -52,11 +52,13 @@ import org.w3c.dom.Node;
  */
 public class SimpleSerializer {
     private final Properties outputProperties;
+    private final XmlUnitProperties properties;
 
     /**
      * Construct a new instance
      */
-    public SimpleSerializer() {
+    public SimpleSerializer(XmlUnitProperties properties) {
+        this.properties = properties.clone();
         outputProperties = new Properties();
     }
 
@@ -95,7 +97,7 @@ public class SimpleSerializer {
     public String serialize(Node domNode, String encoding)
             throws IOException, UnsupportedEncodingException {
 
-        NodeInputStream nodeStream = new NodeInputStream(domNode, outputProperties);
+        NodeInputStream nodeStream = new NodeInputStream(domNode, outputProperties, properties);
         String string = IOUtils.toString(nodeStream, encoding);
 
         return string;

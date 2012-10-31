@@ -60,7 +60,6 @@ public class DocumentUtils {
         this.properties = properties.clone();
     }
 
-    // TODO constructor without properties
     /**
      * Get the <code>DocumentBuilderFactory</code> instance used to instantiate
      * parsers for the control XML.

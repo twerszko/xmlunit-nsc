@@ -16,7 +16,7 @@ package org.custommonkey.xmlunit.matchers.comparison;
 
 import javax.xml.transform.TransformerException;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -63,7 +63,7 @@ public class NotEqualToDocumentMatcher extends AbstractXmlUnitMatcher<Document> 
 
     @Override
     public boolean matchesSafely(Document actualDoc) {
-        XMLUnit xmlUnit = getXmlUnit();
+        XmlUnit xmlUnit = getXmlUnit();
         this.actualDoc = actualDoc;
 
         Diff diff;

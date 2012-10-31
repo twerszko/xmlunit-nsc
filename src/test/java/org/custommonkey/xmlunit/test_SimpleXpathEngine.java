@@ -48,21 +48,22 @@ import org.w3c.dom.Node;
  */
 public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
 
-    private SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine(null);
+    private final SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine(null);
 
+    @Override
     protected XpathEngine newXpathEngine() {
         return simpleXpathEngine;
     }
 
     @Test
     public void testGetXPathResultNode() throws Exception {
-        Node result = simpleXpathEngine.getXPathResultNode("test",
-                testDocument);
-        SimpleSerializer serializer = new SimpleSerializer();
+        Node result = simpleXpathEngine.getXPathResultNode("test", testDocument);
+        SimpleSerializer serializer = new SimpleSerializer(new XmlUnitProperties());
         serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         assertEquals(testString, serializer.serialize(result.getFirstChild()));
     }
 
+    @Override
     @Test
     public void testGetMatchingNodesMatchText() throws Exception {
         // TODO
@@ -73,6 +74,7 @@ public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
         super.testGetMatchingNodesMatchText();
     }
 
+    @Override
     @Test
     public void testEvaluate() throws Exception {
         // TODO

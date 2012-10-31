@@ -50,6 +50,7 @@ import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.builder.Transform;
 import net.sf.xmlunit.builder.Transform.Builder;
 
+import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Node;
 
 /**
@@ -63,6 +64,7 @@ public class NodeInputStream extends InputStream {
     private final ByteArrayOutputStream nodeContentBytes;
     private final Properties outputProperties;
     private int atPos = 0;
+    private final XmlUnitProperties properties;
 
     /**
      * Simple constructor
@@ -70,8 +72,8 @@ public class NodeInputStream extends InputStream {
      * @param rootNode
      *            the node to be presented as an input stream
      */
-    public NodeInputStream(Node rootNode) {
-        this(rootNode, null);
+    public NodeInputStream(Node rootNode, XmlUnitProperties properties) {
+        this(rootNode, null, properties);
     }
 
     /**
@@ -80,7 +82,8 @@ public class NodeInputStream extends InputStream {
      * @param rootNode
      *            the node to be presented as an input stream
      */
-    public NodeInputStream(Node rootNode, Properties outputProperties) {
+    public NodeInputStream(Node rootNode, Properties outputProperties, XmlUnitProperties properties) {
+        this.properties = properties.clone();
         this.rootNode = rootNode;
         nodeContentBytes = new ByteArrayOutputStream();
         if (outputProperties == null) {
@@ -103,7 +106,7 @@ public class NodeInputStream extends InputStream {
         try {
             Source source = Input.fromNode(rootNode).build();
             Builder transformBuilder = Transform.source(source)
-                    .usingFactory(XMLUnit.getTransformerFactory());
+                    .usingFactory(new XsltUtils(properties).newTransformerFactory());
             Iterator<Entry<Object, Object>> it = outputProperties.entrySet().iterator();
             while (it.hasNext()) {
                 Entry<Object, Object> entry = it.next();
@@ -128,6 +131,7 @@ public class NodeInputStream extends InputStream {
      * @return byte as read
      * @throws IOException
      */
+    @Override
     public int read() throws IOException {
         ensureContentAvailable();
         if (reallyAvailable() == 0) {
@@ -144,6 +148,7 @@ public class NodeInputStream extends InputStream {
      * 
      * @throws IOException
      */
+    @Override
     public void close() throws IOException {
         atPos = 0;
     }
@@ -153,6 +158,7 @@ public class NodeInputStream extends InputStream {
      * 
      * @return number of bytes available
      */
+    @Override
     public int available() throws IOException {
         ensureContentAvailable();
         return reallyAvailable();

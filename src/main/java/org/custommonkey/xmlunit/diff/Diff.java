@@ -50,7 +50,7 @@ import org.custommonkey.xmlunit.ElementNameQualifier;
 import org.custommonkey.xmlunit.ElementQualifier;
 import org.custommonkey.xmlunit.MatchTracker;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.w3c.dom.Document;
@@ -134,7 +134,7 @@ public class Diff implements DifferenceListener, ComparisonController {
     }
 
     /**
-     * If {@link XMLUnit#getIgnoreWhitespace whitespace is ignored} in
+     * If {@link XmlUnit#getIgnoreWhitespace whitespace is ignored} in
      * differences then manipulate the content to strip the redundant whitespace
      * 
      * @param originalDoc
@@ -156,9 +156,9 @@ public class Diff implements DifferenceListener, ComparisonController {
      * This may involve:
      * </p>
      * <ul>
-     * <li>{@link XMLUnit.setIgnoreWhitespace stripping redundant whitespace}</li>
-     * <li>{@link XMLUnit.setIgnoreComments stripping comments}</li>
-     * <li>{@link XMLUnit.setNormalize normalizing Text nodes}</li>
+     * <li>{@link XmlUnit.setIgnoreWhitespace stripping redundant whitespace}</li>
+     * <li>{@link XmlUnit.setIgnoreComments stripping comments}</li>
+     * <li>{@link XmlUnit.setNormalize normalizing Text nodes}</li>
      * </ul>
      * 
      * @param orig
@@ -170,7 +170,7 @@ public class Diff implements DifferenceListener, ComparisonController {
     }
 
     /**
-     * Removes all comment nodes if {@link XMLUnit.getIgnoreComments comments
+     * Removes all comment nodes if {@link XmlUnit.getIgnoreComments comments
      * are ignored}.
      * 
      * @param originalDoc

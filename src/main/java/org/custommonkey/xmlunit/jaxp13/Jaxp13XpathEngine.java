@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.jaxp13;
 
 import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -65,9 +65,9 @@ public class Jaxp13XpathEngine implements XpathEngine {
     public Jaxp13XpathEngine() throws ConfigurationException {
         try {
             JAXPXPathEngine e = null;
-            if (XMLUnit.getXPathFactory() != null) {
+            if (XmlUnit.getXPathFactory() != null) {
                 e = new JAXPXPathEngine((XPathFactory) Class
-                        .forName(XMLUnit.getXPathFactory())
+                        .forName(XmlUnit.getXPathFactory())
                         .newInstance());
             } else {
                 e = new JAXPXPathEngine();
