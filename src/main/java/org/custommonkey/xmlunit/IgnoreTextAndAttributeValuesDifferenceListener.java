@@ -71,11 +71,11 @@ public class IgnoreTextAndAttributeValuesDifferenceListener
      *         to accept all other differences.
      * @see DifferenceListener#differenceFound(Difference)
      */
-    public int differenceFound(Difference difference) {
+    public ReturnType differenceFound(Difference difference) {
         if (isIgnoredDifference(difference)) {
-            return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR;
+            return ReturnType.DIFFERENT_NODES_SIMILAR;
         } else {
-            return RETURN_ACCEPT_DIFFERENCE;
+            return ReturnType.ACCEPT_DIFFERENCE;
         }
     }
 

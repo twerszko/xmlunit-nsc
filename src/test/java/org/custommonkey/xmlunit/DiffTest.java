@@ -60,6 +60,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
 
+import org.custommonkey.xmlunit.DifferenceListener.ReturnType;
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DifferenceType;
@@ -653,17 +654,17 @@ public class DiffTest {
         // when
         Diff diffWithIdenticalOverride = prepareDiff(properties, control, test);
         diffWithIdenticalOverride.overrideDifferenceListener(
-                new OverrideDifferenceListener(DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL)
+                new OverrideDifferenceListener(ReturnType.DIFFERENT_NODES_IDENTICAL)
                 );
 
         Diff diffWithSimilarOverride = prepareDiff(properties, control, test);
         diffWithSimilarOverride.overrideDifferenceListener(
-                new OverrideDifferenceListener(DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR)
+                new OverrideDifferenceListener(ReturnType.DIFFERENT_NODES_SIMILAR)
                 );
 
         Diff diffWithOverride = prepareDiff(properties, control, test);
         diffWithOverride.overrideDifferenceListener(new OverrideDifferenceListener(
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE));
+                ReturnType.ACCEPT_DIFFERENCE));
 
         // then
         assertThat(diffWithIdenticalOverride.identical()).isTrue();
@@ -860,13 +861,13 @@ public class DiffTest {
     }
 
     private class OverrideDifferenceListener implements DifferenceListener {
-        private final int overrideValue;
+        private final ReturnType overrideValue;
 
-        private OverrideDifferenceListener(int overrideValue) {
+        private OverrideDifferenceListener(ReturnType overrideValue) {
             this.overrideValue = overrideValue;
         }
 
-        public int differenceFound(Difference difference) {
+        public ReturnType differenceFound(Difference difference) {
             return overrideValue;
         }
 
@@ -888,10 +889,10 @@ public class DiffTest {
             }
         }
 
-        public int differenceFound(Difference difference) {
+        public ReturnType differenceFound(Difference difference) {
             assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
             examineDifferenceContents(difference);
-            return RETURN_ACCEPT_DIFFERENCE;
+            return ReturnType.ACCEPT_DIFFERENCE;
         }
 
         public void skippedComparison(Node control, Node test) {
@@ -1188,8 +1189,8 @@ public class DiffTest {
         Diff diff = prepareDiff(properties, control, test);
         diff.overrideDifferenceListener(
                 new DifferenceListener() {
-                    public int differenceFound(Difference d) {
-                        return RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT;
+                    public ReturnType differenceFound(Difference d) {
+                        return ReturnType.SIMILAR_NODES_DIFFERENT;
                     }
 
                     public void skippedComparison(Node c, Node t) {

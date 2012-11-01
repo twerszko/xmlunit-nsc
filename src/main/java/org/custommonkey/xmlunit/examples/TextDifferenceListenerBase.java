@@ -68,52 +68,53 @@ public abstract class TextDifferenceListenerBase
      * commentDifference} or {@link #textDifference textDifference} are invoked
      * respectively.
      */
-    public int differenceFound(Difference difference) {
+    public ReturnType differenceFound(Difference difference) {
         switch (difference.getType()) {
-        case ATTR_VALUE:
-            return attributeDifference(difference);
-        case CDATA_VALUE:
-            return cdataDifference(difference);
-        case COMMENT_VALUE:
-            return commentDifference(difference);
-        case TEXT_VALUE:
-            return textDifference(difference);
+            case ATTR_VALUE:
+                return attributeDifference(difference);
+            case CDATA_VALUE:
+                return cdataDifference(difference);
+            case COMMENT_VALUE:
+                return commentDifference(difference);
+            case TEXT_VALUE:
+                return textDifference(difference);
+            default:
+                return delegateTo.differenceFound(difference);
         }
-        return delegateTo.differenceFound(difference);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected int attributeDifference(Difference d) {
+    protected ReturnType attributeDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected int cdataDifference(Difference d) {
+    protected ReturnType cdataDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected int commentDifference(Difference d) {
+    protected ReturnType commentDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected int textDifference(Difference d) {
+    protected ReturnType textDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to the nested DifferenceListener.
      */
-    protected int textualDifference(Difference d) {
+    protected ReturnType textualDifference(Difference d) {
         return delegateTo.differenceFound(d);
     }
 

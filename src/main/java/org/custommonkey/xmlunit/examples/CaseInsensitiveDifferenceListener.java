@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import java.util.Locale;
+
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 
@@ -49,14 +50,15 @@ public class CaseInsensitiveDifferenceListener
         super(delegateTo);
     }
 
-    protected int textualDifference(Difference d) {
+    @Override
+    protected ReturnType textualDifference(Difference d) {
         String control = d.getControlNodeDetail().getValue();
         if (control != null) {
             control = control.toLowerCase(Locale.US);
             if (d.getTestNodeDetail().getValue() != null
                     && control.equals(d.getTestNodeDetail().getValue()
                             .toLowerCase(Locale.US))) {
-                return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
+                return ReturnType.DIFFERENT_NODES_IDENTICAL;
             }
         }
         // some string is null, delegate

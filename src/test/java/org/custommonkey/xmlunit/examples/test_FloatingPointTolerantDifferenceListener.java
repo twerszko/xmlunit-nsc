@@ -54,10 +54,10 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 
         FloatingPointTolerantDifferenceListener c =
                 new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-                    public int differenceFound(Difference d) {
+                    public ReturnType differenceFound(Difference d) {
                         fail("differenceFound shouldn't get invoked, but"
                                 + " was with type " + d.getType());
-                        return -42;
+                        return null;
                     }
 
                     public void skippedComparison(Node c, Node t) {
@@ -69,10 +69,10 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
         assertTrue(d.identical());
 
         c = new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-            public int differenceFound(Difference d) {
+            public ReturnType differenceFound(Difference d) {
                 fail("differenceFound shouldn't get invoked, but"
                         + " was with type " + d.getType());
-                return -42;
+                return null;
             }
 
             public void skippedComparison(Node c, Node t) {

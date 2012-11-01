@@ -36,11 +36,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
 import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.custommonkey.xmlunit.DifferenceListener.ReturnType;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 
@@ -52,76 +55,46 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
     private DifferenceListener listener;
 
     public void testDifferenceFound() {
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.ATTR_NAME_NOT_FOUND),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.ATTR_SEQUENCE),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.ATTR_VALUE),
-                DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED),
-                DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.CDATA_VALUE),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.CHILD_NODELIST_LENGTH),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.COMMENT_VALUE),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.DOCTYPE_NAME),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.DOCTYPE_PUBLIC_ID),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.DOCTYPE_SYSTEM_ID),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.ELEMENT_TAG_NAME),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.HAS_CHILD_NODES),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.NAMESPACE_PREFIX),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.NAMESPACE_URI),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.NODE_TYPE),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET),
-                DifferenceListener.RETURN_ACCEPT_DIFFERENCE);
-        assertCorrectInterpretation(
-                new Difference(DifferenceType.TEXT_VALUE),
-                DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR);
-    }
-
-    private void assertCorrectInterpretation(
-            Difference difference, int returnValue) {
-        assertEquals(difference.toString(),
-                returnValue,
-                listener.differenceFound(difference));
+        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_SEQUENCE)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_VALUE)))
+                .isEqualTo(ReturnType.DIFFERENT_NODES_SIMILAR);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED)))
+                .isEqualTo(ReturnType.DIFFERENT_NODES_SIMILAR);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.CDATA_VALUE)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.COMMENT_VALUE)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.DOCTYPE_NAME)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.DOCTYPE_PUBLIC_ID)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.DOCTYPE_SYSTEM_ID)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.ELEMENT_TAG_NAME)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.HAS_CHILD_NODES)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.NAMESPACE_PREFIX)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.NAMESPACE_URI)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.NODE_TYPE)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET)))
+                .isEqualTo(ReturnType.ACCEPT_DIFFERENCE);
+        assertThat(listener.differenceFound(new Difference(DifferenceType.TEXT_VALUE)))
+                .isEqualTo(ReturnType.DIFFERENT_NODES_SIMILAR);
     }
 
     public void testClassInUse() throws Exception {

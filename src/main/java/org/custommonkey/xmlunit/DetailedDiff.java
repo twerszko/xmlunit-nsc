@@ -78,24 +78,22 @@ public class DetailedDiff extends Diff {
      * @param comparingWhat
      * @return the value supplied by the superclass implementation
      */
-    public int differenceFound(Difference difference) {
-        final int returnValue = super.differenceFound(difference);
+    @Override
+    public ReturnType differenceFound(Difference difference) {
+        final ReturnType returnValue = super.differenceFound(difference);
         switch (returnValue) {
-        case RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL:
+        case DIFFERENT_NODES_IDENTICAL:
             return returnValue;
-        case RETURN_ACCEPT_DIFFERENCE:
+        case ACCEPT_DIFFERENCE:
             break;
-        case RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR:
+        case DIFFERENT_NODES_SIMILAR:
             difference.setRecoverable(true);
             break;
-        case RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT:
+        case SIMILAR_NODES_DIFFERENT:
             difference.setRecoverable(false);
             break;
         default:
-            throw new IllegalArgumentException(returnValue
-                    + " is not a defined "
-                    + " DifferenceListener"
-                    + ".RETURN_... value");
+            throw new IllegalArgumentException(returnValue + " is not supported");
         }
         allDifferences.add(difference);
         return returnValue;
@@ -107,6 +105,7 @@ public class DetailedDiff extends Diff {
      * @param afterDifference
      * @return false always as this class wants to see all differences
      */
+    @Override
     public boolean haltComparison(Difference afterDifference) {
         return false;
     }

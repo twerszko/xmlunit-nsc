@@ -81,6 +81,7 @@ public class test_NewDifferenceEngine extends TestCase {
 
     protected XmlUnitProperties properties;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
@@ -558,7 +559,7 @@ public class test_NewDifferenceEngine extends TestCase {
         public String testXpath;
         private boolean tracing = false;
 
-        public int differenceFound(Difference difference) {
+        public ReturnType differenceFound(Difference difference) {
             if (tracing) {
                 System.out.println("df: " + difference.toString());
             }
@@ -573,7 +574,7 @@ public class test_NewDifferenceEngine extends TestCase {
             this.different = !difference.isRecoverable();
             this.controlXpath = difference.getControlNodeDetail().getXpathLocation();
             this.testXpath = difference.getTestNodeDetail().getXpathLocation();
-            return RETURN_ACCEPT_DIFFERENCE;
+            return ReturnType.ACCEPT_DIFFERENCE;
         }
 
         public void skippedComparison(Node control, Node test) {
@@ -586,7 +587,7 @@ public class test_NewDifferenceEngine extends TestCase {
     }
 
     private class OrderPreservingNamedNodeMap implements NamedNodeMap {
-        private ArrayList/* Attr */nodes = new ArrayList();
+        private final ArrayList/* Attr */nodes = new ArrayList();
 
         void add(Attr attr) {
             nodes.add(attr);

@@ -76,11 +76,11 @@ public class test_ForumMessage4406472 extends TestCase {
                 DifferenceType.NAMESPACE_URI
         };
 
-        public int differenceFound(Difference difference) {
+        public ReturnType differenceFound(Difference difference) {
             Arrays.sort(IGNORE);
             return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
-                    ? RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL
-                    : RETURN_ACCEPT_DIFFERENCE;
+                    ? ReturnType.DIFFERENT_NODES_IDENTICAL
+                    : ReturnType.ACCEPT_DIFFERENCE;
         }
 
         public void skippedComparison(Node control, Node test) {
@@ -99,12 +99,12 @@ public class test_ForumMessage4406472 extends TestCase {
             Arrays.sort(IGNORE);
         }
 
-        public int differenceFound(Difference difference) {
+        public ReturnType differenceFound(Difference difference) {
             return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
-                    ? RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL
+                    ? ReturnType.DIFFERENT_NODES_IDENTICAL
                     : difference.isRecoverable()
-                            ? RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR
-                            : RETURN_ACCEPT_DIFFERENCE;
+                            ? ReturnType.DIFFERENT_NODES_SIMILAR
+                            : ReturnType.ACCEPT_DIFFERENCE;
         }
 
         public void skippedComparison(Node control, Node test) {

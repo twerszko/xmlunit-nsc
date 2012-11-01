@@ -206,8 +206,8 @@ public class Diff implements DifferenceListener, ComparisonController {
         if (compared) {
             return;
         }
-        getDifferenceEngine().compare(controlDoc, testDoc, this,
-                elementQualifierDelegate);
+        getDifferenceEngine()
+                .compare(controlDoc, testDoc, this, elementQualifierDelegate);
         compared = true;
     }
 
@@ -257,17 +257,17 @@ public class Diff implements DifferenceListener, ComparisonController {
      *         difference was interpreted. Always RETURN_ACCEPT_DIFFERENCE if
      *         the call is not delegated.
      */
-    public int differenceFound(Difference difference) {
-        int returnValue = evaluate(difference);
+    public ReturnType differenceFound(Difference difference) {
+        ReturnType returnValue = evaluate(difference);
 
         switch (returnValue) {
-        case RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL:
+        case DIFFERENT_NODES_IDENTICAL:
             return returnValue;
-        case RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR:
+        case DIFFERENT_NODES_SIMILAR:
             identical = false;
             haltComparison = false;
             break;
-        case RETURN_ACCEPT_DIFFERENCE:
+        case ACCEPT_DIFFERENCE:
             identical = false;
             if (difference.isRecoverable()) {
                 haltComparison = false;
@@ -276,13 +276,12 @@ public class Diff implements DifferenceListener, ComparisonController {
                 haltComparison = true;
             }
             break;
-        case RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT:
+        case SIMILAR_NODES_DIFFERENT:
             identical = similar = false;
             haltComparison = true;
             break;
         default:
-            throw new IllegalArgumentException(returnValue
-                    + " is not a defined DifferenceListener.RETURN_... value");
+            throw new IllegalArgumentException(returnValue + " is not supported");
         }
         if (haltComparison) {
             messages.append("\n[different]");
@@ -293,8 +292,8 @@ public class Diff implements DifferenceListener, ComparisonController {
         return returnValue;
     }
 
-    public int evaluate(Difference difference) {
-        int returnValue = RETURN_ACCEPT_DIFFERENCE;
+    public ReturnType evaluate(Difference difference) {
+        ReturnType returnValue = ReturnType.ACCEPT_DIFFERENCE;
         if (differenceListenerDelegate != null) {
             returnValue = differenceListenerDelegate.differenceFound(difference);
         }

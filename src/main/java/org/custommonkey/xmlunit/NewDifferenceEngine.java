@@ -240,93 +240,93 @@ public class NewDifferenceEngine
     public static Difference toDifference(Comparison comp) {
         Difference proto = null;
         switch (comp.getType()) {
-        case ATTR_VALUE_EXPLICITLY_SPECIFIED:
-            proto = new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
-            break;
-        case HAS_DOCTYPE_DECLARATION:
-            proto = new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION);
-            break;
-        case DOCTYPE_NAME:
-            proto = new Difference(DifferenceType.DOCTYPE_NAME);
-            break;
-        case DOCTYPE_PUBLIC_ID:
-            proto = new Difference(DifferenceType.DOCTYPE_PUBLIC_ID);
-            break;
-        case DOCTYPE_SYSTEM_ID:
-            proto = new Difference(DifferenceType.DOCTYPE_SYSTEM_ID);
-            break;
-        case SCHEMA_LOCATION:
-            proto = new Difference(DifferenceType.SCHEMA_LOCATION);
-            break;
-        case NO_NAMESPACE_SCHEMA_LOCATION:
-            proto = new Difference(DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
-            break;
-        case NODE_TYPE:
-            proto = new Difference(DifferenceType.NODE_TYPE);
-            break;
-        case NAMESPACE_PREFIX:
-            proto = new Difference(DifferenceType.NAMESPACE_PREFIX);
-            break;
-        case NAMESPACE_URI:
-            proto = new Difference(DifferenceType.NAMESPACE_URI);
-            break;
-        case TEXT_VALUE:
-            if (comp.getControlDetails().getTarget() instanceof CDATASection) {
-                proto = new Difference(DifferenceType.CDATA_VALUE);
-            } else if (comp.getControlDetails().getTarget() instanceof Comment) {
-                proto = new Difference(DifferenceType.COMMENT_VALUE);
-            } else {
-                proto = new Difference(DifferenceType.TEXT_VALUE);
-            }
-            break;
-        case PROCESSING_INSTRUCTION_TARGET:
-            proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET);
-            break;
-        case PROCESSING_INSTRUCTION_DATA:
-            proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA);
-            break;
-        case ELEMENT_TAG_NAME:
-            proto = new Difference(DifferenceType.ELEMENT_TAG_NAME);
-            break;
-        case ELEMENT_NUM_ATTRIBUTES:
-            proto = new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES);
-            break;
-        case ATTR_VALUE:
-            proto = new Difference(DifferenceType.ATTR_VALUE);
-            break;
-        case CHILD_NODELIST_LENGTH:
-            Comparison.Detail cd = comp.getControlDetails();
-            Comparison.Detail td = comp.getTestDetails();
-            if (ZERO.equals(cd.getValue())
-                    || ZERO.equals(td.getValue())) {
-                return new Difference(new Difference(DifferenceType.HAS_CHILD_NODES),
-                        new NodeDetail(String
-                                .valueOf(!ZERO
-                                        .equals(cd
-                                                .getValue())),
-                                (Node) cd.getTarget(),
-                                cd.getXPath()),
-                        new NodeDetail(String
-                                .valueOf(!ZERO
-                                        .equals(td
-                                                .getValue())),
-                                (Node) td.getTarget(),
-                                td.getXPath()));
-            }
-            proto = new Difference(DifferenceType.CHILD_NODELIST_LENGTH);
-            break;
-        case CHILD_NODELIST_SEQUENCE:
-            proto = new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE);
-            break;
-        case CHILD_LOOKUP:
-            proto = new Difference(DifferenceType.CHILD_NODE_NOT_FOUND);
-            break;
-        case ATTR_NAME_LOOKUP:
-            proto = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
-            break;
-        default:
-            /* comparison doesn't match one of legacy's built-in differences */
-            break;
+            case ATTR_VALUE_EXPLICITLY_SPECIFIED:
+                proto = new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
+                break;
+            case HAS_DOCTYPE_DECLARATION:
+                proto = new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION);
+                break;
+            case DOCTYPE_NAME:
+                proto = new Difference(DifferenceType.DOCTYPE_NAME);
+                break;
+            case DOCTYPE_PUBLIC_ID:
+                proto = new Difference(DifferenceType.DOCTYPE_PUBLIC_ID);
+                break;
+            case DOCTYPE_SYSTEM_ID:
+                proto = new Difference(DifferenceType.DOCTYPE_SYSTEM_ID);
+                break;
+            case SCHEMA_LOCATION:
+                proto = new Difference(DifferenceType.SCHEMA_LOCATION);
+                break;
+            case NO_NAMESPACE_SCHEMA_LOCATION:
+                proto = new Difference(DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+                break;
+            case NODE_TYPE:
+                proto = new Difference(DifferenceType.NODE_TYPE);
+                break;
+            case NAMESPACE_PREFIX:
+                proto = new Difference(DifferenceType.NAMESPACE_PREFIX);
+                break;
+            case NAMESPACE_URI:
+                proto = new Difference(DifferenceType.NAMESPACE_URI);
+                break;
+            case TEXT_VALUE:
+                if (comp.getControlDetails().getTarget() instanceof CDATASection) {
+                    proto = new Difference(DifferenceType.CDATA_VALUE);
+                } else if (comp.getControlDetails().getTarget() instanceof Comment) {
+                    proto = new Difference(DifferenceType.COMMENT_VALUE);
+                } else {
+                    proto = new Difference(DifferenceType.TEXT_VALUE);
+                }
+                break;
+            case PROCESSING_INSTRUCTION_TARGET:
+                proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET);
+                break;
+            case PROCESSING_INSTRUCTION_DATA:
+                proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA);
+                break;
+            case ELEMENT_TAG_NAME:
+                proto = new Difference(DifferenceType.ELEMENT_TAG_NAME);
+                break;
+            case ELEMENT_NUM_ATTRIBUTES:
+                proto = new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES);
+                break;
+            case ATTR_VALUE:
+                proto = new Difference(DifferenceType.ATTR_VALUE);
+                break;
+            case CHILD_NODELIST_LENGTH:
+                Comparison.Detail cd = comp.getControlDetails();
+                Comparison.Detail td = comp.getTestDetails();
+                if (ZERO.equals(cd.getValue())
+                        || ZERO.equals(td.getValue())) {
+                    return new Difference(new Difference(DifferenceType.HAS_CHILD_NODES),
+                            new NodeDetail(String
+                                    .valueOf(!ZERO
+                                            .equals(cd
+                                                    .getValue())),
+                                    (Node) cd.getTarget(),
+                                    cd.getXPath()),
+                            new NodeDetail(String
+                                    .valueOf(!ZERO
+                                            .equals(td
+                                                    .getValue())),
+                                    (Node) td.getTarget(),
+                                    td.getXPath()));
+                }
+                proto = new Difference(DifferenceType.CHILD_NODELIST_LENGTH);
+                break;
+            case CHILD_NODELIST_SEQUENCE:
+                proto = new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE);
+                break;
+            case CHILD_LOOKUP:
+                proto = new Difference(DifferenceType.CHILD_NODE_NOT_FOUND);
+                break;
+            case ATTR_NAME_LOOKUP:
+                proto = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
+                break;
+            default:
+                /* comparison doesn't match one of legacy's built-in differences */
+                break;
         }
         if (proto != null) {
             return new Difference(proto, toNodeDetail(comp.getControlDetails()),
@@ -466,17 +466,18 @@ public class NewDifferenceEngine
             this.dl = dl;
         }
 
-        public ComparisonResult evaluate(Comparison comparison,
-                ComparisonResult outcome) {
+        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
             Difference diff = toDifference(comparison);
             if (diff != null) {
                 switch (dl.differenceFound(diff)) {
-                case DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL:
-                    return ComparisonResult.EQUAL;
-                case DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR:
-                    return ComparisonResult.SIMILAR;
-                case DifferenceListener.RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT:
-                    return ComparisonResult.DIFFERENT;
+                    case DIFFERENT_NODES_IDENTICAL:
+                        return ComparisonResult.EQUAL;
+                    case DIFFERENT_NODES_SIMILAR:
+                        return ComparisonResult.SIMILAR;
+                    case SIMILAR_NODES_DIFFERENT:
+                        return ComparisonResult.DIFFERENT;
+                    case ACCEPT_DIFFERENCE:
+                        break;
                 }
             }
             return outcome;

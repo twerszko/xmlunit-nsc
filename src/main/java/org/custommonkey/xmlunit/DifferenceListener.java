@@ -45,30 +45,32 @@ import org.w3c.dom.Node;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public interface DifferenceListener {
-    /**
-     * Standard return value for the <code>differenceFound</code> method.
-     * Indicates that the <code>Difference</code> is interpreted as defined in
-     * {@link DifferenceConstants DifferenceConstants}.
-     */
-    int RETURN_ACCEPT_DIFFERENCE = 0;
-    /**
-     * Override return value for the <code>differenceFound</code> method.
-     * Indicates that the nodes identified as being different should be
-     * interpreted as being identical.
-     */
-    int RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL = 1;
-    /**
-     * Override return value for the <code>differenceFound</code> method.
-     * Indicates that the nodes identified as being different should be
-     * interpreted as being similar.
-     */
-    int RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR = 2;
-    /**
-     * Override return value for the <code>differenceFound</code> method.
-     * Indicates that the nodes identified as being similar should be
-     * interpreted as being different.
-     */
-    int RETURN_UPGRADE_DIFFERENCE_NODES_DIFFERENT = 3;
+    public enum ReturnType {
+        /**
+         * Standard return value for the <code>differenceFound</code> method.
+         * Indicates that the <code>Difference</code> is interpreted as defined
+         * in {@link DifferenceConstants DifferenceConstants}.
+         */
+        ACCEPT_DIFFERENCE,
+        /**
+         * Override return value for the <code>differenceFound</code> method.
+         * Indicates that the nodes identified as being different should be
+         * interpreted as being identical.
+         */
+        DIFFERENT_NODES_IDENTICAL,
+        /**
+         * Override return value for the <code>differenceFound</code> method.
+         * Indicates that the nodes identified as being different should be
+         * interpreted as being similar.
+         */
+        DIFFERENT_NODES_SIMILAR,
+        /**
+         * Override return value for the <code>differenceFound</code> method.
+         * Indicates that the nodes identified as being similar should be
+         * interpreted as being different.
+         */
+        SIMILAR_NODES_DIFFERENT;
+    }
 
     /**
      * Receive notification that 2 nodes are different.
@@ -78,10 +80,9 @@ public interface DifferenceListener {
      *            {@link DifferenceConstants DifferenceConstants} describing the
      *            cause of the difference and containing the detail of the nodes
      *            that differ
-     * @return int one of the RETURN_... constants describing how this
-     *         difference was interpreted
+     * @return ReturnType describing how this difference was interpreted
      */
-    int differenceFound(Difference difference);
+    ReturnType differenceFound(Difference difference);
 
     /**
      * Receive notification that a comparison between 2 nodes has been skipped

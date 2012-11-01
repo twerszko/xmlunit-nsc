@@ -346,7 +346,7 @@ public class DifferenceEngineTest {
         Document document = documentUtils.buildControlDocument(
                 "<down><im standing=\"alone\"/><im watching=\"you\" all=\"\"/>"
                         + "<im watching=\"you all\"/><im watching=\"you sinking\"/></down>");
-        Element control = (Element) document.getDocumentElement();
+        Element control = document.getDocumentElement();
         Element test = (Element) control.getFirstChild();
 
         assertDifferentElements(control, test, new Difference(DifferenceType.ELEMENT_TAG_NAME));
@@ -1081,7 +1081,7 @@ public class DifferenceEngineTest {
         public String testXpath;
         private boolean tracing = false;
 
-        public int differenceFound(Difference difference) {
+        public ReturnType differenceFound(Difference difference) {
             if (tracing) {
                 System.out.println(difference.toString());
             }
@@ -1096,7 +1096,7 @@ public class DifferenceEngineTest {
             this.different = !difference.isRecoverable();
             this.controlXpath = difference.getControlNodeDetail().getXpathLocation();
             this.testXpath = difference.getTestNodeDetail().getXpathLocation();
-            return RETURN_ACCEPT_DIFFERENCE;
+            return ReturnType.ACCEPT_DIFFERENCE;
         }
 
         public void skippedComparison(Node control, Node test) {
@@ -1109,7 +1109,7 @@ public class DifferenceEngineTest {
     }
 
     private class OrderPreservingNamedNodeMap implements NamedNodeMap {
-        private ArrayList/* Attr */nodes = new ArrayList();
+        private final ArrayList/* Attr */nodes = new ArrayList();
 
         void add(Attr attr) {
             nodes.add(attr);

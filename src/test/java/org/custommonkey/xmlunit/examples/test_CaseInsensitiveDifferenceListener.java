@@ -64,10 +64,10 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
 
         CaseInsensitiveDifferenceListener c =
                 new CaseInsensitiveDifferenceListener(new DifferenceListener() {
-                    public int differenceFound(Difference d) {
+                    public ReturnType differenceFound(Difference d) {
                         fail("differenceFound shouldn't get invoked, but"
                                 + " was with type " + d.getType());
-                        return -42;
+                        return null;
                     }
 
                     public void skippedComparison(Node c, Node t) {

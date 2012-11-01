@@ -53,7 +53,8 @@ public class FloatingPointTolerantDifferenceListener
         this.tolerance = tolerance;
     }
 
-    protected int textualDifference(Difference d) {
+    @Override
+    protected ReturnType textualDifference(Difference d) {
         String control = d.getControlNodeDetail().getValue();
         String test = d.getTestNodeDetail().getValue();
         if (control != null && test != null) {
@@ -61,8 +62,8 @@ public class FloatingPointTolerantDifferenceListener
                 double controlVal = Double.parseDouble(control);
                 double testVal = Double.parseDouble(test);
                 return Math.abs(controlVal - testVal) < tolerance
-                        ? DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL
-                        : DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
+                        ? ReturnType.DIFFERENT_NODES_IDENTICAL
+                        : ReturnType.ACCEPT_DIFFERENCE;
             } catch (NumberFormatException nfe) {
                 // ignore, delegate to nested DifferenceListener
             }
