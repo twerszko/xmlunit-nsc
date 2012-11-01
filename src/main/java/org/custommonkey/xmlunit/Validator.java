@@ -329,9 +329,9 @@ public class Validator extends DefaultHandler {
             for (ValidationProblem p : r.getProblems()) {
                 validationProblem(p);
             }
-        } catch (net.sf.xmlunit.exceptions.ConfigurationException e) {
+        } catch (ConfigurationException e) {
             throw new ConfigurationException(e.getCause());
-        } catch (net.sf.xmlunit.exceptions.XMLUnitException e) {
+        } catch (XMLUnitRuntimeException e) {
             throw new XMLUnitRuntimeException(e.getMessage(), e.getCause());
         }
 

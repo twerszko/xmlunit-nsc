@@ -19,16 +19,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
-import net.sf.xmlunit.exceptions.XMLUnitException;
+
 import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Nodes;
 import net.sf.xmlunit.util.Predicate;
+
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -36,7 +38,6 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
@@ -55,8 +56,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             compareNodes(Convert.toNode(control), new XPathContext(),
                     Convert.toNode(test), new XPathContext());
         } catch (Exception ex) {
-            throw new XMLUnitException("Caught exception during comparison",
-                    ex);
+            // TODO remove pokemon exception handling
+            throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
         }
     }
 

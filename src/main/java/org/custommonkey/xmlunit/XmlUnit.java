@@ -41,6 +41,7 @@ import java.io.Reader;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -53,8 +54,6 @@ import org.xml.sax.SAXException;
  */
 public final class XmlUnit {
     private final XmlUnitProperties properties;
-
-    private static String xpathFactoryName = null;
 
     /**
      * Creates XMLUnit with defensive copy of given properties object.
@@ -188,41 +187,7 @@ public final class XmlUnit {
                 .build();
     }
 
-    /**
-     * Obtains an XpathEngine to use in XPath tests.
-     */
-    public XpathEngine newXpathEngine() {
-        XpathEngine eng = null;
-        try {
-            Class.forName("javax.xml.xpath.XPath");
-            Class<?> c = Class.forName("org.custommonkey.xmlunit.jaxp13.Jaxp13XpathEngine");
-            eng = (XpathEngine) c.newInstance();
-        } catch (Throwable ex) {
-            // should probably only catch ClassNotFoundException, but some
-            // constellations - like Ant shipping a more recent version of
-            // xml-apis than the JDK - may contain the JAXP 1.3 interfaces
-            // without implementations
-            eng = new SimpleXpathEngine(properties);
-        }
-        if (properties.getXpathNamespaceContext() != null) {
-            // TODO
-            eng.setNamespaceContext(properties.getXpathNamespaceContext());
-        }
-        return eng;
+    public DocumentUtils newDocumentUtils() {
+        return new DocumentUtils(properties);
     }
-
-    /**
-     * Sets the class to use as XPathFactory when using JAXP 1.3.
-     */
-    public static void setXPathFactory(String className) {
-        xpathFactoryName = className;
-    }
-
-    /**
-     * Gets the class to use as XPathFactory when using JAXP 1.3.
-     */
-    public static String getXPathFactory() {
-        return xpathFactoryName;
-    }
-
 }

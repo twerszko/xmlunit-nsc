@@ -29,10 +29,9 @@ public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<X
             String actualXpath,
             Document actualDocument) throws ConfigurationException, XpathException {
 
-        XpathEngine xpath = getXmlUnit().newXpathEngine();
         XmlUnitProperties properties = getXmlUnit().getProperties();
-
-        DocumentUtils documentUtils = new DocumentUtils(getXmlUnit().getProperties());
+        DocumentUtils documentUtils = getXmlUnit().newDocumentUtils();
+        XpathEngine xpath = documentUtils.newXpathEngine();
 
         expectedXpathDocument = asXpathResultDocument(
                 documentUtils.newControlDocumentBuilder(),

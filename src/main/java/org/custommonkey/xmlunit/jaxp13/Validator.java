@@ -42,7 +42,6 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.validation.SchemaFactory;
 
-import net.sf.xmlunit.exceptions.XMLUnitException;
 import net.sf.xmlunit.validation.JAXPValidator;
 import net.sf.xmlunit.validation.Languages;
 import net.sf.xmlunit.validation.ValidationProblem;
@@ -143,7 +142,7 @@ public class Validator {
     public boolean isInstanceValid(Source instance) {
         try {
             return validator.validateInstance(instance).isValid();
-        } catch (XMLUnitException e) {
+        } catch (XMLUnitRuntimeException e) {
             throw new XMLUnitRuntimeException(e.getMessage(), e.getCause());
         }
     }
@@ -166,7 +165,7 @@ public class Validator {
         try {
             return problemToExceptionList(validator.validateInstance(instance).
                     getProblems());
-        } catch (XMLUnitException e) {
+        } catch (XMLUnitRuntimeException e) {
             throw new XMLUnitRuntimeException(e.getMessage(), e.getCause());
         }
     }

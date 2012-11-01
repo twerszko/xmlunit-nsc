@@ -14,15 +14,18 @@
 package net.sf.xmlunit.xpath;
 
 import java.util.Map;
+
 import javax.xml.transform.Source;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import net.sf.xmlunit.exceptions.ConfigurationException;
-import net.sf.xmlunit.exceptions.XMLUnitException;
+
 import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.IterableNodeList;
+
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -41,14 +44,6 @@ public class JAXPXPathEngine implements XPathEngine {
     }
 
     /**
-     * Create an XPathEngine that uses JAXP's default XPathFactory under the
-     * covers.
-     */
-    public JAXPXPathEngine() {
-        this(XPathFactory.newInstance());
-    }
-
-    /**
      * {@inheritDoc}
      */
     public Iterable<Node> selectNodes(String xPath, Source s) {
@@ -57,7 +52,7 @@ public class JAXPXPathEngine implements XPathEngine {
                     (NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),
                             XPathConstants.NODESET));
         } catch (XPathExpressionException ex) {
-            throw new XMLUnitException(ex);
+            throw new XMLUnitRuntimeException(ex);
         }
     }
 
@@ -68,7 +63,7 @@ public class JAXPXPathEngine implements XPathEngine {
         try {
             return xpath.evaluate(xPath, Convert.toInputSource(s));
         } catch (XPathExpressionException ex) {
-            throw new XMLUnitException(ex);
+            throw new XMLUnitRuntimeException(ex);
         }
     }
 

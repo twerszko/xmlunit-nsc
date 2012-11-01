@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -25,8 +26,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult;
-import net.sf.xmlunit.exceptions.ConfigurationException;
-import net.sf.xmlunit.exceptions.XMLUnitException;
+
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 
 /**
@@ -219,7 +221,7 @@ public final class Transformation {
         } catch (javax.xml.transform.TransformerConfigurationException e) {
             throw new ConfigurationException(e);
         } catch (javax.xml.transform.TransformerException e) {
-            throw new XMLUnitException(e);
+            throw new XMLUnitRuntimeException(e);
         }
     }
 

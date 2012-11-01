@@ -44,8 +44,8 @@ import javax.annotation.Nullable;
 import junit.framework.Assert;
 
 import org.custommonkey.xmlunit.XmlUnit;
-import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -71,7 +71,7 @@ public class XPathRegexAssert {
         if (xmlUnit == null) {
             xmlUnit = new XmlUnitBuilder().build();
         }
-        XpathEngine engine = xmlUnit.newXpathEngine();
+        XpathEngine engine = xmlUnit.newDocumentUtils().newXpathEngine();
         String value = engine.evaluate(xpath, doc);
         Assert.assertTrue(message, value.matches(regex));
     }

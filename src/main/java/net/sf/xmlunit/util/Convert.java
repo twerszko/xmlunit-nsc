@@ -33,9 +33,8 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.exceptions.ConfigurationException;
-import net.sf.xmlunit.exceptions.XMLUnitException;
-
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -72,7 +71,7 @@ public final class Convert {
         } catch (javax.xml.transform.TransformerConfigurationException e) {
             throw new ConfigurationException(e);
         } catch (javax.xml.transform.TransformerException e) {
-            throw new XMLUnitException(e);
+            throw new XMLUnitRuntimeException(e);
         }
     }
 
@@ -130,9 +129,9 @@ public final class Convert {
             try {
                 d = b.parse(is);
             } catch (org.xml.sax.SAXException e) {
-                throw new XMLUnitException(e);
+                throw new XMLUnitRuntimeException(e);
             } catch (java.io.IOException e) {
-                throw new XMLUnitException(e);
+                throw new XMLUnitRuntimeException(e);
             }
         }
         return d;

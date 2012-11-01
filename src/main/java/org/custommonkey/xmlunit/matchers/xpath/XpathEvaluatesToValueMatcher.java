@@ -51,7 +51,7 @@ public class XpathEvaluatesToValueMatcher extends AbstractXmlUnitMatcher<XpathWr
         if (actualXpath == null) {
             throw new IllegalArgumentException("Actual xpath cannot be null or empty!");
         }
-        XpathEngine simpleXpathEngine = getXmlUnit().newXpathEngine();
+        XpathEngine simpleXpathEngine = getXmlUnit().newDocumentUtils().newXpathEngine();
         try {
             actualEvalueatedXpathValue = simpleXpathEngine.evaluate(actualXpath.getXpath(), actualXpath.getDocument());
         } catch (XpathException e) {

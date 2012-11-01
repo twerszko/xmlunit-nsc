@@ -28,8 +28,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.exceptions.XMLUnitException;
-
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -173,7 +172,7 @@ public class Input {
                 }
             }
         } catch (IOException ex) {
-            throw new XMLUnitException(ex);
+            throw new XMLUnitRuntimeException(ex);
         }
     }
 

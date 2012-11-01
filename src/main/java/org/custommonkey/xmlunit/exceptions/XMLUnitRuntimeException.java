@@ -43,7 +43,7 @@ package org.custommonkey.xmlunit.exceptions;
 public class XMLUnitRuntimeException extends RuntimeException {
 
     /**
-     * Inititializes the exeption.
+     * Initializes the exception.
      * 
      * @param message
      *            the detail message
@@ -55,13 +55,23 @@ public class XMLUnitRuntimeException extends RuntimeException {
     }
 
     /**
-     * Inititializes an exeption without cause.
+     * Initializes an exception without cause.
      * 
      * @param message
      *            the detail message
      */
     public XMLUnitRuntimeException(String message) {
         super(message);
+    }
+
+    /**
+     * Initializes the exception by wrapping cause.
+     * 
+     * @param cause
+     *            the root cause of the exception
+     */
+    public XMLUnitRuntimeException(Throwable cause) {
+        super(cause);
     }
 
 }

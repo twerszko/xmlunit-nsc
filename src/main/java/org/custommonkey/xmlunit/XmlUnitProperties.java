@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
+import javax.xml.xpath.XPathFactory;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
@@ -28,6 +29,7 @@ public class XmlUnitProperties implements Cloneable {
     private Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass;
     private Class<? extends TransformerFactory> transformerFactoryClass;
     private Class<? extends SAXParserFactory> saxParserFactoryClass;
+    private Class<? extends XPathFactory> xpathFactoryClass;
     private URIResolver uriResolver;
 
     public boolean getIgnoreWhitespace() {
@@ -337,6 +339,22 @@ public class XmlUnitProperties implements Cloneable {
     public void setSaxParserFactoryClass(
             @Nullable Class<? extends SAXParserFactory> saxParserFactory) {
         this.saxParserFactoryClass = saxParserFactory;
+    }
+
+    /**
+     * Gets the class to use as XPathFactory when using JAXP 1.3.
+     */
+    @Nullable
+    public Class<? extends XPathFactory> getXpathFactoryClass() {
+        return xpathFactoryClass;
+    }
+
+    /**
+     * Sets the class to use as XPathFactory when using JAXP 1.3.
+     */
+    public void setXpathFactoryClass(
+            @Nullable Class<? extends XPathFactory> xpathFactory) {
+        this.xpathFactoryClass = xpathFactory;
     }
 
     /**

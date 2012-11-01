@@ -68,7 +68,7 @@ public class XpathExistsInXmlStringMatcher extends AbstractXmlUnitMatcher<String
             DocumentUtils documentUtils = new DocumentUtils(getXmlUnit().getProperties());
             inDocument = documentUtils.buildControlDocument(actualXmlString);
 
-            XpathEngine simpleXpathEngine = getXmlUnit().newXpathEngine();
+            XpathEngine simpleXpathEngine = getXmlUnit().newDocumentUtils().newXpathEngine();
             NodeList nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, inDocument);
             matches = nodeList.getLength();
         } catch (SAXException e) {

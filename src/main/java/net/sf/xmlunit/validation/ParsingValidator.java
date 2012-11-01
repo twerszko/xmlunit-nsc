@@ -17,9 +17,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
-import net.sf.xmlunit.exceptions.ConfigurationException;
-import net.sf.xmlunit.exceptions.XMLUnitException;
+
 import net.sf.xmlunit.util.Convert;
+
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -51,7 +53,7 @@ public class ParsingValidator extends Validator {
 
     @Override
     public ValidationResult validateSchema() {
-        throw new XMLUnitException("Schema validation is not supported by"
+        throw new XMLUnitRuntimeException("Schema validation is not supported by"
                 + " ParsingValidator");
     }
 
@@ -87,7 +89,7 @@ public class ParsingValidator extends Validator {
                 if (e instanceof SAXParseException) {
                     handler.error((SAXParseException) e);
                 } else {
-                    throw new XMLUnitException(e);
+                    throw new XMLUnitRuntimeException(e);
                 }
             }
             return handler.getResult();
@@ -98,9 +100,9 @@ public class ParsingValidator extends Validator {
         } catch (SAXNotSupportedException ex) {
             throw new ConfigurationException(ex);
         } catch (SAXException ex) {
-            throw new XMLUnitException(ex);
+            throw new XMLUnitRuntimeException(ex);
         } catch (java.io.IOException ex) {
-            throw new XMLUnitException(ex);
+            throw new XMLUnitRuntimeException(ex);
         }
     }
 

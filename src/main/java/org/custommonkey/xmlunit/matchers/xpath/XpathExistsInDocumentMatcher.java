@@ -73,7 +73,7 @@ public class XpathExistsInDocumentMatcher extends AbstractXmlUnitMatcher<Documen
 
         NodeList nodeList;
         try {
-            XpathEngine simpleXpathEngine = getXmlUnit().newXpathEngine();
+            XpathEngine simpleXpathEngine = getXmlUnit().newDocumentUtils().newXpathEngine();
             nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, actualXmlDoc);
         } catch (XpathException e) {
             throw new IllegalArgumentException("Invalid xpath!", e);

@@ -25,8 +25,8 @@ import javax.xml.transform.Source;
 
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Input;
-import net.sf.xmlunit.exceptions.XMLUnitException;
 
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Node;
@@ -71,7 +71,7 @@ public abstract class AbstractXPathEngineTest {
         assertEquals(4, count);
     }
 
-    @Test(expected = XMLUnitException.class)
+    @Test(expected = XMLUnitRuntimeException.class)
     public void selectNodesWithInvalidXPath() {
         getEngine().selectNodes("//li[", source);
     }
@@ -96,7 +96,7 @@ public abstract class AbstractXPathEngineTest {
         assertEquals("sunshine", getEngine().evaluate("//li", source));
     }
 
-    @Test(expected = XMLUnitException.class)
+    @Test(expected = XMLUnitRuntimeException.class)
     public void evaluateWithInvalidXPath() {
         getEngine().evaluate("//li[", source);
     }

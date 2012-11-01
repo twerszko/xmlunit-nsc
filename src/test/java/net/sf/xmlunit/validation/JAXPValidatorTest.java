@@ -25,8 +25,8 @@ import java.io.IOException;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.exceptions.XMLUnitException;
 
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.junit.Test;
 
 public class JAXPValidatorTest {
@@ -75,7 +75,7 @@ public class JAXPValidatorTest {
             v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
             fail("should have thrown an exception");
         } catch (Exception e) {
-            assertThat(e, instanceOf(XMLUnitException.class));
+            assertThat(e, instanceOf(XMLUnitRuntimeException.class));
         }
     }
 
@@ -89,7 +89,7 @@ public class JAXPValidatorTest {
             v.validateInstance(new StreamSource(TestResources.BOOK_XSD_GENERATED.getFile()));
             fail("should have thrown an exception");
         } catch (Exception e) {
-            assertThat(e, instanceOf(XMLUnitException.class));
+            assertThat(e, instanceOf(XMLUnitRuntimeException.class));
         }
     }
 }

@@ -37,10 +37,10 @@ import javax.xml.transform.URIResolver;
 
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Transform.TransformationResult;
-import net.sf.xmlunit.exceptions.ConfigurationException;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.custommonkey.xmlunit.util.XsltUtils;
 import org.junit.Before;

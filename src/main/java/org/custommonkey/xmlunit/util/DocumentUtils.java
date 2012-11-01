@@ -33,10 +33,14 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathFactory;
 
+import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.Validator;
 import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.jaxp13.Jaxp13XpathEngine;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -274,6 +278,47 @@ public class DocumentUtils {
         factory.setNamespaceAware(true);
 
         return factory;
+    }
+
+    public XPathFactory newXpathFactory() throws ConfigurationException {
+        Class<? extends XPathFactory> clazz = properties.getXpathFactoryClass();
+
+        XPathFactory factory;
+        if (clazz == null) {
+            factory = XPathFactory.newInstance();
+        } else {
+            try {
+                factory = clazz.newInstance();
+            } catch (InstantiationException e) {
+                throw new ConfigurationException("Failed to instantiate XPathFactory.", e);
+            } catch (IllegalAccessException e) {
+                throw new ConfigurationException("Failed to instantiate XPathFactory.", e);
+            }
+        }
+
+        return factory;
+    }
+
+    /**
+     * Obtains an XpathEngine to use in XPath tests.
+     */
+    public XpathEngine newXpathEngine() {
+        XpathEngine eng = null;
+        try {
+            Class.forName("javax.xml.xpath.XPath");
+            eng = new Jaxp13XpathEngine(properties);
+        } catch (Throwable ex) {
+            // should probably only catch ClassNotFoundException, but some
+            // constellations - like Ant shipping a more recent version of
+            // xml-apis than the JDK - may contain the JAXP 1.3 interfaces
+            // without implementations
+            eng = new SimpleXpathEngine(properties);
+        }
+        if (properties.getXpathNamespaceContext() != null) {
+            // TODO
+            eng.setNamespaceContext(properties.getXpathNamespaceContext());
+        }
+        return eng;
     }
 
     /**

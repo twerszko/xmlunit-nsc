@@ -13,7 +13,7 @@ import org.hamcrest.Factory;
  */
 public class XpathValuesEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper> {
 
-    private XpathWrapper expectedXpath;
+    private final XpathWrapper expectedXpath;
     private String expectedXpathValue;
     private String actualXpathValue;
 
@@ -39,7 +39,7 @@ public class XpathValuesEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper
         if (actualXpath == null) {
             throw new IllegalArgumentException("Actual xpath cannot be null!");
         }
-        XpathEngine xpath = getXmlUnit().newXpathEngine();
+        XpathEngine xpath = getXmlUnit().newDocumentUtils().newXpathEngine();
         try {
             expectedXpathValue = xpath.evaluate(expectedXpath.getXpath(), expectedXpath.getDocument());
             actualXpathValue = xpath.evaluate(actualXpath.getXpath(), actualXpath.getDocument());

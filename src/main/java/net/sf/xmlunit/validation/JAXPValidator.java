@@ -16,7 +16,8 @@ package net.sf.xmlunit.validation;
 import javax.xml.transform.Source;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import net.sf.xmlunit.exceptions.XMLUnitException;
+
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -51,7 +52,7 @@ public class JAXPValidator extends Validator {
             if (e instanceof SAXParseException) {
                 v.error((SAXParseException) e);
             } else {
-                throw new XMLUnitException(e);
+                throw new XMLUnitRuntimeException(e);
             }
         } finally {
             f.setErrorHandler(null);
@@ -65,7 +66,7 @@ public class JAXPValidator extends Validator {
         try {
             schema = getFactory().newSchema(getSchemaSources());
         } catch (SAXException e) {
-            throw new XMLUnitException("The schema is invalid", e);
+            throw new XMLUnitRuntimeException("The schema is invalid", e);
         }
         ValidationHandler v = new ValidationHandler();
         javax.xml.validation.Validator val = schema.newValidator();
@@ -76,10 +77,10 @@ public class JAXPValidator extends Validator {
             if (e instanceof SAXParseException) {
                 v.error((SAXParseException) e);
             } else {
-                throw new XMLUnitException(e);
+                throw new XMLUnitRuntimeException(e);
             }
         } catch (java.io.IOException e) {
-            throw new XMLUnitException(e);
+            throw new XMLUnitRuntimeException(e);
         }
         return v.getResult();
     }

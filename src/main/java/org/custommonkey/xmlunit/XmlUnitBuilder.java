@@ -5,6 +5,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
+import javax.xml.xpath.XPathFactory;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 
@@ -205,6 +206,12 @@ public class XmlUnitBuilder {
     public XmlUnitBuilder usingSaxParserFactoryClass(
             @Nullable Class<? extends SAXParserFactory> saxParserFactory) {
         properties.setSaxParserFactoryClass(saxParserFactory);
+        return this;
+    }
+
+    public XmlUnitBuilder usingXpathFactoryClass(
+            @Nullable Class<? extends XPathFactory> xpathFactory) {
+        properties.setXpathFactoryClass(xpathFactory);
         return this;
     }
 

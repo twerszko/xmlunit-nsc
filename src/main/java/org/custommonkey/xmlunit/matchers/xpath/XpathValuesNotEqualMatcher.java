@@ -13,7 +13,7 @@ import org.hamcrest.Factory;
  */
 public class XpathValuesNotEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper> {
 
-    private XpathWrapper expectedXpath;
+    private final XpathWrapper expectedXpath;
     private String expectedXpathValue;
     private String actualXpathValue;
 
@@ -33,7 +33,7 @@ public class XpathValuesNotEqualMatcher extends AbstractXmlUnitMatcher<XpathWrap
 
     @Override
     public boolean matchesSafely(XpathWrapper actualXpath) {
-        XpathEngine xpath = getXmlUnit().newXpathEngine();
+        XpathEngine xpath = getXmlUnit().newDocumentUtils().newXpathEngine();
         try {
             expectedXpathValue = xpath.evaluate(expectedXpath.getXpath(), expectedXpath.getDocument());
             actualXpathValue = xpath.evaluate(actualXpath.getXpath(), actualXpath.getDocument());

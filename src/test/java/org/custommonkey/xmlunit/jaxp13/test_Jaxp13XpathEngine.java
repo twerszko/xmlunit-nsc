@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.jaxp13;
 
 import org.custommonkey.xmlunit.AbstractXpathEngineTests;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
 
 /**
@@ -44,8 +45,9 @@ import org.custommonkey.xmlunit.XpathEngine;
  */
 public class test_Jaxp13XpathEngine extends AbstractXpathEngineTests {
 
+    @Override
     protected XpathEngine newXpathEngine() {
-        return new Jaxp13XpathEngine();
+        return new Jaxp13XpathEngine(new XmlUnitProperties());
     }
 
 }

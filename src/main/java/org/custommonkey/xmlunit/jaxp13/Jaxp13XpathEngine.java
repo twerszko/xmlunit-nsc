@@ -36,24 +36,26 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.jaxp13;
 
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.XmlUnit;
-import org.custommonkey.xmlunit.XpathEngine;
-import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.exceptions.XpathException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.xpath.XPathFactory;
 
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+
+import net.sf.xmlunit.xpath.JAXPXPathEngine;
+
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.XpathEngine;
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
+import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import net.sf.xmlunit.exceptions.XMLUnitException;
-import net.sf.xmlunit.xpath.JAXPXPathEngine;
 
 /**
  * XPath engine based on javax.xml.xpath.
@@ -62,22 +64,9 @@ public class Jaxp13XpathEngine implements XpathEngine {
 
     private final JAXPXPathEngine engine;
 
-    public Jaxp13XpathEngine() throws ConfigurationException {
-        try {
-            JAXPXPathEngine e = null;
-            if (XmlUnit.getXPathFactory() != null) {
-                e = new JAXPXPathEngine((XPathFactory) Class
-                        .forName(XmlUnit.getXPathFactory())
-                        .newInstance());
-            } else {
-                e = new JAXPXPathEngine();
-            }
-            engine = e;
-        } catch (net.sf.xmlunit.exceptions.ConfigurationException ex) {
-            throw new ConfigurationException(ex.getCause());
-        } catch (Exception ex) {
-            throw new ConfigurationException(ex);
-        }
+    public Jaxp13XpathEngine(XmlUnitProperties properties) throws ConfigurationException {
+        DocumentUtils docUtils = new DocumentUtils(properties);
+        engine = new JAXPXPathEngine(docUtils.newXpathFactory());
     }
 
     /**
@@ -95,7 +84,7 @@ public class Jaxp13XpathEngine implements XpathEngine {
             return new NodeListForIterable(engine
                     .selectNodes(select,
                             new DOMSource(document)));
-        } catch (XMLUnitException ex) {
+        } catch (XMLUnitRuntimeException ex) {
             throw new XpathException(ex.getCause());
         }
     }
@@ -114,7 +103,7 @@ public class Jaxp13XpathEngine implements XpathEngine {
             throws XpathException {
         try {
             return engine.evaluate(select, new DOMSource(document));
-        } catch (XMLUnitException ex) {
+        } catch (XMLUnitRuntimeException ex) {
             throw new XpathException(ex.getCause());
         }
     }

@@ -13,9 +13,13 @@
  */
 package net.sf.xmlunit.xpath;
 
+import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.util.DocumentUtils;
+
 public class JAXPXPathEngineTest extends AbstractXPathEngineTest {
     @Override
     protected XPathEngine getEngine() {
-        return new JAXPXPathEngine();
+        DocumentUtils docUtils = new DocumentUtils(new XmlUnitProperties());
+        return new JAXPXPathEngine(docUtils.newXpathFactory());
     }
 }
