@@ -36,11 +36,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.custommonkey.xmlunit.diff.Diff;
-
-import com.google.common.collect.Lists;
 
 /**
  * Compares and describes all the differences between two XML documents. The
@@ -64,7 +63,7 @@ public class DetailedDiff extends Diff {
      */
     public DetailedDiff(Diff prototype) {
         super(prototype);
-        allDifferences = Lists.newArrayList();
+        allDifferences = new ArrayList<Difference>();
     }
 
     /**
@@ -82,18 +81,18 @@ public class DetailedDiff extends Diff {
     public ReturnType differenceFound(Difference difference) {
         final ReturnType returnValue = super.differenceFound(difference);
         switch (returnValue) {
-        case DIFFERENT_NODES_IDENTICAL:
-            return returnValue;
-        case ACCEPT_DIFFERENCE:
-            break;
-        case DIFFERENT_NODES_SIMILAR:
-            difference.setRecoverable(true);
-            break;
-        case SIMILAR_NODES_DIFFERENT:
-            difference.setRecoverable(false);
-            break;
-        default:
-            throw new IllegalArgumentException(returnValue + " is not supported");
+            case DIFFERENT_NODES_IDENTICAL:
+                return returnValue;
+            case ACCEPT_DIFFERENCE:
+                break;
+            case DIFFERENT_NODES_SIMILAR:
+                difference.setRecoverable(true);
+                break;
+            case SIMILAR_NODES_DIFFERENT:
+                difference.setRecoverable(false);
+                break;
+            default:
+                throw new IllegalArgumentException(returnValue + " is not supported");
         }
         allDifferences.add(difference);
         return returnValue;

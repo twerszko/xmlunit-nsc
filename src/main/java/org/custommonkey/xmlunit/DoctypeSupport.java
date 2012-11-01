@@ -233,10 +233,8 @@ final class DoctypeSupport {
             }
         }
 
-        beforeDoctype = before.size() > 0
-                ? new IntBufferReadable(before) : null;
-        afterDoctype = after.size() > 0
-                ? new IntBufferReadable(after) : null;
+        beforeDoctype = before.size() > 0 ? new IntBufferReadable(before) : null;
+        afterDoctype = after.size() > 0 ? new IntBufferReadable(after) : null;
     }
 
     private int[] readUntilCloseCharIsReached() throws IOException {
@@ -259,12 +257,15 @@ final class DoctypeSupport {
         private final int[] buf;
         private int off;
 
-        IntBufferReadable(IntegerBuffer b) {
-            buf = b.toIntArray();
+        IntBufferReadable(IntegerBuffer buffer) {
+            buf = buffer.toIntArray();
         }
 
         public int read() {
-            return off >= buf.length ? -1 : buf[off++];
+            if (off >= buf.length) {
+                return -1;
+            }
+            return buf[off++];
         }
     }
 
