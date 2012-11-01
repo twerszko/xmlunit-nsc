@@ -39,8 +39,6 @@ package org.custommonkey.xmlunit;
 import java.io.IOException;
 import java.io.Reader;
 
-import javax.xml.parsers.SAXParserFactory;
-
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
 import org.w3c.dom.Document;
@@ -56,7 +54,6 @@ import org.xml.sax.SAXException;
 public final class XmlUnit {
     private final XmlUnitProperties properties;
 
-    private static SAXParserFactory saxParserFactory;
     private static String xpathFactoryName = null;
 
     /**
@@ -75,48 +72,6 @@ public final class XmlUnit {
      */
     public XmlUnitProperties getProperties() {
         return properties.clone();
-    }
-
-    /**
-     * Override the SAX parser to use in tests. Currently only used by
-     * {@link Validator Validator class}
-     * 
-     * @param className
-     */
-    public static void setSAXParserFactory(String className) {
-        System.setProperty("javax.xml.parsers.SAXParserFactory", className);
-        saxParserFactory = null;
-        getSAXParserFactory();
-    }
-
-    /**
-     * Override the SAX parser to use in tests. Currently only used by
-     * {@link Validator Validator class}
-     * 
-     * @param factory
-     */
-    public static void setSAXParserFactory(SAXParserFactory factory) {
-        saxParserFactory = factory;
-    }
-
-    /**
-     * Get the SAX parser to use in tests.
-     * 
-     * <p>
-     * Unless an instance has been given via {@link
-     * setSAXParserFactory(SAXParserFactory) setSAXParserFactory} explicitly,
-     * the returned factory will be namespace aware.
-     * </p>
-     * 
-     * @return the SAXParserFactory instance used by the {@link Validator
-     *         Validator} to perform DTD validation
-     */
-    public static SAXParserFactory getSAXParserFactory() {
-        if (saxParserFactory == null) {
-            saxParserFactory = SAXParserFactory.newInstance();
-            saxParserFactory.setNamespaceAware(true);
-        }
-        return saxParserFactory;
     }
 
     /**

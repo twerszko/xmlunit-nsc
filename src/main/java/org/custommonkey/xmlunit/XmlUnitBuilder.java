@@ -2,6 +2,7 @@ package org.custommonkey.xmlunit;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
@@ -198,6 +199,12 @@ public class XmlUnitBuilder {
     public XmlUnitBuilder usingTransformerFactoryClass(
             @Nullable Class<? extends TransformerFactory> transformerFactory) {
         properties.setTransformerFactoryClass(transformerFactory);
+        return this;
+    }
+
+    public XmlUnitBuilder usingSaxParserFactoryClass(
+            @Nullable Class<? extends SAXParserFactory> saxParserFactory) {
+        properties.setSaxParserFactoryClass(saxParserFactory);
         return this;
     }
 

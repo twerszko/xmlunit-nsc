@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
@@ -26,6 +27,7 @@ public class XmlUnitProperties implements Cloneable {
     private Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass;
     private Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass;
     private Class<? extends TransformerFactory> transformerFactoryClass;
+    private Class<? extends SAXParserFactory> saxParserFactoryClass;
     private URIResolver uriResolver;
 
     public boolean getIgnoreWhitespace() {
@@ -317,6 +319,7 @@ public class XmlUnitProperties implements Cloneable {
         this.testDocumentBuilderFactoryClass = testDocumentBuilderFactory;
     }
 
+    @Nullable
     public Class<? extends TransformerFactory> getTransformerFactoryClass() {
         return transformerFactoryClass;
     }
@@ -324,6 +327,16 @@ public class XmlUnitProperties implements Cloneable {
     public void setTransformerFactoryClass(
             @Nullable Class<? extends TransformerFactory> transformerFactory) {
         this.transformerFactoryClass = transformerFactory;
+    }
+
+    @Nullable
+    public Class<? extends SAXParserFactory> getSaxParserFactoryClass() {
+        return saxParserFactoryClass;
+    }
+
+    public void setSaxParserFactoryClass(
+            @Nullable Class<? extends SAXParserFactory> saxParserFactory) {
+        this.saxParserFactoryClass = saxParserFactory;
     }
 
     /**

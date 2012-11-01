@@ -26,6 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -33,6 +34,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.custommonkey.xmlunit.Validator;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.w3c.dom.Document;
@@ -252,6 +254,26 @@ public class DocumentUtils {
         } catch (ParserConfigurationException ex) {
             throw new ConfigurationException(ex);
         }
+    }
+
+    /**
+     * Get the SAX parser to use in tests.
+     * 
+     * @return new SAXParserFactory instance used by the {@link Validator
+     *         Validator} to perform DTD validation
+     */
+    public SAXParserFactory newSaxParserFactory() {
+        Class<? extends SAXParserFactory> clazz = properties.getSaxParserFactoryClass();
+
+        SAXParserFactory factory;
+        if (clazz == null) {
+            factory = SAXParserFactory.newInstance();
+        } else {
+            factory = SAXParserFactory.newInstance(clazz.getName(), clazz.getClassLoader());
+        }
+        factory.setNamespaceAware(true);
+
+        return factory;
     }
 
     /**
