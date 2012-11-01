@@ -15,6 +15,7 @@ package net.sf.xmlunit.util;
 
 import java.util.Iterator;
 import java.util.List;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -49,6 +50,10 @@ public final class IterableNodeList implements Iterable<Node> {
         public boolean hasNext() {
             return current < length;
         }
+    }
+
+    public List<Node> asList() {
+        return Linqy.asList(this);
     }
 
     /**

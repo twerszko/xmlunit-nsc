@@ -307,7 +307,7 @@ public class Validator extends DefaultHandler {
     /**
      * Actually perform validation.
      */
-    private void validate() {
+    private void validate() throws XMLUnitRuntimeException, ConfigurationException {
         if (isValid != null) {
             return;
         }
@@ -320,7 +320,7 @@ public class Validator extends DefaultHandler {
             schemaSourceList.add(new StreamSource(systemId));
         }
         addSchemaSources(schemaSource, schemaSourceList);
-        v.setSchemaSources(schemaSourceList.toArray(new Source[0]));
+        v.setSchemaSources(schemaSourceList.toArray(new Source[schemaSourceList.size()]));
 
         try {
             ValidationResult r =
@@ -340,6 +340,7 @@ public class Validator extends DefaultHandler {
                 messages.append("\nContent was: ")
                         .append(getOriginalContent(validationInputSource));
             } catch (IOException e) {
+                // TODO logger
                 // silent but deadly?
             }
         }

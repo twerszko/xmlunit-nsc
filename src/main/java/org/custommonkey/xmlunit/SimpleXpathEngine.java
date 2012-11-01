@@ -51,6 +51,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.xmlunit.util.IterableNodeList;
+
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.XsltUtils;
@@ -227,10 +229,11 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @param document
      * @return list of matching nodes
      */
-    public NodeList getMatchingNodes(String select, Document document)
+    public IterableNodeList getMatchingNodes(String select, Document document)
             throws ConfigurationException, XpathException {
         try {
-            return getXPathResultNode(select, document).getChildNodes();
+            NodeList nodes = getXPathResultNode(select, document).getChildNodes();
+            return new IterableNodeList(nodes);
         } catch (TransformerException ex) {
             throw new XpathException("Failed to apply stylesheet", ex);
         }

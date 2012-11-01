@@ -16,6 +16,8 @@ package org.custommonkey.xmlunit.matchers.xpath;
 
 import javax.xml.transform.TransformerException;
 
+import net.sf.xmlunit.util.IterableNodeList;
+
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -23,7 +25,6 @@ import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 /**
  * Assert that a specific XPath exists in some given XML document *
@@ -71,14 +72,14 @@ public class XpathExistsInDocumentMatcher extends AbstractXmlUnitMatcher<Documen
         }
         this.actualDocument = actualXmlDoc;
 
-        NodeList nodeList;
+        IterableNodeList nodeList;
         try {
             XpathEngine simpleXpathEngine = getXmlUnit().newDocumentUtils().newXpathEngine();
             nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, actualXmlDoc);
         } catch (XpathException e) {
             throw new IllegalArgumentException("Invalid xpath!", e);
         }
-        int matches = nodeList.getLength();
+        int matches = nodeList.asList().size();
 
         return matches > 0;
     }

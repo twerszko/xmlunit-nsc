@@ -36,14 +36,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.jaxp13;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
+import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.xpath.JAXPXPathEngine;
 
 import org.custommonkey.xmlunit.NamespaceContext;
@@ -54,8 +51,6 @@ import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * XPath engine based on javax.xml.xpath.
@@ -78,12 +73,10 @@ public class Jaxp13XpathEngine implements XpathEngine {
      * @param document
      * @return list of matching nodes
      */
-    public NodeList getMatchingNodes(String select, Document document)
+    public IterableNodeList getMatchingNodes(String select, Document document)
             throws XpathException {
         try {
-            return new NodeListForIterable(engine
-                    .selectNodes(select,
-                            new DOMSource(document)));
+            return engine.selectNodes(select, new DOMSource(document));
         } catch (XMLUnitRuntimeException ex) {
             throw new XpathException(ex.getCause());
         }
@@ -109,27 +102,7 @@ public class Jaxp13XpathEngine implements XpathEngine {
     }
 
     public void setNamespaceContext(NamespaceContext ctx) {
-        engine.setNamespaceContext(XMLUnitNamespaceContext2Jaxp13
+        engine.setNamespaceContext(XmlUnitNamespaceContext2Jaxp13
                 .turnIntoMap(ctx));
-    }
-
-    private static class NodeListForIterable implements NodeList {
-        private final List<Node> l;
-
-        private NodeListForIterable(Iterable<Node> it) {
-            ArrayList<Node> a = new ArrayList<Node>();
-            for (Node n : it) {
-                a.add(n);
-            }
-            l = Collections.unmodifiableList(a);
-        }
-
-        public int getLength() {
-            return l.size();
-        }
-
-        public Node item(int idx) {
-            return l.get(idx);
-        }
     }
 }

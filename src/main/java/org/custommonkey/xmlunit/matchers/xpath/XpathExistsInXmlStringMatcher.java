@@ -16,6 +16,8 @@ package org.custommonkey.xmlunit.matchers.xpath;
 
 import java.io.IOException;
 
+import net.sf.xmlunit.util.IterableNodeList;
+
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.matchers.AbstractXmlUnitMatcher;
@@ -23,7 +25,6 @@ import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -69,8 +70,8 @@ public class XpathExistsInXmlStringMatcher extends AbstractXmlUnitMatcher<String
             inDocument = documentUtils.buildControlDocument(actualXmlString);
 
             XpathEngine simpleXpathEngine = getXmlUnit().newDocumentUtils().newXpathEngine();
-            NodeList nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, inDocument);
-            matches = nodeList.getLength();
+            IterableNodeList nodeList = simpleXpathEngine.getMatchingNodes(expectedXpath, inDocument);
+            matches = nodeList.asList().size();
         } catch (SAXException e) {
             throw new IllegalStateException("Couldn't check xpath", e);
         } catch (IOException e) {

@@ -26,7 +26,6 @@ import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -46,7 +45,7 @@ public class JAXPXPathEngine implements XPathEngine {
     /**
      * {@inheritDoc}
      */
-    public Iterable<Node> selectNodes(String xPath, Source s) {
+    public IterableNodeList selectNodes(String xPath, Source s) {
         try {
             return new IterableNodeList(
                     (NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),

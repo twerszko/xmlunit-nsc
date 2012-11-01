@@ -36,10 +36,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import org.custommonkey.xmlunit.exceptions.XpathException;
+import net.sf.xmlunit.util.IterableNodeList;
 
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 /**
  * Abstraction of an engine evaluating XPath expressions.
@@ -55,7 +55,7 @@ public interface XpathEngine {
      * @param document
      * @return list of matching nodes
      */
-    NodeList getMatchingNodes(String select, Document document)
+    IterableNodeList getMatchingNodes(String select, Document document)
             throws XpathException;
 
     /**

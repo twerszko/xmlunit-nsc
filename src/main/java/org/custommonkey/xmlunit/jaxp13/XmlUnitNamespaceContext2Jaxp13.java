@@ -49,12 +49,12 @@ import org.custommonkey.xmlunit.NamespaceContext;
  * Adapts {@link NamespaceContext XMLUnit's NamespaceContext} to
  * {@link javax.xml.namespace.NamespaceContext JAXP 1.3's NamespaceContext}.
  */
-public class XMLUnitNamespaceContext2Jaxp13
+public class XmlUnitNamespaceContext2Jaxp13
         implements javax.xml.namespace.NamespaceContext {
 
     private final Map<String, String> nsMap;
 
-    public XMLUnitNamespaceContext2Jaxp13(NamespaceContext ctx) {
+    public XmlUnitNamespaceContext2Jaxp13(NamespaceContext ctx) {
         nsMap = turnIntoMap(ctx);
     }
 

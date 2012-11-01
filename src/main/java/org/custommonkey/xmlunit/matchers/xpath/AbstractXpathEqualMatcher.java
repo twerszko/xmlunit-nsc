@@ -1,5 +1,7 @@
 package org.custommonkey.xmlunit.matchers.xpath;
 
+import java.util.Iterator;
+
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.xpath.XpathWrapper;
@@ -16,7 +18,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<XpathWrapper> {
 
@@ -53,14 +54,15 @@ public abstract class AbstractXpathEqualMatcher extends AbstractXmlUnitMatcher<X
 
     private Document asXpathResultDocument(
             DocumentBuilder builder,
-            NodeList nodes) {
+            Iterable<Node> nodes) {
 
         Document document = builder.newDocument();
         Element root = document.createElement("xpathResult");
         document.appendChild(root);
-        final int length = nodes.getLength();
-        for (int i = 0; i < length; i++) {
-            Node n = document.importNode(nodes.item(i), true);
+
+        Iterator<Node> it = nodes.iterator();
+        while (it.hasNext()) {
+            Node n = document.importNode(it.next(), true);
             if (n instanceof Attr) {
                 root.setAttributeNodeNS((Attr) n);
             } else {

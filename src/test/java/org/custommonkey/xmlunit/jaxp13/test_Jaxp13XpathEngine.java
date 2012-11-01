@@ -36,14 +36,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.jaxp13;
 
-import org.custommonkey.xmlunit.AbstractXpathEngineTests;
+import org.custommonkey.xmlunit.AbstractXpathEngineTest;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XpathEngine;
 
 /**
  * JUnit test for Jaxp13XpathEngine
  */
-public class test_Jaxp13XpathEngine extends AbstractXpathEngineTests {
+public class test_Jaxp13XpathEngine extends AbstractXpathEngineTest {
 
     @Override
     protected XpathEngine newXpathEngine() {

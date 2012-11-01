@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
 /**
  * JUnit test for SimpleXpathEngine
  */
-public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
+public class test_SimpleXpathEngine extends AbstractXpathEngineTest {
 
     private final SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine(null);
 
@@ -65,13 +65,13 @@ public class test_SimpleXpathEngine extends AbstractXpathEngineTests {
 
     @Override
     @Test
-    public void testGetMatchingNodesMatchText() throws Exception {
+    public void should_get_matching_text_node() throws Exception {
         // TODO
         if (isJava5OrNewer()) {
             // fails with "more recent" version of Xalan shipping with Java5
             return;
         }
-        super.testGetMatchingNodesMatchText();
+        super.should_get_matching_text_node();
     }
 
     @Override

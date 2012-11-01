@@ -63,8 +63,8 @@ public class XMLUnitNamespaceContext2Jaxp13Test {
     private static final String URI = "urn:example";
 
     public void testBasics() {
-        XMLUnitNamespaceContext2Jaxp13 ctx =
-                new XMLUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(setupMap()));
+        XmlUnitNamespaceContext2Jaxp13 ctx =
+                new XmlUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(setupMap()));
         validate(ctx);
     }
 
@@ -73,8 +73,8 @@ public class XMLUnitNamespaceContext2Jaxp13Test {
         for (int i = 0; i < STANDARD_PREFIXES.length; i++) {
             m.put(STANDARD_PREFIXES[i], URI);
         }
-        XMLUnitNamespaceContext2Jaxp13 ctx =
-                new XMLUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(m));
+        XmlUnitNamespaceContext2Jaxp13 ctx =
+                new XmlUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(m));
         validate(ctx);
     }
 
@@ -83,16 +83,16 @@ public class XMLUnitNamespaceContext2Jaxp13Test {
         for (int i = 0; i < STANDARD_PREFIXES.length; i++) {
             m.put(STANDARD_PREFIXES[i] + "1", STANDARD_URIS[i]);
         }
-        XMLUnitNamespaceContext2Jaxp13 ctx =
-                new XMLUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(m));
+        XmlUnitNamespaceContext2Jaxp13 ctx =
+                new XmlUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(m));
         validate(ctx);
     }
 
     public void testDefaultNamespaceHandling() {
         HashMap m = setupMap();
         m.put("", URI);
-        XMLUnitNamespaceContext2Jaxp13 ctx =
-                new XMLUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(m));
+        XmlUnitNamespaceContext2Jaxp13 ctx =
+                new XmlUnitNamespaceContext2Jaxp13(new SimpleNamespaceContext(m));
 
         // no matter how many prefixes map to it, DEFAULT_NS must be
         // the first prefix
@@ -112,7 +112,7 @@ public class XMLUnitNamespaceContext2Jaxp13Test {
         return map;
     }
 
-    private static void validate(XMLUnitNamespaceContext2Jaxp13 ctx) {
+    private static void validate(XmlUnitNamespaceContext2Jaxp13 ctx) {
         for (int i = 0; i < PREFIXES.length; i++) {
             assertEquals(URI, ctx.getNamespaceURI(PREFIXES[i]));
         }

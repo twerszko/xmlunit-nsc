@@ -36,11 +36,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
+import java.util.List;
+
+import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -52,7 +56,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public abstract class AbstractXpathEngineTests {
+public abstract class AbstractXpathEngineTest {
 
     protected static final String[] testAttrNames = { "attrOne", "attrTwo" };
 
@@ -77,44 +81,58 @@ public abstract class AbstractXpathEngineTests {
     }
 
     @Test
-    public void testGetMatchingNodesNoMatches() throws Exception {
-        NodeList nodeList = newXpathEngine().getMatchingNodes("toast",
-                testDocument);
-        assertEquals(0, nodeList.getLength());
+    public void should_not_get_any_matching_nodes() throws Exception {
+        // given - when
+        IterableNodeList nodeList = newXpathEngine().getMatchingNodes("toast", testDocument);
+
+        // then
+        assertThat(nodeList).isEmpty();
     }
 
     @Test
-    public void testGetMatchingNodesMatchRootElement() throws Exception {
-        NodeList nodeList = newXpathEngine().getMatchingNodes("test",
-                testDocument);
-        assertEquals(1, nodeList.getLength());
-        assertEquals(Node.ELEMENT_NODE, nodeList.item(0).getNodeType());
+    public void should_get_matching_root_element() throws Exception {
+        // given - when
+        IterableNodeList nodes = newXpathEngine().getMatchingNodes("test", testDocument);
+        List<Node> nodeList = nodes.asList();
+
+        // then
+        assertThat(nodeList.size()).isEqualTo(1);
+        assertThat(nodeList.get(0).getNodeType()).isEqualTo(Node.ELEMENT_NODE);
     }
 
     @Test
-    public void testGetMatchingNodesMatchElement() throws Exception {
-        NodeList nodeList = newXpathEngine()
+    public void should_get_matching_element_node() throws Exception {
+        // given - when
+        IterableNodeList nodes = newXpathEngine()
                 .getMatchingNodes("test/nodeWithoutAttributes", testDocument);
-        assertEquals(2, nodeList.getLength());
-        assertEquals(Node.ELEMENT_NODE, nodeList.item(0).getNodeType());
+        List<Node> nodeList = nodes.asList();
+
+        // then
+        assertThat(nodeList.size()).isEqualTo(2);
+        assertThat(nodeList.get(0).getNodeType()).isEqualTo(Node.ELEMENT_NODE);
     }
 
     @Test
-    public void testGetMatchingNodesMatchText() throws Exception {
-        NodeList nodeList = newXpathEngine().getMatchingNodes("test//text()",
-                testDocument);
-        assertEquals(3, nodeList.getLength());
-        assertEquals(Node.TEXT_NODE, nodeList.item(0).getNodeType());
+    public void should_get_matching_text_node() throws Exception {
+        // given - when
+        IterableNodeList nodes = newXpathEngine().getMatchingNodes("test//text()", testDocument);
+        List<Node> nodeList = nodes.asList();
+
+        // then
+        assertThat(nodeList.size()).isEqualTo(3);
+        assertThat(nodeList.get(0).getNodeType()).isEqualTo(Node.TEXT_NODE);
     }
 
     @Test
     public void testGetMatchingNodesCheckSubNodes() throws Exception {
-        NodeList nodeList = newXpathEngine()
+        IterableNodeList nodes = newXpathEngine()
                 .getMatchingNodes("test/nodeWithAttributes", testDocument);
-        assertEquals(1, nodeList.getLength());
+
+        List<Node> nodeList = nodes.asList();
+        assertThat(nodeList.size()).isEqualTo(1);
         Node aNode;
 
-        aNode = nodeList.item(0);
+        aNode = nodeList.get(0);
         assertEquals(Node.ELEMENT_NODE, aNode.getNodeType());
         assertEquals(true, aNode.hasAttributes());
         assertEquals(true, aNode.hasChildNodes());
@@ -153,9 +171,11 @@ public abstract class AbstractXpathEngineTests {
         XpathEngine engine = newXpathEngine();
         engine.setNamespaceContext(ctx);
 
-        NodeList l = engine.getMatchingNodes("//foo:bar", d);
-        assertEquals(1, l.getLength());
-        assertEquals(Node.ELEMENT_NODE, l.item(0).getNodeType());
+        IterableNodeList l = engine.getMatchingNodes("//foo:bar", d);
+        List<Node> nodeList = l.asList();
+
+        assertThat(nodeList.size()).isEqualTo(1);
+        assertThat(nodeList.get(0).getNodeType()).isEqualTo(Node.ELEMENT_NODE);
 
         String s = engine.evaluate("count(foo:test//node())", d);
         assertEquals("1", s);
@@ -190,16 +210,16 @@ public abstract class AbstractXpathEngineTests {
         Document d = documentUtils.buildControlDocument(testDoc);
 
         XpathEngine engine = newXpathEngine();
-        NodeList l =
+        IterableNodeList l =
                 engine.getMatchingNodes("//*[local-name()='RqUID'][namespace-uri()='http://www.cieca.com/BMS']", d);
-        assertEquals(1, l.getLength());
+        assertEquals(1, l.asList().size());
     }
 
     @Test
     public void testEvaluateInvalidXPath() throws Exception {
         String xpath = "count(test//*[@attrOne='open source])";
         try {
-            String result = newXpathEngine().evaluate(xpath, testDocument);
+            newXpathEngine().evaluate(xpath, testDocument);
             fail("expected Exception to be thrown but wasn't");
         } catch (XpathException ex) {
             // expected
