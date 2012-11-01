@@ -51,8 +51,8 @@ import org.custommonkey.xmlunit.ElementQualifier;
 import org.custommonkey.xmlunit.MatchTracker;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
 import org.custommonkey.xmlunit.XmlUnit;
-import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -144,7 +144,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      */
     private Document getWhitespaceManipulatedDocument(Document originalDoc) {
         return properties.getIgnoreWhitespace()
-                ? new XmlUnitBuilder(properties).build().getWhitespaceStrippedDocument(originalDoc)
+                ? new XsltUtils(properties).getWhitespaceStrippedDocument(originalDoc)
                 : originalDoc;
     }
 
@@ -182,7 +182,7 @@ public class Diff implements DifferenceListener, ComparisonController {
             return orig;
         }
 
-        return new XmlUnitBuilder(properties).build().getStripCommentsTransform(orig).toDocument();
+        return new XsltUtils(properties).getStripCommentsTransform(orig).toDocument();
     }
 
     private Document getNormalizedDocument(Document orig) {

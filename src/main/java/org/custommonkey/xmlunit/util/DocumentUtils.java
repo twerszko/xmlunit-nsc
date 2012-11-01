@@ -255,20 +255,6 @@ public class DocumentUtils {
     }
 
     /**
-     * Get a fresh transformer to use for XSLT transformations (and by
-     * implication serialization and XPaths).
-     * 
-     * @return a new instance of the default transformer factory
-     */
-    public TransformerFactory newTransformerFactory() {
-        TransformerFactory tf = TransformerFactory.newInstance();
-        if (properties.getUriResolver() != null) {
-            tf.setURIResolver(properties.getUriResolver());
-        }
-        return tf;
-    }
-
-    /**
      * Converts document into string
      * 
      * @param document

@@ -37,10 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -138,7 +136,7 @@ public class XMLUnitTest {
         Document doc = new DocumentUtils(properties).buildTestDocument(
                 test_Constants.XML_WITH_WHITESPACE);
 
-        Document transformedDocument = new XmlUnitBuilder(properties).build().getStripWhitespaceTransform(doc)
+        Document transformedDocument = new XsltUtils(properties).getStripWhitespaceTransform(doc)
                 .toDocument();
         // TODO simpify?
         Diff diff = Diff.newDiff(properties)
@@ -149,26 +147,46 @@ public class XMLUnitTest {
     }
 
     @Test
-    public void testXSLTVersion() {
-        XmlUnit xmlUnit = new XmlUnitBuilder().build();
+    public void should_use_default_xslt_version() {
+        // given
+        XmlUnitProperties properties = new XmlUnitProperties();
 
-        assertEquals("1.0", xmlUnit.getProperties().getXsltVersion());
-        assertEquals(XSLTConstants.XSLT_START, xmlUnit.getXSLTStart());
+        // when
+        XsltUtils xsltUtils = new XsltUtils(properties);
 
-        xmlUnit = new XmlUnitBuilder().usingXsltVersion("2.0").build();
-        assertTrue(xmlUnit.getXSLTStart()
-                .startsWith(XSLTConstants.XSLT_START_NO_VERSION));
-        assertTrue(xmlUnit.getXSLTStart().endsWith("\"2.0\">"));
+        // then
+        assertThat(properties.getXsltVersion()).isEqualTo("1.0");
+        assertThat(xsltUtils.getXSLTStart()).isEqualTo(XSLTConstants.XSLT_START);
+    }
 
-        try {
-            new XmlUnitBuilder().usingXsltVersion("foo").build();
-            fail("foo is not a number");
-        } catch (ConfigurationException expected) {
-        }
-        try {
-            new XmlUnitBuilder().usingXsltVersion("-1.0").build();
-            fail("-1.0 is negative");
-        } catch (ConfigurationException expected) {
-        }
+    @Test
+    public void should_use_other_xslt_version() {
+        // given
+        XmlUnitProperties properties = new XmlUnitProperties();
+        properties.setXsltVersion("2.0");
+
+        // when
+        XsltUtils xsltUtils = new XsltUtils(properties);
+
+        // then
+        assertThat(properties.getXsltVersion()).isEqualTo("2.0");
+        assertThat(xsltUtils.getXSLTStart()).startsWith(XSLTConstants.XSLT_START_NO_VERSION);
+        assertThat(xsltUtils.getXSLTStart()).endsWith("\"2.0\">");
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void should_not_use_incorrect_xslt_version() {
+        // given - when
+        new XmlUnitBuilder().usingXsltVersion("foo").build();
+
+        // then exception
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void should_not_use_negative_xslt_version() {
+        // given - when
+        new XmlUnitBuilder().usingXsltVersion("-1.0").build();
+
+        // then exception
     }
 }

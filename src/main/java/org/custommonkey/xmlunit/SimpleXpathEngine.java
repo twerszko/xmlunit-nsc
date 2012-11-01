@@ -53,6 +53,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -89,7 +90,7 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      */
     private StringBuffer getXSLTBase() {
         StringBuffer result = new StringBuffer(XML_DECLARATION)
-                .append(new XmlUnitBuilder(properties).build().getXSLTStart());
+                .append(new XsltUtils(properties).getXSLTStart());
         String tmp = result.toString();
         int close = tmp.lastIndexOf('>');
         if (close == -1) {
@@ -151,7 +152,7 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
             throws TransformerException, ConfigurationException, XpathException {
         try {
             StreamSource source = new StreamSource(new StringReader(xslt));
-            TransformerFactory tf = XmlUnit.newTransformerFactory();
+            TransformerFactory tf = new XsltUtils(properties).newTransformerFactory();
             ErrorListener el = new ErrorListener() {
                 public void error(TransformerException ex)
                         throws TransformerException {
