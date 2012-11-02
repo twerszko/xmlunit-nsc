@@ -25,16 +25,16 @@ import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.NodeList;
 
 /**
  * Simplified access to JAXP's XPath API.
  */
-public class JAXPXPathEngine implements XPathEngine {
+public class JaxpXpathEngine implements XpathEngine {
     private final XPath xpath;
 
-    public JAXPXPathEngine(XPathFactory fac) {
+    public JaxpXpathEngine(XPathFactory fac) {
         try {
             xpath = fac.newXPath();
         } catch (Exception e) {
@@ -44,25 +44,29 @@ public class JAXPXPathEngine implements XPathEngine {
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws XpathException
      */
-    public IterableNodeList selectNodes(String xPath, Source s) {
+    public IterableNodeList selectNodes(String xPath, Source s) throws XpathException {
         try {
             return new IterableNodeList(
                     (NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),
                             XPathConstants.NODESET));
         } catch (XPathExpressionException ex) {
-            throw new XMLUnitRuntimeException(ex);
+            throw new XpathException(ex);
         }
     }
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws XpathException
      */
-    public String evaluate(String xPath, Source s) {
+    public String evaluate(String xPath, Source s) throws XpathException {
         try {
             return xpath.evaluate(xPath, Convert.toInputSource(s));
         } catch (XPathExpressionException ex) {
-            throw new XMLUnitRuntimeException(ex);
+            throw new XpathException(ex);
         }
     }
 

@@ -14,23 +14,29 @@
 package net.sf.xmlunit.xpath;
 
 import java.util.Map;
+
 import javax.xml.transform.Source;
-import org.w3c.dom.Node;
+
+import net.sf.xmlunit.util.IterableNodeList;
+
+import org.custommonkey.xmlunit.exceptions.XpathException;
 
 /**
  * Interface for XMLUnit's XPath abstraction.
  */
-public interface XPathEngine {
+public interface XpathEngine {
     /**
      * Returns a potentially empty collection of Nodes matching an XPath
      * expression.
+     * 
+     * @throws XpathException
      */
-    Iterable<Node> selectNodes(String xPath, Source s);
+    IterableNodeList selectNodes(String xPath, Source s) throws XpathException;
 
     /**
      * Evaluates an XPath expression and stringifies the result.
      */
-    String evaluate(String xPath, Source s);
+    String evaluate(String xPath, Source s) throws XpathException;;
 
     /**
      * Establish a namespace context.

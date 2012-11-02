@@ -40,13 +40,14 @@ import java.io.IOException;
 import java.io.Reader;
 
 import javax.annotation.Nullable;
+import javax.xml.transform.dom.DOMSource;
 
 import junit.framework.Assert;
+import net.sf.xmlunit.xpath.XpathEngine;
 
 import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
 import org.custommonkey.xmlunit.XmlUnitProperties;
-import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
@@ -72,7 +73,7 @@ public class XPathRegexAssert {
             xmlUnit = new XmlUnitBuilder().build();
         }
         XpathEngine engine = xmlUnit.newDocumentUtils().newXpathEngine();
-        String value = engine.evaluate(xpath, doc);
+        String value = engine.evaluate(xpath, new DOMSource(doc));
         Assert.assertTrue(message, value.matches(regex));
     }
 

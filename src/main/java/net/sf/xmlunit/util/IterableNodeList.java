@@ -56,6 +56,10 @@ public final class IterableNodeList implements Iterable<Node> {
         return Linqy.asList(this);
     }
 
+    public int getLength() {
+        return length;
+    }
+
     /**
      * Turns the NodeList into a list.
      */

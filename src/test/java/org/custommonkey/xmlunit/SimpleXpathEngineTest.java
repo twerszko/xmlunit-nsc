@@ -36,62 +36,45 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.dom.DOMSource;
 
+import net.sf.xmlunit.xpath.AbstractXpathEngineTest;
+import net.sf.xmlunit.xpath.XpathEngine;
+
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
-/**
- * JUnit test for SimpleXpathEngine
- */
-public class test_SimpleXpathEngine extends AbstractXpathEngineTest {
-
-    private final SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine(null);
+public class SimpleXpathEngineTest extends AbstractXpathEngineTest {
 
     @Override
     protected XpathEngine newXpathEngine() {
-        return simpleXpathEngine;
+        return new SimpleXpathEngine(null);
     }
 
     @Test
-    public void testGetXPathResultNode() throws Exception {
-        Node result = simpleXpathEngine.getXPathResultNode("test", testDocument);
+    public void should_get_xpath_result_node() throws Exception {
+        // given
+        SimpleXpathEngine engine = new SimpleXpathEngine(null);
+        DOMSource source = new DOMSource(testDocument);
+
+        // when
+        Node result = engine.getXPathResultNode("test", source);
         SimpleSerializer serializer = new SimpleSerializer(new XmlUnitProperties());
         serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        assertEquals(testString, serializer.serialize(result.getFirstChild()));
+
+        // then
+        assertThat(serializer.serialize(result.getFirstChild())).isEqualTo(testString);
     }
 
     @Override
-    @Test
-    public void should_get_matching_text_node() throws Exception {
-        // TODO
-        if (isJava5OrNewer()) {
-            // fails with "more recent" version of Xalan shipping with Java5
-            return;
-        }
-        super.should_get_matching_text_node();
+    @Test(expected = XpathException.class)
+    public void should_get_matching_node_with_default_ns_and_empty_prefix() throws Exception {
+        // This cannot work with xsl. Xsl wont parse with such XPath
+        // so for this engine exception is expected
+        super.should_get_matching_node_with_default_ns_and_empty_prefix();
     }
-
-    @Override
-    @Test
-    public void testEvaluate() throws Exception {
-        // TODO
-        if (isJava5OrNewer()) {
-            // fails with "more recent" version of Xalan shipping with Java5
-            return;
-        }
-        super.testEvaluate();
-    }
-
-    private static boolean isJava5OrNewer() {
-        try {
-            Class.forName("java.net.Proxy");
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
 }

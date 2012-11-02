@@ -38,20 +38,25 @@ package org.custommonkey.xmlunit;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xmlunit.util.IterableNodeList;
+import net.sf.xmlunit.xpath.XpathEngine;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -71,9 +76,9 @@ import org.w3c.dom.NodeList;
  * Examples and more at <a
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
-public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
+public class SimpleXpathEngine implements XpathEngine {
 
-    private NamespaceContext ctx = SimpleNamespaceContext.EMPTY_CONTEXT;
+    private Map<String, String> ctx = Collections.emptyMap();
 
     private final XmlUnitProperties properties;
 
@@ -91,7 +96,7 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @return
      */
     private StringBuffer getXSLTBase() {
-        StringBuffer result = new StringBuffer(XML_DECLARATION)
+        StringBuffer result = new StringBuffer(XSLTConstants.XML_DECLARATION)
                 .append(new XsltUtils(properties).getXSLTStart());
         String tmp = result.toString();
         int close = tmp.lastIndexOf('>');
@@ -149,41 +154,39 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @throws TransformerException
      * @throws ConfigurationException
      */
-    private void performTransform(String xslt, Document document,
-            Result result)
+    private void performTransform(String xslt, Source source, Result result)
             throws TransformerException, ConfigurationException, XpathException {
         try {
-            StreamSource source = new StreamSource(new StringReader(xslt));
+            StreamSource xsltSource = new StreamSource(new StringReader(xslt));
             TransformerFactory tf = new XsltUtils(properties).newTransformerFactory();
             ErrorListener el = new ErrorListener() {
-                public void error(TransformerException ex)
-                        throws TransformerException {
+                public void error(TransformerException ex) throws TransformerException {
                     // any error in our simple stylesheet must be fatal
                     throw ex;
                 }
 
-                public void fatalError(TransformerException ex)
-                        throws TransformerException {
+                public void fatalError(TransformerException ex) throws TransformerException {
                     throw ex;
                 }
 
                 public void warning(TransformerException ex) {
                     // there shouldn't be any warning
+                    // TODO logger
                     ex.printStackTrace();
                 }
             };
             tf.setErrorListener(el);
-            Transformer transformer = tf.newTransformer(source);
+            Transformer transformer = tf.newTransformer(xsltSource);
             // Issue 1985229 says Xalan-J 2.7.0 may return null for
             // illegal input
             if (transformer == null) {
-                throw new XpathException("failed to obtain an XSLT transformer"
+                throw new XpathException("Failed to obtain an XSLT transformer"
                         + " for XPath expression.");
             }
             transformer.setErrorListener(el);
-            transformer.transform(new DOMSource(document), result);
-        } catch (javax.xml.transform.TransformerConfigurationException ex) {
-            throw new ConfigurationException(ex);
+            transformer.transform(source, result);
+        } catch (TransformerConfigurationException ex) {
+            throw new XpathException(ex);
         }
     }
 
@@ -197,9 +200,9 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @throws TransformerException
      * @return the root node of the Document created by the copy-of transform.
      */
-    protected Node getXPathResultNode(String select, Document document)
+    protected Node getXPathResultNode(String select, Source source)
             throws ConfigurationException, TransformerException, XpathException {
-        return getXPathResultAsDocument(select, document).getDocumentElement();
+        return getXPathResultAsDocument(select, source).getDocumentElement();
     }
 
     /**
@@ -212,11 +215,10 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @throws TransformerException
      * @return the Document created by the copy-of transform.
      */
-    protected Document getXPathResultAsDocument(String select,
-            Document document)
+    protected Document getXPathResultAsDocument(String select, Source source)
             throws ConfigurationException, TransformerException, XpathException {
         DOMResult result = new DOMResult();
-        performTransform(getCopyTransformation(select), document, result);
+        performTransform(getCopyTransformation(select), source, result);
         return (Document) result.getNode();
     }
 
@@ -229,10 +231,10 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @param document
      * @return list of matching nodes
      */
-    public IterableNodeList getMatchingNodes(String select, Document document)
+    public IterableNodeList selectNodes(String select, Source source)
             throws ConfigurationException, XpathException {
         try {
-            NodeList nodes = getXPathResultNode(select, document).getChildNodes();
+            NodeList nodes = getXPathResultNode(select, source).getChildNodes();
             return new IterableNodeList(nodes);
         } catch (TransformerException ex) {
             throw new XpathException("Failed to apply stylesheet", ex);
@@ -247,20 +249,24 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
      * @param document
      * @return evaluated result
      */
-    public String evaluate(String select, Document document)
-            throws ConfigurationException, XpathException {
+    public String evaluate(String xPath, Source s) throws XpathException, ConfigurationException {
         try {
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
-            performTransform(getValueTransformation(select), document, result);
+            performTransform(getValueTransformation(xPath), s, result);
             return writer.toString();
         } catch (TransformerException ex) {
             throw new XpathException("Failed to apply stylesheet", ex);
         }
     }
 
-    public void setNamespaceContext(NamespaceContext ctx) {
-        this.ctx = ctx;
+    public void setNamespaceContext(@Nullable Map<String, String> prefix2Uri) {
+        if (prefix2Uri == null) {
+            this.ctx = Collections.emptyMap();
+        } else {
+            this.ctx = new LinkedHashMap<String, String>(prefix2Uri);
+        }
+
     }
 
     /**
@@ -271,10 +277,9 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
         StringBuffer nsDecls = new StringBuffer();
         String quoteStyle = "'";
 
-        Iterator<String> prefixes = ctx.getPrefixes();
-        while (prefixes.hasNext()) {
-            String prefix = prefixes.next();
-            String uri = ctx.getNamespaceURI(prefix);
+        for (Entry<String, String> entry : ctx.entrySet()) {
+            String prefix = entry.getKey();
+            String uri = entry.getValue();
             if (uri == null) {
                 continue;
             }
@@ -286,7 +291,7 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
             if (uri.indexOf('\'') != -1) {
                 quoteStyle = "\"";
             }
-            nsDecls.append(' ').append(XMLNS_PREFIX);
+            nsDecls.append(' ').append(XSLTConstants.XMLNS_PREFIX);
             if (prefix.length() > 0) {
                 nsDecls.append(':');
             }
@@ -296,4 +301,5 @@ public class SimpleXpathEngine implements XpathEngine, XSLTConstants {
         }
         return nsDecls.toString();
     }
+
 }

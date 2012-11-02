@@ -62,7 +62,7 @@ public class XmlUnitNamespaceContext2Jaxp13
         if (prefix == null) {
             throw new IllegalArgumentException("prefix must not be null");
         }
-        String uri = (String) nsMap.get(prefix);
+        String uri = nsMap.get(prefix);
         if (uri == null) {
             uri = XMLConstants.NULL_NS_URI;
         }
@@ -95,12 +95,13 @@ public class XmlUnitNamespaceContext2Jaxp13
         return i.hasNext() ? (String) i.next() : null;
     }
 
-    static Map<String, String> turnIntoMap(NamespaceContext ctx) {
+    // TODO make non public
+    public static Map<String, String> turnIntoMap(NamespaceContext ctx) {
         Map<String, String> map = new HashMap<String, String>();
 
         Iterator<String> it = ctx.getPrefixes();
         while (it.hasNext()) {
-            String prefix = (String) it.next();
+            String prefix = it.next();
             String uri = ctx.getNamespaceURI(prefix);
             // according to the Javadocs only the constants defined in
             // XMLConstants are allowed as prefixes for the following
@@ -111,8 +112,7 @@ public class XmlUnitNamespaceContext2Jaxp13
             }
         }
         map.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
-        map.put(XMLConstants.XMLNS_ATTRIBUTE,
-                XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
+        map.put(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
         return map;
     }
 }

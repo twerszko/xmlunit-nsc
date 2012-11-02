@@ -35,12 +35,14 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 
+import net.sf.xmlunit.xpath.JaxpXpathEngine;
+import net.sf.xmlunit.xpath.XpathEngine;
+
 import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.Validator;
 import org.custommonkey.xmlunit.XmlUnitProperties;
-import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.jaxp13.Jaxp13XpathEngine;
+import org.custommonkey.xmlunit.jaxp13.XmlUnitNamespaceContext2Jaxp13;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -306,7 +308,7 @@ public class DocumentUtils {
         XpathEngine eng = null;
         try {
             Class.forName("javax.xml.xpath.XPath");
-            eng = new Jaxp13XpathEngine(properties);
+            eng = new JaxpXpathEngine(newXpathFactory());
         } catch (Throwable ex) {
             // should probably only catch ClassNotFoundException, but some
             // constellations - like Ant shipping a more recent version of
@@ -316,7 +318,7 @@ public class DocumentUtils {
         }
         if (properties.getXpathNamespaceContext() != null) {
             // TODO
-            eng.setNamespaceContext(properties.getXpathNamespaceContext());
+            eng.setNamespaceContext(XmlUnitNamespaceContext2Jaxp13.turnIntoMap(properties.getXpathNamespaceContext()));
         }
         return eng;
     }

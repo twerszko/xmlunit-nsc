@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
+import javax.xml.transform.dom.DOMSource;
+
 import net.sf.xmlunit.TestResources;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
@@ -222,13 +224,13 @@ public class DetailedDiffTest extends DiffTest {
 
                 expr = difference.getControlNodeDetail().getXpathLocation();
                 if (expr != null && expr.length() > 0) {
-                    value = xpathEngine.evaluate(expr, controlDoc);
+                    value = xpathEngine.evaluate(expr, new DOMSource(controlDoc));
                     assertThat(difference.getControlNodeDetail().getValue()).isEqualTo(value);
                 }
 
                 expr = difference.getTestNodeDetail().getXpathLocation();
                 if (expr != null && expr.length() > 0) {
-                    value = xpathEngine.evaluate(expr, testDoc);
+                    value = xpathEngine.evaluate(expr, new DOMSource(testDoc));
                     assertThat(difference.getTestNodeDetail().getValue()).isEqualTo(value);
                 }
             }

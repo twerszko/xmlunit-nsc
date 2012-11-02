@@ -205,11 +205,11 @@ public final class Convert {
             }
 
             public String getPrefix(String uri) {
-                Iterator i = getPrefixes(uri);
+                Iterator<String> i = getPrefixes(uri);
                 return i.hasNext() ? (String) i.next() : null;
             }
 
-            public Iterator getPrefixes(String uri) {
+            public Iterator<String> getPrefixes(String uri) {
                 if (uri == null) {
                     throw new IllegalArgumentException("uri must not be null");
                 }
