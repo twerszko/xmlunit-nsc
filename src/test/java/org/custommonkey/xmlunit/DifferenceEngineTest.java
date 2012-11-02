@@ -549,8 +549,8 @@ public class DifferenceEngineTest {
     @Test
     public void testBasicCompare() throws Exception {
         try {
-            engine.compare("black", "white", null, null, listener,
-                    new Difference(DifferenceType.ATTR_NAME_NOT_FOUND));
+            engine.createValueComparator(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND), listener)
+                    .compare(null, "black", null, "white");
             fail("Expected difference found exception");
         } catch (DifferenceEngine.DifferenceFoundException e) {
             assertEquals(true, listener.different);
@@ -559,8 +559,9 @@ public class DifferenceEngineTest {
         resetListener();
 
         try {
-            engine.compare("black", "white", null, null, listener,
-                    new Difference(DifferenceType.NAMESPACE_PREFIX));
+            engine.createValueComparator(new Difference(DifferenceType.NAMESPACE_PREFIX), listener)
+                    .compare(null, "black", null, "white");
+
             assertEquals(false, listener.different);
             assertEquals(DifferenceType.NAMESPACE_PREFIX, listener.comparingWhat);
         } catch (Exception e) {
@@ -731,15 +732,6 @@ public class DifferenceEngineTest {
                 listener.controlXpath);
         assertEquals("15th test xpath", "/stuff[1]/item[1]",
                 listener.testXpath);
-    }
-
-    @Test
-    public void testNormalizeWhitespace() {
-        assertEquals("a b", DifferenceEngine.normalizeWhitespace("a\rb"));
-        assertEquals("a b", DifferenceEngine.normalizeWhitespace("a  b"));
-        assertEquals("a b c d e f",
-                DifferenceEngine
-                        .normalizeWhitespace("a\rb c\nd\te\r\n   \tf"));
     }
 
     @Test

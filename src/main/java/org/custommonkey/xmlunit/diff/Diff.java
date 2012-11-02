@@ -102,9 +102,9 @@ public class Diff implements DifferenceListener, ComparisonController {
     private boolean haltComparison = false;
     private final StringBuffer messages;
     private final DifferenceEngineContract differenceEngine;
-    private DifferenceListener differenceListenerDelegate;
-    private ElementQualifier elementQualifierDelegate;
-    private MatchTracker matchTrackerDelegate;
+    private DifferenceListener differenceListener;
+    private ElementQualifier elementQualifier;
+    private MatchTracker matchTracker;
 
     /**
      * Construct a Diff that compares the XML in two Documents using a specific
@@ -114,7 +114,7 @@ public class Diff implements DifferenceListener, ComparisonController {
         this.properties = builder.properties.clone();
         this.controlDoc = getManipulatedDocument(builder.controlDocument);
         this.testDoc = getManipulatedDocument(builder.testDocument);
-        this.elementQualifierDelegate = builder.elementQualifier;
+        this.elementQualifier = builder.elementQualifier;
         this.differenceEngine = builder.differenceEngineContract;
         this.messages = new StringBuffer();
     }
@@ -131,9 +131,9 @@ public class Diff implements DifferenceListener, ComparisonController {
         this.properties = prototype.properties.clone();
         this.controlDoc = getManipulatedDocument(prototype.controlDoc);
         this.testDoc = getManipulatedDocument(prototype.testDoc);
-        this.elementQualifierDelegate = prototype.elementQualifierDelegate;
+        this.elementQualifier = prototype.elementQualifier;
         this.differenceEngine = prototype.differenceEngine;
-        this.differenceListenerDelegate = prototype.differenceListenerDelegate;
+        this.differenceListener = prototype.differenceListener;
         this.messages = new StringBuffer();
 
     }
@@ -207,7 +207,7 @@ public class Diff implements DifferenceListener, ComparisonController {
             return;
         }
         getDifferenceEngine()
-                .compare(controlDoc, testDoc, this, elementQualifierDelegate);
+                .compare(controlDoc, testDoc, this, elementQualifier);
         compared = true;
     }
 
@@ -261,27 +261,27 @@ public class Diff implements DifferenceListener, ComparisonController {
         ReturnType returnValue = evaluate(difference);
 
         switch (returnValue) {
-        case DIFFERENT_NODES_IDENTICAL:
-            return returnValue;
-        case DIFFERENT_NODES_SIMILAR:
-            identical = false;
-            haltComparison = false;
-            break;
-        case ACCEPT_DIFFERENCE:
-            identical = false;
-            if (difference.isRecoverable()) {
+            case DIFFERENT_NODES_IDENTICAL:
+                return returnValue;
+            case DIFFERENT_NODES_SIMILAR:
+                identical = false;
                 haltComparison = false;
-            } else {
-                similar = false;
+                break;
+            case ACCEPT_DIFFERENCE:
+                identical = false;
+                if (difference.isRecoverable()) {
+                    haltComparison = false;
+                } else {
+                    similar = false;
+                    haltComparison = true;
+                }
+                break;
+            case SIMILAR_NODES_DIFFERENT:
+                identical = similar = false;
                 haltComparison = true;
-            }
-            break;
-        case SIMILAR_NODES_DIFFERENT:
-            identical = similar = false;
-            haltComparison = true;
-            break;
-        default:
-            throw new IllegalArgumentException(returnValue + " is not supported");
+                break;
+            default:
+                throw new IllegalArgumentException(returnValue + " is not supported");
         }
         if (haltComparison) {
             messages.append("\n[different]");
@@ -294,8 +294,8 @@ public class Diff implements DifferenceListener, ComparisonController {
 
     public ReturnType evaluate(Difference difference) {
         ReturnType returnValue = ReturnType.ACCEPT_DIFFERENCE;
-        if (differenceListenerDelegate != null) {
-            returnValue = differenceListenerDelegate.differenceFound(difference);
+        if (differenceListener != null) {
+            returnValue = differenceListener.differenceFound(difference);
         }
         return returnValue;
     }
@@ -310,8 +310,8 @@ public class Diff implements DifferenceListener, ComparisonController {
      * @param test
      */
     public void skippedComparison(Node control, Node test) {
-        if (differenceListenerDelegate != null) {
-            differenceListenerDelegate.skippedComparison(control, test);
+        if (differenceListener != null) {
+            differenceListener.skippedComparison(control, test);
         } else {
             System.err.println("DifferenceListener.skippedComparison: "
                     + "unhandled control node type=" + control
@@ -338,7 +338,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      * @param toAppendTo
      * @return specified StringBuffer with message appended
      */
-    public StringBuffer appendMessage(StringBuffer toAppendTo) {
+    public StringBuilder appendMessage(StringBuilder toAppendTo) {
         compare();
         if (messages.length() == 0) {
             messages.append("[identical]");
@@ -354,7 +354,7 @@ public class Diff implements DifferenceListener, ComparisonController {
      */
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer(getClass().getName());
+        StringBuilder buf = new StringBuilder(getClass().getName());
         appendMessage(buf);
         return buf.toString();
     }
@@ -363,35 +363,35 @@ public class Diff implements DifferenceListener, ComparisonController {
      * Override the <code>DifferenceListener</code> used to determine how to
      * handle differences that are found.
      * 
-     * @param delegate
+     * @param listener
      *            the DifferenceListener instance to delegate handling to.
      */
-    public void overrideDifferenceListener(DifferenceListener delegate) {
-        this.differenceListenerDelegate = delegate;
+    public void overrideDifferenceListener(DifferenceListener listener) {
+        this.differenceListener = listener;
     }
 
     /**
      * Override the <code>ElementQualifier</code> used to determine which
      * control and test nodes are comparable for this difference comparison.
      * 
-     * @param delegate
+     * @param qualifier
      *            the ElementQualifier instance to delegate to.
      */
-    public void overrideElementQualifier(ElementQualifier delegate) {
-        this.elementQualifierDelegate = delegate;
+    public void overrideElementQualifier(ElementQualifier qualifier) {
+        this.elementQualifier = qualifier;
     }
 
     /**
      * Override the <code>MatchTracker</code> used to track successfully matched
      * nodes.
      * 
-     * @param delegate
+     * @param tracker
      *            the MatchTracker instance to delegate handling to.
      */
-    public void overrideMatchTracker(MatchTracker delegate) {
-        this.matchTrackerDelegate = delegate;
+    public void overrideMatchTracker(MatchTracker tracker) {
+        this.matchTracker = tracker;
         if (differenceEngine != null) {
-            differenceEngine.setMatchTracker(delegate);
+            differenceEngine.setMatchTracker(tracker);
         }
     }
 
@@ -404,20 +404,21 @@ public class Diff implements DifferenceListener, ComparisonController {
             return differenceEngine;
         }
 
+        // FIXME WTF?
         if (properties.getIgnoreAttributeOrder()
                 &&
                 (!usesUnknownElementQualifier()
                 || properties.getCompareUnmatched())) {
-            return new NewDifferenceEngine(properties, this, matchTrackerDelegate);
+            return new NewDifferenceEngine(properties, this, matchTracker);
         }
-        return new DifferenceEngine(properties, this, matchTrackerDelegate);
+        return new DifferenceEngine(properties, this, matchTracker);
     }
 
     private boolean usesUnknownElementQualifier() {
-        return elementQualifierDelegate != null
-                && !(elementQualifierDelegate instanceof ElementNameQualifier)
-                && !(elementQualifierDelegate instanceof ElementNameAndTextQualifier)
-                && !(elementQualifierDelegate instanceof ElementNameAndAttributeQualifier);
+        return elementQualifier != null
+                && !(elementQualifier instanceof ElementNameQualifier)
+                && !(elementQualifier instanceof ElementNameAndTextQualifier)
+                && !(elementQualifier instanceof ElementNameAndAttributeQualifier);
     }
 
     public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {

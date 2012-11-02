@@ -90,13 +90,10 @@ public class NewDifferenceEngine
     private static final Integer ZERO = Integer.valueOf(0);
     private static final Map<Class<?>, ElementSelector> KNOWN_SELECTORS;
     static {
-        Map<Class<?>, ElementSelector> m =
-                new HashMap<Class<?>, ElementSelector>();
-        m.put(ElementNameAndTextQualifier.class,
-                ElementSelectors.byNameAndText);
+        Map<Class<?>, ElementSelector> m = new HashMap<Class<?>, ElementSelector>();
+        m.put(ElementNameAndTextQualifier.class, ElementSelectors.byNameAndText);
         m.put(ElementQualifier.class, ElementSelectors.byName);
-        m.put(RecursiveElementNameAndTextQualifier.class,
-                ElementSelectors.byNameAndTextRec);
+        m.put(RecursiveElementNameAndTextQualifier.class, ElementSelectors.byNameAndTextRec);
         KNOWN_SELECTORS = Collections.unmodifiableMap(m);
     }
 

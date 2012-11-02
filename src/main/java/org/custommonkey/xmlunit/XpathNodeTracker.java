@@ -334,14 +334,14 @@ public class XpathNodeTracker implements XMLConstants {
             reset();
 
             if (trackNodeReferences || nodeReferenceMap == null) {
-                XPathContext.NodeInfo i = null;
+                XPathContext.NodeInfo info = null;
                 if (visited != null) {
-                    i = new XPathContext.DOMNodeInfo(visited);
+                    info = new XPathContext.DOMNodeInfo(visited);
                 } else {
                     // visited is only ever null when invoked from the
                     // unit tests and in this case it is always
                     // expected to be an element node
-                    i = new XPathContext.NodeInfo() {
+                    info = new XPathContext.NodeInfo() {
                         public short getType() {
                             return Node.ELEMENT_NODE;
                         }
@@ -351,7 +351,7 @@ public class XpathNodeTracker implements XMLConstants {
                         }
                     };
                 }
-                ctx.appendChildren(Linqy.singleton(i));
+                ctx.appendChildren(Linqy.singleton(info));
             }
 
             if (!trackNodeReferences) {

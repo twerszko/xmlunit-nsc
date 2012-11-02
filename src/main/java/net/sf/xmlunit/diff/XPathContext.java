@@ -15,17 +15,20 @@ package net.sf.xmlunit.diff;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
+
 import net.sf.xmlunit.util.Nodes;
+
 import org.w3c.dom.Node;
 
 public class XPathContext {
-    // that would be Deque<Level> in Java 6+
-    private final LinkedList<Level> path = new LinkedList<Level>();
+    private final Deque<Level> path = new LinkedList<Level>();
     private final Map<String, String> uri2Prefix;
 
     private static final String COMMENT = "comment()";
@@ -99,26 +102,26 @@ public class XPathContext {
         for (NodeInfo child : children) {
             Level l = null;
             switch (child.getType()) {
-            case Node.COMMENT_NODE:
-                l = new Level(COMMENT + OPEN + (++comments) + CLOSE);
-                break;
-            case Node.PROCESSING_INSTRUCTION_NODE:
-                l = new Level(PI + OPEN + (++pis) + CLOSE);
-                break;
-            case Node.CDATA_SECTION_NODE:
-            case Node.TEXT_NODE:
-                l = new Level(TEXT + OPEN + (++texts) + CLOSE);
-                break;
-            case Node.ELEMENT_NODE:
-                String name = getName(child.getName());
-                l = new Level(name + OPEN + add1OrIncrement(name, elements)
-                        + CLOSE);
-                break;
-            default:
-                // more or less ignore
-                // FIXME: is this a good thing?
-                l = new Level(EMPTY);
-                break;
+                case Node.COMMENT_NODE:
+                    l = new Level(COMMENT + OPEN + (++comments) + CLOSE);
+                    break;
+                case Node.PROCESSING_INSTRUCTION_NODE:
+                    l = new Level(PI + OPEN + (++pis) + CLOSE);
+                    break;
+                case Node.CDATA_SECTION_NODE:
+                case Node.TEXT_NODE:
+                    l = new Level(TEXT + OPEN + (++texts) + CLOSE);
+                    break;
+                case Node.ELEMENT_NODE:
+                    String name = getName(child.getName());
+                    l = new Level(name + OPEN + add1OrIncrement(name, elements)
+                            + CLOSE);
+                    break;
+                default:
+                    // more or less ignore
+                    // FIXME: is this a good thing?
+                    l = new Level(EMPTY);
+                    break;
             }
             current.children.add(l);
         }
@@ -156,8 +159,8 @@ public class XPathContext {
 
     private static class Level {
         private final String expression;
-        private List<Level> children = new ArrayList<Level>();
-        private Map<QName, Level> attributes = new HashMap<QName, Level>();
+        private final List<Level> children = new ArrayList<Level>();
+        private final Map<QName, Level> attributes = new HashMap<QName, Level>();
 
         private Level(String expression) {
             this.expression = expression;
@@ -171,8 +174,8 @@ public class XPathContext {
     }
 
     public static final class DOMNodeInfo implements NodeInfo {
-        private QName name;
-        private short type;
+        private final QName name;
+        private final short type;
 
         public DOMNodeInfo(Node n) {
             name = Nodes.getQName(n);

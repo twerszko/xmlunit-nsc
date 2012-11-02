@@ -45,6 +45,7 @@ import com.google.common.collect.Maps;
 /**
  * Implementation of NamespaceContext that's backed by a map.
  */
+// TODO remove it
 public class SimpleNamespaceContext implements NamespaceContext {
     /* prefix -> NS URI */
     private final Map<String, String> prefixMap;
@@ -71,7 +72,7 @@ public class SimpleNamespaceContext implements NamespaceContext {
     }
 
     public String getNamespaceURI(String prefix) {
-        return (String) prefixMap.get(prefix);
+        return prefixMap.get(prefix);
     }
 
     public Iterator<String> getPrefixes() {
