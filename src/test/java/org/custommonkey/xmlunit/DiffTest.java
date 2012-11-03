@@ -61,10 +61,10 @@ import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison.Detail;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -158,13 +158,13 @@ public class DiffTest {
         Detail controlNodeDetail = new Detail(elemA, "/tag", TRUE.toString());
         Detail testNodeDetail = new Detail(elemB, "/tag", FALSE.toString());
 
-        Difference difference = new Difference(new Difference(DifferenceType.HAS_CHILD_NODES), controlNodeDetail,
+        Difference difference = new Difference(new Difference(ComparisonType.HAS_CHILD_NODES), controlNodeDetail,
                 testNodeDetail);
         diff.differenceFound(difference);
 
         String toStringResult = diff.toString();
         String expectedToString = diff.getClass().getName() + "\n[different] Expected "
-                + DifferenceType.HAS_CHILD_NODES.getDescription()
+                + ComparisonType.HAS_CHILD_NODES.getDescription()
                 + " 'true' but was 'false' - comparing <tag...> at /tag to <tag...> at /tag\n";
 
         // then
@@ -182,13 +182,13 @@ public class DiffTest {
         Detail controlNodeDetail = new Detail(textA, "/tag/text()", "Monkey");
         Detail testNodeDetail = new Detail(textB, "/tag/text()", "Chicken");
 
-        Difference difference = new Difference(new Difference(DifferenceType.TEXT_VALUE), controlNodeDetail,
+        Difference difference = new Difference(new Difference(ComparisonType.TEXT_VALUE), controlNodeDetail,
                 testNodeDetail);
         diff.differenceFound(difference);
 
         String toStringResult = diff.toString();
         String expectedToString = diff.getClass().getName() + "\n[different] Expected "
-                + DifferenceType.TEXT_VALUE.getDescription()
+                + ComparisonType.TEXT_VALUE.getDescription()
                 + " 'Monkey' but was 'Chicken' - comparing <tag ...>Monkey</tag> "
                 + "at /tag/text() to <tag ...>Chicken</tag> at /tag/text()\n";
 
@@ -207,7 +207,7 @@ public class DiffTest {
         String toStringResult = diff.toString();
 
         String expectedString = diff.getClass().getName() + "\n[different] Expected "
-                + DifferenceType.ATTR_VALUE.getDescription()
+                + ComparisonType.ATTR_VALUE.getDescription()
                 + " 'fruit' but was 'longeared' - comparing "
                 + "<bat type=\"fruit\"...> at /bat[1]/@type to <bat type=\"longeared\"...> at /bat[1]/@type\n";
 
@@ -689,7 +689,7 @@ public class DiffTest {
         // when
         Diff diff = prepareDiff(properties, control, test);
         diff.overrideDifferenceListener(
-                new ExpectedDifferenceListener(DifferenceType.NAMESPACE_PREFIX)
+                new ExpectedDifferenceListener(ComparisonType.NAMESPACE_PREFIX)
                 );
 
         // then
@@ -799,9 +799,9 @@ public class DiffTest {
         diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
         diff.overrideDifferenceListener(
                 new ExpectedDifferenceListener(
-                        new DifferenceType[] {
-                                DifferenceType.NAMESPACE_PREFIX,
-                                DifferenceType.CHILD_NODELIST_SEQUENCE
+                        new ComparisonType[] {
+                                ComparisonType.NAMESPACE_PREFIX,
+                                ComparisonType.CHILD_NODELIST_SEQUENCE
                         })
                 );
 
@@ -819,7 +819,7 @@ public class DiffTest {
         String test = "<root><node>2</node><node>1</node></root>";
 
         ExaminingExpectedDifferenceListener delegate =
-                new ExaminingExpectedDifferenceListener(DifferenceType.CHILD_NODELIST_SEQUENCE) {
+                new ExaminingExpectedDifferenceListener(ComparisonType.CHILD_NODELIST_SEQUENCE) {
                     private int i = 0;
 
                     @Override
@@ -841,7 +841,7 @@ public class DiffTest {
     }
 
     private abstract class ExaminingExpectedDifferenceListener extends ExpectedDifferenceListener {
-        private ExaminingExpectedDifferenceListener(DifferenceType expectedType) {
+        private ExaminingExpectedDifferenceListener(ComparisonType expectedType) {
             super(expectedType);
         }
     }
@@ -877,14 +877,14 @@ public class DiffTest {
     }
 
     private class ExpectedDifferenceListener implements DifferenceListener {
-        private final Set<DifferenceType> expectedIds;
+        private final Set<ComparisonType> expectedIds;
 
-        private ExpectedDifferenceListener(DifferenceType expectedType) {
-            this(new DifferenceType[] { expectedType });
+        private ExpectedDifferenceListener(ComparisonType expectedType) {
+            this(new ComparisonType[] { expectedType });
         }
 
-        private ExpectedDifferenceListener(DifferenceType[] expectedIdValues) {
-            this.expectedIds = new HashSet<DifferenceType>(expectedIdValues.length);
+        private ExpectedDifferenceListener(ComparisonType[] expectedIdValues) {
+            this.expectedIds = new HashSet<ComparisonType>(expectedIdValues.length);
             for (int i = 0; i < expectedIdValues.length; ++i) {
                 expectedIds.add(expectedIdValues[i]);
             }

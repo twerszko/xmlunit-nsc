@@ -48,10 +48,10 @@ import java.util.List;
 import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.TestResources;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -123,11 +123,11 @@ public class DetailedDiffTest extends DiffTest {
 
         // then
         assertThat(differences).hasSize(5);
-        assertThat(differences.get(0)).isEqualTo(new Difference(DifferenceType.HAS_CHILD_NODES));
-        assertThat(differences.get(1)).isEqualTo(new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES));
-        assertThat(differences.get(2)).isEqualTo(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND));
-        assertThat(differences.get(3)).isEqualTo(new Difference(DifferenceType.ATTR_VALUE));
-        assertThat(differences.get(4)).isEqualTo(new Difference(DifferenceType.CHILD_NODE_NOT_FOUND));
+        assertThat(differences.get(0)).isEqualTo(new Difference(ComparisonType.HAS_CHILD_NODES));
+        assertThat(differences.get(1)).isEqualTo(new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES));
+        assertThat(differences.get(2)).isEqualTo(new Difference(ComparisonType.ATTR_NAME_LOOKUP));
+        assertThat(differences.get(3)).isEqualTo(new Difference(ComparisonType.ATTR_VALUE));
+        assertThat(differences.get(4)).isEqualTo(new Difference(ComparisonType.CHILD_LOOKUP));
     }
 
     @Test
@@ -150,11 +150,11 @@ public class DetailedDiffTest extends DiffTest {
 
         // then
         assertThat(differences).hasSize(5);
-        assertThat(differences.get(0)).isEqualTo(new Difference(DifferenceType.HAS_CHILD_NODES));
-        assertThat(differences.get(1)).isEqualTo(new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES));
-        assertThat(differences.get(2)).isEqualTo(new Difference(DifferenceType.ATTR_VALUE));
-        assertThat(differences.get(3)).isEqualTo(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND));
-        assertThat(differences.get(4)).isEqualTo(new Difference(DifferenceType.CHILD_NODE_NOT_FOUND));
+        assertThat(differences.get(0)).isEqualTo(new Difference(ComparisonType.HAS_CHILD_NODES));
+        assertThat(differences.get(1)).isEqualTo(new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES));
+        assertThat(differences.get(2)).isEqualTo(new Difference(ComparisonType.ATTR_VALUE));
+        assertThat(differences.get(3)).isEqualTo(new Difference(ComparisonType.ATTR_NAME_LOOKUP));
+        assertThat(differences.get(4)).isEqualTo(new Difference(ComparisonType.CHILD_LOOKUP));
     }
 
     @Test
@@ -178,11 +178,11 @@ public class DetailedDiffTest extends DiffTest {
 
         // then
         assertThat(differences).hasSize(5);
-        assertThat(differences.get(0)).isEqualTo(new Difference(DifferenceType.HAS_CHILD_NODES));
-        assertThat(differences.get(1)).isEqualTo(new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES));
-        assertThat(differences.get(2)).isEqualTo(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND));
-        assertThat(differences.get(3)).isEqualTo(new Difference(DifferenceType.ATTR_VALUE));
-        assertThat(differences.get(4)).isEqualTo(new Difference(DifferenceType.CHILD_NODE_NOT_FOUND));
+        assertThat(differences.get(0)).isEqualTo(new Difference(ComparisonType.HAS_CHILD_NODES));
+        assertThat(differences.get(1)).isEqualTo(new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES));
+        assertThat(differences.get(2)).isEqualTo(new Difference(ComparisonType.ATTR_NAME_LOOKUP));
+        assertThat(differences.get(3)).isEqualTo(new Difference(ComparisonType.ATTR_VALUE));
+        assertThat(differences.get(4)).isEqualTo(new Difference(ComparisonType.CHILD_LOOKUP));
     }
 
     @Test
@@ -216,11 +216,11 @@ public class DetailedDiffTest extends DiffTest {
         String value;
         for (Difference difference : differences) {
 
-            if (difference.equals(new Difference(DifferenceType.ATTR_VALUE))
-                    || difference.equals(new Difference(DifferenceType.CDATA_VALUE))
-                    || difference.equals(new Difference(DifferenceType.COMMENT_VALUE))
-                    || difference.equals(new Difference(DifferenceType.ELEMENT_TAG_NAME))
-                    || difference.equals(new Difference(DifferenceType.TEXT_VALUE))) {
+            if (difference.equals(new Difference(ComparisonType.ATTR_VALUE))
+                    || difference.equals(new Difference(ComparisonType.CDATA_VALUE))
+                    || difference.equals(new Difference(ComparisonType.COMMENT_VALUE))
+                    || difference.equals(new Difference(ComparisonType.ELEMENT_TAG_NAME))
+                    || difference.equals(new Difference(ComparisonType.TEXT_VALUE))) {
 
                 expr = difference.getControlNodeDetail().getXpath();
                 if (expr != null && expr.length() > 0) {
@@ -376,7 +376,7 @@ public class DetailedDiffTest extends DiffTest {
         // then
         assertThat(differences).hasSize(3);
         assertThat(difference.getType())
-                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+                .isEqualTo(ComparisonType.CHILD_LOOKUP);
         assertThat(controlXpathLocation).isEqualTo("/books[1]/book[1]");
         assertThat(testXpathLocation).isNull();
     }
@@ -418,7 +418,7 @@ public class DetailedDiffTest extends DiffTest {
         // then
         assertThat(differences).hasSize(3);
         assertThat(difference.getType())
-                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+                .isEqualTo(ComparisonType.CHILD_LOOKUP);
         assertThat(reverseTestXpathLocation).isEqualTo("/books[1]/book[1]");
         assertThat(reverseControlXpathLocation).isNull();
     }
@@ -454,7 +454,7 @@ public class DetailedDiffTest extends DiffTest {
         // then
         assertThat(differences).hasSize(1);
         assertThat(difference.getType())
-                .isEqualTo(DifferenceType.ELEMENT_TAG_NAME);
+                .isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
     }
 
     /**
@@ -495,12 +495,12 @@ public class DetailedDiffTest extends DiffTest {
         // then
         assertThat(differences).hasSize(2);
         assertThat(difference.getType())
-                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+                .isEqualTo(ComparisonType.CHILD_LOOKUP);
         assertThat(controlNode).isNotNull();
         assertThat(testNode).isNull();
 
         assertThat(difference1.getType())
-                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+                .isEqualTo(ComparisonType.CHILD_LOOKUP);
         assertThat(controlNode1).isNull();
         assertThat(testNode1).isNotNull();
     }
@@ -560,7 +560,7 @@ public class DetailedDiffTest extends DiffTest {
         // then
         assertThat(differences).hasSize(4);
         assertThat(difference.getType())
-                .isEqualTo(DifferenceType.CHILD_NODELIST_LENGTH);
+                .isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
         // expected 3 children is 2
         assertThat(controlValue).isEqualTo("3");
         assertThat(testValue).isEqualTo("2");
@@ -575,14 +575,14 @@ public class DetailedDiffTest extends DiffTest {
 
         // Banana's size attribute doesn't match
         assertThat(difference2.getType())
-                .isEqualTo(DifferenceType.ATTR_VALUE);
+                .isEqualTo(ComparisonType.ATTR_VALUE);
         assertThat(controlValue2).isEqualTo("10");
         assertThat(testValue2).isEqualTo("11");
         assertThat(controlXpathLocation2).isEqualTo("/Fruits[1]/Banana[1]/@size");
         assertThat(testXpathLocation2).isEqualTo("/Fruits[1]/Banana[1]/@size");
 
         assertThat(difference3.getType())
-                .isEqualTo(DifferenceType.CHILD_NODE_NOT_FOUND);
+                .isEqualTo(ComparisonType.CHILD_LOOKUP);
         assertThat(controlValue3).isEqualTo("Apple");
         assertThat(testValue3).isEqualTo("null");
         assertThat(controlXpathLocation3).isEqualTo("/Fruits[1]/Apple[2]");

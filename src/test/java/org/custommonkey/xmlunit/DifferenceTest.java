@@ -43,10 +43,10 @@ import java.io.IOException;
 import java.util.List;
 
 import net.sf.xmlunit.diff.Comparison.Detail;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -57,7 +57,7 @@ import org.xml.sax.SAXException;
  * @author TimBacon
  */
 public class DifferenceTest {
-    private final Difference ORIGINAL = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
+    private final Difference ORIGINAL = new Difference(ComparisonType.ATTR_NAME_LOOKUP);
 
     @Test
     public void should_check_defensive_constructor() {
@@ -89,7 +89,7 @@ public class DifferenceTest {
     @Test
     public void should_check_toString() {
         // given
-        Difference attrNameNotFound = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
+        Difference attrNameNotFound = new Difference(ComparisonType.ATTR_NAME_LOOKUP);
 
         String originalAsString =
                 "Difference (#" + attrNameNotFound.getType() + ") " +
@@ -115,11 +115,11 @@ public class DifferenceTest {
                 testNode.getNodeValue());
 
         Difference difference = new Difference(
-                new Difference(DifferenceType.COMMENT_VALUE),
+                new Difference(ComparisonType.COMMENT_VALUE),
                 controlNodeDetail,
                 testNodeDetail);
         StringBuffer buf = new StringBuffer("Expected ")
-                .append(DifferenceType.COMMENT_VALUE.getDescription())
+                .append(ComparisonType.COMMENT_VALUE.getDescription())
                 .append(" 'control' but was 'test' - comparing ");
 
         NodeDescriptor.appendDetail(buf, controlNodeDetail);
@@ -158,12 +158,12 @@ public class DifferenceTest {
         assertThat(diffs).hasSize(2);
 
         assertThat(difference1.getType())
-                .isEqualTo(DifferenceType.ELEMENT_NUM_ATTRIBUTES);
+                .isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
         assertThat(controlXpathLocation1).isEqualTo("/foo[1]/bar[1]");
         assertThat(testXpathLocation1).isEqualTo("/foo[1]/bar[1]");
 
         assertThat(difference2.getType())
-                .isEqualTo(DifferenceType.ATTR_NAME_NOT_FOUND);
+                .isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
         assertThat(controlXpathLocation2).isEqualTo("/foo[1]/bar[1]/@y");
         assertThat(testXpathLocation2).isEqualTo("/foo[1]/bar[1]");
     }

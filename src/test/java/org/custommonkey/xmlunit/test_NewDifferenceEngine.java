@@ -44,8 +44,8 @@ import javax.xml.parsers.DocumentBuilder;
 
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.w3c.dom.Attr;
@@ -239,7 +239,7 @@ public class test_NewDifferenceEngine extends TestCase {
         listenToDifferences(control, test);
         // mutiple Differences, we only see the last one, missing second element
         assertEquals("13 difference type",
-                DifferenceType.CHILD_NODE_NOT_FOUND,
+                ComparisonType.CHILD_LOOKUP,
                 listener.comparingWhat);
         assertEquals("13th control xpath", "/stuff[1]/item[2]",
                 listener.controlXpath);
@@ -252,7 +252,7 @@ public class test_NewDifferenceEngine extends TestCase {
         String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
         listenToDifferences(control, test);
         assertEquals("14th difference type",
-                DifferenceType.CHILD_NODELIST_SEQUENCE,
+                ComparisonType.CHILD_NODELIST_SEQUENCE,
                 listener.comparingWhat);
         assertEquals("14th control xpath", "/stuff[1]/item[1]",
                 listener.controlXpath);
@@ -266,7 +266,7 @@ public class test_NewDifferenceEngine extends TestCase {
         String test = "<stuff><item id=\"2\"/></stuff>";
         listenToDifferences(control, test);
         assertEquals("15th difference type",
-                DifferenceType.HAS_CHILD_NODES,
+                ComparisonType.HAS_CHILD_NODES,
                 listener.comparingWhat);
         assertEquals("15th difference control value", "true",
                 listener.expected);
@@ -328,17 +328,17 @@ public class test_NewDifferenceEngine extends TestCase {
     public void testMissingSchemaLocation() throws Exception {
         testMissingXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.SCHEMA_LOCATION);
+                ComparisonType.SCHEMA_LOCATION);
     }
 
     public void testMissingNoNamespaceSchemaLocation() throws Exception {
         testMissingXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+                ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
     }
 
     private void testMissingXSIAttribute(String attrName,
-            DifferenceType expectedDifference)
+            ComparisonType expectedDifference)
             throws Exception {
         Element control = document.createElement("foo");
         control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
@@ -354,17 +354,17 @@ public class test_NewDifferenceEngine extends TestCase {
     public void testDifferentSchemaLocation() throws Exception {
         testDifferentXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.SCHEMA_LOCATION);
+                ComparisonType.SCHEMA_LOCATION);
     }
 
     public void testDifferentNoNamespaceSchemaLocation() throws Exception {
         testDifferentXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+                ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
     }
 
     private void testDifferentXSIAttribute(String attrName,
-            DifferenceType expectedDifference)
+            ComparisonType expectedDifference)
             throws Exception {
         Element control = document.createElement("foo");
         control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
@@ -382,7 +382,7 @@ public class test_NewDifferenceEngine extends TestCase {
         Element test = document.createElement("foo");
         test.setAttribute("baz", "bar");
         engine.compare(control, test, listener, null);
-        assertEquals(DifferenceType.ATTR_NAME_NOT_FOUND, listener.comparingWhat);
+        assertEquals(ComparisonType.ATTR_NAME_LOOKUP, listener.comparingWhat);
     }
 
     public void testMatchTrackerSetViaConstructor() throws Exception {
@@ -553,7 +553,7 @@ public class test_NewDifferenceEngine extends TestCase {
         public String actual;
         public Node control;
         public Node test;
-        public DifferenceType comparingWhat = null;
+        public ComparisonType comparingWhat = null;
         public boolean different = false;
         public boolean nodesSkipped = false;
         public String controlXpath;

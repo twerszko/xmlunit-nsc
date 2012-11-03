@@ -43,9 +43,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 
 /**
  * @author TimBacon
@@ -55,45 +55,45 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
     private DifferenceListener listener;
 
     public void testDifferenceFound() {
-        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.ATTR_NAME_LOOKUP)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_SEQUENCE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.ATTR_SEQUENCE)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_VALUE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.ATTR_VALUE)))
                 .isEqualTo(ComparisonResult.SIMILAR);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED)))
                 .isEqualTo(ComparisonResult.SIMILAR);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.CDATA_VALUE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.CDATA_VALUE)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.COMMENT_VALUE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.COMMENT_VALUE)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.DOCTYPE_NAME)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.DOCTYPE_NAME)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.DOCTYPE_PUBLIC_ID)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.DOCTYPE_PUBLIC_ID)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.DOCTYPE_SYSTEM_ID)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.DOCTYPE_SYSTEM_ID)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.ELEMENT_TAG_NAME)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.ELEMENT_TAG_NAME)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.HAS_CHILD_NODES)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.HAS_CHILD_NODES)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.HAS_DOCTYPE_DECLARATION)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.NAMESPACE_PREFIX)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.NAMESPACE_PREFIX)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.NAMESPACE_URI)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.NAMESPACE_URI)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.NODE_TYPE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.NODE_TYPE)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.PROCESSING_INSTRUCTION_DATA)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.PROCESSING_INSTRUCTION_TARGET)))
                 .isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(listener.differenceFound(new Difference(DifferenceType.TEXT_VALUE)))
+        assertThat(listener.differenceFound(new Difference(ComparisonType.TEXT_VALUE)))
                 .isEqualTo(ComparisonResult.SIMILAR);
     }
 

@@ -64,7 +64,6 @@ import net.sf.xmlunit.input.WhitespaceStrippedSource;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Predicate;
 
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextQualifier;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -237,76 +236,76 @@ public class NewDifferenceEngine
         Difference proto = null;
         switch (comp.getType()) {
             case ATTR_VALUE_EXPLICITLY_SPECIFIED:
-                proto = new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
+                proto = new Difference(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
                 break;
             case HAS_DOCTYPE_DECLARATION:
-                proto = new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION);
+                proto = new Difference(ComparisonType.HAS_DOCTYPE_DECLARATION);
                 break;
             case DOCTYPE_NAME:
-                proto = new Difference(DifferenceType.DOCTYPE_NAME);
+                proto = new Difference(ComparisonType.DOCTYPE_NAME);
                 break;
             case DOCTYPE_PUBLIC_ID:
-                proto = new Difference(DifferenceType.DOCTYPE_PUBLIC_ID);
+                proto = new Difference(ComparisonType.DOCTYPE_PUBLIC_ID);
                 break;
             case DOCTYPE_SYSTEM_ID:
-                proto = new Difference(DifferenceType.DOCTYPE_SYSTEM_ID);
+                proto = new Difference(ComparisonType.DOCTYPE_SYSTEM_ID);
                 break;
             case SCHEMA_LOCATION:
-                proto = new Difference(DifferenceType.SCHEMA_LOCATION);
+                proto = new Difference(ComparisonType.SCHEMA_LOCATION);
                 break;
             case NO_NAMESPACE_SCHEMA_LOCATION:
-                proto = new Difference(DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+                proto = new Difference(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
                 break;
             case NODE_TYPE:
-                proto = new Difference(DifferenceType.NODE_TYPE);
+                proto = new Difference(ComparisonType.NODE_TYPE);
                 break;
             case NAMESPACE_PREFIX:
-                proto = new Difference(DifferenceType.NAMESPACE_PREFIX);
+                proto = new Difference(ComparisonType.NAMESPACE_PREFIX);
                 break;
             case NAMESPACE_URI:
-                proto = new Difference(DifferenceType.NAMESPACE_URI);
+                proto = new Difference(ComparisonType.NAMESPACE_URI);
                 break;
             case TEXT_VALUE:
-                proto = new Difference(DifferenceType.TEXT_VALUE);
+                proto = new Difference(ComparisonType.TEXT_VALUE);
                 break;
             case COMMENT_VALUE:
-                proto = new Difference(DifferenceType.COMMENT_VALUE);
+                proto = new Difference(ComparisonType.COMMENT_VALUE);
                 break;
             case CDATA_VALUE:
-                proto = new Difference(DifferenceType.CDATA_VALUE);
+                proto = new Difference(ComparisonType.CDATA_VALUE);
                 break;
             case PROCESSING_INSTRUCTION_TARGET:
-                proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET);
+                proto = new Difference(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
                 break;
             case PROCESSING_INSTRUCTION_DATA:
-                proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA);
+                proto = new Difference(ComparisonType.PROCESSING_INSTRUCTION_DATA);
                 break;
             case ELEMENT_TAG_NAME:
-                proto = new Difference(DifferenceType.ELEMENT_TAG_NAME);
+                proto = new Difference(ComparisonType.ELEMENT_TAG_NAME);
                 break;
             case ELEMENT_NUM_ATTRIBUTES:
-                proto = new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES);
+                proto = new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
                 break;
             case ATTR_VALUE:
-                proto = new Difference(DifferenceType.ATTR_VALUE);
+                proto = new Difference(ComparisonType.ATTR_VALUE);
                 break;
             case CHILD_NODELIST_LENGTH:
-                proto = new Difference(DifferenceType.CHILD_NODELIST_LENGTH);
+                proto = new Difference(ComparisonType.CHILD_NODELIST_LENGTH);
                 break;
             case HAS_CHILD_NODES:
-                proto = new Difference(DifferenceType.HAS_CHILD_NODES);
+                proto = new Difference(ComparisonType.HAS_CHILD_NODES);
                 break;
             case CHILD_NODELIST_SEQUENCE:
-                proto = new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE);
+                proto = new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE);
                 break;
             case CHILD_LOOKUP:
-                proto = new Difference(DifferenceType.CHILD_NODE_NOT_FOUND);
+                proto = new Difference(ComparisonType.CHILD_LOOKUP);
                 break;
             case ATTR_NAME_LOOKUP:
-                proto = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
+                proto = new Difference(ComparisonType.ATTR_NAME_LOOKUP);
                 break;
             case ATTR_SEQUENCE:
-                proto = new Difference(DifferenceType.ATTR_SEQUENCE);
+                proto = new Difference(ComparisonType.ATTR_SEQUENCE);
                 break;
             default:
                 /* comparison doesn't match one of legacy's built-in differences */

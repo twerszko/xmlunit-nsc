@@ -39,8 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import net.sf.xmlunit.diff.Comparison.Detail;
-
-import org.custommonkey.xmlunit.diff.DifferenceType;
+import net.sf.xmlunit.diff.ComparisonType;
 
 /**
  * Value object that describes a difference between DOM Nodes using one of the
@@ -52,7 +51,7 @@ import org.custommonkey.xmlunit.diff.DifferenceType;
  */
 public class Difference {
     /** Simple unique identifier */
-    private final DifferenceType type;
+    private final ComparisonType type;
     /** TRUE if the difference represents a similarity, FALSE otherwise */
     private boolean recoverable;
 
@@ -64,7 +63,7 @@ public class Difference {
      * 
      * @param type
      */
-    protected Difference(DifferenceType type) {
+    protected Difference(ComparisonType type) {
         this.type = type;
         this.recoverable = type.isRecoverable();
     }
@@ -86,7 +85,7 @@ public class Difference {
     /**
      * @return the difference type
      */
-    public DifferenceType getType() {
+    public ComparisonType getType() {
         return this.type;
     }
 

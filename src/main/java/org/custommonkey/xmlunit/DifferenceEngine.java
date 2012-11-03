@@ -51,7 +51,6 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.comparators.StringComparator;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
@@ -780,9 +779,9 @@ public class DifferenceEngine implements DifferenceEngineContract {
             DifferenceListener listener)
             throws DifferenceFoundException {
         Attr nonNullNode = control != null ? control : test;
-        Difference d = new Difference(DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+        Difference d = new Difference(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
         if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR.equals(nonNullNode.getLocalName())) {
-            d = new Difference(DifferenceType.SCHEMA_LOCATION);
+            d = new Difference(ComparisonType.SCHEMA_LOCATION);
         }
 
         if (control != null) {
@@ -859,7 +858,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
     protected void compareComment(Comment control, Comment test,
             DifferenceListener listener) throws DifferenceFoundException {
         if (!properties.getIgnoreComments()) {
-            compareCharacterData(control, test, listener, new Difference(DifferenceType.COMMENT_VALUE));
+            compareCharacterData(control, test, listener, new Difference(ComparisonType.COMMENT_VALUE));
         }
     }
 
@@ -932,9 +931,9 @@ public class DifferenceEngine implements DifferenceEngineContract {
 
         Difference diff;
         if (control instanceof CDATASection) {
-            diff = new Difference(DifferenceType.CDATA_VALUE);
+            diff = new Difference(ComparisonType.CDATA_VALUE);
         } else {
-            diff = new Difference(DifferenceType.TEXT_VALUE);
+            diff = new Difference(ComparisonType.TEXT_VALUE);
         }
 
         compareCharacterData(control, test, listener, diff);

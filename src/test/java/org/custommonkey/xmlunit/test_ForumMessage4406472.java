@@ -40,9 +40,9 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Node;
 
 /**
@@ -69,12 +69,12 @@ public class test_ForumMessage4406472 extends TestCase {
                     + "</p:Book>";
 
     private class OriginalDifferenceListener implements DifferenceListener {
-        private final DifferenceType[] IGNORE = new DifferenceType[] {
-                DifferenceType.ATTR_VALUE,
-                DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                DifferenceType.TEXT_VALUE,
-                DifferenceType.NAMESPACE_PREFIX,
-                DifferenceType.NAMESPACE_URI
+        private final ComparisonType[] IGNORE = new ComparisonType[] {
+                ComparisonType.ATTR_VALUE,
+                ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+                ComparisonType.TEXT_VALUE,
+                ComparisonType.NAMESPACE_PREFIX,
+                ComparisonType.NAMESPACE_URI
         };
 
         public ComparisonResult differenceFound(Difference difference) {
@@ -89,11 +89,11 @@ public class test_ForumMessage4406472 extends TestCase {
     }
 
     private class ModifiedDifferenceListener implements DifferenceListener {
-        private final DifferenceType[] IGNORE = new DifferenceType[] {
-                DifferenceType.ATTR_VALUE,
-                DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                DifferenceType.TEXT_VALUE,
-                DifferenceType.NAMESPACE_PREFIX,
+        private final ComparisonType[] IGNORE = new ComparisonType[] {
+                ComparisonType.ATTR_VALUE,
+                ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+                ComparisonType.TEXT_VALUE,
+                ComparisonType.NAMESPACE_PREFIX,
         };
 
         private ModifiedDifferenceListener() {

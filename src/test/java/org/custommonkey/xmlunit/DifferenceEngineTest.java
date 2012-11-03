@@ -54,7 +54,6 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -149,7 +148,7 @@ public class DifferenceEngineTest {
         Text control = document.createTextNode(expected);
         Text test = document.createTextNode(actual);
 
-        assertDifferentText(control, test, new Difference(DifferenceType.TEXT_VALUE));
+        assertDifferentText(control, test, new Difference(ComparisonType.TEXT_VALUE));
     }
 
     private void assertDifferentProcessingInstructions(
@@ -174,14 +173,14 @@ public class DifferenceEngineTest {
                 actual[0], actual[1]);
 
         assertDifferentProcessingInstructions(control, test,
-                new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET));
+                new Difference(ComparisonType.PROCESSING_INSTRUCTION_TARGET));
 
         ProcessingInstruction control2 = document.createProcessingInstruction(
                 expected[0], expected[1]);
         ProcessingInstruction test2 = document.createProcessingInstruction(
                 expected[0], actual[1]);
         assertDifferentProcessingInstructions(control2, test2,
-                new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA));
+                new Difference(ComparisonType.PROCESSING_INSTRUCTION_DATA));
     }
 
     private void assertDifferentComments(Comment control, Comment test,
@@ -202,7 +201,7 @@ public class DifferenceEngineTest {
         Comment control = document.createComment(expected);
         Comment test = document.createComment(actual);
 
-        assertDifferentComments(control, test, new Difference(DifferenceType.COMMENT_VALUE));
+        assertDifferentComments(control, test, new Difference(ComparisonType.COMMENT_VALUE));
     }
 
     private void assertDifferentCDATA(CDATASection control, CDATASection test,
@@ -223,7 +222,7 @@ public class DifferenceEngineTest {
         CDATASection control = document.createCDATASection(expected);
         CDATASection test = document.createCDATASection(actual);
 
-        assertDifferentCDATA(control, test, new Difference(DifferenceType.CDATA_VALUE));
+        assertDifferentCDATA(control, test, new Difference(ComparisonType.CDATA_VALUE));
     }
 
     private void assertDifferentDocumentTypes(DocumentType control,
@@ -266,27 +265,27 @@ public class DifferenceEngineTest {
         DocumentType control = controlDoc.getDoctype();
         DocumentType test = testDoc.getDoctype();
 
-        assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_NAME), true);
+        assertDifferentDocumentTypes(control, test, new Difference(ComparisonType.DOCTYPE_NAME), true);
 
         test = documentUtils.buildTestDocument("<!DOCTYPE root PUBLIC 'id' '" + rosesDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
-        assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), true);
+        assertDifferentDocumentTypes(control, test, new Difference(ComparisonType.DOCTYPE_PUBLIC_ID), true);
 
         test = documentUtils.buildTestDocument("<!DOCTYPE root SYSTEM '" + rosesDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
-        assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), true);
+        assertDifferentDocumentTypes(control, test, new Difference(ComparisonType.DOCTYPE_PUBLIC_ID), true);
 
         test = documentUtils.buildTestDocument("<!DOCTYPE root PUBLIC 'Stone' '" + theCrowsDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
-        assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_SYSTEM_ID), false);
+        assertDifferentDocumentTypes(control, test, new Difference(ComparisonType.DOCTYPE_SYSTEM_ID), false);
 
         test = documentUtils.buildTestDocument("<!DOCTYPE root SYSTEM '" + theCrowsDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
-        assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), true);
+        assertDifferentDocumentTypes(control, test, new Difference(ComparisonType.DOCTYPE_PUBLIC_ID), true);
 
         control = documentUtils.buildTestDocument("<!DOCTYPE root SYSTEM '" + rosesDTD + "'>"
                 + "<root><leaf/></root>").getDoctype();
-        assertDifferentDocumentTypes(control, test, new Difference(DifferenceType.DOCTYPE_SYSTEM_ID), false);
+        assertDifferentDocumentTypes(control, test, new Difference(ComparisonType.DOCTYPE_SYSTEM_ID), false);
     }
 
     private void assertDifferentAttributes(Attr control, Attr test,
@@ -315,7 +314,7 @@ public class DifferenceEngineTest {
         Attr test = document.createAttribute("testAttr");
         test.setValue(actual);
 
-        assertDifferentAttributes(control, test, new Difference(DifferenceType.ATTR_VALUE), true);
+        assertDifferentAttributes(control, test, new Difference(ComparisonType.ATTR_VALUE), true);
 
         String doctypeDeclaration = "<!DOCTYPE manchester [" +
                 "<!ELEMENT sound EMPTY><!ATTLIST sound sorted (true|false) \"true\">" +
@@ -331,7 +330,7 @@ public class DifferenceEngineTest {
                 .getAttributes().getNamedItem("sorted");
 
         assertDifferentAttributes(control, test,
-                new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED), false);
+                new Difference(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED), false);
     }
 
     private void assertDifferentElements(Element control, Element test,
@@ -353,21 +352,21 @@ public class DifferenceEngineTest {
         Element control = document.getDocumentElement();
         Element test = (Element) control.getFirstChild();
 
-        assertDifferentElements(control, test, new Difference(DifferenceType.ELEMENT_TAG_NAME));
+        assertDifferentElements(control, test, new Difference(ComparisonType.ELEMENT_TAG_NAME));
 
         // compare im#1 to im#2
         control = test;
         test = (Element) control.getNextSibling();
-        assertDifferentElements(control, test, new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES));
+        assertDifferentElements(control, test, new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES));
 
         // compare im#1 to im#3
         test = (Element) test.getNextSibling();
-        assertDifferentElements(control, test, new Difference(DifferenceType.ATTR_NAME_NOT_FOUND));
+        assertDifferentElements(control, test, new Difference(ComparisonType.ATTR_NAME_LOOKUP));
 
         // compare im#3 to im#4
         control = test;
         test = (Element) control.getNextSibling();
-        assertDifferentElements(control, test, new Difference(DifferenceType.ATTR_VALUE));
+        assertDifferentElements(control, test, new Difference(ComparisonType.ATTR_VALUE));
     }
 
     @Test
@@ -431,13 +430,13 @@ public class DifferenceEngineTest {
 
         Element test = document.createElementNS(namespaceB,
                 prefixA + ':' + elemName);
-        assertDifferentNamespaceDetails(control, test, new Difference(DifferenceType.NAMESPACE_URI),
+        assertDifferentNamespaceDetails(control, test, new Difference(ComparisonType.NAMESPACE_URI),
                 true);
 
         test = document.createElementNS(namespaceA,
                 prefixB + ':' + elemName);
         assertDifferentNamespaceDetails(control, test,
-                new Difference(DifferenceType.NAMESPACE_PREFIX), false);
+                new Difference(ComparisonType.NAMESPACE_PREFIX), false);
     }
 
     private void assertDifferentChildren(Node control, Node test,
@@ -474,12 +473,12 @@ public class DifferenceEngineTest {
 
         // compare im #1 to im #2
         test = control.getNextSibling();
-        assertDifferentChildren(control, test, new Difference(DifferenceType.HAS_CHILD_NODES), true);
+        assertDifferentChildren(control, test, new Difference(ComparisonType.HAS_CHILD_NODES), true);
 
         // compare im #2 to im #3
         control = test;
         test = control.getNextSibling();
-        assertDifferentChildren(control, test, new Difference(DifferenceType.CHILD_NODELIST_LENGTH),
+        assertDifferentChildren(control, test, new Difference(ComparisonType.CHILD_NODELIST_LENGTH),
                 true);
     }
 
@@ -514,12 +513,12 @@ public class DifferenceEngineTest {
 
         // compare im #1 to im #2
         test = control.getNextSibling();
-        assertDifferentChildren(control, test, new Difference(DifferenceType.ELEMENT_TAG_NAME), true);
+        assertDifferentChildren(control, test, new Difference(ComparisonType.ELEMENT_TAG_NAME), true);
 
         // compare im #2 to im #3
         control = test;
         test = control.getNextSibling();
-        assertDifferentChildren(control, test, new Difference(DifferenceType.TEXT_VALUE), true);
+        assertDifferentChildren(control, test, new Difference(ComparisonType.TEXT_VALUE), true);
     }
 
     @Test
@@ -532,8 +531,8 @@ public class DifferenceEngineTest {
         test.appendChild(document.createElement("leafElemB"));
         test.appendChild(document.createElement("leafElemA"));
 
-        assertDifferentChildren(control, test, new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE), false);
-        assertDifferentChildren(test, control, new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE), false);
+        assertDifferentChildren(control, test, new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE), false);
+        assertDifferentChildren(test, control, new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE), false);
     }
 
     @Test
@@ -546,8 +545,8 @@ public class DifferenceEngineTest {
         test.appendChild(document.createElement("leafElem"));
         test.appendChild(document.createTextNode("text leaf"));
 
-        assertDifferentChildren(control, test, new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE), false);
-        assertDifferentChildren(test, control, new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE), false);
+        assertDifferentChildren(control, test, new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE), false);
+        assertDifferentChildren(test, control, new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE), false);
     }
 
     @Test
@@ -561,7 +560,7 @@ public class DifferenceEngineTest {
             fail("Expected difference found exception");
         } catch (DifferenceEngine.DifferenceFoundException e) {
             assertEquals(true, listener.different);
-            assertEquals(DifferenceType.ATTR_NAME_NOT_FOUND, listener.comparingWhat);
+            assertEquals(ComparisonType.ATTR_NAME_LOOKUP, listener.comparingWhat);
         }
         resetListener();
 
@@ -573,7 +572,7 @@ public class DifferenceEngineTest {
                     .compare(comparison);
 
             assertEquals(false, listener.different);
-            assertEquals(DifferenceType.NAMESPACE_PREFIX, listener.comparingWhat);
+            assertEquals(ComparisonType.NAMESPACE_PREFIX, listener.comparingWhat);
         } catch (Exception e) {
             fail("Not expecting difference found exception");
         }
@@ -706,7 +705,7 @@ public class DifferenceEngineTest {
         listenToDifferences(control, test);
         // mutiple Differences, we only see the last one, missing second element
         assertEquals("13 difference type",
-                DifferenceType.CHILD_NODE_NOT_FOUND,
+                ComparisonType.CHILD_LOOKUP,
                 listener.comparingWhat);
         assertEquals("13th control xpath", "/stuff[1]/item[2]",
                 listener.controlXpath);
@@ -732,7 +731,7 @@ public class DifferenceEngineTest {
         String test = "<stuff><item id=\"2\"/></stuff>";
         listenToDifferences(control, test);
         assertEquals("15th difference type",
-                DifferenceType.HAS_CHILD_NODES,
+                ComparisonType.HAS_CHILD_NODES,
                 listener.comparingWhat);
         assertEquals("15th difference control value", "true",
                 listener.expected);
@@ -749,7 +748,7 @@ public class DifferenceEngineTest {
         properties.setIgnoreAttributeOrder(false);
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);
 
-        testAttributeSequence(DifferenceType.ATTR_SEQUENCE);
+        testAttributeSequence(ComparisonType.ATTR_SEQUENCE);
 
         properties.setIgnoreAttributeOrder(true);
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);
@@ -758,7 +757,7 @@ public class DifferenceEngineTest {
         testAttributeSequence(null);
     }
 
-    private void testAttributeSequence(DifferenceType expected) throws Exception {
+    private void testAttributeSequence(ComparisonType expected) throws Exception {
         Element control = document.createElement("foo");
         Element test = document.createElement("foo");
         OrderPreservingNamedNodeMap controlMap =
@@ -786,7 +785,7 @@ public class DifferenceEngineTest {
         properties.setIgnoreAttributeOrder(false);
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);
 
-        testAttributeSequenceNS(DifferenceType.ATTR_SEQUENCE);
+        testAttributeSequenceNS(ComparisonType.ATTR_SEQUENCE);
 
         properties.setIgnoreAttributeOrder(true);
         engine = new DifferenceEngine(properties, PSEUDO_DIFF);
@@ -795,7 +794,7 @@ public class DifferenceEngineTest {
         testAttributeSequenceNS(null);
     }
 
-    private void testAttributeSequenceNS(DifferenceType expected) throws Exception {
+    private void testAttributeSequenceNS(ComparisonType expected) throws Exception {
         Element control = document.createElementNS("ns", "foo");
         Element test = document.createElementNS("ns", "foo");
         OrderPreservingNamedNodeMap controlMap =
@@ -871,18 +870,18 @@ public class DifferenceEngineTest {
     public void testMissingSchemaLocation() throws Exception {
         testMissingXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.SCHEMA_LOCATION);
+                ComparisonType.SCHEMA_LOCATION);
     }
 
     @Test
     public void testMissingNoNamespaceSchemaLocation() throws Exception {
         testMissingXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+                ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
     }
 
     private void testMissingXSIAttribute(String attrName,
-            DifferenceType expectedDifference)
+            ComparisonType expectedDifference)
             throws Exception {
         Element control = document.createElement("foo");
         control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
@@ -899,18 +898,18 @@ public class DifferenceEngineTest {
     public void testDifferentSchemaLocation() throws Exception {
         testDifferentXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.SCHEMA_LOCATION);
+                ComparisonType.SCHEMA_LOCATION);
     }
 
     @Test
     public void testDifferentNoNamespaceSchemaLocation() throws Exception {
         testDifferentXSIAttribute(XMLConstants
                 .W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR,
-                DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+                ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
     }
 
     private void testDifferentXSIAttribute(String attrName,
-            DifferenceType expectedDifference)
+            ComparisonType expectedDifference)
             throws Exception {
         Element control = document.createElement("foo");
         control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
@@ -929,7 +928,7 @@ public class DifferenceEngineTest {
         Element test = document.createElement("foo");
         test.setAttribute("baz", "bar");
         engine.compare(control, test, listener, null);
-        assertEquals(DifferenceType.ATTR_NAME_NOT_FOUND, listener.comparingWhat);
+        assertEquals(ComparisonType.ATTR_NAME_LOOKUP, listener.comparingWhat);
     }
 
     @Test
@@ -1076,7 +1075,7 @@ public class DifferenceEngineTest {
         public String actual;
         public Node control;
         public Node test;
-        public DifferenceType comparingWhat = null;
+        public ComparisonType comparingWhat = null;
         public boolean different = false;
         public boolean nodesSkipped = false;
         public String controlXpath;

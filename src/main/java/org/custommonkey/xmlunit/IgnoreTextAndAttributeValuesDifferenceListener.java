@@ -37,9 +37,9 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Node;
 
 /**
@@ -51,14 +51,14 @@ import org.w3c.dom.Node;
  */
 public class IgnoreTextAndAttributeValuesDifferenceListener
         implements DifferenceListener {
-    private static final DifferenceType[] IGNORE_VALUES = new DifferenceType[] {
-            DifferenceType.ATTR_VALUE,
-            DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-            DifferenceType.TEXT_VALUE
+    private static final ComparisonType[] IGNORE_VALUES = new ComparisonType[] {
+            ComparisonType.ATTR_VALUE,
+            ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+            ComparisonType.TEXT_VALUE
     };
 
     private boolean isIgnoredDifference(Difference difference) {
-        DifferenceType differenceType = difference.getType();
+        ComparisonType differenceType = difference.getType();
         for (int i = 0; i < IGNORE_VALUES.length; ++i) {
             if (differenceType == IGNORE_VALUES[i]) {
                 return true;
