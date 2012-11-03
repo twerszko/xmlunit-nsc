@@ -38,7 +38,7 @@ public class Comparison {
         /**
          * The actual target.
          */
-        public Object getTarget() {
+        public Node getTarget() {
             return target;
         }
 
