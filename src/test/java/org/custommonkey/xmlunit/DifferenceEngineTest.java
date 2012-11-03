@@ -51,6 +51,7 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
@@ -1082,7 +1083,7 @@ public class DifferenceEngineTest {
         public String testXpath;
         private boolean tracing = false;
 
-        public ReturnType differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference) {
             if (tracing) {
                 System.out.println(difference.toString());
             }
@@ -1097,7 +1098,7 @@ public class DifferenceEngineTest {
             this.different = !difference.isRecoverable();
             this.controlXpath = difference.getControlNodeDetail().getXpath();
             this.testXpath = difference.getTestNodeDetail().getXpath();
-            return ReturnType.ACCEPT_DIFFERENCE;
+            return ComparisonResult.DIFFERENT;
         }
 
         public void skippedComparison(Node control, Node test) {

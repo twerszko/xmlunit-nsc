@@ -37,6 +37,7 @@ package org.custommonkey.xmlunit.examples;
 
 import static junit.framework.Assert.fail;
 import static org.fest.assertions.api.Assertions.assertThat;
+import net.sf.xmlunit.diff.ComparisonResult;
 
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
@@ -64,23 +65,23 @@ public class TextDifferenceListenerBaseTest {
         }
 
         @Override
-        protected ReturnType attributeDifference(Difference d) {
-            return ReturnType.DIFFERENT_NODES_IDENTICAL;
+        protected ComparisonResult attributeDifference(Difference d) {
+            return ComparisonResult.EQUAL;
         }
 
         @Override
-        protected ReturnType cdataDifference(Difference d) {
-            return ReturnType.DIFFERENT_NODES_IDENTICAL;
+        protected ComparisonResult cdataDifference(Difference d) {
+            return ComparisonResult.EQUAL;
         }
 
         @Override
-        protected ReturnType commentDifference(Difference d) {
-            return ReturnType.DIFFERENT_NODES_IDENTICAL;
+        protected ComparisonResult commentDifference(Difference d) {
+            return ComparisonResult.EQUAL;
         }
 
         @Override
-        protected ReturnType textDifference(Difference d) {
-            return ReturnType.DIFFERENT_NODES_IDENTICAL;
+        protected ComparisonResult textDifference(Difference d) {
+            return ComparisonResult.EQUAL;
         }
 
     }
@@ -93,10 +94,10 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ReturnType attributeDifference(Difference difference) {
+            protected ComparisonResult attributeDifference(Difference difference) {
                 this.difference = difference;
                 invocationCounter++;
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
         };
 
@@ -126,10 +127,10 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ReturnType cdataDifference(Difference difference) {
+            protected ComparisonResult cdataDifference(Difference difference) {
                 this.difference = difference;
                 invocationCounter++;
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
         };
 
@@ -158,10 +159,10 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ReturnType commentDifference(Difference difference) {
+            protected ComparisonResult commentDifference(Difference difference) {
                 this.difference = difference;
                 invocationCounter++;
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
         };
 
@@ -190,10 +191,10 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ReturnType textDifference(Difference difference) {
+            protected ComparisonResult textDifference(Difference difference) {
                 this.difference = difference;
                 invocationCounter++;
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
         };
 
@@ -224,9 +225,9 @@ public class TextDifferenceListenerBaseTest {
 
         TextDifferenceListenerBase listener = new TextDifferenceListenerBase(null) {
             @Override
-            protected ReturnType textualDifference(Difference d) {
+            protected ComparisonResult textualDifference(Difference d) {
                 invocationCounter[0]++;
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
         };
 
@@ -252,9 +253,9 @@ public class TextDifferenceListenerBaseTest {
         final int[] invocationCounter = new int[1];
 
         TextDifferenceListenerBase listener = new TextDifferenceListenerBase(new DifferenceListener() {
-            public ReturnType differenceFound(Difference d) {
+            public ComparisonResult differenceFound(Difference d) {
                 invocationCounter[0]++;
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
 
             public void skippedComparison(Node c, Node t) {

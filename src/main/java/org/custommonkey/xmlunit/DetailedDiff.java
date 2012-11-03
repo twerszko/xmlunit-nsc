@@ -39,6 +39,8 @@ package org.custommonkey.xmlunit;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.custommonkey.xmlunit.diff.Diff;
 
 /**
@@ -78,17 +80,17 @@ public class DetailedDiff extends Diff {
      * @return the value supplied by the superclass implementation
      */
     @Override
-    public ReturnType differenceFound(Difference difference) {
-        final ReturnType returnValue = super.differenceFound(difference);
+    public ComparisonResult differenceFound(Difference difference) {
+        final ComparisonResult returnValue = super.differenceFound(difference);
         switch (returnValue) {
-            case DIFFERENT_NODES_IDENTICAL:
+            case EQUAL:
                 return returnValue;
-            case ACCEPT_DIFFERENCE:
+            case DIFFERENT:
                 break;
-            case DIFFERENT_NODES_SIMILAR:
+            case SIMILAR:
                 difference.setRecoverable(true);
                 break;
-            case SIMILAR_NODES_DIFFERENT:
+            case CRITICAL:
                 difference.setRecoverable(false);
                 break;
             default:

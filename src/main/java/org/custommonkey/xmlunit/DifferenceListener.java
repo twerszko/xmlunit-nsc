@@ -36,6 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.w3c.dom.Node;
 
 /**
@@ -45,32 +47,6 @@ import org.w3c.dom.Node;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public interface DifferenceListener {
-    public enum ReturnType {
-        /**
-         * Standard return value for the <code>differenceFound</code> method.
-         * Indicates that the <code>Difference</code> is interpreted as defined
-         * in {@link DifferenceConstants DifferenceConstants}.
-         */
-        ACCEPT_DIFFERENCE,
-        /**
-         * Override return value for the <code>differenceFound</code> method.
-         * Indicates that the nodes identified as being different should be
-         * interpreted as being identical.
-         */
-        DIFFERENT_NODES_IDENTICAL,
-        /**
-         * Override return value for the <code>differenceFound</code> method.
-         * Indicates that the nodes identified as being different should be
-         * interpreted as being similar.
-         */
-        DIFFERENT_NODES_SIMILAR,
-        /**
-         * Override return value for the <code>differenceFound</code> method.
-         * Indicates that the nodes identified as being similar should be
-         * interpreted as being different.
-         */
-        SIMILAR_NODES_DIFFERENT;
-    }
 
     /**
      * Receive notification that 2 nodes are different.
@@ -82,7 +58,7 @@ public interface DifferenceListener {
      *            that differ
      * @return ReturnType describing how this difference was interpreted
      */
-    ReturnType differenceFound(Difference difference);
+    ComparisonResult differenceFound(Difference difference);
 
     /**
      * Receive notification that a comparison between 2 nodes has been skipped

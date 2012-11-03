@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.ComparisonResult;
 
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
@@ -54,7 +55,7 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 
         FloatingPointTolerantDifferenceListener c =
                 new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-                    public ReturnType differenceFound(Difference d) {
+                    public ComparisonResult differenceFound(Difference d) {
                         fail("differenceFound shouldn't get invoked, but"
                                 + " was with type " + d.getType());
                         return null;
@@ -69,7 +70,7 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
         assertTrue(d.identical());
 
         c = new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-            public ReturnType differenceFound(Difference d) {
+            public ComparisonResult differenceFound(Difference d) {
                 fail("differenceFound shouldn't get invoked, but"
                         + " was with type " + d.getType());
                 return null;

@@ -36,6 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.w3c.dom.Node;
@@ -71,11 +73,11 @@ public class IgnoreTextAndAttributeValuesDifferenceListener
      *         to accept all other differences.
      * @see DifferenceListener#differenceFound(Difference)
      */
-    public ReturnType differenceFound(Difference difference) {
+    public ComparisonResult differenceFound(Difference difference) {
         if (isIgnoredDifference(difference)) {
-            return ReturnType.DIFFERENT_NODES_SIMILAR;
+            return ComparisonResult.SIMILAR;
         } else {
-            return ReturnType.ACCEPT_DIFFERENCE;
+            return ComparisonResult.DIFFERENT;
         }
     }
 

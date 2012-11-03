@@ -43,6 +43,7 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.ComparisonResult;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -559,7 +560,7 @@ public class test_NewDifferenceEngine extends TestCase {
         public String testXpath;
         private boolean tracing = false;
 
-        public ReturnType differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference) {
             if (tracing) {
                 System.out.println("df: " + difference.toString());
             }
@@ -574,7 +575,7 @@ public class test_NewDifferenceEngine extends TestCase {
             this.different = !difference.isRecoverable();
             this.controlXpath = difference.getControlNodeDetail().getXpath();
             this.testXpath = difference.getTestNodeDetail().getXpath();
-            return ReturnType.ACCEPT_DIFFERENCE;
+            return ComparisonResult.DIFFERENT;
         }
 
         public void skippedComparison(Node control, Node test) {

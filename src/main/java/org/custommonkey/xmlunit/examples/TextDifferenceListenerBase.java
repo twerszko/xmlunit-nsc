@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.custommonkey.xmlunit.examples;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.w3c.dom.Node;
@@ -68,7 +70,7 @@ public abstract class TextDifferenceListenerBase
      * commentDifference} or {@link #textDifference textDifference} are invoked
      * respectively.
      */
-    public ReturnType differenceFound(Difference difference) {
+    public ComparisonResult differenceFound(Difference difference) {
         switch (difference.getType()) {
             case ATTR_VALUE:
                 return attributeDifference(difference);
@@ -86,35 +88,35 @@ public abstract class TextDifferenceListenerBase
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ReturnType attributeDifference(Difference d) {
+    protected ComparisonResult attributeDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ReturnType cdataDifference(Difference d) {
+    protected ComparisonResult cdataDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ReturnType commentDifference(Difference d) {
+    protected ComparisonResult commentDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ReturnType textDifference(Difference d) {
+    protected ComparisonResult textDifference(Difference d) {
         return textualDifference(d);
     }
 
     /**
      * Delegates to the nested DifferenceListener.
      */
-    protected ReturnType textualDifference(Difference d) {
+    protected ComparisonResult textualDifference(Difference d) {
         return delegateTo.differenceFound(d);
     }
 

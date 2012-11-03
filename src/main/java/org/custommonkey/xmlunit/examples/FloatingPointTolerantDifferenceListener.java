@@ -35,6 +35,8 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.custommonkey.xmlunit.examples;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 
@@ -54,7 +56,7 @@ public class FloatingPointTolerantDifferenceListener
     }
 
     @Override
-    protected ReturnType textualDifference(Difference d) {
+    protected ComparisonResult textualDifference(Difference d) {
         String control = String.valueOf(d.getControlNodeDetail().getValue());
         String test = String.valueOf(d.getTestNodeDetail().getValue());
         if (control != null && test != null) {
@@ -62,8 +64,8 @@ public class FloatingPointTolerantDifferenceListener
                 double controlVal = Double.parseDouble(control);
                 double testVal = Double.parseDouble(test);
                 return Math.abs(controlVal - testVal) < tolerance
-                        ? ReturnType.DIFFERENT_NODES_IDENTICAL
-                        : ReturnType.ACCEPT_DIFFERENCE;
+                        ? ComparisonResult.EQUAL
+                        : ComparisonResult.DIFFERENT;
             } catch (NumberFormatException nfe) {
                 // ignore, delegate to nested DifferenceListener
             }

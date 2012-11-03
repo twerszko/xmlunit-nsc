@@ -38,6 +38,7 @@ package org.custommonkey.xmlunit.examples;
 import java.util.Locale;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.ComparisonResult;
 
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
@@ -64,7 +65,7 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
 
         CaseInsensitiveDifferenceListener c =
                 new CaseInsensitiveDifferenceListener(new DifferenceListener() {
-                    public ReturnType differenceFound(Difference d) {
+                    public ComparisonResult differenceFound(Difference d) {
                         fail("differenceFound shouldn't get invoked, but"
                                 + " was with type " + d.getType());
                         return null;

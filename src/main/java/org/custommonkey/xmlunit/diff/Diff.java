@@ -44,6 +44,8 @@ import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.dom.DOMSource;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.custommonkey.xmlunit.ComparisonController;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Difference;
@@ -257,17 +259,17 @@ public class Diff implements DifferenceListener, ComparisonController {
      *         difference was interpreted. Always RETURN_ACCEPT_DIFFERENCE if
      *         the call is not delegated.
      */
-    public ReturnType differenceFound(Difference difference) {
-        ReturnType returnValue = evaluate(difference);
+    public ComparisonResult differenceFound(Difference difference) {
+        ComparisonResult returnValue = evaluate(difference);
 
         switch (returnValue) {
-            case DIFFERENT_NODES_IDENTICAL:
+            case EQUAL:
                 return returnValue;
-            case DIFFERENT_NODES_SIMILAR:
+            case SIMILAR:
                 identical = false;
                 haltComparison = false;
                 break;
-            case ACCEPT_DIFFERENCE:
+            case DIFFERENT:
                 identical = false;
                 if (difference.isRecoverable()) {
                     haltComparison = false;
@@ -276,7 +278,7 @@ public class Diff implements DifferenceListener, ComparisonController {
                     haltComparison = true;
                 }
                 break;
-            case SIMILAR_NODES_DIFFERENT:
+            case CRITICAL:
                 identical = similar = false;
                 haltComparison = true;
                 break;
@@ -292,8 +294,8 @@ public class Diff implements DifferenceListener, ComparisonController {
         return returnValue;
     }
 
-    public ReturnType evaluate(Difference difference) {
-        ReturnType returnValue = ReturnType.ACCEPT_DIFFERENCE;
+    public ComparisonResult evaluate(Difference difference) {
+        ComparisonResult returnValue = ComparisonResult.DIFFERENT;
         if (differenceListener != null) {
             returnValue = differenceListener.differenceFound(difference);
         }

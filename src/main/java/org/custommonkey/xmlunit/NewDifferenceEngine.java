@@ -468,16 +468,7 @@ public class NewDifferenceEngine
         public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
             Difference diff = toDifference(comparison);
             if (diff != null) {
-                switch (dl.differenceFound(diff)) {
-                    case DIFFERENT_NODES_IDENTICAL:
-                        return ComparisonResult.EQUAL;
-                    case DIFFERENT_NODES_SIMILAR:
-                        return ComparisonResult.SIMILAR;
-                    case SIMILAR_NODES_DIFFERENT:
-                        return ComparisonResult.DIFFERENT;
-                    case ACCEPT_DIFFERENCE:
-                        break;
-                }
+                return dl.differenceFound(diff);
             }
             return outcome;
         }

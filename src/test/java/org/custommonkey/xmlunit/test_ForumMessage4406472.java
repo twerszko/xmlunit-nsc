@@ -39,6 +39,7 @@ package org.custommonkey.xmlunit;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.ComparisonResult;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DifferenceType;
@@ -76,11 +77,11 @@ public class test_ForumMessage4406472 extends TestCase {
                 DifferenceType.NAMESPACE_URI
         };
 
-        public ReturnType differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference) {
             Arrays.sort(IGNORE);
             return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
-                    ? ReturnType.DIFFERENT_NODES_IDENTICAL
-                    : ReturnType.ACCEPT_DIFFERENCE;
+                    ? ComparisonResult.EQUAL
+                    : ComparisonResult.DIFFERENT;
         }
 
         public void skippedComparison(Node control, Node test) {
@@ -99,12 +100,12 @@ public class test_ForumMessage4406472 extends TestCase {
             Arrays.sort(IGNORE);
         }
 
-        public ReturnType differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference) {
             return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
-                    ? ReturnType.DIFFERENT_NODES_IDENTICAL
+                    ? ComparisonResult.EQUAL
                     : difference.isRecoverable()
-                            ? ReturnType.DIFFERENT_NODES_SIMILAR
-                            : ReturnType.ACCEPT_DIFFERENCE;
+                            ? ComparisonResult.SIMILAR
+                            : ComparisonResult.DIFFERENT;
         }
 
         public void skippedComparison(Node control, Node test) {

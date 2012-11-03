@@ -37,6 +37,8 @@ package org.custommonkey.xmlunit.examples;
 
 import java.util.Locale;
 
+import net.sf.xmlunit.diff.ComparisonResult;
+
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 
@@ -51,14 +53,14 @@ public class CaseInsensitiveDifferenceListener
     }
 
     @Override
-    protected ReturnType textualDifference(Difference d) {
+    protected ComparisonResult textualDifference(Difference d) {
         String control = String.valueOf(d.getControlNodeDetail().getValue());
         if (control != null) {
             control = control.toLowerCase(Locale.US);
             if (d.getTestNodeDetail().getValue() != null
                     && control.equals(String.valueOf(d.getTestNodeDetail().getValue())
                             .toLowerCase(Locale.US))) {
-                return ReturnType.DIFFERENT_NODES_IDENTICAL;
+                return ComparisonResult.EQUAL;
             }
         }
         // some string is null, delegate
