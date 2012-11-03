@@ -66,8 +66,6 @@ import net.sf.xmlunit.util.Predicate;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextQualifier;
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -235,6 +233,7 @@ public class NewDifferenceEngine
     }
 
     public static Difference toDifference(Comparison comp) {
+        // TODO
         Difference proto = null;
         switch (comp.getType()) {
             case ATTR_VALUE_EXPLICITLY_SPECIFIED:
@@ -268,13 +267,13 @@ public class NewDifferenceEngine
                 proto = new Difference(DifferenceType.NAMESPACE_URI);
                 break;
             case TEXT_VALUE:
-                if (comp.getControlDetails().getTarget() instanceof CDATASection) {
-                    proto = new Difference(DifferenceType.CDATA_VALUE);
-                } else if (comp.getControlDetails().getTarget() instanceof Comment) {
-                    proto = new Difference(DifferenceType.COMMENT_VALUE);
-                } else {
-                    proto = new Difference(DifferenceType.TEXT_VALUE);
-                }
+                proto = new Difference(DifferenceType.TEXT_VALUE);
+                break;
+            case COMMENT_VALUE:
+                proto = new Difference(DifferenceType.COMMENT_VALUE);
+                break;
+            case CDATA_VALUE:
+                proto = new Difference(DifferenceType.CDATA_VALUE);
                 break;
             case PROCESSING_INSTRUCTION_TARGET:
                 proto = new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET);
@@ -292,25 +291,10 @@ public class NewDifferenceEngine
                 proto = new Difference(DifferenceType.ATTR_VALUE);
                 break;
             case CHILD_NODELIST_LENGTH:
-                Comparison.Detail cd = comp.getControlDetails();
-                Comparison.Detail td = comp.getTestDetails();
-                if (ZERO.equals(cd.getValue())
-                        || ZERO.equals(td.getValue())) {
-
-                    Comparison.Detail controlDetail = new Comparison.Detail(
-                            cd.getTarget(),
-                            cd.getXpath(),
-                            String.valueOf(!ZERO.equals(cd.getValue())));
-                    Comparison.Detail testDetail = new Comparison.Detail(
-                            td.getTarget(),
-                            td.getXpath(),
-                            String.valueOf(!ZERO.equals(td.getValue())));
-
-                    return new Difference(new Difference(DifferenceType.HAS_CHILD_NODES),
-                            controlDetail,
-                            testDetail);
-                }
                 proto = new Difference(DifferenceType.CHILD_NODELIST_LENGTH);
+                break;
+            case HAS_CHILD_NODES:
+                proto = new Difference(DifferenceType.HAS_CHILD_NODES);
                 break;
             case CHILD_NODELIST_SEQUENCE:
                 proto = new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE);

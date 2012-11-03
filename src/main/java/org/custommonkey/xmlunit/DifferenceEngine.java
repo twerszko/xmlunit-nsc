@@ -339,22 +339,12 @@ public class DifferenceEngine implements DifferenceEngineContract {
         List<Node> controlChildren = nodeList2List(control.getChildNodes());
         List<Node> testChildren = nodeList2List(test.getChildNodes());
 
-        if (controlChildren.size() > 0 && testChildren.size() > 0) {
-            // TODO remove this workaround
-            Comparison comparison = new Comparison(
-                    ComparisonType.CHILD_NODELIST_LENGTH,
-                    control, controlTracker.toXpathString(), true,
-                    test, testTracker.toXpathString(), true);
-            createValueComparator(listener)
-                    .compare(comparison);
-        } else {
-            Comparison comparison = new
-                    Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
-                            control, controlTracker.toXpathString(), controlChildren.size(),
-                            test, testTracker.toXpathString(), testChildren.size());
-            createValueComparator(listener)
-                    .compare(comparison);
-        }
+        Comparison comparison = new
+                Comparison(ComparisonType.HAS_CHILD_NODES,
+                        control, controlTracker.toXpathString(), controlChildren.size() > 0,
+                        test, testTracker.toXpathString(), testChildren.size() > 0);
+        createValueComparator(listener)
+                .compare(comparison);
 
     }
 
@@ -963,7 +953,20 @@ public class DifferenceEngine implements DifferenceEngineContract {
             DifferenceListener listener, Difference difference)
             throws DifferenceFoundException {
 
-        Comparison comparison = new Comparison(ComparisonType.TEXT_VALUE,
+        ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
+        if (control.getNodeType() == test.getNodeType()) {
+            switch (control.getNodeType()) {
+                case Node.CDATA_SECTION_NODE:
+                    comparisonType = ComparisonType.CDATA_VALUE;
+                    break;
+                case Node.COMMENT_NODE:
+                    comparisonType = ComparisonType.COMMENT_VALUE;
+                case Node.TEXT_NODE:
+                default:
+                    break;
+            }
+        }
+        Comparison comparison = new Comparison(comparisonType,
                 control, controlTracker.toXpathString(), control.getData(),
                 test, testTracker.toXpathString(), test.getData());
         createValueComparator(listener)

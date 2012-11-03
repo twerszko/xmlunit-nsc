@@ -118,14 +118,26 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 Linqy.filter(new IterableNodeList(test.getChildNodes()),
                         INTERESTING_NODES);
         if (control.getNodeType() != Node.ATTRIBUTE_NODE) {
-            lastResult =
-                    compare(new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
-                            control, getXPath(controlContext),
-                            Linqy.count(controlChildren),
-                            test, getXPath(testContext),
-                            Linqy.count(testChildren)));
-            if (lastResult == ComparisonResult.CRITICAL) {
-                return lastResult;
+            if (Linqy.count(controlChildren) > 0 && Linqy.count(testChildren) > 0) {
+                lastResult =
+                        compare(new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
+                                control, getXPath(controlContext),
+                                Linqy.count(controlChildren),
+                                test, getXPath(testContext),
+                                Linqy.count(testChildren)));
+                if (lastResult == ComparisonResult.CRITICAL) {
+                    return lastResult;
+                }
+            } else {
+                lastResult =
+                        compare(new Comparison(ComparisonType.HAS_CHILD_NODES,
+                                control, getXPath(controlContext),
+                                Linqy.count(controlChildren) > 0,
+                                test, getXPath(testContext),
+                                Linqy.count(testChildren) > 0));
+                if (lastResult == ComparisonResult.CRITICAL) {
+                    return lastResult;
+                }
             }
         }
 
@@ -211,7 +223,22 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             XPathContext controlContext,
             CharacterData test,
             XPathContext testContext) {
-        return compare(new Comparison(ComparisonType.TEXT_VALUE, control,
+
+        ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
+        if (control.getNodeType() == test.getNodeType()) {
+            switch (control.getNodeType()) {
+                case Node.CDATA_SECTION_NODE:
+                    comparisonType = ComparisonType.CDATA_VALUE;
+                    break;
+                case Node.COMMENT_NODE:
+                    comparisonType = ComparisonType.COMMENT_VALUE;
+                case Node.TEXT_NODE:
+                default:
+                    break;
+            }
+        }
+
+        return compare(new Comparison(comparisonType, control,
                 getXPath(controlContext),
                 control.getData(),
                 test, getXPath(testContext),
