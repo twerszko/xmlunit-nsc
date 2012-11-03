@@ -1088,14 +1088,14 @@ public class DifferenceEngineTest {
             assertNotNull("difference not null", difference);
             assertNotNull("control node detail not null", difference.getControlNodeDetail());
             assertNotNull("test node detail not null", difference.getTestNodeDetail());
-            this.expected = difference.getControlNodeDetail().getValue();
-            this.actual = difference.getTestNodeDetail().getValue();
-            this.control = difference.getControlNodeDetail().getNode();
-            this.test = difference.getTestNodeDetail().getNode();
+            this.expected = String.valueOf(difference.getControlNodeDetail().getValue());
+            this.actual = String.valueOf(difference.getTestNodeDetail().getValue());
+            this.control = difference.getControlNodeDetail().getTarget();
+            this.test = difference.getTestNodeDetail().getTarget();
             this.comparingWhat = difference.getType();
             this.different = !difference.isRecoverable();
-            this.controlXpath = difference.getControlNodeDetail().getXpathLocation();
-            this.testXpath = difference.getTestNodeDetail().getXpathLocation();
+            this.controlXpath = difference.getControlNodeDetail().getXpath();
+            this.testXpath = difference.getTestNodeDetail().getXpath();
             return ReturnType.ACCEPT_DIFFERENCE;
         }
 

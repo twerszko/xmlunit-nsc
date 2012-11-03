@@ -55,8 +55,8 @@ public class FloatingPointTolerantDifferenceListener
 
     @Override
     protected ReturnType textualDifference(Difference d) {
-        String control = d.getControlNodeDetail().getValue();
-        String test = d.getTestNodeDetail().getValue();
+        String control = String.valueOf(d.getControlNodeDetail().getValue());
+        String test = String.valueOf(d.getTestNodeDetail().getValue());
         if (control != null && test != null) {
             try {
                 double controlVal = Double.parseDouble(control);

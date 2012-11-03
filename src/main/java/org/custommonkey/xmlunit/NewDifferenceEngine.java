@@ -297,18 +297,14 @@ public class NewDifferenceEngine
                 if (ZERO.equals(cd.getValue())
                         || ZERO.equals(td.getValue())) {
                     return new Difference(new Difference(DifferenceType.HAS_CHILD_NODES),
-                            new NodeDetail(String
-                                    .valueOf(!ZERO
-                                            .equals(cd
-                                                    .getValue())),
-                                    (Node) cd.getTarget(),
-                                    cd.getXPath()),
-                            new NodeDetail(String
-                                    .valueOf(!ZERO
-                                            .equals(td
-                                                    .getValue())),
-                                    (Node) td.getTarget(),
-                                    td.getXPath()));
+                            new Comparison.Detail(
+                                    cd.getTarget(),
+                                    cd.getXpath(),
+                                    String.valueOf(!ZERO.equals(cd.getValue()))),
+                            new Comparison.Detail(
+                                    td.getTarget(),
+                                    td.getXpath(),
+                                    String.valueOf(!ZERO.equals(td.getValue()))));
                 }
                 proto = new Difference(DifferenceType.CHILD_NODELIST_LENGTH);
                 break;
@@ -326,21 +322,20 @@ public class NewDifferenceEngine
                 break;
         }
         if (proto != null) {
-            return new Difference(proto, toNodeDetail(comp.getControlDetails()),
-                    toNodeDetail(comp.getTestDetails()));
+            return new Difference(proto, adaptNodeDetail(comp.getControlDetails()),
+                    adaptNodeDetail(comp.getTestDetails()));
         }
         return null;
     }
 
-    public static NodeDetail toNodeDetail(Comparison.Detail detail) {
+    public static Comparison.Detail adaptNodeDetail(Comparison.Detail detail) {
         String value = String.valueOf(detail.getValue());
         if (detail.getValue() instanceof QName) {
             value = ((QName) detail.getValue()).getLocalPart();
         } else if (detail.getValue() instanceof Node) {
             value = ((Node) detail.getValue()).getNodeName();
         }
-        return new NodeDetail(value, (Node) detail.getTarget(),
-                detail.getXPath());
+        return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
     }
 
     public static class MatchTracker2ComparisonListener
@@ -419,7 +414,7 @@ public class NewDifferenceEngine
     private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
         return detail != null && detail.getTarget() instanceof Node
                 && !(detail.getTarget() instanceof Element)
-                && ((Node) detail.getTarget()).getParentNode() instanceof Document;
+                && detail.getTarget().getParentNode() instanceof Document;
     }
 
     public static class ComparisonController2DifferenceEvaluator

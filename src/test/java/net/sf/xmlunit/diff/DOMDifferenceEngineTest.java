@@ -84,8 +84,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             assertEquals(type, comparison.getType());
             assertEquals(ComparisonResult.CRITICAL, outcome);
             if (withXPath) {
-                assertEquals("Control XPath", controlXPath, comparison.getControlDetails().getXPath());
-                assertEquals("Test XPath", testXPath, comparison.getTestDetails().getXPath());
+                assertEquals("Control XPath", controlXPath, comparison.getControlDetails().getXpath());
+                assertEquals("Test XPath", testXPath, comparison.getTestDetails().getXpath());
             }
         }
     }

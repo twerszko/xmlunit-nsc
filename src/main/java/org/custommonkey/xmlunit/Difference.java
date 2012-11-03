@@ -38,6 +38,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.Comparison.Detail;
+
 import org.custommonkey.xmlunit.diff.DifferenceType;
 
 /**
@@ -54,8 +56,8 @@ public class Difference {
     /** TRUE if the difference represents a similarity, FALSE otherwise */
     private boolean recoverable;
 
-    private NodeDetail controlNodeDetail = null;
-    private NodeDetail testNodeDetail = null;
+    private Detail controlNodeDetail = null;
+    private Detail testNodeDetail = null;
 
     /**
      * Constructor for non-similar Difference instances
@@ -72,8 +74,8 @@ public class Difference {
      */
     protected Difference(
             Difference prototype,
-            NodeDetail controlNodeDetail,
-            NodeDetail testNodeDetail) {
+            Detail controlNodeDetail,
+            Detail testNodeDetail) {
 
         this(prototype.getType());
         this.setRecoverable(prototype.isRecoverable());
@@ -114,7 +116,7 @@ public class Difference {
      * @return the NodeDetail from the piece of XML used as the control at the
      *         Node where this difference was encountered
      */
-    public NodeDetail getControlNodeDetail() {
+    public Detail getControlNodeDetail() {
         return controlNodeDetail;
     }
 
@@ -122,7 +124,7 @@ public class Difference {
      * @return the NodeDetail from the piece of XML used as the test at the Node
      *         where this difference was encountered
      */
-    public NodeDetail getTestNodeDetail() {
+    public Detail getTestNodeDetail() {
         return testNodeDetail;
     }
 
@@ -130,6 +132,7 @@ public class Difference {
      * Now that Differences can be constructed from prototypes we need to be
      * able to compare them to those in DifferenceConstants
      */
+    @Override
     public boolean equals(Object other) {
         if (other == null) {
             return false;
@@ -144,6 +147,7 @@ public class Difference {
     /**
      * hashcode implementation to go with equals.
      */
+    @Override
     public int hashCode() {
         return type.hashCode();
     }
@@ -153,6 +157,7 @@ public class Difference {
      *         <code>NodeDetail</code> instances are populated append their
      *         details also
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         if (controlNodeDetail == null || testNodeDetail == null) {
@@ -173,9 +178,9 @@ public class Difference {
                 .append(" '").append(controlNodeDetail.getValue())
                 .append("' but was '").append(testNodeDetail.getValue())
                 .append("' - comparing ");
-        NodeDescriptor.appendNodeDetail(buf, controlNodeDetail);
+        NodeDescriptor.appendDetail(buf, controlNodeDetail);
         buf.append(" to ");
-        NodeDescriptor.appendNodeDetail(buf, testNodeDetail);
+        NodeDescriptor.appendDetail(buf, testNodeDetail);
     }
 
 }

@@ -29,10 +29,10 @@ public class Comparison {
         private final String xpath;
         private final Object value;
 
-        private Detail(Node n, String x, Object v) {
-            target = n;
-            xpath = x;
-            value = v;
+        public Detail(Node node, String xpath, Object value) {
+            this.target = node;
+            this.xpath = xpath;
+            this.value = value;
         }
 
         /**
@@ -45,7 +45,7 @@ public class Comparison {
         /**
          * XPath leading to the target.
          */
-        public String getXPath() {
+        public String getXpath() {
             return xpath;
         }
 

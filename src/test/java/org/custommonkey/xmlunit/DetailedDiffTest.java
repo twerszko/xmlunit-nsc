@@ -222,13 +222,13 @@ public class DetailedDiffTest extends DiffTest {
                     || difference.equals(new Difference(DifferenceType.ELEMENT_TAG_NAME))
                     || difference.equals(new Difference(DifferenceType.TEXT_VALUE))) {
 
-                expr = difference.getControlNodeDetail().getXpathLocation();
+                expr = difference.getControlNodeDetail().getXpath();
                 if (expr != null && expr.length() > 0) {
                     value = xpathEngine.evaluate(expr, new DOMSource(controlDoc));
                     assertThat(difference.getControlNodeDetail().getValue()).isEqualTo(value);
                 }
 
-                expr = difference.getTestNodeDetail().getXpathLocation();
+                expr = difference.getTestNodeDetail().getXpath();
                 if (expr != null && expr.length() > 0) {
                     value = xpathEngine.evaluate(expr, new DOMSource(testDoc));
                     assertThat(difference.getTestNodeDetail().getValue()).isEqualTo(value);
@@ -370,8 +370,8 @@ public class DetailedDiffTest extends DiffTest {
 
         // (0) number of children, (1) order different, (2) node not found
         Difference difference = differences.get(2);
-        String controlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation = difference.getTestNodeDetail().getXpathLocation();
+        String controlXpathLocation = difference.getControlNodeDetail().getXpath();
+        String testXpathLocation = difference.getTestNodeDetail().getXpath();
 
         // then
         assertThat(differences).hasSize(3);
@@ -412,8 +412,8 @@ public class DetailedDiffTest extends DiffTest {
 
         // (0) number of children, (1) order different, (2) node not found
         Difference difference = differences.get(2);
-        String reverseControlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
-        String reverseTestXpathLocation = difference.getTestNodeDetail().getXpathLocation();
+        String reverseControlXpathLocation = difference.getControlNodeDetail().getXpath();
+        String reverseTestXpathLocation = difference.getTestNodeDetail().getXpath();
 
         // then
         assertThat(differences).hasSize(3);
@@ -485,12 +485,12 @@ public class DetailedDiffTest extends DiffTest {
         List<Difference> differences = detailedDiff.getAllDifferences();
 
         Difference difference = differences.get(0);
-        Node controlNode = difference.getControlNodeDetail().getNode();
-        Node testNode = difference.getTestNodeDetail().getNode();
+        Node controlNode = difference.getControlNodeDetail().getTarget();
+        Node testNode = difference.getTestNodeDetail().getTarget();
 
         Difference difference1 = differences.get(1);
-        Node controlNode1 = difference1.getControlNodeDetail().getNode();
-        Node testNode1 = difference1.getTestNodeDetail().getNode();
+        Node controlNode1 = difference1.getControlNodeDetail().getTarget();
+        Node testNode1 = difference1.getTestNodeDetail().getTarget();
 
         // then
         assertThat(differences).hasSize(2);
@@ -533,29 +533,29 @@ public class DetailedDiffTest extends DiffTest {
         List<Difference> differences = detailedDiff.getAllDifferences();
 
         Difference difference = differences.get(0);
-        String controlValue = difference.getControlNodeDetail().getValue();
-        String testValue = difference.getTestNodeDetail().getValue();
-        String controlXpathLocation = difference.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation = difference.getTestNodeDetail().getXpathLocation();
+        String controlValue = String.valueOf(difference.getControlNodeDetail().getValue());
+        String testValue = String.valueOf(difference.getTestNodeDetail().getValue());
+        String controlXpathLocation = difference.getControlNodeDetail().getXpath();
+        String testXpathLocation = difference.getTestNodeDetail().getXpath();
 
         Difference difference1 = differences.get(1);
-        String controlValue1 = difference1.getControlNodeDetail().getValue();
-        String testValue1 = difference1.getTestNodeDetail().getValue();
-        String controlXpathLocation1 = difference1.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation1 = difference1.getTestNodeDetail().getXpathLocation();
+        String controlValue1 = String.valueOf(difference1.getControlNodeDetail().getValue());
+        String testValue1 = String.valueOf(difference1.getTestNodeDetail().getValue());
+        String controlXpathLocation1 = difference1.getControlNodeDetail().getXpath();
+        String testXpathLocation1 = difference1.getTestNodeDetail().getXpath();
 
         Difference difference2 = differences.get(2);
-        String controlValue2 = difference2.getControlNodeDetail().getValue();
-        String testValue2 = difference2.getTestNodeDetail().getValue();
-        String controlXpathLocation2 = difference2.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation2 = difference2.getTestNodeDetail().getXpathLocation();
+        String controlValue2 = String.valueOf(difference2.getControlNodeDetail().getValue());
+        String testValue2 = String.valueOf(difference2.getTestNodeDetail().getValue());
+        String controlXpathLocation2 = difference2.getControlNodeDetail().getXpath();
+        String testXpathLocation2 = difference2.getTestNodeDetail().getXpath();
 
         // didn't find the second Apple element
         Difference difference3 = differences.get(3);
-        String controlValue3 = difference3.getControlNodeDetail().getValue();
-        String testValue3 = difference3.getTestNodeDetail().getValue();
-        String controlXpathLocation3 = difference3.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation3 = difference3.getTestNodeDetail().getXpathLocation();
+        String controlValue3 = String.valueOf(difference3.getControlNodeDetail().getValue());
+        String testValue3 = String.valueOf(difference3.getTestNodeDetail().getValue());
+        String controlXpathLocation3 = difference3.getControlNodeDetail().getXpath();
+        String testXpathLocation3 = difference3.getTestNodeDetail().getXpath();
 
         // then
         assertThat(differences).hasSize(4);

@@ -59,6 +59,7 @@ import java.util.Set;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
+import net.sf.xmlunit.diff.Comparison.Detail;
 
 import org.custommonkey.xmlunit.DifferenceListener.ReturnType;
 import org.custommonkey.xmlunit.builder.BuilderException;
@@ -154,8 +155,8 @@ public class DiffTest {
         Element elemB = aDocument.createElement("tag");
 
         // when
-        NodeDetail controlNodeDetail = new NodeDetail(TRUE.toString(), elemA, "/tag");
-        NodeDetail testNodeDetail = new NodeDetail(FALSE.toString(), elemB, "/tag");
+        Detail controlNodeDetail = new Detail(elemA, "/tag", TRUE.toString());
+        Detail testNodeDetail = new Detail(elemB, "/tag", FALSE.toString());
 
         Difference difference = new Difference(new Difference(DifferenceType.HAS_CHILD_NODES), controlNodeDetail,
                 testNodeDetail);
@@ -178,8 +179,8 @@ public class DiffTest {
         Text textA = aDocument.createTextNode("Monkey");
         Text textB = aDocument.createTextNode("Chicken");
 
-        NodeDetail controlNodeDetail = new NodeDetail("Monkey", textA, "/tag/text()");
-        NodeDetail testNodeDetail = new NodeDetail("Chicken", textB, "/tag/text()");
+        Detail controlNodeDetail = new Detail(textA, "/tag/text()", "Monkey");
+        Detail testNodeDetail = new Detail(textB, "/tag/text()", "Chicken");
 
         Difference difference = new Difference(new Difference(DifferenceType.TEXT_VALUE), controlNodeDetail,
                 testNodeDetail);
@@ -824,7 +825,7 @@ public class DiffTest {
                     @Override
                     protected void examineDifferenceContents(Difference difference) {
                         ++i;
-                        String differenceXpathLocation = difference.getControlNodeDetail().getXpathLocation();
+                        String differenceXpathLocation = difference.getControlNodeDetail().getXpath();
                         assertThat(differenceXpathLocation).isEqualTo("/root[1]/node[" + i + "]");
                     }
                 };

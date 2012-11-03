@@ -159,47 +159,47 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                     XPathContext controlContext,
                     Node test, XPathContext testContext) {
         switch (control.getNodeType()) {
-        case Node.CDATA_SECTION_NODE:
-        case Node.COMMENT_NODE:
-        case Node.TEXT_NODE:
-            if (test instanceof CharacterData) {
-                return compareCharacterData((CharacterData) control,
-                        controlContext,
-                        (CharacterData) test, testContext);
-            }
-            break;
-        case Node.DOCUMENT_NODE:
-            if (test instanceof Document) {
-                return compareDocuments((Document) control, controlContext,
-                        (Document) test, testContext);
-            }
-            break;
-        case Node.ELEMENT_NODE:
-            if (test instanceof Element) {
-                return compareElements((Element) control, controlContext,
-                        (Element) test, testContext);
-            }
-            break;
-        case Node.PROCESSING_INSTRUCTION_NODE:
-            if (test instanceof ProcessingInstruction) {
-                return compareProcessingInstructions((ProcessingInstruction) control,
-                        controlContext,
-                        (ProcessingInstruction) test,
-                        testContext);
-            }
-            break;
-        case Node.DOCUMENT_TYPE_NODE:
-            if (test instanceof DocumentType) {
-                return compareDocTypes((DocumentType) control, controlContext,
-                        (DocumentType) test, testContext);
-            }
-            break;
-        case Node.ATTRIBUTE_NODE:
-            if (test instanceof Attr) {
-                return compareAttributes((Attr) control, controlContext,
-                        (Attr) test, testContext);
-            }
-            break;
+            case Node.CDATA_SECTION_NODE:
+            case Node.COMMENT_NODE:
+            case Node.TEXT_NODE:
+                if (test instanceof CharacterData) {
+                    return compareCharacterData((CharacterData) control,
+                            controlContext,
+                            (CharacterData) test, testContext);
+                }
+                break;
+            case Node.DOCUMENT_NODE:
+                if (test instanceof Document) {
+                    return compareDocuments((Document) control, controlContext,
+                            (Document) test, testContext);
+                }
+                break;
+            case Node.ELEMENT_NODE:
+                if (test instanceof Element) {
+                    return compareElements((Element) control, controlContext,
+                            (Element) test, testContext);
+                }
+                break;
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                if (test instanceof ProcessingInstruction) {
+                    return compareProcessingInstructions((ProcessingInstruction) control,
+                            controlContext,
+                            (ProcessingInstruction) test,
+                            testContext);
+                }
+                break;
+            case Node.DOCUMENT_TYPE_NODE:
+                if (test instanceof DocumentType) {
+                    return compareDocTypes((DocumentType) control, controlContext,
+                            (DocumentType) test, testContext);
+                }
+                break;
+            case Node.ATTRIBUTE_NODE:
+                if (test instanceof Attr) {
+                    return compareAttributes((Attr) control, controlContext,
+                            (Attr) test, testContext);
+                }
+                break;
         }
         return ComparisonResult.EQUAL;
     }

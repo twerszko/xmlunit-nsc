@@ -997,11 +997,8 @@ public class DifferenceEngine implements DifferenceEngineContract {
             Detail controlDetails = comparison.getControlDetails();
             Detail testDetails = comparison.getTestDetails();
 
-            NodeDetail controlDetail = convertDetailToNodeDetail(controlDetails);
-            NodeDetail testDetail = convertDetailToNodeDetail(testDetails);
-
-            Difference differenceInstance = new Difference(difference, controlDetail, testDetail);
-            if (!haveEqualValues(controlDetail.getValue(), testDetail.getValue())) {
+            Difference differenceInstance = new Difference(difference, controlDetails, testDetails);
+            if (!haveEqualValues(controlDetails.getValue(), testDetails.getValue())) {
                 listener.differenceFound(differenceInstance);
                 if (controller.haltComparison(differenceInstance)) {
                     throw new DifferenceFoundException();
@@ -1011,48 +1008,14 @@ public class DifferenceEngine implements DifferenceEngineContract {
             }
         }
 
-        private NodeDetail convertDetailToNodeDetail(Detail detail) {
-            return new NodeDetail(
-                    String.valueOf(detail.getValue()),
-                    detail.getTarget(),
-                    detail.getXPath());
-        }
-
-        @Deprecated
-        // public <T> void compare(Node control, T expectedValue, Node test, T
-        // actualValue)
-        // throws DifferenceFoundException {
-        // NodeDetail controlDetail = new NodeDetail(
-        // String.valueOf(expectedValue),
-        // control,
-        // this.controlTracker == null ? null :
-        // this.controlTracker.toXpathString());
-        // NodeDetail testDetail = new NodeDetail(
-        // String.valueOf(actualValue),
-        // test,
-        // this.testTracker == null ? null :
-        // this.testTracker.toXpathString());
-        // Difference differenceInstance = new Difference(difference,
-        // controlDetail, testDetail);
-        //
-        // if (!haveEqualValues(expectedValue, actualValue)) {
-        // listener.differenceFound(differenceInstance);
-        // if (controller.haltComparison(differenceInstance)) {
-        // throw new DifferenceFoundException();
-        // }
-        // } else if (matchTracker != null) {
-        // matchTracker.matchFound(differenceInstance);
-        // }
-        // }
-                /**
-                 * Test two possibly null values for equality
-                 * 
-                 * @param expected
-                 * @param actual
-                 * @return TRUE if the values are both null or equals() equal
-                 */
-                private
-                <T> boolean haveEqualValues(T expected, T actual) {
+        /**
+         * Test two possibly null values for equality
+         * 
+         * @param expected
+         * @param actual
+         * @return TRUE if the values are both null or equals() equal
+         */
+        private <T> boolean haveEqualValues(T expected, T actual) {
             if (expected == null) {
                 return actual == null;
             }

@@ -42,6 +42,8 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.util.List;
 
+import net.sf.xmlunit.diff.Comparison.Detail;
+
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.diff.DifferenceType;
@@ -102,15 +104,15 @@ public class DifferenceTest {
         // given
         Document document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
         Node controlNode = document.createComment("control");
-        NodeDetail controlNodeDetail = new NodeDetail(
-                controlNode.getNodeValue(),
+        Detail controlNodeDetail = new Detail(
                 controlNode,
-                "/testToString/comment()");
+                "/testToString/comment()",
+                controlNode.getNodeValue());
         Node testNode = document.createComment("test");
-        NodeDetail testNodeDetail = new NodeDetail(
-                testNode.getNodeValue(),
+        Detail testNodeDetail = new Detail(
                 testNode,
-                "/testToString/comment()");
+                "/testToString/comment()",
+                testNode.getNodeValue());
 
         Difference difference = new Difference(
                 new Difference(DifferenceType.COMMENT_VALUE),
@@ -120,10 +122,10 @@ public class DifferenceTest {
                 .append(DifferenceType.COMMENT_VALUE.getDescription())
                 .append(" 'control' but was 'test' - comparing ");
 
-        NodeDescriptor.appendNodeDetail(buf, controlNodeDetail);
+        NodeDescriptor.appendDetail(buf, controlNodeDetail);
         buf.append(" to ");
 
-        NodeDescriptor.appendNodeDetail(buf, testNodeDetail);
+        NodeDescriptor.appendDetail(buf, testNodeDetail);
 
         // then
         assertThat(difference.toString()).isEqualTo(buf.toString());
@@ -145,12 +147,12 @@ public class DifferenceTest {
         List<Difference> diffs = detailedDiff.getAllDifferences();
 
         Difference difference1 = diffs.get(0);
-        String controlXpathLocation1 = difference1.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation1 = difference1.getTestNodeDetail().getXpathLocation();
+        String controlXpathLocation1 = difference1.getControlNodeDetail().getXpath();
+        String testXpathLocation1 = difference1.getTestNodeDetail().getXpath();
 
         Difference difference2 = diffs.get(1);
-        String controlXpathLocation2 = difference2.getControlNodeDetail().getXpathLocation();
-        String testXpathLocation2 = difference2.getTestNodeDetail().getXpathLocation();
+        String controlXpathLocation2 = difference2.getControlNodeDetail().getXpath();
+        String testXpathLocation2 = difference2.getTestNodeDetail().getXpath();
 
         // then
         assertThat(diffs).hasSize(2);

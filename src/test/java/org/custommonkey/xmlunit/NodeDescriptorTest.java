@@ -41,6 +41,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 
+import net.sf.xmlunit.diff.Comparison.Detail;
+
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +71,8 @@ public class NodeDescriptorTest {
                 "<" + NodeDescriptor.DOCUMENT_NODE_DESCRIPTION + "<...>> at /";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", aDocument, "/");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(aDocument, "/", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -93,8 +95,8 @@ public class NodeDescriptorTest {
                 "<" + tagName + " " + attrName + "=\"" + attrValue + "\"...> at /elemTag";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", attr, "/elemTag");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(attr, "/elemTag", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -110,8 +112,8 @@ public class NodeDescriptorTest {
         String textDetail = "<" + tagName + "...> at /elemTag";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", element, "/elemTag");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(element, "/elemTag", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -133,8 +135,8 @@ public class NodeDescriptorTest {
                         "</" + tagName + "> at /elemTag/text()";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", text, "/elemTag/text()");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(text, "/elemTag/text()", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -151,8 +153,8 @@ public class NodeDescriptorTest {
         String textDetail = "<?" + target + " " + data + "?> at /processing-instruction()";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", processingInstruction, "/processing-instruction()");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(processingInstruction, "/processing-instruction()", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -168,8 +170,8 @@ public class NodeDescriptorTest {
         String textDetail = "<!--" + comments + "--> at /comment()";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", comment, "/comment()");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(comment, "/comment()", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -185,8 +187,8 @@ public class NodeDescriptorTest {
         String textDetail = "<![CDATA[" + cData + "]]> at /text()";
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", cDataNote, "/text()");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(cDataNote, "/text()", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(textDetail);
@@ -209,8 +211,8 @@ public class NodeDescriptorTest {
         StringBuffer buffer = new StringBuffer();
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", doctypeA, "/");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(doctypeA, "/", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(systemOnlyDTD + " at /");
@@ -234,8 +236,8 @@ public class NodeDescriptorTest {
         StringBuffer buffer = new StringBuffer();
 
         // when
-        NodeDetail nodeDetail = new NodeDetail("", doctypeB, "/");
-        NodeDescriptor.appendNodeDetail(buffer, nodeDetail);
+        Detail nodeDetail = new Detail(doctypeB, "/", "");
+        NodeDescriptor.appendDetail(buffer, nodeDetail);
 
         // then
         assertThat(buffer.toString()).isEqualTo(publicDTD + " at /");

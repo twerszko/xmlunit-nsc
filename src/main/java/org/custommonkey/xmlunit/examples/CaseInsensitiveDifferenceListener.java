@@ -52,11 +52,11 @@ public class CaseInsensitiveDifferenceListener
 
     @Override
     protected ReturnType textualDifference(Difference d) {
-        String control = d.getControlNodeDetail().getValue();
+        String control = String.valueOf(d.getControlNodeDetail().getValue());
         if (control != null) {
             control = control.toLowerCase(Locale.US);
             if (d.getTestNodeDetail().getValue() != null
-                    && control.equals(d.getTestNodeDetail().getValue()
+                    && control.equals(String.valueOf(d.getTestNodeDetail().getValue())
                             .toLowerCase(Locale.US))) {
                 return ReturnType.DIFFERENT_NODES_IDENTICAL;
             }

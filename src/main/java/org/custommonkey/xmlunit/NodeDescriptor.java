@@ -36,6 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.Comparison.Detail;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
@@ -54,12 +56,12 @@ public class NodeDescriptor implements XMLConstants {
      * @param buf
      * @param aNode
      */
-    public static void appendNodeDetail(StringBuffer buf, NodeDetail nodeDetail) {
-        appendNodeDetail(buf, nodeDetail.getNode(), true);
-        buf.append(" at ").append(nodeDetail.getXpathLocation());
+    public static void appendDetail(StringBuffer buf, Detail detail) {
+        appendDetail(buf, detail.getTarget(), true);
+        buf.append(" at ").append(detail.getXpath());
     }
 
-    private static void appendNodeDetail(StringBuffer buf, Node aNode,
+    private static void appendDetail(StringBuffer buf, Node aNode,
             boolean notRecursing) {
         if (aNode == null) {
             return;
@@ -68,35 +70,35 @@ public class NodeDescriptor implements XMLConstants {
             buf.append(XMLConstants.OPEN_START_NODE);
         }
         switch (aNode.getNodeType()) {
-        case Node.ATTRIBUTE_NODE:
-            appendAttributeDetail(buf, aNode);
-            break;
-        case Node.ELEMENT_NODE:
-            appendElementDetail(buf, aNode, notRecursing);
-            break;
-        case Node.TEXT_NODE:
-            appendTextDetail(buf, aNode);
-            break;
-        case Node.CDATA_SECTION_NODE:
-            appendCdataSectionDetail(buf, aNode);
-            break;
-        case Node.COMMENT_NODE:
-            appendCommentDetail(buf, aNode);
-            break;
-        case Node.PROCESSING_INSTRUCTION_NODE:
-            appendProcessingInstructionDetail(buf, aNode);
-            break;
-        case Node.DOCUMENT_TYPE_NODE:
-            appendDocumentTypeDetail(buf, aNode);
-            break;
-        case Node.DOCUMENT_NODE:
-            appendDocumentDetail(buf);
-            break;
-        default:
-            buf.append("!--NodeType ").append(aNode.getNodeType())
-                    .append(' ').append(aNode.getNodeName())
-                    .append('/').append(aNode.getNodeValue())
-                    .append("--");
+            case Node.ATTRIBUTE_NODE:
+                appendAttributeDetail(buf, aNode);
+                break;
+            case Node.ELEMENT_NODE:
+                appendElementDetail(buf, aNode, notRecursing);
+                break;
+            case Node.TEXT_NODE:
+                appendTextDetail(buf, aNode);
+                break;
+            case Node.CDATA_SECTION_NODE:
+                appendCdataSectionDetail(buf, aNode);
+                break;
+            case Node.COMMENT_NODE:
+                appendCommentDetail(buf, aNode);
+                break;
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                appendProcessingInstructionDetail(buf, aNode);
+                break;
+            case Node.DOCUMENT_TYPE_NODE:
+                appendDocumentTypeDetail(buf, aNode);
+                break;
+            case Node.DOCUMENT_NODE:
+                appendDocumentDetail(buf);
+                break;
+            default:
+                buf.append("!--NodeType ").append(aNode.getNodeType())
+                        .append(' ').append(aNode.getNodeName())
+                        .append('/').append(aNode.getNodeValue())
+                        .append("--");
 
         }
         if (notRecursing) {
@@ -153,11 +155,11 @@ public class NodeDescriptor implements XMLConstants {
     }
 
     protected static void appendTextDetail(StringBuffer buf, Node aNode) {
-        appendNodeDetail(buf, aNode.getParentNode(), false);
+        appendDetail(buf, aNode.getParentNode(), false);
         buf.append(" ...").append(XMLConstants.CLOSE_NODE)
                 .append(aNode.getNodeValue())
                 .append(XMLConstants.OPEN_END_NODE);
-        appendNodeDetail(buf, aNode.getParentNode(), false);
+        appendDetail(buf, aNode.getParentNode(), false);
     }
 
     protected static void appendElementDetail(StringBuffer buf, Node aNode,
@@ -169,7 +171,7 @@ public class NodeDescriptor implements XMLConstants {
     }
 
     protected static void appendAttributeDetail(StringBuffer buf, Node aNode) {
-        appendNodeDetail(buf,
+        appendDetail(buf,
                 ((Attr) aNode).getOwnerElement(), false);
         buf.append(' ')
                 .append(aNode.getNodeName()).append("=\"")
