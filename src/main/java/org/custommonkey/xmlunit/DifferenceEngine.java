@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.Comparison.Detail;
+import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.comparators.StringComparator;
@@ -162,10 +163,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
         controlTracker.reset();
         testTracker.reset();
         try {
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.NODE_TYPE,
                     control, controlTracker.toXpathString(), getNullOrNotNull(control),
                     test, testTracker.toXpathString(), getNullOrNotNull(test));
-            createValueComparator(new Difference(DifferenceType.NODE_TYPE), listener)
+            createValueComparator(listener)
                     .compare(comparison);
 
             if (control != null) {
@@ -259,11 +260,11 @@ public class DifferenceEngine implements DifferenceEngineContract {
         DocumentType controlDoctype = control.getDoctype();
         DocumentType testDoctype = test.getDoctype();
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.HAS_DOCTYPE_DECLARATION,
                 control, controlTracker.toXpathString(), getNullOrNotNull(controlDoctype),
                 test, controlTracker.toXpathString(), getNullOrNotNull(testDoctype));
 
-        createValueComparator(new Difference(DifferenceType.HAS_DOCTYPE_DECLARATION), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
         if (controlDoctype != null && testDoctype != null) {
@@ -292,24 +293,23 @@ public class DifferenceEngine implements DifferenceEngineContract {
         boolean textAndCDATA = comparingTextAndCDATA(control.getNodeType(),
                 test.getNodeType());
         if (!textAndCDATA) {
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.NODE_TYPE,
                     control, controlTracker.toXpathString(), controlType,
                     test, testTracker.toXpathString(), testType);
 
-            createValueComparator(new Difference(DifferenceType.NODE_TYPE), listener)
-                    .compare(comparison);
+            createValueComparator(listener).compare(comparison);
         }
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.NAMESPACE_URI,
                 control, controlTracker.toXpathString(), control.getNamespaceURI(),
                 test, testTracker.toXpathString(), test.getNamespaceURI());
-        createValueComparator(new Difference(DifferenceType.NAMESPACE_URI), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.NAMESPACE_PREFIX,
                 control, controlTracker.toXpathString(), control.getPrefix(),
                 test, testTracker.toXpathString(), test.getPrefix());
-        createValueComparator(new Difference(DifferenceType.NAMESPACE_PREFIX), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
         return textAndCDATA || controlType.equals(testType);
@@ -336,27 +336,26 @@ public class DifferenceEngine implements DifferenceEngineContract {
     protected void compareHasChildNodes(Node control, Node test, DifferenceListener listener)
             throws DifferenceFoundException {
 
-        Boolean controlHasChildren = hasChildNodes(control);
-        Boolean testHasChildren = hasChildNodes(test);
+        List<Node> controlChildren = nodeList2List(control.getChildNodes());
+        List<Node> testChildren = nodeList2List(test.getChildNodes());
 
-        Comparison comparison = new Comparison(null,
-                control, controlTracker.toXpathString(), controlHasChildren,
-                test, testTracker.toXpathString(), testHasChildren);
-        createValueComparator(new Difference(DifferenceType.HAS_CHILD_NODES), listener)
-                .compare(comparison);
-    }
-
-    /**
-     * Tests whether a Node has children, taking ignoreComments setting into
-     * account.
-     */
-    private boolean hasChildNodes(Node node) {
-        boolean hasChildNodes = node.hasChildNodes();
-        if (hasChildNodes && properties.getIgnoreComments()) {
-            List<Node> nl = nodeList2List(node.getChildNodes());
-            hasChildNodes = !nl.isEmpty();
+        if (controlChildren.size() > 0 && testChildren.size() > 0) {
+            // TODO remove this workaround
+            Comparison comparison = new Comparison(
+                    ComparisonType.CHILD_NODELIST_LENGTH,
+                    control, controlTracker.toXpathString(), true,
+                    test, testTracker.toXpathString(), true);
+            createValueComparator(listener)
+                    .compare(comparison);
+        } else {
+            Comparison comparison = new
+                    Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
+                            control, controlTracker.toXpathString(), controlChildren.size(),
+                            test, testTracker.toXpathString(), testChildren.size());
+            createValueComparator(listener)
+                    .compare(comparison);
         }
-        return hasChildNodes ? Boolean.TRUE : Boolean.FALSE;
+
     }
 
     /**
@@ -396,10 +395,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
             Integer controlLength = new Integer(controlChildren.size());
             Integer testLength = new Integer(testChildren.size());
 
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
                     control, controlTracker.toXpathString(), controlLength,
                     test, testTracker.toXpathString(), testLength);
-            createValueComparator(new Difference(DifferenceType.CHILD_NODELIST_LENGTH), listener)
+            createValueComparator(listener)
                     .compare(comparison);
 
             compareNodeList(controlChildren, testChildren,
@@ -561,10 +560,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
             if (nextTest != null) {
                 compareNode(nextControl, nextTest, listener, elementQualifier);
 
-                Comparison comparison = new Comparison(null,
+                Comparison comparison = new Comparison(ComparisonType.CHILD_NODELIST_SEQUENCE,
                         nextControl, controlTracker.toXpathString(), i,
                         nextTest, testTracker.toXpathString(), testIndex);
-                createValueComparator(new Difference(DifferenceType.CHILD_NODELIST_SEQUENCE), listener)
+                createValueComparator(listener)
                         .compare(comparison);
             } else {
                 missingNode(nextControl, null, listener);
@@ -582,17 +581,17 @@ public class DifferenceEngine implements DifferenceEngineContract {
             throws DifferenceFoundException {
         if (control != null) {
             controlTracker.visited(control);
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.CHILD_LOOKUP,
                     control, controlTracker.toXpathString(), control.getNodeName(),
                     null, null, null);
-            createValueComparator(new Difference(DifferenceType.CHILD_NODE_NOT_FOUND), listener)
+            createValueComparator(listener)
                     .compare(comparison);
         } else {
             testTracker.visited(test);
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.CHILD_LOOKUP,
                     null, null, null,
                     test, testTracker.toXpathString(), test.getNodeName());
-            createValueComparator(new Difference(DifferenceType.CHILD_NODE_NOT_FOUND), listener)
+            createValueComparator(listener)
                     .compare(comparison);
         }
     }
@@ -617,10 +616,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
     protected void compareElement(
             Element control, Element test, DifferenceListener listener) throws DifferenceFoundException {
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.ELEMENT_TAG_NAME,
                 control, controlTracker.toXpathString(), getUnNamespacedNodeName(control),
                 test, testTracker.toXpathString(), getUnNamespacedNodeName(test));
-        createValueComparator(new Difference(DifferenceType.ELEMENT_TAG_NAME), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
         NamedNodeMap controlAttr = control.getAttributes();
@@ -628,10 +627,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
         NamedNodeMap testAttr = test.getAttributes();
         Integer testNonXmlnsAttrLength = getNonSpecialAttrLength(testAttr);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
                 control, controlTracker.toXpathString(), controlNonXmlnsAttrLength,
                 test, testTracker.toXpathString(), testNonXmlnsAttrLength);
-        createValueComparator(new Difference(DifferenceType.ELEMENT_NUM_ATTRIBUTES), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
         compareElementAttributes(control, test, controlAttr, testAttr, listener);
@@ -702,20 +701,20 @@ public class DifferenceEngine implements DifferenceEngineContract {
                                     getUnNamespacedNodeName(attributeItem);
                         }
 
-                        Comparison comparison = new Comparison(null,
+                        Comparison comparison = new Comparison(ComparisonType.ATTR_SEQUENCE,
                                 nextAttr, controlTracker.toXpathString(), attrName,
                                 compareTo, testTracker.toXpathString(), testAttrName);
-                        createValueComparator(new Difference(DifferenceType.ATTR_SEQUENCE), listener)
+                        createValueComparator(listener)
                                 .compare(comparison);
                     }
                 } else {
                     controlTracker.clearTrackedAttribute();
                     testTracker.clearTrackedAttribute();
 
-                    Comparison comparison = new Comparison(null,
+                    Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
                             control, controlTracker.toXpathString(), attrName,
                             test, testTracker.toXpathString(), null);
-                    createValueComparator(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND), listener)
+                    createValueComparator(listener)
                             .compare(comparison);
                 }
             }
@@ -730,10 +729,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
                 controlTracker.clearTrackedAttribute();
                 testTracker.clearTrackedAttribute();
 
-                Comparison comparison = new Comparison(null,
+                Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
                         control, controlTracker.toXpathString(), null,
                         test, testTracker.toXpathString(), getUnNamespacedNodeName(nextAttr, isNamespaced(nextAttr)));
-                createValueComparator(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND), listener)
+                createValueComparator(listener)
                         .compare(comparison);
             }
         }
@@ -791,11 +790,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
             DifferenceListener listener)
             throws DifferenceFoundException {
         Attr nonNullNode = control != null ? control : test;
-        Difference d =
-                XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR
-                        .equals(nonNullNode.getLocalName())
-                        ? new Difference(DifferenceType.SCHEMA_LOCATION) : new Difference(
-                                DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+        Difference d = new Difference(DifferenceType.NO_NAMESPACE_SCHEMA_LOCATION);
+        if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR.equals(nonNullNode.getLocalName())) {
+            d = new Difference(DifferenceType.SCHEMA_LOCATION);
+        }
 
         if (control != null) {
             controlTracker.visited(control);
@@ -804,10 +802,14 @@ public class DifferenceEngine implements DifferenceEngineContract {
             testTracker.visited(test);
         }
 
-        Comparison comparison = new Comparison(null,
+        ComparisonType type = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
+        if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR.equals(nonNullNode.getLocalName())) {
+            type = ComparisonType.SCHEMA_LOCATION;
+        }
+        Comparison comparison = new Comparison(type,
                 control, controlTracker.toXpathString(), control != null ? control.getValue() : ATTRIBUTE_ABSENT,
                 test, testTracker.toXpathString(), test != null ? test.getValue() : ATTRIBUTE_ABSENT);
-        createValueComparator(d, listener)
+        createValueComparator(listener)
                 .compare(comparison);
     }
 
@@ -824,22 +826,22 @@ public class DifferenceEngine implements DifferenceEngineContract {
         controlTracker.visited(control);
         testTracker.visited(test);
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.NAMESPACE_PREFIX,
                 control, controlTracker.toXpathString(), control.getPrefix(),
                 test, testTracker.toXpathString(), test.getPrefix());
-        createValueComparator(new Difference(DifferenceType.NAMESPACE_PREFIX), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.ATTR_VALUE,
                 control, controlTracker.toXpathString(), control.getValue(),
                 test, testTracker.toXpathString(), test.getValue());
-        createValueComparator(new Difference(DifferenceType.ATTR_VALUE), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
                 control, controlTracker.toXpathString(), control.getSpecified(),
                 test, testTracker.toXpathString(), test.getSpecified());
-        createValueComparator(new Difference(DifferenceType.ATTR_VALUE_EXPLICITLY_SPECIFIED), listener)
+        createValueComparator(listener)
                 .compare(comparison);
     }
 
@@ -882,22 +884,22 @@ public class DifferenceEngine implements DifferenceEngineContract {
     protected void compareDocumentType(DocumentType control, DocumentType test,
             DifferenceListener listener) throws DifferenceFoundException {
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.DOCTYPE_NAME,
                 control, controlTracker.toXpathString(), control.getName(),
                 test, testTracker.toXpathString(), test.getName());
-        createValueComparator(new Difference(DifferenceType.DOCTYPE_NAME), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.DOCTYPE_PUBLIC_ID,
                 control, controlTracker.toXpathString(), control.getPublicId(),
                 test, testTracker.toXpathString(), test.getPublicId());
-        createValueComparator(new Difference(DifferenceType.DOCTYPE_PUBLIC_ID), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.DOCTYPE_SYSTEM_ID,
                 control, controlTracker.toXpathString(), control.getSystemId(),
                 test, testTracker.toXpathString(), test.getSystemId());
-        createValueComparator(new Difference(DifferenceType.DOCTYPE_SYSTEM_ID), listener)
+        createValueComparator(listener)
                 .compare(comparison);
     }
 
@@ -913,16 +915,16 @@ public class DifferenceEngine implements DifferenceEngineContract {
             ProcessingInstruction test, DifferenceListener listener)
             throws DifferenceFoundException {
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET,
                 control, controlTracker.toXpathString(), control.getTarget(),
                 test, testTracker.toXpathString(), test.getTarget());
-        createValueComparator(new Difference(DifferenceType.PROCESSING_INSTRUCTION_TARGET), listener)
+        createValueComparator(listener)
                 .compare(comparison);
 
-        comparison = new Comparison(null,
+        comparison = new Comparison(ComparisonType.PROCESSING_INSTRUCTION_DATA,
                 control, controlTracker.toXpathString(), control.getData(),
                 test, testTracker.toXpathString(), test.getData());
-        createValueComparator(new Difference(DifferenceType.PROCESSING_INSTRUCTION_DATA), listener)
+        createValueComparator(listener)
                 .compare(comparison);
     }
 
@@ -961,10 +963,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
             DifferenceListener listener, Difference difference)
             throws DifferenceFoundException {
 
-        Comparison comparison = new Comparison(null,
+        Comparison comparison = new Comparison(ComparisonType.TEXT_VALUE,
                 control, controlTracker.toXpathString(), control.getData(),
                 test, testTracker.toXpathString(), test.getData());
-        createValueComparator(difference, listener)
+        createValueComparator(listener)
                 .compare(comparison);
     }
 
@@ -979,25 +981,27 @@ public class DifferenceEngine implements DifferenceEngineContract {
         }
     }
 
-    protected ValueComparator createValueComparator(Difference difference, DifferenceListener listener) {
-        return new ValueComparator(difference, listener);
+    protected ValueComparator createValueComparator(DifferenceListener listener) {
+        return new ValueComparator(listener);
     }
 
     public class ValueComparator {
         private final DifferenceListener listener;
-        private final Difference difference;
 
-        private ValueComparator(Difference difference, DifferenceListener
-                listener) {
+        private ValueComparator(DifferenceListener listener) {
             this.listener = listener;
-            this.difference = difference;
         }
 
         public void compare(Comparison comparison) throws DifferenceFoundException {
             Detail controlDetails = comparison.getControlDetails();
             Detail testDetails = comparison.getTestDetails();
 
-            Difference differenceInstance = new Difference(difference, controlDetails, testDetails);
+            Difference difference = NewDifferenceEngine.toDifference(comparison);
+
+            Difference differenceInstance = new Difference(
+                    difference,
+                    difference.getControlNodeDetail(),
+                    difference.getTestNodeDetail());
             if (!haveEqualValues(controlDetails.getValue(), testDetails.getValue())) {
                 listener.differenceFound(differenceInstance);
                 if (controller.haltComparison(differenceInstance)) {

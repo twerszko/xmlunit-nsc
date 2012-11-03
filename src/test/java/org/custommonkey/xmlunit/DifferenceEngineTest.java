@@ -51,6 +51,7 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.diff.DifferenceType;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -551,10 +552,10 @@ public class DifferenceEngineTest {
     @Test
     public void testBasicCompare() throws Exception {
         try {
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
                     null, null, "black",
                     null, null, "white");
-            engine.createValueComparator(new Difference(DifferenceType.ATTR_NAME_NOT_FOUND), listener)
+            engine.createValueComparator(listener)
                     .compare(comparison);
             fail("Expected difference found exception");
         } catch (DifferenceEngine.DifferenceFoundException e) {
@@ -564,10 +565,10 @@ public class DifferenceEngineTest {
         resetListener();
 
         try {
-            Comparison comparison = new Comparison(null,
+            Comparison comparison = new Comparison(ComparisonType.NAMESPACE_PREFIX,
                     null, null, "black",
                     null, null, "white");
-            engine.createValueComparator(new Difference(DifferenceType.NAMESPACE_PREFIX), listener)
+            engine.createValueComparator(listener)
                     .compare(comparison);
 
             assertEquals(false, listener.different);

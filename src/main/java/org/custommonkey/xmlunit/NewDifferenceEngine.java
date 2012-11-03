@@ -87,7 +87,7 @@ import org.w3c.dom.Node;
 public class NewDifferenceEngine
         implements DifferenceEngineContract {
 
-    private static final Integer ZERO = Integer.valueOf(0);
+    public static final Integer ZERO = Integer.valueOf(0);
     private static final Map<Class<?>, ElementSelector> KNOWN_SELECTORS;
     static {
         Map<Class<?>, ElementSelector> m = new HashMap<Class<?>, ElementSelector>();
@@ -296,15 +296,19 @@ public class NewDifferenceEngine
                 Comparison.Detail td = comp.getTestDetails();
                 if (ZERO.equals(cd.getValue())
                         || ZERO.equals(td.getValue())) {
+
+                    Comparison.Detail controlDetail = new Comparison.Detail(
+                            cd.getTarget(),
+                            cd.getXpath(),
+                            String.valueOf(!ZERO.equals(cd.getValue())));
+                    Comparison.Detail testDetail = new Comparison.Detail(
+                            td.getTarget(),
+                            td.getXpath(),
+                            String.valueOf(!ZERO.equals(td.getValue())));
+
                     return new Difference(new Difference(DifferenceType.HAS_CHILD_NODES),
-                            new Comparison.Detail(
-                                    cd.getTarget(),
-                                    cd.getXpath(),
-                                    String.valueOf(!ZERO.equals(cd.getValue()))),
-                            new Comparison.Detail(
-                                    td.getTarget(),
-                                    td.getXpath(),
-                                    String.valueOf(!ZERO.equals(td.getValue()))));
+                            controlDetail,
+                            testDetail);
                 }
                 proto = new Difference(DifferenceType.CHILD_NODELIST_LENGTH);
                 break;
@@ -316,6 +320,9 @@ public class NewDifferenceEngine
                 break;
             case ATTR_NAME_LOOKUP:
                 proto = new Difference(DifferenceType.ATTR_NAME_NOT_FOUND);
+                break;
+            case ATTR_SEQUENCE:
+                proto = new Difference(DifferenceType.ATTR_SEQUENCE);
                 break;
             default:
                 /* comparison doesn't match one of legacy's built-in differences */

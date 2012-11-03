@@ -120,4 +120,9 @@ public enum ComparisonType {
      * other node.
      */
     ATTR_NAME_LOOKUP,
+
+    /**
+     * Compare order of attributes
+     */
+    ATTR_SEQUENCE
 }
