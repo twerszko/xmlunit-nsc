@@ -65,7 +65,7 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
 
         CaseInsensitiveDifferenceListener c =
                 new CaseInsensitiveDifferenceListener(new DifferenceListener() {
-                    public ComparisonResult differenceFound(Difference d) {
+                    public ComparisonResult differenceFound(Difference d, ComparisonResult outcome) {
                         fail("differenceFound shouldn't get invoked, but"
                                 + " was with type " + d.getType());
                         return null;

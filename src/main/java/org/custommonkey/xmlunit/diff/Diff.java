@@ -259,31 +259,31 @@ public class Diff implements DifferenceListener, ComparisonController {
      *         difference was interpreted. Always RETURN_ACCEPT_DIFFERENCE if
      *         the call is not delegated.
      */
-    public ComparisonResult differenceFound(Difference difference) {
-        ComparisonResult returnValue = evaluate(difference);
+    public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
+        ComparisonResult returnValue = evaluate(difference, outcome);
 
         switch (returnValue) {
-            case EQUAL:
-                return returnValue;
-            case SIMILAR:
-                identical = false;
+        case EQUAL:
+            return returnValue;
+        case SIMILAR:
+            identical = false;
+            haltComparison = false;
+            break;
+        case DIFFERENT:
+            identical = false;
+            if (difference.isRecoverable()) {
                 haltComparison = false;
-                break;
-            case DIFFERENT:
-                identical = false;
-                if (difference.isRecoverable()) {
-                    haltComparison = false;
-                } else {
-                    similar = false;
-                    haltComparison = true;
-                }
-                break;
-            case CRITICAL:
-                identical = similar = false;
+            } else {
+                similar = false;
                 haltComparison = true;
-                break;
-            default:
-                throw new IllegalArgumentException(returnValue + " is not supported");
+            }
+            break;
+        case CRITICAL:
+            identical = similar = false;
+            haltComparison = true;
+            break;
+        default:
+            throw new IllegalArgumentException(returnValue + " is not supported");
         }
         if (haltComparison) {
             messages.append("\n[different]");
@@ -294,12 +294,11 @@ public class Diff implements DifferenceListener, ComparisonController {
         return returnValue;
     }
 
-    public ComparisonResult evaluate(Difference difference) {
-        ComparisonResult returnValue = ComparisonResult.DIFFERENT;
+    public ComparisonResult evaluate(Difference difference, ComparisonResult outcome) {
         if (differenceListener != null) {
-            returnValue = differenceListener.differenceFound(difference);
+            return differenceListener.differenceFound(difference, outcome);
         }
-        return returnValue;
+        return outcome;
     }
 
     /**

@@ -51,7 +51,8 @@ import org.w3c.dom.Node;
  */
 public class IgnoreTextAndAttributeValuesDifferenceListener
         implements DifferenceListener {
-    private static final ComparisonType[] IGNORE_VALUES = new ComparisonType[] {
+
+    private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
             ComparisonType.ATTR_VALUE,
             ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
             ComparisonType.TEXT_VALUE
@@ -59,8 +60,8 @@ public class IgnoreTextAndAttributeValuesDifferenceListener
 
     private boolean isIgnoredDifference(Difference difference) {
         ComparisonType differenceType = difference.getType();
-        for (int i = 0; i < IGNORE_VALUES.length; ++i) {
-            if (differenceType == IGNORE_VALUES[i]) {
+        for (ComparisonType ignoredType : IGNORED_TYPES) {
+            if (differenceType == ignoredType) {
                 return true;
             }
         }
@@ -73,7 +74,7 @@ public class IgnoreTextAndAttributeValuesDifferenceListener
      *         to accept all other differences.
      * @see DifferenceListener#differenceFound(Difference)
      */
-    public ComparisonResult differenceFound(Difference difference) {
+    public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
         if (isIgnoredDifference(difference)) {
             return ComparisonResult.SIMILAR;
         } else {

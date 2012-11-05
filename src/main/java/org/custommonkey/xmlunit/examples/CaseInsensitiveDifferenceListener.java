@@ -53,7 +53,7 @@ public class CaseInsensitiveDifferenceListener
     }
 
     @Override
-    protected ComparisonResult textualDifference(Difference d) {
+    protected ComparisonResult textualDifference(Difference d, ComparisonResult outcome) {
         String control = String.valueOf(d.getControlNodeDetail().getValue());
         if (control != null) {
             control = control.toLowerCase(Locale.US);
@@ -64,6 +64,6 @@ public class CaseInsensitiveDifferenceListener
             }
         }
         // some string is null, delegate
-        return super.textualDifference(d);
+        return super.textualDifference(d, outcome);
     }
 }

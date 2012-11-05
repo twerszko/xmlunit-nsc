@@ -58,7 +58,7 @@ public interface DifferenceListener {
      *            that differ
      * @return ReturnType describing how this difference was interpreted
      */
-    ComparisonResult differenceFound(Difference difference);
+    ComparisonResult differenceFound(Difference difference, ComparisonResult outcome);
 
     /**
      * Receive notification that a comparison between 2 nodes has been skipped

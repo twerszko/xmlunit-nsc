@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.Comparison.Detail;
+import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.util.IterableNodeList;
 
@@ -199,32 +200,32 @@ public class DifferenceEngine implements DifferenceEngineContract {
 
         if (comparable) {
             switch (control.getNodeType()) {
-                case Node.ELEMENT_NODE:
-                    compareElement((Element) control, (Element) test, listener);
-                    break;
-                case Node.CDATA_SECTION_NODE:
-                case Node.TEXT_NODE:
-                    compareText((CharacterData) control,
-                            (CharacterData) test, listener);
-                    break;
-                case Node.COMMENT_NODE:
-                    compareComment((Comment) control, (Comment) test, listener);
-                    break;
-                case Node.DOCUMENT_TYPE_NODE:
-                    compareDocumentType((DocumentType) control,
-                            (DocumentType) test, listener);
-                    break;
-                case Node.PROCESSING_INSTRUCTION_NODE:
-                    compareProcessingInstruction((ProcessingInstruction) control,
-                            (ProcessingInstruction) test, listener);
-                    break;
-                case Node.DOCUMENT_NODE:
-                    isDocumentNode = true;
-                    compareDocument((Document) control, (Document) test,
-                            listener, elementQualifier);
-                    break;
-                default:
-                    listener.skippedComparison(control, test);
+            case Node.ELEMENT_NODE:
+                compareElement((Element) control, (Element) test, listener);
+                break;
+            case Node.CDATA_SECTION_NODE:
+            case Node.TEXT_NODE:
+                compareText((CharacterData) control,
+                        (CharacterData) test, listener);
+                break;
+            case Node.COMMENT_NODE:
+                compareComment((Comment) control, (Comment) test, listener);
+                break;
+            case Node.DOCUMENT_TYPE_NODE:
+                compareDocumentType((DocumentType) control,
+                        (DocumentType) test, listener);
+                break;
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                compareProcessingInstruction((ProcessingInstruction) control,
+                        (ProcessingInstruction) test, listener);
+                break;
+            case Node.DOCUMENT_NODE:
+                isDocumentNode = true;
+                compareDocument((Document) control, (Document) test,
+                        listener, elementQualifier);
+                break;
+            default:
+                listener.skippedComparison(control, test);
             }
         }
 
@@ -955,14 +956,14 @@ public class DifferenceEngine implements DifferenceEngineContract {
         ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
         if (control.getNodeType() == test.getNodeType()) {
             switch (control.getNodeType()) {
-                case Node.CDATA_SECTION_NODE:
-                    comparisonType = ComparisonType.CDATA_VALUE;
-                    break;
-                case Node.COMMENT_NODE:
-                    comparisonType = ComparisonType.COMMENT_VALUE;
-                case Node.TEXT_NODE:
-                default:
-                    break;
+            case Node.CDATA_SECTION_NODE:
+                comparisonType = ComparisonType.CDATA_VALUE;
+                break;
+            case Node.COMMENT_NODE:
+                comparisonType = ComparisonType.COMMENT_VALUE;
+            case Node.TEXT_NODE:
+            default:
+                break;
             }
         }
         Comparison comparison = new Comparison(comparisonType,
@@ -1005,7 +1006,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
                     difference.getControlNodeDetail(),
                     difference.getTestNodeDetail());
             if (!haveEqualValues(controlDetails.getValue(), testDetails.getValue())) {
-                listener.differenceFound(differenceInstance);
+                listener.differenceFound(differenceInstance, ComparisonResult.DIFFERENT);
                 if (controller.haltComparison(differenceInstance)) {
                     throw new DifferenceFoundException();
                 }

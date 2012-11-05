@@ -77,7 +77,7 @@ public class test_ForumMessage4406472 extends TestCase {
                 ComparisonType.NAMESPACE_URI
         };
 
-        public ComparisonResult differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
             Arrays.sort(IGNORE);
             return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
                     ? ComparisonResult.EQUAL
@@ -100,7 +100,7 @@ public class test_ForumMessage4406472 extends TestCase {
             Arrays.sort(IGNORE);
         }
 
-        public ComparisonResult differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
             return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
                     ? ComparisonResult.EQUAL
                     : difference.isRecoverable()

@@ -80,21 +80,21 @@ public class DetailedDiff extends Diff {
      * @return the value supplied by the superclass implementation
      */
     @Override
-    public ComparisonResult differenceFound(Difference difference) {
-        final ComparisonResult returnValue = super.differenceFound(difference);
+    public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
+        final ComparisonResult returnValue = super.differenceFound(difference, outcome);
         switch (returnValue) {
-            case EQUAL:
-                return returnValue;
-            case DIFFERENT:
-                break;
-            case SIMILAR:
-                difference.setRecoverable(true);
-                break;
-            case CRITICAL:
-                difference.setRecoverable(false);
-                break;
-            default:
-                throw new IllegalArgumentException(returnValue + " is not supported");
+        case EQUAL:
+            return returnValue;
+        case DIFFERENT:
+            break;
+        case SIMILAR:
+            difference.setRecoverable(true);
+            break;
+        case CRITICAL:
+            difference.setRecoverable(false);
+            break;
+        default:
+            throw new IllegalArgumentException(returnValue + " is not supported");
         }
         allDifferences.add(difference);
         return returnValue;

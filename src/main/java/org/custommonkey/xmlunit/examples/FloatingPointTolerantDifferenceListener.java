@@ -56,7 +56,7 @@ public class FloatingPointTolerantDifferenceListener
     }
 
     @Override
-    protected ComparisonResult textualDifference(Difference d) {
+    protected ComparisonResult textualDifference(Difference d, ComparisonResult outcome) {
         String control = String.valueOf(d.getControlNodeDetail().getValue());
         String test = String.valueOf(d.getTestNodeDetail().getValue());
         if (control != null && test != null) {
@@ -71,6 +71,6 @@ public class FloatingPointTolerantDifferenceListener
             }
         }
         // no numbers or null, delegate
-        return super.textualDifference(d);
+        return super.textualDifference(d, outcome);
     }
 }

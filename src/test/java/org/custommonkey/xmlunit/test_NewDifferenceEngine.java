@@ -560,7 +560,7 @@ public class test_NewDifferenceEngine extends TestCase {
         public String testXpath;
         private boolean tracing = false;
 
-        public ComparisonResult differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
             if (tracing) {
                 System.out.println("df: " + difference.toString());
             }

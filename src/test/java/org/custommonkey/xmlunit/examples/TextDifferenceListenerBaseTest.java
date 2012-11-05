@@ -65,22 +65,22 @@ public class TextDifferenceListenerBaseTest {
         }
 
         @Override
-        protected ComparisonResult attributeDifference(Difference d) {
+        protected ComparisonResult attributeDifference(Difference d, ComparisonResult outcome) {
             return ComparisonResult.EQUAL;
         }
 
         @Override
-        protected ComparisonResult cdataDifference(Difference d) {
+        protected ComparisonResult cdataDifference(Difference d, ComparisonResult outcome) {
             return ComparisonResult.EQUAL;
         }
 
         @Override
-        protected ComparisonResult commentDifference(Difference d) {
+        protected ComparisonResult commentDifference(Difference d, ComparisonResult outcome) {
             return ComparisonResult.EQUAL;
         }
 
         @Override
-        protected ComparisonResult textDifference(Difference d) {
+        protected ComparisonResult textDifference(Difference d, ComparisonResult outcome) {
             return ComparisonResult.EQUAL;
         }
 
@@ -94,7 +94,7 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ComparisonResult attributeDifference(Difference difference) {
+            protected ComparisonResult attributeDifference(Difference difference, ComparisonResult outcome) {
                 this.difference = difference;
                 invocationCounter++;
                 return ComparisonResult.EQUAL;
@@ -127,7 +127,7 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ComparisonResult cdataDifference(Difference difference) {
+            protected ComparisonResult cdataDifference(Difference difference, ComparisonResult outcome) {
                 this.difference = difference;
                 invocationCounter++;
                 return ComparisonResult.EQUAL;
@@ -159,7 +159,7 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ComparisonResult commentDifference(Difference difference) {
+            protected ComparisonResult commentDifference(Difference difference, ComparisonResult outcome) {
                 this.difference = difference;
                 invocationCounter++;
                 return ComparisonResult.EQUAL;
@@ -191,7 +191,7 @@ public class TextDifferenceListenerBaseTest {
 
         TestListener listener = new TestListener(null) {
             @Override
-            protected ComparisonResult textDifference(Difference difference) {
+            protected ComparisonResult textDifference(Difference difference, ComparisonResult outcome) {
                 this.difference = difference;
                 invocationCounter++;
                 return ComparisonResult.EQUAL;
@@ -225,7 +225,7 @@ public class TextDifferenceListenerBaseTest {
 
         TextDifferenceListenerBase listener = new TextDifferenceListenerBase(null) {
             @Override
-            protected ComparisonResult textualDifference(Difference d) {
+            protected ComparisonResult textualDifference(Difference d, ComparisonResult outcome) {
                 invocationCounter[0]++;
                 return ComparisonResult.EQUAL;
             }
@@ -253,7 +253,7 @@ public class TextDifferenceListenerBaseTest {
         final int[] invocationCounter = new int[1];
 
         TextDifferenceListenerBase listener = new TextDifferenceListenerBase(new DifferenceListener() {
-            public ComparisonResult differenceFound(Difference d) {
+            public ComparisonResult differenceFound(Difference d, ComparisonResult outcome) {
                 invocationCounter[0]++;
                 return ComparisonResult.EQUAL;
             }

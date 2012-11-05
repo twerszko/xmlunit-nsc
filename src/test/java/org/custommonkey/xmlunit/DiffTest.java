@@ -160,7 +160,7 @@ public class DiffTest {
 
         Difference difference = new Difference(new Difference(ComparisonType.HAS_CHILD_NODES), controlNodeDetail,
                 testNodeDetail);
-        diff.differenceFound(difference);
+        diff.differenceFound(difference, ComparisonResult.DIFFERENT);
 
         String toStringResult = diff.toString();
         String expectedToString = diff.getClass().getName() + "\n[different] Expected "
@@ -184,7 +184,7 @@ public class DiffTest {
 
         Difference difference = new Difference(new Difference(ComparisonType.TEXT_VALUE), controlNodeDetail,
                 testNodeDetail);
-        diff.differenceFound(difference);
+        diff.differenceFound(difference, ComparisonResult.DIFFERENT);
 
         String toStringResult = diff.toString();
         String expectedToString = diff.getClass().getName() + "\n[different] Expected "
@@ -868,7 +868,7 @@ public class DiffTest {
             this.overrideValue = overrideValue;
         }
 
-        public ComparisonResult differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
             return overrideValue;
         }
 
@@ -890,7 +890,7 @@ public class DiffTest {
             }
         }
 
-        public ComparisonResult differenceFound(Difference difference) {
+        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
             assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
             examineDifferenceContents(difference);
             return ComparisonResult.DIFFERENT;
@@ -1190,7 +1190,7 @@ public class DiffTest {
         Diff diff = prepareDiff(properties, control, test);
         diff.overrideDifferenceListener(
                 new DifferenceListener() {
-                    public ComparisonResult differenceFound(Difference d) {
+                    public ComparisonResult differenceFound(Difference d, ComparisonResult outcome) {
                         return ComparisonResult.CRITICAL;
                     }
 

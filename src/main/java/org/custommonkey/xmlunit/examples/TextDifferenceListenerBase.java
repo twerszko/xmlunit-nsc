@@ -70,54 +70,54 @@ public abstract class TextDifferenceListenerBase
      * commentDifference} or {@link #textDifference textDifference} are invoked
      * respectively.
      */
-    public ComparisonResult differenceFound(Difference difference) {
+    public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
         switch (difference.getType()) {
-            case ATTR_VALUE:
-                return attributeDifference(difference);
-            case CDATA_VALUE:
-                return cdataDifference(difference);
-            case COMMENT_VALUE:
-                return commentDifference(difference);
-            case TEXT_VALUE:
-                return textDifference(difference);
-            default:
-                return delegateTo.differenceFound(difference);
+        case ATTR_VALUE:
+            return attributeDifference(difference, outcome);
+        case CDATA_VALUE:
+            return cdataDifference(difference, outcome);
+        case COMMENT_VALUE:
+            return commentDifference(difference, outcome);
+        case TEXT_VALUE:
+            return textDifference(difference, outcome);
+        default:
+            return delegateTo.differenceFound(difference, outcome);
         }
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ComparisonResult attributeDifference(Difference d) {
-        return textualDifference(d);
+    protected ComparisonResult attributeDifference(Difference d, ComparisonResult outcome) {
+        return textualDifference(d, outcome);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ComparisonResult cdataDifference(Difference d) {
-        return textualDifference(d);
+    protected ComparisonResult cdataDifference(Difference d, ComparisonResult outcome) {
+        return textualDifference(d, outcome);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ComparisonResult commentDifference(Difference d) {
-        return textualDifference(d);
+    protected ComparisonResult commentDifference(Difference d, ComparisonResult outcome) {
+        return textualDifference(d, outcome);
     }
 
     /**
      * Delegates to {@link #textualDifference textualDifference}.
      */
-    protected ComparisonResult textDifference(Difference d) {
-        return textualDifference(d);
+    protected ComparisonResult textDifference(Difference d, ComparisonResult outcome) {
+        return textualDifference(d, outcome);
     }
 
     /**
      * Delegates to the nested DifferenceListener.
      */
-    protected ComparisonResult textualDifference(Difference d) {
-        return delegateTo.differenceFound(d);
+    protected ComparisonResult textualDifference(Difference d, ComparisonResult outcome) {
+        return delegateTo.differenceFound(d, outcome);
     }
 
     public void skippedComparison(Node control, Node test) {
