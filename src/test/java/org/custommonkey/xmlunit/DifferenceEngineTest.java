@@ -151,8 +151,7 @@ public class DifferenceEngineTest {
 	}
 
 	private void assertDifferentProcessingInstructions(
-	        ProcessingInstruction control, ProcessingInstruction test,
-	        Comparison difference) {
+	        ProcessingInstruction control, ProcessingInstruction test, Comparison difference) {
 		try {
 			engine.compareProcessingInstruction(control, test, listener);
 		} catch (DifferenceEngine.DifferenceFoundException e) {
