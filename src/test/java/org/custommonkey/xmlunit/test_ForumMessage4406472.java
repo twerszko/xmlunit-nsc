@@ -39,6 +39,7 @@ package org.custommonkey.xmlunit;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 
@@ -50,83 +51,83 @@ import org.w3c.dom.Node;
  */
 public class test_ForumMessage4406472 extends TestCase {
 
-    private static final String doc1 =
-            "<pub:Book xmlns:pub=\"http://www.publishing.org\" date=\"2007-01-01\">"
-                    + "     <pub:Title>String</pub:Title>"
-                    + "     <pub:Author>String</pub:Author>"
-                    + "     <pub:ISBN>String</pub:ISBN>"
-                    + "     <pub:Publisher>String</pub:Publisher>"
-                    + "     <pub:Price>34.50</pub:Price>"
-                    + "</pub:Book>";
+	private static final String doc1 =
+	        "<pub:Book xmlns:pub=\"http://www.publishing.org\" date=\"2007-01-01\">"
+	                + "     <pub:Title>String</pub:Title>"
+	                + "     <pub:Author>String</pub:Author>"
+	                + "     <pub:ISBN>String</pub:ISBN>"
+	                + "     <pub:Publisher>String</pub:Publisher>"
+	                + "     <pub:Price>34.50</pub:Price>"
+	                + "</pub:Book>";
 
-    private static final String doc2 =
-            "<p:Book xmlns:p=\"http://www.publishing.org\" date=\"1900-01-01\">"
-                    + "     <p:Title>Bla</p:Title>"
-                    + "     <p:Author>Bla</p:Author>"
-                    + "     <p:ISBN>Bla</p:ISBN>"
-                    + "     <p:Publisher>Bla</p:Publisher>"
-                    + "     <p:Price>0.00</p:Price>"
-                    + "</p:Book>";
+	private static final String doc2 =
+	        "<p:Book xmlns:p=\"http://www.publishing.org\" date=\"1900-01-01\">"
+	                + "     <p:Title>Bla</p:Title>"
+	                + "     <p:Author>Bla</p:Author>"
+	                + "     <p:ISBN>Bla</p:ISBN>"
+	                + "     <p:Publisher>Bla</p:Publisher>"
+	                + "     <p:Price>0.00</p:Price>"
+	                + "</p:Book>";
 
-    private class OriginalDifferenceListener implements DifferenceListener {
-        private final ComparisonType[] IGNORE = new ComparisonType[] {
-                ComparisonType.ATTR_VALUE,
-                ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                ComparisonType.TEXT_VALUE,
-                ComparisonType.NAMESPACE_PREFIX,
-                ComparisonType.NAMESPACE_URI
-        };
+	private class OriginalDifferenceListener implements DifferenceListener {
+		private final ComparisonType[] IGNORE = new ComparisonType[] {
+		        ComparisonType.ATTR_VALUE,
+		        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+		        ComparisonType.TEXT_VALUE,
+		        ComparisonType.NAMESPACE_PREFIX,
+		        ComparisonType.NAMESPACE_URI
+		};
 
-        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
-            Arrays.sort(IGNORE);
-            return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
-                    ? ComparisonResult.EQUAL
-                    : ComparisonResult.DIFFERENT;
-        }
+		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+			Arrays.sort(IGNORE);
+			return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
+			        ? ComparisonResult.EQUAL
+			        : ComparisonResult.DIFFERENT;
+		}
 
-        public void skippedComparison(Node control, Node test) {
-        }
-    }
+		public void skippedComparison(Node control, Node test) {
+		}
+	}
 
-    private class ModifiedDifferenceListener implements DifferenceListener {
-        private final ComparisonType[] IGNORE = new ComparisonType[] {
-                ComparisonType.ATTR_VALUE,
-                ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                ComparisonType.TEXT_VALUE,
-                ComparisonType.NAMESPACE_PREFIX,
-        };
+	private class ModifiedDifferenceListener implements DifferenceListener {
+		private final ComparisonType[] IGNORE = new ComparisonType[] {
+		        ComparisonType.ATTR_VALUE,
+		        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+		        ComparisonType.TEXT_VALUE,
+		        ComparisonType.NAMESPACE_PREFIX,
+		};
 
-        private ModifiedDifferenceListener() {
-            Arrays.sort(IGNORE);
-        }
+		private ModifiedDifferenceListener() {
+			Arrays.sort(IGNORE);
+		}
 
-        public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
-            return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
-                    ? ComparisonResult.EQUAL
-                    : difference.isRecoverable()
-                            ? ComparisonResult.SIMILAR
-                            : ComparisonResult.DIFFERENT;
-        }
+		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+			return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
+			        ? ComparisonResult.EQUAL
+			        : difference.isRecoverable()
+			                ? ComparisonResult.SIMILAR
+			                : ComparisonResult.DIFFERENT;
+		}
 
-        public void skippedComparison(Node control, Node test) {
-        }
-    }
+		public void skippedComparison(Node control, Node test) {
+		}
+	}
 
-    public void testOriginal() throws Exception {
-        Diff d = Diff.newDiff(null)
-                .betweenControlDocument(doc1)
-                .andTestDocument(doc2)
-                .build();
-        d.overrideDifferenceListener(new OriginalDifferenceListener());
-        assertTrue(d.toString(), d.similar());
-    }
+	public void testOriginal() throws Exception {
+		Diff d = Diff.newDiff(null)
+		        .betweenControlDocument(doc1)
+		        .andTestDocument(doc2)
+		        .build();
+		d.overrideDifferenceListener(new OriginalDifferenceListener());
+		assertTrue(d.toString(), d.similar());
+	}
 
-    public void testModified() throws Exception {
-        Diff d = Diff.newDiff(null)
-                .betweenControlDocument(doc1)
-                .andTestDocument(doc2)
-                .build();
-        d.overrideDifferenceListener(new ModifiedDifferenceListener());
-        assertTrue(d.toString(), d.similar());
-    }
+	public void testModified() throws Exception {
+		Diff d = Diff.newDiff(null)
+		        .betweenControlDocument(doc1)
+		        .andTestDocument(doc2)
+		        .build();
+		d.overrideDifferenceListener(new ModifiedDifferenceListener());
+		assertTrue(d.toString(), d.similar());
+	}
 }

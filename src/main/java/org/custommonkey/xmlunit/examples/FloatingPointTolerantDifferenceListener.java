@@ -35,9 +35,9 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.custommonkey.xmlunit.examples;
 
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
-import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 
 /**
@@ -47,30 +47,30 @@ import org.custommonkey.xmlunit.DifferenceListener;
 public class FloatingPointTolerantDifferenceListener
         extends TextDifferenceListenerBase {
 
-    private final double tolerance;
+	private final double tolerance;
 
-    public FloatingPointTolerantDifferenceListener(DifferenceListener delegateTo,
-            double tolerance) {
-        super(delegateTo);
-        this.tolerance = tolerance;
-    }
+	public FloatingPointTolerantDifferenceListener(DifferenceListener delegateTo,
+	        double tolerance) {
+		super(delegateTo);
+		this.tolerance = tolerance;
+	}
 
-    @Override
-    protected ComparisonResult textualDifference(Difference d, ComparisonResult outcome) {
-        String control = String.valueOf(d.getControlNodeDetail().getValue());
-        String test = String.valueOf(d.getTestNodeDetail().getValue());
-        if (control != null && test != null) {
-            try {
-                double controlVal = Double.parseDouble(control);
-                double testVal = Double.parseDouble(test);
-                return Math.abs(controlVal - testVal) < tolerance
-                        ? ComparisonResult.EQUAL
-                        : ComparisonResult.DIFFERENT;
-            } catch (NumberFormatException nfe) {
-                // ignore, delegate to nested DifferenceListener
-            }
-        }
-        // no numbers or null, delegate
-        return super.textualDifference(d, outcome);
-    }
+	@Override
+	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
+		String control = String.valueOf(comparison.getControlDetails().getValue());
+		String test = String.valueOf(comparison.getTestDetails().getValue());
+		if (control != null && test != null) {
+			try {
+				double controlVal = Double.parseDouble(control);
+				double testVal = Double.parseDouble(test);
+				return Math.abs(controlVal - testVal) < tolerance
+				        ? ComparisonResult.EQUAL
+				        : ComparisonResult.DIFFERENT;
+			} catch (NumberFormatException nfe) {
+				// ignore, delegate to nested DifferenceListener
+			}
+		}
+		// no numbers or null, delegate
+		return super.textualDifference(comparison, outcome);
+	}
 }

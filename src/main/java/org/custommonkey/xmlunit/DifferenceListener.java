@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
 import org.w3c.dom.Node;
@@ -58,7 +59,7 @@ public interface DifferenceListener {
      *            that differ
      * @return ReturnType describing how this difference was interpreted
      */
-    ComparisonResult differenceFound(Difference difference, ComparisonResult outcome);
+    ComparisonResult differenceFound(Comparison comparison, ComparisonResult outcome);
 
     /**
      * Receive notification that a comparison between 2 nodes has been skipped

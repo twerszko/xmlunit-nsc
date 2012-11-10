@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 
@@ -52,42 +53,42 @@ import org.w3c.dom.Node;
 public class IgnoreTextAndAttributeValuesDifferenceListener
         implements DifferenceListener {
 
-    private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
-            ComparisonType.ATTR_VALUE,
-            ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-            ComparisonType.TEXT_VALUE
-    };
+	private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
+	        ComparisonType.ATTR_VALUE,
+	        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+	        ComparisonType.TEXT_VALUE
+	};
 
-    private boolean isIgnoredDifference(Difference difference) {
-        ComparisonType differenceType = difference.getType();
-        for (ComparisonType ignoredType : IGNORED_TYPES) {
-            if (differenceType == ignoredType) {
-                return true;
-            }
-        }
-        return false;
-    }
+	private boolean isIgnoredDifference(Comparison comparison) {
+		ComparisonType differenceType = comparison.getType();
+		for (ComparisonType ignoredType : IGNORED_TYPES) {
+			if (differenceType == ignoredType) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    /**
-     * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
-     *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
-     *         to accept all other differences.
-     * @see DifferenceListener#differenceFound(Difference)
-     */
-    public ComparisonResult differenceFound(Difference difference, ComparisonResult outcome) {
-        if (isIgnoredDifference(difference)) {
-            return ComparisonResult.SIMILAR;
-        } else {
-            return ComparisonResult.DIFFERENT;
-        }
-    }
+	/**
+	 * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
+	 *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
+	 *         to accept all other differences.
+	 * @see DifferenceListener#differenceFound(Difference)
+	 */
+	public ComparisonResult differenceFound(Comparison comparison, ComparisonResult outcome) {
+		if (isIgnoredDifference(comparison)) {
+			return ComparisonResult.SIMILAR;
+		} else {
+			return ComparisonResult.DIFFERENT;
+		}
+	}
 
-    /**
-     * Do nothing
-     * 
-     * @see DifferenceListener#skippedComparison(Node, Node)
-     */
-    public void skippedComparison(Node control, Node test) {
-    }
+	/**
+	 * Do nothing
+	 * 
+	 * @see DifferenceListener#skippedComparison(Node, Node)
+	 */
+	public void skippedComparison(Node control, Node test) {
+	}
 
 }

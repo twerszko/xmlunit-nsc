@@ -36,20 +36,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.Comparison;
+
 /**
  * Listener for callbacks from a {@link DifferenceEngine#compare
  * DifferenceEngine comparison} that is notified on each and every comparision
  * that resulted in a match.
  */
 public interface MatchTracker {
-    /**
-     * Receive notification that 2 match.
-     * 
-     * @param match
-     *            a Difference instance as defined in
-     *            {@link DifferenceConstants DifferenceConstants} describing the
-     *            test that matched and containing the detail of the nodes that
-     *            have been compared
-     */
-    void matchFound(Difference difference);
+	/**
+	 * Receive notification that 2 match.
+	 * 
+	 * @param match
+	 *            a Difference instance as defined in
+	 *            {@link DifferenceConstants DifferenceConstants} describing the
+	 *            test that matched and containing the detail of the nodes that
+	 *            have been compared
+	 */
+	void matchFound(Comparison comparison);
 }

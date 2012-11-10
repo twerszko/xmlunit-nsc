@@ -35,21 +35,23 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.Comparison;
+
 /**
  * Callback interface used by DifferenceEngine to determine whether to halt the
  * node-by-node comparison of two pieces of XML
  */
 public interface ComparisonController {
-    /**
-     * Determine whether a Difference that the listener has been notified of
-     * should halt further XML comparison. Default behaviour for a Diff instance
-     * is to halt if the Difference is not recoverable.
-     * 
-     * @see Difference#isRecoverable
-     * @param afterDifference
-     *            the last Difference passed to <code>differenceFound</code>
-     * @return true to halt further comparison, false otherwise
-     */
-    boolean haltComparison(Difference afterDifference);
+	/**
+	 * Determine whether a Difference that the listener has been notified of
+	 * should halt further XML comparison. Default behaviour for a Diff instance
+	 * is to halt if the Difference is not recoverable.
+	 * 
+	 * @see Difference#isRecoverable
+	 * @param afterDifference
+	 *            the last Difference passed to <code>differenceFound</code>
+	 * @return true to halt further comparison, false otherwise
+	 */
+	boolean haltComparison(Comparison comparison);
 
 }

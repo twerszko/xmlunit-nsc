@@ -84,483 +84,428 @@ import org.w3c.dom.Node;
 public class NewDifferenceEngine
         implements DifferenceEngineContract {
 
-    public static final Integer ZERO = Integer.valueOf(0);
-    private static final Map<Class<?>, ElementSelector> KNOWN_SELECTORS;
-    static {
-        Map<Class<?>, ElementSelector> m = new HashMap<Class<?>, ElementSelector>();
-        m.put(ElementNameAndTextQualifier.class, ElementSelectors.byNameAndText);
-        m.put(ElementQualifier.class, ElementSelectors.byName);
-        m.put(RecursiveElementNameAndTextQualifier.class, ElementSelectors.byNameAndTextRec);
-        KNOWN_SELECTORS = Collections.unmodifiableMap(m);
-    }
+	public static final Integer ZERO = Integer.valueOf(0);
+	private static final Map<Class<?>, ElementSelector> KNOWN_SELECTORS;
+	static {
+		Map<Class<?>, ElementSelector> m = new HashMap<Class<?>, ElementSelector>();
+		m.put(ElementNameAndTextQualifier.class, ElementSelectors.byNameAndText);
+		m.put(ElementQualifier.class, ElementSelectors.byName);
+		m.put(RecursiveElementNameAndTextQualifier.class, ElementSelectors.byNameAndTextRec);
+		KNOWN_SELECTORS = Collections.unmodifiableMap(m);
+	}
 
-    private final XmlUnitProperties properties;
+	private final XmlUnitProperties properties;
 
-    private final ComparisonController controller;
-    private MatchTracker matchTracker;
+	private final ComparisonController controller;
+	private MatchTracker matchTracker;
 
-    /**
-     * Simple constructor that uses no MatchTracker at all.
-     * 
-     * @param controller
-     *            the instance used to determine whether a Difference detected
-     *            by this class should halt further comparison or not
-     * @see ComparisonController#haltComparison(Difference)
-     */
-    public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller) {
-        this(properties, controller, null);
-    }
+	/**
+	 * Simple constructor that uses no MatchTracker at all.
+	 * 
+	 * @param controller
+	 *            the instance used to determine whether a Difference detected
+	 *            by this class should halt further comparison or not
+	 * @see ComparisonController#haltComparison(Difference)
+	 */
+	public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller) {
+		this(properties, controller, null);
+	}
 
-    /**
-     * Simple constructor
-     * 
-     * @param controller
-     *            the instance used to determine whether a Difference detected
-     *            by this class should halt further comparison or not
-     * @param matchTracker
-     *            the instance that is notified on each successful match. May be
-     *            null.
-     * @see ComparisonController#haltComparison(Difference)
-     * @see MatchTracker#matchFound(Difference)
-     */
-    public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
-            MatchTracker matchTracker) {
+	/**
+	 * Simple constructor
+	 * 
+	 * @param controller
+	 *            the instance used to determine whether a Difference detected
+	 *            by this class should halt further comparison or not
+	 * @param matchTracker
+	 *            the instance that is notified on each successful match. May be
+	 *            null.
+	 * @see ComparisonController#haltComparison(Difference)
+	 * @see MatchTracker#matchFound(Difference)
+	 */
+	public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
+	        MatchTracker matchTracker) {
 
-        if (properties == null) {
-            this.properties = new XmlUnitProperties();
-        } else {
-            this.properties = properties.clone();
-        }
+		if (properties == null) {
+			this.properties = new XmlUnitProperties();
+		} else {
+			this.properties = properties.clone();
+		}
 
-        this.controller = controller;
-        this.matchTracker = matchTracker;
-    }
+		this.controller = controller;
+		this.matchTracker = matchTracker;
+	}
 
-    /**
-     * @param matchTracker
-     *            the instance that is notified on each successful match. May be
-     *            null.
-     */
-    public void setMatchTracker(MatchTracker matchTracker) {
-        this.matchTracker = matchTracker;
-    }
+	/**
+	 * @param matchTracker
+	 *            the instance that is notified on each successful match. May be
+	 *            null.
+	 */
+	public void setMatchTracker(MatchTracker matchTracker) {
+		this.matchTracker = matchTracker;
+	}
 
-    /**
-     * Entry point for Node comparison testing.
-     * 
-     * @param control
-     *            Control XML to compare
-     * @param test
-     *            Test XML to compare
-     * @param listener
-     *            Notified of any {@link Difference differences} detected during
-     *            node comparison testing
-     * @param elementQualifier
-     *            Used to determine which elements qualify for comparison e.g.
-     *            when a node has repeated child elements that may occur in any
-     *            sequence and that sequence is not considered important.
-     */
-    public void compare(Node control, Node test, DifferenceListener listener,
-            ElementQualifier elementQualifier) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
+	/**
+	 * Entry point for Node comparison testing.
+	 * 
+	 * @param control
+	 *            Control XML to compare
+	 * @param test
+	 *            Test XML to compare
+	 * @param listener
+	 *            Notified of any {@link Difference differences} detected during
+	 *            node comparison testing
+	 * @param elementQualifier
+	 *            Used to determine which elements qualify for comparison e.g.
+	 *            when a node has repeated child elements that may occur in any
+	 *            sequence and that sequence is not considered important.
+	 */
+	public void compare(Node control, Node test, DifferenceListener listener,
+	        ElementQualifier elementQualifier) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine();
 
-        final IsBetweenDocumentNodeAndRootElement checkPrelude =
-                new IsBetweenDocumentNodeAndRootElement();
-        engine.addComparisonListener(checkPrelude);
+		final IsBetweenDocumentNodeAndRootElement checkPrelude =
+		        new IsBetweenDocumentNodeAndRootElement();
+		engine.addComparisonListener(checkPrelude);
 
-        if (matchTracker != null) {
-            engine
-                    .addMatchListener(new MatchTracker2ComparisonListener(matchTracker));
-        }
+		if (matchTracker != null) {
+			engine
+			        .addMatchListener(new MatchTracker2ComparisonListener(matchTracker));
+		}
 
-        DifferenceEvaluator controllerAsEvaluator =
-                new ComparisonController2DifferenceEvaluator(controller);
-        DifferenceEvaluator ev = null;
-        if (listener != null) {
-            ev = DifferenceEvaluators
-                    .first(new DifferenceListener2DifferenceEvaluator(listener),
-                            controllerAsEvaluator);
-        } else {
-            ev = controllerAsEvaluator;
-        }
-        final net.sf.xmlunit.diff.DifferenceEvaluator evaluator = ev;
-        engine
-                .setDifferenceEvaluator(new DifferenceEvaluator() {
-                    public ComparisonResult evaluate(Comparison comparison,
-                            ComparisonResult outcome) {
-                        if (!swallowComparison(comparison, outcome,
-                                checkPrelude)) {
-                            return evaluator.evaluate(comparison, outcome);
-                        }
-                        return outcome;
-                    }
-                });
+		DifferenceEvaluator controllerAsEvaluator =
+		        new ComparisonController2DifferenceEvaluator(controller);
+		DifferenceEvaluator ev = null;
+		if (listener != null) {
+			ev = DifferenceEvaluators
+			        .first(new DifferenceListener2DifferenceEvaluator(listener),
+			                controllerAsEvaluator);
+		} else {
+			ev = controllerAsEvaluator;
+		}
+		final net.sf.xmlunit.diff.DifferenceEvaluator evaluator = ev;
+		engine
+		        .setDifferenceEvaluator(new DifferenceEvaluator() {
+			        public ComparisonResult evaluate(Comparison comparison,
+			                ComparisonResult outcome) {
+				        if (!swallowComparison(comparison, outcome,
+				                checkPrelude)) {
+					        return evaluator.evaluate(comparison, outcome);
+				        }
+				        return outcome;
+			        }
+		        });
 
-        NodeMatcher m = new DefaultNodeMatcher();
-        if (elementQualifier != null) {
-            Class<?> c = elementQualifier.getClass();
-            if (KNOWN_SELECTORS.containsKey(c)) {
-                m = new DefaultNodeMatcher(KNOWN_SELECTORS.get(c));
-            } else {
-                m = new DefaultNodeMatcher(new ElementQualifier2ElementSelector(elementQualifier));
-            }
-        }
-        if (!properties.getCompareUnmatched()) {
-            engine.setNodeMatcher(m);
-        } else {
-            engine.setNodeMatcher(new CompareUnmatchedNodeMatcher(m));
-        }
+		NodeMatcher m = new DefaultNodeMatcher();
+		if (elementQualifier != null) {
+			Class<?> c = elementQualifier.getClass();
+			if (KNOWN_SELECTORS.containsKey(c)) {
+				m = new DefaultNodeMatcher(KNOWN_SELECTORS.get(c));
+			} else {
+				m = new DefaultNodeMatcher(new ElementQualifier2ElementSelector(elementQualifier));
+			}
+		}
+		if (!properties.getCompareUnmatched()) {
+			engine.setNodeMatcher(m);
+		} else {
+			engine.setNodeMatcher(new CompareUnmatchedNodeMatcher(m));
+		}
 
-        Input.Builder ctrlBuilder = Input.fromNode(control);
-        Input.Builder tstBuilder = Input.fromNode(test);
+		Input.Builder ctrlBuilder = Input.fromNode(control);
+		Input.Builder tstBuilder = Input.fromNode(test);
 
-        Source ctrlSource = ctrlBuilder.build();
-        Source tstSource = tstBuilder.build();
-        if (properties.getIgnoreComments()) {
-            ctrlSource = new CommentLessSource(ctrlSource);
-            tstSource = new CommentLessSource(tstSource);
-        }
-        if (properties.getNormalizeWhitespace()) {
-            ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
-            tstSource = new WhitespaceNormalizedSource(tstSource);
-        } else if (properties.getIgnoreWhitespace()) {
-            ctrlSource = new WhitespaceStrippedSource(ctrlSource);
-            tstSource = new WhitespaceStrippedSource(tstSource);
-        }
+		Source ctrlSource = ctrlBuilder.build();
+		Source tstSource = tstBuilder.build();
+		if (properties.getIgnoreComments()) {
+			ctrlSource = new CommentLessSource(ctrlSource);
+			tstSource = new CommentLessSource(tstSource);
+		}
+		if (properties.getNormalizeWhitespace()) {
+			ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
+			tstSource = new WhitespaceNormalizedSource(tstSource);
+		} else if (properties.getIgnoreWhitespace()) {
+			ctrlSource = new WhitespaceStrippedSource(ctrlSource);
+			tstSource = new WhitespaceStrippedSource(tstSource);
+		}
 
-        engine.compare(ctrlSource, tstSource);
-    }
+		engine.compare(ctrlSource, tstSource);
+	}
 
-    public static Difference toDifference(Comparison comp) {
-        // TODO
-        Difference proto = null;
-        switch (comp.getType()) {
-        case ATTR_VALUE_EXPLICITLY_SPECIFIED:
-            proto = new Difference(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
-            break;
-        case HAS_DOCTYPE_DECLARATION:
-            proto = new Difference(ComparisonType.HAS_DOCTYPE_DECLARATION);
-            break;
-        case DOCTYPE_NAME:
-            proto = new Difference(ComparisonType.DOCTYPE_NAME);
-            break;
-        case DOCTYPE_PUBLIC_ID:
-            proto = new Difference(ComparisonType.DOCTYPE_PUBLIC_ID);
-            break;
-        case DOCTYPE_SYSTEM_ID:
-            proto = new Difference(ComparisonType.DOCTYPE_SYSTEM_ID);
-            break;
-        case SCHEMA_LOCATION:
-            proto = new Difference(ComparisonType.SCHEMA_LOCATION);
-            break;
-        case NO_NAMESPACE_SCHEMA_LOCATION:
-            proto = new Difference(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
-            break;
-        case NODE_TYPE:
-            proto = new Difference(ComparisonType.NODE_TYPE);
-            break;
-        case NAMESPACE_PREFIX:
-            proto = new Difference(ComparisonType.NAMESPACE_PREFIX);
-            break;
-        case NAMESPACE_URI:
-            proto = new Difference(ComparisonType.NAMESPACE_URI);
-            break;
-        case TEXT_VALUE:
-            proto = new Difference(ComparisonType.TEXT_VALUE);
-            break;
-        case COMMENT_VALUE:
-            proto = new Difference(ComparisonType.COMMENT_VALUE);
-            break;
-        case CDATA_VALUE:
-            proto = new Difference(ComparisonType.CDATA_VALUE);
-            break;
-        case PROCESSING_INSTRUCTION_TARGET:
-            proto = new Difference(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
-            break;
-        case PROCESSING_INSTRUCTION_DATA:
-            proto = new Difference(ComparisonType.PROCESSING_INSTRUCTION_DATA);
-            break;
-        case ELEMENT_TAG_NAME:
-            proto = new Difference(ComparisonType.ELEMENT_TAG_NAME);
-            break;
-        case ELEMENT_NUM_ATTRIBUTES:
-            proto = new Difference(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
-            break;
-        case ATTR_VALUE:
-            proto = new Difference(ComparisonType.ATTR_VALUE);
-            break;
-        case CHILD_NODELIST_LENGTH:
-            proto = new Difference(ComparisonType.CHILD_NODELIST_LENGTH);
-            break;
-        case HAS_CHILD_NODES:
-            proto = new Difference(ComparisonType.HAS_CHILD_NODES);
-            break;
-        case CHILD_NODELIST_SEQUENCE:
-            proto = new Difference(ComparisonType.CHILD_NODELIST_SEQUENCE);
-            break;
-        case CHILD_LOOKUP:
-            proto = new Difference(ComparisonType.CHILD_LOOKUP);
-            break;
-        case ATTR_NAME_LOOKUP:
-            proto = new Difference(ComparisonType.ATTR_NAME_LOOKUP);
-            break;
-        case ATTR_SEQUENCE:
-            proto = new Difference(ComparisonType.ATTR_SEQUENCE);
-            break;
-        default:
-            /* comparison doesn't match one of legacy's built-in differences */
-            break;
-        }
-        if (proto != null) {
-            return new Difference(proto, adaptNodeDetail(comp.getControlDetails()),
-                    adaptNodeDetail(comp.getTestDetails()));
-        }
-        return null;
-    }
+	@Nullable
+	public static Comparison filter(Comparison comp) {
+		switch (comp.getType()) {
+			case ATTR_VALUE_EXPLICITLY_SPECIFIED:
+			case HAS_DOCTYPE_DECLARATION:
+			case DOCTYPE_NAME:
+			case DOCTYPE_PUBLIC_ID:
+			case DOCTYPE_SYSTEM_ID:
+			case SCHEMA_LOCATION:
+			case NO_NAMESPACE_SCHEMA_LOCATION:
+			case NODE_TYPE:
+			case NAMESPACE_PREFIX:
+			case NAMESPACE_URI:
+			case TEXT_VALUE:
+			case COMMENT_VALUE:
+			case CDATA_VALUE:
+			case PROCESSING_INSTRUCTION_TARGET:
+			case PROCESSING_INSTRUCTION_DATA:
+			case ELEMENT_TAG_NAME:
+			case ELEMENT_NUM_ATTRIBUTES:
+			case ATTR_VALUE:
+			case CHILD_NODELIST_LENGTH:
+			case HAS_CHILD_NODES:
+			case CHILD_NODELIST_SEQUENCE:
+			case CHILD_LOOKUP:
+			case ATTR_NAME_LOOKUP:
+			case ATTR_SEQUENCE:
+				return comp;
+			default:
+				return null;
+		}
+	}
 
-    public static Comparison.Detail adaptNodeDetail(Comparison.Detail detail) {
-        String value = String.valueOf(detail.getValue());
-        if (detail.getValue() instanceof QName) {
-            value = ((QName) detail.getValue()).getLocalPart();
-        } else if (detail.getValue() instanceof Node) {
-            value = ((Node) detail.getValue()).getNodeName();
-        }
-        return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
-    }
+	public static Comparison.Detail adaptNodeDetail(Comparison.Detail detail) {
+		String value = String.valueOf(detail.getValue());
+		if (detail.getValue() instanceof QName) {
+			value = ((QName) detail.getValue()).getLocalPart();
+		} else if (detail.getValue() instanceof Node) {
+			value = ((Node) detail.getValue()).getNodeName();
+		}
+		return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
+	}
 
-    public static class MatchTracker2ComparisonListener
-            implements ComparisonListener {
-        private final MatchTracker mt;
+	public static class MatchTracker2ComparisonListener
+	        implements ComparisonListener {
+		private final MatchTracker mt;
 
-        public MatchTracker2ComparisonListener(MatchTracker m) {
-            mt = m;
-        }
+		public MatchTracker2ComparisonListener(MatchTracker m) {
+			mt = m;
+		}
 
-        public void comparisonPerformed(Comparison comparison,
-                ComparisonResult outcome) {
-            Difference diff = toDifference(comparison);
-            if (diff != null) {
-                mt.matchFound(diff);
-            }
-        }
-    }
+		public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+			comparison = filter(comparison);
+			if (comparison != null) {
+				mt.matchFound(comparison);
+			}
+		}
+	}
 
-    public static class DifferenceListener2ComparisonListener
-            implements ComparisonListener {
-        private final DifferenceListener dl;
+	public static class DifferenceListener2ComparisonListener
+	        implements ComparisonListener {
+		private final DifferenceListener dl;
 
-        public DifferenceListener2ComparisonListener(DifferenceListener dl) {
-            this.dl = dl;
-        }
+		public DifferenceListener2ComparisonListener(DifferenceListener dl) {
+			this.dl = dl;
+		}
 
-        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-            Difference diff = toDifference(comparison);
-            if (diff != null) {
-                dl.differenceFound(diff, outcome);
-            }
-        }
-    }
+		public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+			comparison = filter(comparison);
+			if (comparison != null) {
+				dl.differenceFound(comparison, outcome);
+			}
+		}
+	}
 
-    private static final Short TEXT_TYPE = Short.valueOf(Node.TEXT_NODE);
-    private static final Short CDATA_TYPE =
-            Short.valueOf(Node.CDATA_SECTION_NODE);
+	private static final Short TEXT_TYPE = Short.valueOf(Node.TEXT_NODE);
+	private static final Short CDATA_TYPE =
+	        Short.valueOf(Node.CDATA_SECTION_NODE);
 
-    private boolean swallowComparison(Comparison comparison,
-            ComparisonResult outcome,
-            IsBetweenDocumentNodeAndRootElement
-            checkPrelude) {
-        if (outcome == ComparisonResult.EQUAL) {
-            return true;
-        }
-        if ((comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
-                && comparison.getControlDetails().getTarget() instanceof Document)
-                ||
-                (
-                comparison.getType() == ComparisonType.CHILD_LOOKUP
-                &&
-                (isNonElementDocumentChild(comparison.getControlDetails())
-                || isNonElementDocumentChild(comparison.getTestDetails()))
-                )
-                || checkPrelude.shouldSkip()) {
-            return true;
-        }
-        if (properties.getIgnoreDiffBetweenTextAndCDATA()
-                && comparison.getType() == ComparisonType.NODE_TYPE) {
-            return (
-                    TEXT_TYPE.equals(comparison.getControlDetails().getValue())
-                    ||
-                    CDATA_TYPE.equals(comparison.getControlDetails().getValue())
-                    )
-                    && (
-                    TEXT_TYPE.equals(comparison.getTestDetails().getValue())
-                    ||
-                    CDATA_TYPE.equals(comparison.getTestDetails().getValue())
-                    );
-        }
-        return false;
-    }
+	private boolean swallowComparison(Comparison comparison,
+	        ComparisonResult outcome,
+	        IsBetweenDocumentNodeAndRootElement
+	        checkPrelude) {
+		if (outcome == ComparisonResult.EQUAL) {
+			return true;
+		}
+		if ((comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
+		        && comparison.getControlDetails().getTarget() instanceof Document)
+		        ||
+		        (
+		        comparison.getType() == ComparisonType.CHILD_LOOKUP
+		        &&
+		        (isNonElementDocumentChild(comparison.getControlDetails())
+		        || isNonElementDocumentChild(comparison.getTestDetails()))
+		        )
+		        || checkPrelude.shouldSkip()) {
+			return true;
+		}
+		if (properties.getIgnoreDiffBetweenTextAndCDATA()
+		        && comparison.getType() == ComparisonType.NODE_TYPE) {
+			return (
+			        TEXT_TYPE.equals(comparison.getControlDetails().getValue())
+			        ||
+			        CDATA_TYPE.equals(comparison.getControlDetails().getValue())
+			        )
+			        && (
+			        TEXT_TYPE.equals(comparison.getTestDetails().getValue())
+			        ||
+			        CDATA_TYPE.equals(comparison.getTestDetails().getValue())
+			        );
+		}
+		return false;
+	}
 
-    private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
-        return detail != null && detail.getTarget() instanceof Node
-                && !(detail.getTarget() instanceof Element)
-                && detail.getTarget().getParentNode() instanceof Document;
-    }
+	private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
+		return detail != null && detail.getTarget() instanceof Node
+		        && !(detail.getTarget() instanceof Element)
+		        && detail.getTarget().getParentNode() instanceof Document;
+	}
 
-    public static class ComparisonController2DifferenceEvaluator
-            implements DifferenceEvaluator {
-        private final ComparisonController cc;
+	public static class ComparisonController2DifferenceEvaluator
+	        implements DifferenceEvaluator {
+		private final ComparisonController cc;
 
-        public ComparisonController2DifferenceEvaluator(ComparisonController c) {
-            cc = c;
-        }
+		public ComparisonController2DifferenceEvaluator(ComparisonController c) {
+			cc = c;
+		}
 
-        public ComparisonResult evaluate(Comparison comparison,
-                ComparisonResult outcome) {
-            Difference diff = toDifference(comparison);
-            if (diff != null && cc.haltComparison(diff)) {
-                return ComparisonResult.CRITICAL;
-            }
-            return outcome;
-        }
-    }
+		public ComparisonResult evaluate(Comparison comparison,
+		        ComparisonResult outcome) {
+			comparison = filter(comparison);
+			if (comparison != null && cc.haltComparison(comparison)) {
+				return ComparisonResult.CRITICAL;
+			}
+			return outcome;
+		}
+	}
 
-    public static class ElementQualifier2ElementSelector
-            implements ElementSelector {
-        private final ElementQualifier eq;
+	public static class ElementQualifier2ElementSelector
+	        implements ElementSelector {
+		private final ElementQualifier eq;
 
-        public ElementQualifier2ElementSelector(ElementQualifier eq) {
-            this.eq = eq;
-        }
+		public ElementQualifier2ElementSelector(ElementQualifier eq) {
+			this.eq = eq;
+		}
 
-        public boolean canBeCompared(Element controlElement,
-                Element testElement) {
-            return eq.qualifyForComparison(controlElement, testElement);
-        }
+		public boolean canBeCompared(Element controlElement,
+		        Element testElement) {
+			return eq.qualifyForComparison(controlElement, testElement);
+		}
 
-    }
+	}
 
-    public static class DifferenceListener2DifferenceEvaluator
-            implements DifferenceEvaluator {
-        private final DifferenceListener dl;
+	public static class DifferenceListener2DifferenceEvaluator
+	        implements DifferenceEvaluator {
+		private final DifferenceListener dl;
 
-        public DifferenceListener2DifferenceEvaluator(DifferenceListener dl) {
-            this.dl = dl;
-        }
+		public DifferenceListener2DifferenceEvaluator(DifferenceListener dl) {
+			this.dl = dl;
+		}
 
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            Difference diff = toDifference(comparison);
-            if (diff != null) {
-                return dl.differenceFound(diff, outcome);
-            }
-            return outcome;
-        }
-    }
+		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+			comparison = filter(comparison);
+			if (comparison != null) {
+				return dl.differenceFound(comparison, outcome);
+			}
+			return outcome;
+		}
+	}
 
-    /**
-     * Tests whether the DifferenceEngine is currently processing comparisons of
-     * "things" between the document node and the document's root element
-     * (comments or PIs, mostly) since these must be ignored for backwards
-     * compatibility reasons.
-     * 
-     * <p>
-     * Relies on the following assumptions:
-     * <ul>
-     * 
-     * <li>the last comparison DOMDifferenceEngine performs on the document node
-     * is an XML_ENCODING comparison.</li>
-     * <li>the first comparison DOMDifferenceEngine performs on matching root
-     * elements is a NODE_TYPE comparison. The control Node is an Element Node.</li>
-     * <li>the first comparison DOMDifferenceEngine performs if the root
-     * elements don't match is a CHILD_LOOKUP comparison. The control Node is an
-     * Element Node.</li>
-     * </ul>
-     * </p>
-     */
-    private static class IsBetweenDocumentNodeAndRootElement
-            implements ComparisonListener {
+	/**
+	 * Tests whether the DifferenceEngine is currently processing comparisons of
+	 * "things" between the document node and the document's root element
+	 * (comments or PIs, mostly) since these must be ignored for backwards
+	 * compatibility reasons.
+	 * 
+	 * <p>
+	 * Relies on the following assumptions:
+	 * <ul>
+	 * 
+	 * <li>the last comparison DOMDifferenceEngine performs on the document node
+	 * is an XML_ENCODING comparison.</li>
+	 * <li>the first comparison DOMDifferenceEngine performs on matching root
+	 * elements is a NODE_TYPE comparison. The control Node is an Element Node.</li>
+	 * <li>the first comparison DOMDifferenceEngine performs if the root
+	 * elements don't match is a CHILD_LOOKUP comparison. The control Node is an
+	 * Element Node.</li>
+	 * </ul>
+	 * </p>
+	 */
+	private static class IsBetweenDocumentNodeAndRootElement
+	        implements ComparisonListener {
 
-        private boolean haveSeenXmlEncoding = false;
-        private boolean haveSeenElementNodeComparison = false;
+		private boolean haveSeenXmlEncoding = false;
+		private boolean haveSeenElementNodeComparison = false;
 
-        public void comparisonPerformed(Comparison comparison,
-                ComparisonResult outcome) {
-            if (comparison.getType() == ComparisonType.XML_ENCODING) {
-                haveSeenXmlEncoding = true;
-            } else if (comparison.getControlDetails().getTarget()
-                    instanceof Element
-                    &&
-                    (comparison.getType() == ComparisonType.NODE_TYPE
-                    || comparison.getType() == ComparisonType.CHILD_LOOKUP)) {
-                haveSeenElementNodeComparison = true;
-            }
-        }
+		public void comparisonPerformed(Comparison comparison,
+		        ComparisonResult outcome) {
+			if (comparison.getType() == ComparisonType.XML_ENCODING) {
+				haveSeenXmlEncoding = true;
+			} else if (comparison.getControlDetails().getTarget()
+			        instanceof Element
+			        &&
+			        (comparison.getType() == ComparisonType.NODE_TYPE
+			        || comparison.getType() == ComparisonType.CHILD_LOOKUP)) {
+				haveSeenElementNodeComparison = true;
+			}
+		}
 
-        private boolean shouldSkip() {
-            return haveSeenXmlEncoding && !haveSeenElementNodeComparison;
-        }
-    }
+		private boolean shouldSkip() {
+			return haveSeenXmlEncoding && !haveSeenElementNodeComparison;
+		}
+	}
 
-    private static class CompareUnmatchedNodeMatcher
-            implements NodeMatcher {
-        private final NodeMatcher nestedMatcher;
+	private static class CompareUnmatchedNodeMatcher
+	        implements NodeMatcher {
+		private final NodeMatcher nestedMatcher;
 
-        private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
-            nestedMatcher = nested;
-        }
+		private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
+			nestedMatcher = nested;
+		}
 
-        public Iterable<Map.Entry<Node, Node>>
-                match(Iterable<Node> controlNodes,
-                        Iterable<Node> testNodes) {
-            final Map<Node, Node> map = new HashMap<Node, Node>();
-            for (Map.Entry<Node, Node> e : nestedMatcher.match(controlNodes, testNodes)) {
-                map.put(e.getKey(), e.getValue());
-            }
+		public Iterable<Map.Entry<Node, Node>>
+		        match(Iterable<Node> controlNodes,
+		                Iterable<Node> testNodes) {
+			final Map<Node, Node> map = new HashMap<Node, Node>();
+			for (Map.Entry<Node, Node> e : nestedMatcher.match(controlNodes, testNodes)) {
+				map.put(e.getKey(), e.getValue());
+			}
 
-            final LinkedList<Map.Entry<Node, Node>> result =
-                    new LinkedList<Map.Entry<Node, Node>>();
+			final LinkedList<Map.Entry<Node, Node>> result =
+			        new LinkedList<Map.Entry<Node, Node>>();
 
-            for (Node n : controlNodes) {
-                if (map.containsKey(n)) {
-                    result.add(new Entry(n, map.get(n)));
-                } else {
-                    Iterable<Node> unmatchedTestElements =
-                            Linqy.filter(testNodes, new Predicate<Node>() {
-                                public boolean matches(Node t) {
-                                    return !map.containsValue(t);
-                                }
-                            });
-                    Iterator<Node> it = unmatchedTestElements.iterator();
-                    if (it.hasNext()) {
-                        Node t = it.next();
-                        map.put(n, t);
-                        result.add(new Entry(n, t));
-                    }
-                }
-            }
-            return result;
-        }
+			for (Node n : controlNodes) {
+				if (map.containsKey(n)) {
+					result.add(new Entry(n, map.get(n)));
+				} else {
+					Iterable<Node> unmatchedTestElements =
+					        Linqy.filter(testNodes, new Predicate<Node>() {
+						        public boolean matches(Node t) {
+							        return !map.containsValue(t);
+						        }
+					        });
+					Iterator<Node> it = unmatchedTestElements.iterator();
+					if (it.hasNext()) {
+						Node t = it.next();
+						map.put(n, t);
+						result.add(new Entry(n, t));
+					}
+				}
+			}
+			return result;
+		}
 
-        private static class Entry implements Map.Entry<Node, Node> {
-            private final Node key;
-            private final Node value;
+		private static class Entry implements Map.Entry<Node, Node> {
+			private final Node key;
+			private final Node value;
 
-            private Entry(Node k, Node v) {
-                key = k;
-                value = v;
-            }
+			private Entry(Node k, Node v) {
+				key = k;
+				value = v;
+			}
 
-            public Node getKey() {
-                return key;
-            }
+			public Node getKey() {
+				return key;
+			}
 
-            public Node getValue() {
-                return value;
-            }
+			public Node getValue() {
+				return value;
+			}
 
-            public Node setValue(Node v) {
-                throw new UnsupportedOperationException();
-            }
-        }
-    }
+			public Node setValue(Node v) {
+				throw new UnsupportedOperationException();
+			}
+		}
+	}
 
 }

@@ -37,9 +37,9 @@ package org.custommonkey.xmlunit.examples;
 
 import java.util.Locale;
 
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
-import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 
 /**
@@ -48,22 +48,22 @@ import org.custommonkey.xmlunit.DifferenceListener;
 public class CaseInsensitiveDifferenceListener
         extends TextDifferenceListenerBase {
 
-    public CaseInsensitiveDifferenceListener(DifferenceListener delegateTo) {
-        super(delegateTo);
-    }
+	public CaseInsensitiveDifferenceListener(DifferenceListener delegateTo) {
+		super(delegateTo);
+	}
 
-    @Override
-    protected ComparisonResult textualDifference(Difference d, ComparisonResult outcome) {
-        String control = String.valueOf(d.getControlNodeDetail().getValue());
-        if (control != null) {
-            control = control.toLowerCase(Locale.US);
-            if (d.getTestNodeDetail().getValue() != null
-                    && control.equals(String.valueOf(d.getTestNodeDetail().getValue())
-                            .toLowerCase(Locale.US))) {
-                return ComparisonResult.EQUAL;
-            }
-        }
-        // some string is null, delegate
-        return super.textualDifference(d, outcome);
-    }
+	@Override
+	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
+		String control = String.valueOf(comparison.getControlDetails().getValue());
+		if (control != null) {
+			control = control.toLowerCase(Locale.US);
+			if (comparison.getTestDetails().getValue() != null
+			        && control.equals(String.valueOf(comparison.getTestDetails().getValue())
+			                .toLowerCase(Locale.US))) {
+				return ComparisonResult.EQUAL;
+			}
+		}
+		// some string is null, delegate
+		return super.textualDifference(comparison, outcome);
+	}
 }

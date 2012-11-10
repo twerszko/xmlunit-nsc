@@ -36,57 +36,57 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
-import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Node;
 
 public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 
-    public void testFloatingPointTolerance() throws Exception {
-        String control = "<foo value=\"2.718281828\"/>";
-        String test = "<foo value=\"2.71\"/>";
-        Diff d = Diff.newDiff(null)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
+	public void testFloatingPointTolerance() throws Exception {
+		String control = "<foo value=\"2.718281828\"/>";
+		String test = "<foo value=\"2.71\"/>";
+		Diff d = Diff.newDiff(null)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
 
-        FloatingPointTolerantDifferenceListener c =
-                new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-                    public ComparisonResult differenceFound(Difference d, ComparisonResult outcome) {
-                        fail("differenceFound shouldn't get invoked, but"
-                                + " was with type " + d.getType());
-                        return null;
-                    }
+		FloatingPointTolerantDifferenceListener c =
+		        new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
+			        public ComparisonResult differenceFound(Comparison d, ComparisonResult outcome) {
+				        fail("differenceFound shouldn't get invoked, but"
+				                + " was with type " + d.getType());
+				        return null;
+			        }
 
-                    public void skippedComparison(Node c, Node t) {
-                        fail("skippedComparison shouldn't get invoked");
-                    }
-                }, 1e-2);
+			        public void skippedComparison(Node c, Node t) {
+				        fail("skippedComparison shouldn't get invoked");
+			        }
+		        }, 1e-2);
 
-        d.overrideDifferenceListener(c);
-        assertTrue(d.identical());
+		d.overrideDifferenceListener(c);
+		assertTrue(d.identical());
 
-        c = new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-            public ComparisonResult differenceFound(Difference d, ComparisonResult outcome) {
-                fail("differenceFound shouldn't get invoked, but"
-                        + " was with type " + d.getType());
-                return null;
-            }
+		c = new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
+			public ComparisonResult differenceFound(Comparison d, ComparisonResult outcome) {
+				fail("differenceFound shouldn't get invoked, but"
+				        + " was with type " + d.getType());
+				return null;
+			}
 
-            public void skippedComparison(Node c, Node t) {
-                fail("skippedComparison shouldn't get invoked");
-            }
-        }, 1e-3);
+			public void skippedComparison(Node c, Node t) {
+				fail("skippedComparison shouldn't get invoked");
+			}
+		}, 1e-3);
 
-        d = Diff.newDiff(null)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        d.overrideDifferenceListener(c);
-        assertFalse(d.identical());
-    }
+		d = Diff.newDiff(null)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
+		d.overrideDifferenceListener(c);
+		assertFalse(d.identical());
+	}
 
 }
