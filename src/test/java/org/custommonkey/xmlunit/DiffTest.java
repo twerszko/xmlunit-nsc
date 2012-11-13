@@ -41,7 +41,6 @@ import static java.lang.Boolean.TRUE;
 import static junitparams.JUnitParamsRunner.$;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -62,6 +61,7 @@ import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
@@ -73,7 +73,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
@@ -163,7 +162,7 @@ public class DiffTest {
 		        elemB,
 		        "/tag",
 		        FALSE.toString());
-		diff.differenceFound(comparison, ComparisonResult.DIFFERENT);
+		diff.evaluate(comparison, ComparisonResult.DIFFERENT);
 
 		String toStringResult = diff.toString();
 		String expectedToString = diff.getClass().getName() + "\n[different] Expected "
@@ -186,7 +185,7 @@ public class DiffTest {
 		        ComparisonType.TEXT_VALUE,
 		        textA, "/tag/text()", "Monkey",
 		        textB, "/tag/text()", "Chicken");
-		diff.differenceFound(comparison, ComparisonResult.DIFFERENT);
+		diff.evaluate(comparison, ComparisonResult.DIFFERENT);
 
 		String toStringResult = diff.toString();
 		String expectedToString = diff.getClass().getName() + "\n[different] Expected "
@@ -656,17 +655,17 @@ public class DiffTest {
 
 		// when
 		Diff diffWithIdenticalOverride = prepareDiff(properties, control, test);
-		diffWithIdenticalOverride.overrideDifferenceListener(
+		diffWithIdenticalOverride.overrideDifferenceEvaluator(
 		        new OverrideDifferenceListener(ComparisonResult.EQUAL)
 		        );
 
 		Diff diffWithSimilarOverride = prepareDiff(properties, control, test);
-		diffWithSimilarOverride.overrideDifferenceListener(
+		diffWithSimilarOverride.overrideDifferenceEvaluator(
 		        new OverrideDifferenceListener(ComparisonResult.SIMILAR)
 		        );
 
 		Diff diffWithOverride = prepareDiff(properties, control, test);
-		diffWithOverride.overrideDifferenceListener(new OverrideDifferenceListener(
+		diffWithOverride.overrideDifferenceEvaluator(new OverrideDifferenceListener(
 		        ComparisonResult.DIFFERENT));
 
 		// then
@@ -690,8 +689,8 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideDifferenceListener(
-		        new ExpectedDifferenceListener(ComparisonType.NAMESPACE_PREFIX)
+		diff.overrideDifferenceEvaluator(
+		        new ExpectedDifferenceEvaluator(ComparisonType.NAMESPACE_PREFIX)
 		        );
 
 		// then
@@ -799,8 +798,8 @@ public class DiffTest {
 		// when
 		Diff diff = prepareDiff(properties, control, test);
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-		diff.overrideDifferenceListener(
-		        new ExpectedDifferenceListener(
+		diff.overrideDifferenceEvaluator(
+		        new ExpectedDifferenceEvaluator(
 		                new ComparisonType[] {
 		                        ComparisonType.NAMESPACE_PREFIX,
 		                        ComparisonType.CHILD_NODELIST_SEQUENCE
@@ -835,14 +834,14 @@ public class DiffTest {
 		// when
 		Diff diff = prepareDiff(properties, control, test);
 		diff.overrideElementQualifier(new ElementNameAndTextQualifier());
-		diff.overrideDifferenceListener(delegate);
+		diff.overrideDifferenceEvaluator(delegate);
 
 		// then
 		assertThat(diff.identical()).isFalse();
 		assertThat(diff.similar()).isTrue();
 	}
 
-	private abstract class ExaminingExpectedDifferenceListener extends ExpectedDifferenceListener {
+	private abstract class ExaminingExpectedDifferenceListener extends ExpectedDifferenceEvaluator {
 		private ExaminingExpectedDifferenceListener(ComparisonType expectedType) {
 			super(expectedType);
 		}
@@ -863,42 +862,36 @@ public class DiffTest {
 		assertThat(diff.similar()).isTrue();
 	}
 
-	private class OverrideDifferenceListener implements DifferenceListener {
+	private class OverrideDifferenceListener implements DifferenceEvaluator {
 		private final ComparisonResult overrideValue;
 
 		private OverrideDifferenceListener(ComparisonResult overrideValue) {
 			this.overrideValue = overrideValue;
 		}
 
-		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 			return overrideValue;
-		}
-
-		public void skippedComparison(Node control, Node test) {
 		}
 	}
 
-	private class ExpectedDifferenceListener implements DifferenceListener {
+	private class ExpectedDifferenceEvaluator implements DifferenceEvaluator {
 		private final Set<ComparisonType> expectedIds;
 
-		private ExpectedDifferenceListener(ComparisonType expectedType) {
+		private ExpectedDifferenceEvaluator(ComparisonType expectedType) {
 			this(new ComparisonType[] { expectedType });
 		}
 
-		private ExpectedDifferenceListener(ComparisonType[] expectedIdValues) {
+		private ExpectedDifferenceEvaluator(ComparisonType[] expectedIdValues) {
 			this.expectedIds = new HashSet<ComparisonType>(expectedIdValues.length);
 			for (int i = 0; i < expectedIdValues.length; ++i) {
 				expectedIds.add(expectedIdValues[i]);
 			}
 		}
 
-		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 			assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
 			examineDifferenceContents(difference);
 			return ComparisonResult.DIFFERENT;
-		}
-
-		public void skippedComparison(Node control, Node test) {
 		}
 
 		protected void examineDifferenceContents(Comparison comparison) {
@@ -1190,15 +1183,11 @@ public class DiffTest {
 		Diff controlDiff = prepareDiff(properties, control, test);
 
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideDifferenceListener(
-		        new DifferenceListener() {
+		diff.overrideDifferenceEvaluator(
+		        new DifferenceEvaluator() {
 			        @Override
-			        public ComparisonResult differenceFound(Comparison comparison, ComparisonResult outcome) {
+			        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 				        return ComparisonResult.CRITICAL;
-			        }
-
-			        public void skippedComparison(Node c, Node t) {
-				        fail("skippedComparison shouldn't get invoked");
 			        }
 		        });
 

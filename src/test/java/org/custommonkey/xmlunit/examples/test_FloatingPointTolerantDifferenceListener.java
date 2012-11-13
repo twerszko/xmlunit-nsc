@@ -38,10 +38,9 @@ package org.custommonkey.xmlunit.examples;
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
-import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.w3c.dom.Node;
 
 public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 
@@ -53,31 +52,23 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 		        .andTestDocument(test)
 		        .build();
 
-		FloatingPointTolerantDifferenceListener c =
-		        new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-			        public ComparisonResult differenceFound(Comparison d, ComparisonResult outcome) {
+		FloatingPointTolerantDifferenceEvaluator c =
+		        new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
+			        public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
 				        fail("differenceFound shouldn't get invoked, but"
 				                + " was with type " + d.getType());
 				        return null;
 			        }
-
-			        public void skippedComparison(Node c, Node t) {
-				        fail("skippedComparison shouldn't get invoked");
-			        }
 		        }, 1e-2);
 
-		d.overrideDifferenceListener(c);
+		d.overrideDifferenceEvaluator(c);
 		assertTrue(d.identical());
 
-		c = new FloatingPointTolerantDifferenceListener(new DifferenceListener() {
-			public ComparisonResult differenceFound(Comparison d, ComparisonResult outcome) {
+		c = new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
+			public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
 				fail("differenceFound shouldn't get invoked, but"
 				        + " was with type " + d.getType());
 				return null;
-			}
-
-			public void skippedComparison(Node c, Node t) {
-				fail("skippedComparison shouldn't get invoked");
 			}
 		}, 1e-3);
 
@@ -85,7 +76,7 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		d.overrideDifferenceListener(c);
+		d.overrideDifferenceEvaluator(c);
 		assertFalse(d.identical());
 	}
 

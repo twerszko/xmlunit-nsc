@@ -20,80 +20,79 @@ import java.util.Map;
  * Useful base-implementation of some parts of the DifferenceEngine interface.
  */
 public abstract class AbstractDifferenceEngine implements DifferenceEngine {
-    private final ComparisonListenerSupport listeners =
-            new ComparisonListenerSupport();
-    private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
-    private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
-    private Map<String, String> uri2Prefix = Collections.emptyMap();
+	private final ComparisonListenerSupport listeners =
+	        new ComparisonListenerSupport();
+	private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
+	private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
+	private Map<String, String> uri2Prefix = Collections.emptyMap();
 
-    public void addComparisonListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
-        listeners.addComparisonListener(l);
-    }
+	public void addComparisonListener(ComparisonListener l) {
+		if (l == null) {
+			throw new IllegalArgumentException("listener must not be null");
+		}
+		listeners.addComparisonListener(l);
+	}
 
-    public void addMatchListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
-        listeners.addMatchListener(l);
-    }
+	public void addMatchListener(ComparisonListener l) {
+		if (l == null) {
+			throw new IllegalArgumentException("listener must not be null");
+		}
+		listeners.addMatchListener(l);
+	}
 
-    public void addDifferenceListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
-        listeners.addDifferenceListener(l);
-    }
+	public void addDifferenceListener(ComparisonListener l) {
+		if (l == null) {
+			throw new IllegalArgumentException("listener must not be null");
+		}
+		listeners.addDifferenceListener(l);
+	}
 
-    public void setNodeMatcher(NodeMatcher n) {
-        if (n == null) {
-            throw new IllegalArgumentException("node matcher must"
-                    + " not be null");
-        }
-        nodeMatcher = n;
-    }
+	public void setNodeMatcher(NodeMatcher n) {
+		if (n == null) {
+			throw new IllegalArgumentException("node matcher must"
+			        + " not be null");
+		}
+		nodeMatcher = n;
+	}
 
-    public NodeMatcher getNodeMatcher() {
-        return nodeMatcher;
-    }
+	public NodeMatcher getNodeMatcher() {
+		return nodeMatcher;
+	}
 
-    public void setDifferenceEvaluator(DifferenceEvaluator e) {
-        if (e == null) {
-            throw new IllegalArgumentException("difference evaluator must"
-                    + " not be null");
-        }
-        diffEvaluator = e;
-    }
+	public void setDifferenceEvaluator(DifferenceEvaluator e) {
+		if (e == null) {
+			throw new IllegalArgumentException("difference evaluator must" + " not be null");
+		}
+		diffEvaluator = e;
+	}
 
-    public DifferenceEvaluator getDifferenceEvaluator() {
-        return diffEvaluator;
-    }
+	public DifferenceEvaluator getDifferenceEvaluator() {
+		return diffEvaluator;
+	}
 
-    public void setNamespaceContext(Map<String, String> uri2Prefix) {
-        this.uri2Prefix = Collections.unmodifiableMap(uri2Prefix);
-    }
+	public void setNamespaceContext(Map<String, String> uri2Prefix) {
+		this.uri2Prefix = Collections.unmodifiableMap(uri2Prefix);
+	}
 
-    /**
-     * Compares the detail values for object equality, lets the difference
-     * evaluator evaluate the result, notifies all listeners and returns the
-     * outcome.
-     */
-    protected final ComparisonResult compare(Comparison comp) {
-        Object controlValue = comp.getControlDetails().getValue();
-        Object testValue = comp.getTestDetails().getValue();
-        boolean equal = controlValue == null
-                ? testValue == null : controlValue.equals(testValue);
-        ComparisonResult initial =
-                equal ? ComparisonResult.EQUAL : ComparisonResult.DIFFERENT;
-        ComparisonResult altered =
-                getDifferenceEvaluator().evaluate(comp, initial);
-        listeners.fireComparisonPerformed(comp, altered);
-        return altered;
-    }
+	/**
+	 * Compares the detail values for object equality, lets the difference
+	 * evaluator evaluate the result, notifies all listeners and returns the
+	 * outcome.
+	 */
+	protected final ComparisonResult compare(Comparison comp) {
+		Object controlValue = comp.getControlDetails().getValue();
+		Object testValue = comp.getTestDetails().getValue();
+		boolean equal = controlValue == null
+		        ? testValue == null : controlValue.equals(testValue);
+		ComparisonResult initial =
+		        equal ? ComparisonResult.EQUAL : ComparisonResult.DIFFERENT;
+		ComparisonResult altered =
+		        getDifferenceEvaluator().evaluate(comp, initial);
+		listeners.fireComparisonPerformed(comp, altered);
+		return altered;
+	}
 
-    protected static String getXPath(XPathContext ctx) {
-        return ctx == null ? null : ctx.getXPath();
-    }
+	protected static String getXPath(XPathContext ctx) {
+		return ctx == null ? null : ctx.getXPath();
+	}
 }

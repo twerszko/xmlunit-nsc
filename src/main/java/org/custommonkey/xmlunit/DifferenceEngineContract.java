@@ -36,6 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.DifferenceEvaluator;
+
 import org.w3c.dom.Node;
 
 /**
@@ -47,28 +49,28 @@ import org.w3c.dom.Node;
  * </p>
  */
 public interface DifferenceEngineContract {
-    /**
-     * @param matchTracker
-     *            the instance that is notified on each successful match. May be
-     *            null.
-     */
-    void setMatchTracker(MatchTracker matchTracker);
+	/**
+	 * @param matchTracker
+	 *            the instance that is notified on each successful match. May be
+	 *            null.
+	 */
+	void setMatchTracker(MatchTracker matchTracker);
 
-    /**
-     * Entry point for Node comparison testing.
-     * 
-     * @param control
-     *            Control XML to compare
-     * @param test
-     *            Test XML to compare
-     * @param listener
-     *            Notified of any {@link Difference differences} detected during
-     *            node comparison testing
-     * @param elementQualifier
-     *            Used to determine which elements qualify for comparison e.g.
-     *            when a node has repeated child elements that may occur in any
-     *            sequence and that sequence is not considered important.
-     */
-    void compare(Node control, Node test, DifferenceListener listener,
-            ElementQualifier elementQualifier);
+	/**
+	 * Entry point for Node comparison testing.
+	 * 
+	 * @param control
+	 *            Control XML to compare
+	 * @param test
+	 *            Test XML to compare
+	 * @param listener
+	 *            Notified of any {@link Difference differences} detected during
+	 *            node comparison testing
+	 * @param elementQualifier
+	 *            Used to determine which elements qualify for comparison e.g.
+	 *            when a node has repeated child elements that may occur in any
+	 *            sequence and that sequence is not considered important.
+	 */
+	void compare(Node control, Node test, DifferenceEvaluator listener,
+	        ElementQualifier elementQualifier);
 }

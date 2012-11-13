@@ -35,35 +35,39 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.custommonkey.xmlunit.examples;
 
-import java.util.Locale;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-
-import org.custommonkey.xmlunit.DifferenceListener;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 /**
- * Ignores case for all textual content.
+ * Expects texts to be floating point numbers and treats them as identical if
+ * they only differ by a given tolerance value (or less).
  */
-public class CaseInsensitiveDifferenceListener
-        extends TextDifferenceListenerBase {
+public class FloatingPointTolerantDifferenceEvaluator extends TextDifferenceEvaluatorBase {
 
-	public CaseInsensitiveDifferenceListener(DifferenceListener delegateTo) {
+	private final double tolerance;
+
+	public FloatingPointTolerantDifferenceEvaluator(DifferenceEvaluator delegateTo, double tolerance) {
 		super(delegateTo);
+		this.tolerance = tolerance;
 	}
 
 	@Override
 	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
 		String control = String.valueOf(comparison.getControlDetails().getValue());
-		if (control != null) {
-			control = control.toLowerCase(Locale.US);
-			if (comparison.getTestDetails().getValue() != null
-			        && control.equals(String.valueOf(comparison.getTestDetails().getValue())
-			                .toLowerCase(Locale.US))) {
-				return ComparisonResult.EQUAL;
+		String test = String.valueOf(comparison.getTestDetails().getValue());
+		if (control != null && test != null) {
+			try {
+				double controlVal = Double.parseDouble(control);
+				double testVal = Double.parseDouble(test);
+				return Math.abs(controlVal - testVal) < tolerance
+				        ? ComparisonResult.EQUAL
+				        : ComparisonResult.DIFFERENT;
+			} catch (NumberFormatException nfe) {
+				// ignore, delegate to nested DifferenceListener
 			}
 		}
-		// some string is null, delegate
+		// no numbers or null, delegate
 		return super.textualDifference(comparison, outcome);
 	}
 }

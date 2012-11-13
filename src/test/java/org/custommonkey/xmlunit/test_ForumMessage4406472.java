@@ -42,9 +42,9 @@ import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.diff.Diff;
-import org.w3c.dom.Node;
 
 /**
  * @see http://sf.net/forum/message.php?msg_id=4406472
@@ -69,7 +69,7 @@ public class test_ForumMessage4406472 extends TestCase {
 	                + "     <p:Price>0.00</p:Price>"
 	                + "</p:Book>";
 
-	private class OriginalDifferenceListener implements DifferenceListener {
+	private class OriginalDifferenceListener implements DifferenceEvaluator {
 		private final ComparisonType[] IGNORE = new ComparisonType[] {
 		        ComparisonType.ATTR_VALUE,
 		        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
@@ -78,18 +78,15 @@ public class test_ForumMessage4406472 extends TestCase {
 		        ComparisonType.NAMESPACE_URI
 		};
 
-		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 			Arrays.sort(IGNORE);
 			return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
 			        ? ComparisonResult.EQUAL
 			        : ComparisonResult.DIFFERENT;
 		}
-
-		public void skippedComparison(Node control, Node test) {
-		}
 	}
 
-	private class ModifiedDifferenceListener implements DifferenceListener {
+	private class ModifiedDifferenceEvaluator implements DifferenceEvaluator {
 		private final ComparisonType[] IGNORE = new ComparisonType[] {
 		        ComparisonType.ATTR_VALUE,
 		        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
@@ -97,19 +94,16 @@ public class test_ForumMessage4406472 extends TestCase {
 		        ComparisonType.NAMESPACE_PREFIX,
 		};
 
-		private ModifiedDifferenceListener() {
+		private ModifiedDifferenceEvaluator() {
 			Arrays.sort(IGNORE);
 		}
 
-		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 			return Arrays.binarySearch(IGNORE, difference.getType()) >= 0
 			        ? ComparisonResult.EQUAL
 			        : difference.isRecoverable()
 			                ? ComparisonResult.SIMILAR
 			                : ComparisonResult.DIFFERENT;
-		}
-
-		public void skippedComparison(Node control, Node test) {
 		}
 	}
 
@@ -118,7 +112,7 @@ public class test_ForumMessage4406472 extends TestCase {
 		        .betweenControlDocument(doc1)
 		        .andTestDocument(doc2)
 		        .build();
-		d.overrideDifferenceListener(new OriginalDifferenceListener());
+		d.overrideDifferenceEvaluator(new OriginalDifferenceListener());
 		assertTrue(d.toString(), d.similar());
 	}
 
@@ -127,7 +121,7 @@ public class test_ForumMessage4406472 extends TestCase {
 		        .betweenControlDocument(doc1)
 		        .andTestDocument(doc2)
 		        .build();
-		d.overrideDifferenceListener(new ModifiedDifferenceListener());
+		d.overrideDifferenceEvaluator(new ModifiedDifferenceEvaluator());
 		assertTrue(d.toString(), d.similar());
 	}
 }

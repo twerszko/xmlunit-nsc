@@ -35,16 +35,14 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package org.custommonkey.xmlunit.examples;
 
-import static junit.framework.Assert.fail;
 import static org.fest.assertions.api.Assertions.assertThat;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
-import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.junit.Test;
-import org.w3c.dom.Node;
 
 public class TextDifferenceListenerBaseTest {
 	private static final String C_ATTR = "controlAttr";
@@ -56,11 +54,11 @@ public class TextDifferenceListenerBaseTest {
 	private static final String C_TEXT = "controlText";
 	private static final String T_TEXT = "testText";
 
-	private static class TestListener extends TextDifferenceListenerBase {
+	private static class TestEvaluator extends TextDifferenceEvaluatorBase {
 		public int invocationCounter = 0;
 		public Comparison difference;
 
-		protected TestListener(DifferenceListener delegateTo) {
+		protected TestEvaluator(DifferenceEvaluator delegateTo) {
 			super(delegateTo);
 		}
 
@@ -92,7 +90,7 @@ public class TextDifferenceListenerBaseTest {
 		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
 		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestListener listener = new TestListener(null) {
+		TestEvaluator listener = new TestEvaluator(null) {
 			@Override
 			protected ComparisonResult attributeDifference(Comparison difference, ComparisonResult outcome) {
 				this.difference = difference;
@@ -106,7 +104,7 @@ public class TextDifferenceListenerBaseTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		boolean identical = diff.identical();
 
 		// then
@@ -125,7 +123,7 @@ public class TextDifferenceListenerBaseTest {
 		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
 		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestListener listener = new TestListener(null) {
+		TestEvaluator listener = new TestEvaluator(null) {
 			@Override
 			protected ComparisonResult cdataDifference(Comparison difference, ComparisonResult outcome) {
 				this.difference = difference;
@@ -139,7 +137,7 @@ public class TextDifferenceListenerBaseTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		boolean identical = diff.identical();
 
 		// then
@@ -157,7 +155,7 @@ public class TextDifferenceListenerBaseTest {
 		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
 		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestListener listener = new TestListener(null) {
+		TestEvaluator listener = new TestEvaluator(null) {
 			@Override
 			protected ComparisonResult commentDifference(Comparison difference, ComparisonResult outcome) {
 				this.difference = difference;
@@ -171,7 +169,7 @@ public class TextDifferenceListenerBaseTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		boolean identical = diff.identical();
 
 		// then
@@ -189,7 +187,7 @@ public class TextDifferenceListenerBaseTest {
 		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
 		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestListener listener = new TestListener(null) {
+		TestEvaluator listener = new TestEvaluator(null) {
 			@Override
 			protected ComparisonResult textDifference(Comparison difference, ComparisonResult outcome) {
 				this.difference = difference;
@@ -203,7 +201,7 @@ public class TextDifferenceListenerBaseTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		boolean identical = diff.identical();
 
 		// then
@@ -223,7 +221,7 @@ public class TextDifferenceListenerBaseTest {
 
 		final int[] invocationCounter = new int[1];
 
-		TextDifferenceListenerBase listener = new TextDifferenceListenerBase(null) {
+		TextDifferenceEvaluatorBase listener = new TextDifferenceEvaluatorBase(null) {
 			@Override
 			protected ComparisonResult textualDifference(Comparison d, ComparisonResult outcome) {
 				invocationCounter[0]++;
@@ -236,7 +234,7 @@ public class TextDifferenceListenerBaseTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		boolean identical = diff.identical();
 
 		// then
@@ -252,14 +250,10 @@ public class TextDifferenceListenerBaseTest {
 
 		final int[] invocationCounter = new int[1];
 
-		TextDifferenceListenerBase listener = new TextDifferenceListenerBase(new DifferenceListener() {
-			public ComparisonResult differenceFound(Comparison d, ComparisonResult outcome) {
+		TextDifferenceEvaluatorBase listener = new TextDifferenceEvaluatorBase(new DifferenceEvaluator() {
+			public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
 				invocationCounter[0]++;
 				return ComparisonResult.EQUAL;
-			}
-
-			public void skippedComparison(Node c, Node t) {
-				fail("skippedComparison shouldn't get invoked");
 			}
 		}) {
 		};
@@ -269,7 +263,7 @@ public class TextDifferenceListenerBaseTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		boolean identical = diff.identical();
 
 		// then

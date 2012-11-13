@@ -40,10 +40,9 @@ import java.util.Locale;
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
-import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.w3c.dom.Node;
 
 public class test_CaseInsensitiveDifferenceListener extends TestCase {
 
@@ -63,20 +62,16 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
 		        .andTestDocument(test)
 		        .build();
 
-		CaseInsensitiveDifferenceListener c =
-		        new CaseInsensitiveDifferenceListener(new DifferenceListener() {
-			        public ComparisonResult differenceFound(Comparison d, ComparisonResult outcome) {
+		CaseInsensitiveDifferenceEvaluator c =
+		        new CaseInsensitiveDifferenceEvaluator(new DifferenceEvaluator() {
+			        public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
 				        fail("differenceFound shouldn't get invoked, but"
 				                + " was with type " + d.getType());
 				        return null;
 			        }
-
-			        public void skippedComparison(Node c, Node t) {
-				        fail("skippedComparison shouldn't get invoked");
-			        }
 		        });
 
-		d.overrideDifferenceListener(c);
+		d.overrideDifferenceEvaluator(c);
 		assertTrue(d.identical());
 	}
 

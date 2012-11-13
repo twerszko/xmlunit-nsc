@@ -1,6 +1,6 @@
 /*
  ******************************************************************
-Copyright (c) 2001, Jeff Martin, Tim Bacon
+Copyright (c) 2008, Jeff Martin, Tim Bacon
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,62 +33,35 @@ POSSIBILITY OF SUCH DAMAGE.
 
  ******************************************************************
  */
+package org.custommonkey.xmlunit.examples;
 
-package org.custommonkey.xmlunit;
+import java.util.Locale;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.ComparisonType;
-
-import org.custommonkey.xmlunit.diff.Diff;
-import org.w3c.dom.Node;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 /**
- * Class to use when performing a Diff that only compares the structure of 2
- * pieces of XML, i.e. where the values of text and attribute nodes should be
- * ignored.
- * 
- * @see Diff#overrideDifferenceListener
+ * Ignores case for all textual content.
  */
-public class IgnoreTextAndAttributeValuesDifferenceListener
-        implements DifferenceListener {
+public class CaseInsensitiveDifferenceEvaluator extends TextDifferenceEvaluatorBase {
 
-	private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
-	        ComparisonType.ATTR_VALUE,
-	        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-	        ComparisonType.TEXT_VALUE
-	};
+	public CaseInsensitiveDifferenceEvaluator(DifferenceEvaluator delegateTo) {
+		super(delegateTo);
+	}
 
-	private boolean isIgnoredDifference(Comparison comparison) {
-		ComparisonType differenceType = comparison.getType();
-		for (ComparisonType ignoredType : IGNORED_TYPES) {
-			if (differenceType == ignoredType) {
-				return true;
+	@Override
+	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
+		String control = String.valueOf(comparison.getControlDetails().getValue());
+		if (control != null) {
+			control = control.toLowerCase(Locale.US);
+			if (comparison.getTestDetails().getValue() != null
+			        && control.equals(String.valueOf(comparison.getTestDetails().getValue())
+			                .toLowerCase(Locale.US))) {
+				return ComparisonResult.EQUAL;
 			}
 		}
-		return false;
+		// some string is null, delegate
+		return super.textualDifference(comparison, outcome);
 	}
-
-	/**
-	 * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
-	 *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
-	 *         to accept all other differences.
-	 * @see DifferenceListener#differenceFound(Difference)
-	 */
-	public ComparisonResult differenceFound(Comparison comparison, ComparisonResult outcome) {
-		if (isIgnoredDifference(comparison)) {
-			return ComparisonResult.SIMILAR;
-		} else {
-			return ComparisonResult.DIFFERENT;
-		}
-	}
-
-	/**
-	 * Do nothing
-	 * 
-	 * @see DifferenceListener#skippedComparison(Node, Node)
-	 */
-	public void skippedComparison(Node control, Node test) {
-	}
-
 }

@@ -46,12 +46,12 @@ import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.ComparisonController;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.DifferenceEngine;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
-import org.custommonkey.xmlunit.DifferenceListener;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
 import org.custommonkey.xmlunit.ElementNameQualifier;
@@ -66,7 +66,6 @@ import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -93,7 +92,7 @@ import org.xml.sax.SAXException;
  * Examples and more at <a
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
-public class Diff implements DifferenceListener, ComparisonController {
+public class Diff implements ComparisonController, DifferenceEvaluator {
 	private final XmlUnitProperties properties;
 
 	private final Document controlDoc;
@@ -104,7 +103,7 @@ public class Diff implements DifferenceListener, ComparisonController {
 	private boolean haltComparison = false;
 	private final StringBuffer messages;
 	private final DifferenceEngineContract differenceEngine;
-	private DifferenceListener differenceListener;
+	private DifferenceEvaluator differenceEvaluator;
 	private ElementQualifier elementQualifier;
 	private MatchTracker matchTracker;
 
@@ -135,7 +134,7 @@ public class Diff implements DifferenceListener, ComparisonController {
 		this.testDoc = getManipulatedDocument(prototype.testDoc);
 		this.elementQualifier = prototype.elementQualifier;
 		this.differenceEngine = prototype.differenceEngine;
-		this.differenceListener = prototype.differenceListener;
+		this.differenceEvaluator = prototype.differenceEvaluator;
 		this.messages = new StringBuffer();
 
 	}
@@ -208,8 +207,7 @@ public class Diff implements DifferenceListener, ComparisonController {
 		if (compared) {
 			return;
 		}
-		getDifferenceEngine()
-		        .compare(controlDoc, testDoc, this, elementQualifier);
+		getDifferenceEngine().compare(controlDoc, testDoc, this, elementQualifier);
 		compared = true;
 	}
 
@@ -248,23 +246,15 @@ public class Diff implements DifferenceListener, ComparisonController {
 		appendTo.append(' ').append(new DifferenceFormater(comparison)).append('\n');
 	}
 
-	/**
-	 * DifferenceListener implementation. If the
-	 * {@link Diff#overrideDifferenceListener overrideDifferenceListener} method
-	 * has been called then the interpretation of the difference will be
-	 * delegated.
-	 * 
-	 * @param difference
-	 * @return a DifferenceListener.RETURN_... constant indicating how the
-	 *         difference was interpreted. Always RETURN_ACCEPT_DIFFERENCE if
-	 *         the call is not delegated.
-	 */
-	public ComparisonResult differenceFound(Comparison comparison, ComparisonResult outcome) {
-		ComparisonResult returnValue = evaluate(comparison, outcome);
+	public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+		ComparisonResult evaluatedOutcome = outcome;
+		if (differenceEvaluator != null) {
+			evaluatedOutcome = differenceEvaluator.evaluate(comparison, outcome);
+		}
 
-		switch (returnValue) {
+		switch (evaluatedOutcome) {
 			case EQUAL:
-				return returnValue;
+				return evaluatedOutcome;
 			case SIMILAR:
 				identical = false;
 				haltComparison = false;
@@ -283,7 +273,7 @@ public class Diff implements DifferenceListener, ComparisonController {
 				haltComparison = true;
 				break;
 			default:
-				throw new IllegalArgumentException(returnValue + " is not supported");
+				throw new IllegalArgumentException(evaluatedOutcome + " is not supported");
 		}
 		if (haltComparison) {
 			messages.append("\n[different]");
@@ -291,14 +281,7 @@ public class Diff implements DifferenceListener, ComparisonController {
 			messages.append("\n[not identical]");
 		}
 		appendComparison(messages, comparison);
-		return returnValue;
-	}
-
-	public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-		if (differenceListener != null) {
-			return differenceListener.differenceFound(comparison, outcome);
-		}
-		return outcome;
+		return evaluatedOutcome;
 	}
 
 	/**
@@ -310,15 +293,15 @@ public class Diff implements DifferenceListener, ComparisonController {
 	 * @param control
 	 * @param test
 	 */
-	public void skippedComparison(Node control, Node test) {
-		if (differenceListener != null) {
-			differenceListener.skippedComparison(control, test);
-		} else {
-			System.err.println("DifferenceListener.skippedComparison: "
-			        + "unhandled control node type=" + control
-			        + ", unhandled test node type=" + test);
-		}
-	}
+	// public void skippedComparison(Node control, Node test) {
+	// if (differenceListener != null) {
+	// differenceListener.skippedComparison(control, test);
+	// } else {
+	// System.err.println("DifferenceListener.skippedComparison: "
+	// + "unhandled control node type=" + control
+	// + ", unhandled test node type=" + test);
+	// }
+	// }
 
 	/**
 	 * ComparisonController implementation.
@@ -364,11 +347,11 @@ public class Diff implements DifferenceListener, ComparisonController {
 	 * Override the <code>DifferenceListener</code> used to determine how to
 	 * handle differences that are found.
 	 * 
-	 * @param listener
+	 * @param evaluator
 	 *            the DifferenceListener instance to delegate handling to.
 	 */
-	public void overrideDifferenceListener(DifferenceListener listener) {
-		this.differenceListener = listener;
+	public void overrideDifferenceEvaluator(DifferenceEvaluator evaluator) {
+		this.differenceEvaluator = evaluator;
 	}
 
 	/**

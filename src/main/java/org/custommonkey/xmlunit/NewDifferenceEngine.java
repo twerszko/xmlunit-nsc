@@ -152,7 +152,7 @@ public class NewDifferenceEngine
 	 *            Control XML to compare
 	 * @param test
 	 *            Test XML to compare
-	 * @param listener
+	 * @param diffEvaluator
 	 *            Notified of any {@link Difference differences} detected during
 	 *            node comparison testing
 	 * @param elementQualifier
@@ -160,8 +160,7 @@ public class NewDifferenceEngine
 	 *            when a node has repeated child elements that may occur in any
 	 *            sequence and that sequence is not considered important.
 	 */
-	public void compare(Node control, Node test, DifferenceListener listener,
-	        ElementQualifier elementQualifier) {
+	public void compare(Node control, Node test, DifferenceEvaluator diffEvaluator, ElementQualifier elementQualifier) {
 		DOMDifferenceEngine engine = new DOMDifferenceEngine();
 
 		final IsBetweenDocumentNodeAndRootElement checkPrelude =
@@ -176,25 +175,24 @@ public class NewDifferenceEngine
 		DifferenceEvaluator controllerAsEvaluator =
 		        new ComparisonController2DifferenceEvaluator(controller);
 		DifferenceEvaluator ev = null;
-		if (listener != null) {
+		if (diffEvaluator != null) {
 			ev = DifferenceEvaluators
-			        .first(new DifferenceListener2DifferenceEvaluator(listener),
+			        .first(new DifferenceListener2DifferenceEvaluator(diffEvaluator),
 			                controllerAsEvaluator);
 		} else {
 			ev = controllerAsEvaluator;
 		}
-		final net.sf.xmlunit.diff.DifferenceEvaluator evaluator = ev;
-		engine
-		        .setDifferenceEvaluator(new DifferenceEvaluator() {
-			        public ComparisonResult evaluate(Comparison comparison,
-			                ComparisonResult outcome) {
-				        if (!swallowComparison(comparison, outcome,
-				                checkPrelude)) {
-					        return evaluator.evaluate(comparison, outcome);
-				        }
-				        return outcome;
-			        }
-		        });
+		final DifferenceEvaluator evaluator = ev;
+		engine.setDifferenceEvaluator(new DifferenceEvaluator() {
+			public ComparisonResult evaluate(Comparison comparison,
+			        ComparisonResult outcome) {
+				if (!swallowComparison(comparison, outcome,
+				        checkPrelude)) {
+					return evaluator.evaluate(comparison, outcome);
+				}
+				return outcome;
+			}
+		});
 
 		NodeMatcher m = new DefaultNodeMatcher();
 		if (elementQualifier != null) {
@@ -292,16 +290,16 @@ public class NewDifferenceEngine
 
 	public static class DifferenceListener2ComparisonListener
 	        implements ComparisonListener {
-		private final DifferenceListener dl;
+		private final DifferenceEvaluator de;
 
-		public DifferenceListener2ComparisonListener(DifferenceListener dl) {
-			this.dl = dl;
+		public DifferenceListener2ComparisonListener(DifferenceEvaluator de) {
+			this.de = de;
 		}
 
 		public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
 			comparison = filter(comparison);
 			if (comparison != null) {
-				dl.differenceFound(comparison, outcome);
+				de.evaluate(comparison, outcome);
 			}
 		}
 	}
@@ -386,16 +384,16 @@ public class NewDifferenceEngine
 
 	public static class DifferenceListener2DifferenceEvaluator
 	        implements DifferenceEvaluator {
-		private final DifferenceListener dl;
+		private final DifferenceEvaluator de;
 
-		public DifferenceListener2DifferenceEvaluator(DifferenceListener dl) {
-			this.dl = dl;
+		public DifferenceListener2DifferenceEvaluator(DifferenceEvaluator de) {
+			this.de = de;
 		}
 
 		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 			comparison = filter(comparison);
 			if (comparison != null) {
-				return dl.differenceFound(comparison, outcome);
+				return de.evaluate(comparison, outcome);
 			}
 			return outcome;
 		}

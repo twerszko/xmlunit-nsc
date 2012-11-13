@@ -81,8 +81,8 @@ public class DetailedDiff extends Diff {
 	 * @return the value supplied by the superclass implementation
 	 */
 	@Override
-	public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
-		final ComparisonResult returnValue = super.differenceFound(difference, outcome);
+	public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
+		final ComparisonResult returnValue = super.evaluate(difference, outcome);
 		switch (returnValue) {
 			case EQUAL:
 				return returnValue;

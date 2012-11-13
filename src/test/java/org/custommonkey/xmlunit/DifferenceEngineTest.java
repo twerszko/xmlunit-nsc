@@ -53,6 +53,7 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
@@ -1065,7 +1066,7 @@ public class DifferenceEngineTest {
 		listener = new CollectingDifferenceListener();
 	}
 
-	private class CollectingDifferenceListener implements DifferenceListener {
+	private class CollectingDifferenceListener implements DifferenceEvaluator {
 		public String expected;
 		public String actual;
 		public Node control;
@@ -1077,7 +1078,7 @@ public class DifferenceEngineTest {
 		public String testXpath;
 		private boolean tracing = false;
 
-		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 			if (tracing) {
 				System.out.println(difference.toString());
 			}

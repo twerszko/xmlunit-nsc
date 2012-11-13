@@ -37,84 +37,93 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.diff.Diff;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author TimBacon
  */
-public class test_IgnoreTextAndAttributeValuesDifferenceListener
-        extends TestCase {
-	private DifferenceListener listener;
+public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
+	private DifferenceEvaluator listener;
 
+	@Before
+	public void setUp() {
+		listener = new IgnoreTextAndAttributeValuesDifferenceEvaluator();
+	}
+
+	@Test
 	public void testDifferenceFound() {
-		assertThat(
-		        listener.differenceFound(
-		                createComparison(ComparisonType.ATTR_NAME_LOOKUP), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(
+		        createComparison(ComparisonType.ATTR_NAME_LOOKUP), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.ATTR_SEQUENCE), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(createComparison(ComparisonType.ATTR_SEQUENCE), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.ATTR_VALUE), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(createComparison(ComparisonType.ATTR_VALUE), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.SIMILAR);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED),
+		        listener.evaluate(createComparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED),
 		                ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.SIMILAR);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.CDATA_VALUE), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(createComparison(ComparisonType.CDATA_VALUE), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.CHILD_NODELIST_SEQUENCE),
+		        listener.evaluate(createComparison(ComparisonType.CHILD_NODELIST_SEQUENCE),
 		                ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.COMMENT_VALUE), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(createComparison(ComparisonType.COMMENT_VALUE), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.DOCTYPE_NAME), ComparisonResult.DIFFERENT))
-		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.DOCTYPE_PUBLIC_ID), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(createComparison(ComparisonType.DOCTYPE_NAME), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.DOCTYPE_SYSTEM_ID), ComparisonResult.DIFFERENT))
+		        listener.evaluate(createComparison(ComparisonType.DOCTYPE_PUBLIC_ID), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES),
-		                ComparisonResult.DIFFERENT))
+		        listener.evaluate(createComparison(ComparisonType.DOCTYPE_SYSTEM_ID), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.ELEMENT_TAG_NAME), ComparisonResult.DIFFERENT))
-		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.HAS_CHILD_NODES), ComparisonResult.DIFFERENT))
-		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.HAS_DOCTYPE_DECLARATION),
+		        listener.evaluate(createComparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES),
 		                ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.NAMESPACE_PREFIX), ComparisonResult.DIFFERENT))
-		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.NAMESPACE_URI), ComparisonResult.DIFFERENT))
-		        .isEqualTo(ComparisonResult.DIFFERENT);
-		assertThat(listener.differenceFound(createComparison(ComparisonType.NODE_TYPE), ComparisonResult.DIFFERENT))
+		        listener.evaluate(createComparison(ComparisonType.ELEMENT_TAG_NAME), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.PROCESSING_INSTRUCTION_DATA),
+		        listener.evaluate(createComparison(ComparisonType.HAS_CHILD_NODES), ComparisonResult.DIFFERENT))
+		        .isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(
+		        listener.evaluate(createComparison(ComparisonType.HAS_DOCTYPE_DECLARATION),
 		                ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(
-		        listener.differenceFound(createComparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET),
+		        listener.evaluate(createComparison(ComparisonType.NAMESPACE_PREFIX), ComparisonResult.DIFFERENT))
+		        .isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(listener.evaluate(createComparison(ComparisonType.NAMESPACE_URI), ComparisonResult.DIFFERENT))
+		        .isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(listener.evaluate(createComparison(ComparisonType.NODE_TYPE), ComparisonResult.DIFFERENT))
+		        .isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(
+		        listener.evaluate(createComparison(ComparisonType.PROCESSING_INSTRUCTION_DATA),
+		                ComparisonResult.DIFFERENT))
+		        .isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(
+		        listener.evaluate(createComparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET),
 		                ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.DIFFERENT);
 
-		assertThat(listener.differenceFound(createComparison(ComparisonType.TEXT_VALUE), ComparisonResult.DIFFERENT))
+		assertThat(listener.evaluate(createComparison(ComparisonType.TEXT_VALUE), ComparisonResult.DIFFERENT))
 		        .isEqualTo(ComparisonResult.SIMILAR);
 	}
 
@@ -123,6 +132,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
 
 	}
 
+	@Test
 	public void testClassInUse() throws Exception {
 		String control = "<clouds><cloud name=\"cumulus\" rain=\"maybe\">fluffy</cloud></clouds>";
 		String similarTest = "<clouds><cloud name=\"cirrus\" rain=\"no\">wispy</cloud></clouds>";
@@ -131,7 +141,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
 		        .betweenControlDocument(control)
 		        .andTestDocument(similarTest)
 		        .build();
-		diff.overrideDifferenceListener(listener);
+		diff.overrideDifferenceEvaluator(listener);
 		assertTrue("similar " + diff.toString(),
 		        diff.similar());
 		assertTrue("but not identical " + diff.toString(),
@@ -150,7 +160,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
 		        .betweenControlDocument(control)
 		        .andTestDocument(dissimilarTest)
 		        .build();
-		dissimilarDiff.overrideDifferenceListener(listener);
+		dissimilarDiff.overrideDifferenceEvaluator(listener);
 		assertTrue("not similar " + dissimilarDiff.toString(),
 		        !dissimilarDiff.similar());
 
@@ -159,7 +169,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
 		                .betweenControlDocument(control)
 		                .andTestDocument(dissimilarTest)
 		                .build());
-		dissimilarDetailedDiff.overrideDifferenceListener(listener);
+		dissimilarDetailedDiff.overrideDifferenceEvaluator(listener);
 		List<Comparison> differences = dissimilarDetailedDiff.getAllDifferences();
 		assertEquals(
 		        "has children, wrong number of attributes, missing attribute, different attribute value, and missing text node. "
@@ -178,6 +188,7 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
 		        1, recoverable);
 	}
 
+	@Test
 	public void testIssue771839() throws Exception {
 		String xmlString1 = "<location>"
 		        + "<street-address>22 any street</street-address>"
@@ -192,25 +203,11 @@ public class test_IgnoreTextAndAttributeValuesDifferenceListener
 		        .betweenControlDocument(xmlString1)
 		        .andTestDocument(xmlString2)
 		        .build();
-		d.overrideDifferenceListener(listener);
+		d.overrideDifferenceEvaluator(listener);
 		assertFalse(d.similar());
 		assertTrue("postcode was matched against postcode1",
 		        d.toString().indexOf("Expected element tag name 'postcode'"
 		                + " but was 'postcode1'") > -1);
 	}
 
-	@Override
-	public void setUp() {
-		listener =
-		        new IgnoreTextAndAttributeValuesDifferenceListener();
-	}
-
-	/**
-	 * Constructor for test_IgnoreTextAndAttributeValuesDifferenceListener.
-	 * 
-	 * @param name
-	 */
-	public test_IgnoreTextAndAttributeValuesDifferenceListener(String name) {
-		super(name);
-	}
 }

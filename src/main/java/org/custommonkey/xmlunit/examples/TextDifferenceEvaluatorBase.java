@@ -37,9 +37,7 @@ package org.custommonkey.xmlunit.examples;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-
-import org.custommonkey.xmlunit.DifferenceListener;
-import org.w3c.dom.Node;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 /**
  * Base class that delegates all differences to another DifferenceListener.
@@ -50,12 +48,11 @@ import org.w3c.dom.Node;
  * nodes.
  * </p>
  */
-public abstract class TextDifferenceListenerBase
-        implements DifferenceListener {
+public abstract class TextDifferenceEvaluatorBase implements DifferenceEvaluator {
 
-	private final DifferenceListener delegateTo;
+	private final DifferenceEvaluator delegateTo;
 
-	protected TextDifferenceListenerBase(DifferenceListener delegateTo) {
+	protected TextDifferenceEvaluatorBase(DifferenceEvaluator delegateTo) {
 		this.delegateTo = delegateTo;
 	}
 
@@ -70,7 +67,7 @@ public abstract class TextDifferenceListenerBase
 	 * commentDifference} or {@link #textDifference textDifference} are invoked
 	 * respectively.
 	 */
-	public ComparisonResult differenceFound(Comparison comparison, ComparisonResult outcome) {
+	public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 		switch (comparison.getType()) {
 			case ATTR_VALUE:
 				return attributeDifference(comparison, outcome);
@@ -81,7 +78,7 @@ public abstract class TextDifferenceListenerBase
 			case TEXT_VALUE:
 				return textDifference(comparison, outcome);
 			default:
-				return delegateTo.differenceFound(comparison, outcome);
+				return delegateTo.evaluate(comparison, outcome);
 		}
 	}
 
@@ -117,11 +114,7 @@ public abstract class TextDifferenceListenerBase
 	 * Delegates to the nested DifferenceListener.
 	 */
 	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
-		return delegateTo.differenceFound(comparison, outcome);
-	}
-
-	public void skippedComparison(Node control, Node test) {
-		delegateTo.skippedComparison(control, test);
+		return delegateTo.evaluate(comparison, outcome);
 	}
 
 }

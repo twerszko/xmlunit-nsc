@@ -1,6 +1,6 @@
 /*
  ******************************************************************
-Copyright (c) 2008, Jeff Martin, Tim Bacon
+Copyright (c) 2001, Jeff Martin, Tim Bacon
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,44 +33,53 @@ POSSIBILITY OF SUCH DAMAGE.
 
  ******************************************************************
  */
-package org.custommonkey.xmlunit.examples;
+
+package org.custommonkey.xmlunit;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
-import org.custommonkey.xmlunit.DifferenceListener;
+import org.custommonkey.xmlunit.diff.Diff;
 
 /**
- * Expects texts to be floating point numbers and treats them as identical if
- * they only differ by a given tolerance value (or less).
+ * Class to use when performing a Diff that only compares the structure of 2
+ * pieces of XML, i.e. where the values of text and attribute nodes should be
+ * ignored.
+ * 
+ * @see Diff#overrideDifferenceListener
  */
-public class FloatingPointTolerantDifferenceListener
-        extends TextDifferenceListenerBase {
+public class IgnoreTextAndAttributeValuesDifferenceEvaluator implements DifferenceEvaluator {
 
-	private final double tolerance;
+	private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
+	        ComparisonType.ATTR_VALUE,
+	        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+	        ComparisonType.TEXT_VALUE
+	};
 
-	public FloatingPointTolerantDifferenceListener(DifferenceListener delegateTo,
-	        double tolerance) {
-		super(delegateTo);
-		this.tolerance = tolerance;
-	}
-
-	@Override
-	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
-		String control = String.valueOf(comparison.getControlDetails().getValue());
-		String test = String.valueOf(comparison.getTestDetails().getValue());
-		if (control != null && test != null) {
-			try {
-				double controlVal = Double.parseDouble(control);
-				double testVal = Double.parseDouble(test);
-				return Math.abs(controlVal - testVal) < tolerance
-				        ? ComparisonResult.EQUAL
-				        : ComparisonResult.DIFFERENT;
-			} catch (NumberFormatException nfe) {
-				// ignore, delegate to nested DifferenceListener
+	private boolean isIgnoredDifference(Comparison comparison) {
+		ComparisonType differenceType = comparison.getType();
+		for (ComparisonType ignoredType : IGNORED_TYPES) {
+			if (differenceType == ignoredType) {
+				return true;
 			}
 		}
-		// no numbers or null, delegate
-		return super.textualDifference(comparison, outcome);
+		return false;
 	}
+
+	/**
+	 * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
+	 *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
+	 *         to accept all other differences.
+	 * @see DifferenceListener#differenceFound(Difference)
+	 */
+	public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+		if (isIgnoredDifference(comparison)) {
+			return ComparisonResult.SIMILAR;
+		} else {
+			return ComparisonResult.DIFFERENT;
+		}
+	}
+
 }

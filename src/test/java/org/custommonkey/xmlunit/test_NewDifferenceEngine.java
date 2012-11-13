@@ -46,6 +46,7 @@ import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -549,7 +550,7 @@ public class test_NewDifferenceEngine extends TestCase {
 		}
 	}
 
-	private class CollectingDifferenceListener implements DifferenceListener {
+	private class CollectingDifferenceListener implements DifferenceEvaluator {
 		public String expected;
 		public String actual;
 		public Node control;
@@ -561,7 +562,7 @@ public class test_NewDifferenceEngine extends TestCase {
 		public String testXpath;
 		private boolean tracing = false;
 
-		public ComparisonResult differenceFound(Comparison difference, ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 			if (tracing) {
 				System.out.println("df: " + difference.toString());
 			}
