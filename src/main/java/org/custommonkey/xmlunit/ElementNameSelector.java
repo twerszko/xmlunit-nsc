@@ -36,11 +36,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Simple interface implementation that tests two elements for name
@@ -51,51 +53,51 @@ import org.w3c.dom.Node;
  * 
  * @see DifferenceEngine#compareNodeList(NodeList, NodeList, int,
  *      DifferenceListener, ElementQualifier)
- * @see Diff#overrideElementQualifier(ElementQualifier)
+ * @see Diff#overrideElementSelector(ElementQualifier)
  */
-public class ElementNameQualifier implements ElementQualifier {
-    /**
-     * Determine whether two elements qualify for further Difference comparison.
-     * 
-     * @param control
-     * @param test
-     * @return true if the two elements qualify for further comparison based on
-     *         their similar namespace URI and non-namespaced tag name, false
-     *         otherwise
-     */
-    public boolean qualifyForComparison(Element control, Element test) {
-        return ElementSelectors.byName.canBeCompared(control, test);
-    }
+public class ElementNameSelector implements ElementSelector {
+	/**
+	 * Determine whether two elements qualify for further Difference comparison.
+	 * 
+	 * @param control
+	 * @param test
+	 * @return true if the two elements qualify for further comparison based on
+	 *         their similar namespace URI and non-namespaced tag name, false
+	 *         otherwise
+	 */
+	public boolean canBeCompared(Element control, Element test) {
+		return ElementSelectors.byName.canBeCompared(control, test);
+	}
 
-    /**
-     * Determine whether two nodes are defined by the same namespace URI
-     * 
-     * @param control
-     * @param test
-     * @return true if the two nodes are both defined by the same namespace URI
-     *         (including the default - empty - namespace), false otherwise
-     */
-    protected boolean equalsNamespace(Node control, Node test) {
-        String controlNS = control.getNamespaceURI();
-        String testNS = test.getNamespaceURI();
-        if (controlNS == null) {
-            return testNS == null;
-        }
-        return controlNS.equals(testNS);
-    }
+	/**
+	 * Determine whether two nodes are defined by the same namespace URI
+	 * 
+	 * @param control
+	 * @param test
+	 * @return true if the two nodes are both defined by the same namespace URI
+	 *         (including the default - empty - namespace), false otherwise
+	 */
+	protected boolean equalsNamespace(Node control, Node test) {
+		String controlNS = control.getNamespaceURI();
+		String testNS = test.getNamespaceURI();
+		if (controlNS == null) {
+			return testNS == null;
+		}
+		return controlNS.equals(testNS);
+	}
 
-    /**
-     * Strip any namespace information off a node name
-     * 
-     * @param node
-     * @return the localName if the node is namespaced, or the name otherwise
-     */
-    protected String getNonNamespacedNodeName(Node node) {
-        String name = node.getLocalName();
-        if (name == null) {
-            return node.getNodeName();
-        }
-        return name;
-    }
+	/**
+	 * Strip any namespace information off a node name
+	 * 
+	 * @param node
+	 * @return the localName if the node is namespaced, or the name otherwise
+	 */
+	protected String getNonNamespacedNodeName(Node node) {
+		String name = node.getLocalName();
+		if (name == null) {
+			return node.getNodeName();
+		}
+		return name;
+	}
 
 }

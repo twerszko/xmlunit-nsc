@@ -52,56 +52,56 @@ import org.w3c.dom.Text;
  * 
  * @see DifferenceEngine#compareNodeList(NodeList, NodeList, int,
  *      DifferenceListener, ElementQualifier)
- * @see Diff#overrideElementQualifier(ElementQualifier)
+ * @see Diff#overrideElementSelector(ElementQualifier)
  */
-public class ElementNameAndTextQualifier extends ElementNameQualifier {
-    /**
-     * Determine whether two elements qualify for further Difference comparison.
-     * 
-     * @param control
-     * @param test
-     * @return true if the two elements qualify for further comparison based on
-     *         both the superclass qualification (namespace URI and non-
-     *         namespaced tag name), and the qualification of the text nodes
-     *         contained within the elements; false otherwise
-     */
-    public boolean qualifyForComparison(Element control, Element test) {
-        return ElementSelectors.byNameAndText.canBeCompared(control, test);
-    }
+public class ElementNameAndTextQualifier extends ElementNameSelector {
+	/**
+	 * Determine whether two elements qualify for further Difference comparison.
+	 * 
+	 * @param control
+	 * @param test
+	 * @return true if the two elements qualify for further comparison based on
+	 *         both the superclass qualification (namespace URI and non-
+	 *         namespaced tag name), and the qualification of the text nodes
+	 *         contained within the elements; false otherwise
+	 */
+	public boolean canBeCompared(Element control, Element test) {
+		return ElementSelectors.byNameAndText.canBeCompared(control, test);
+	}
 
-    /**
-     * Determine whether the text nodes contain similar values
-     * 
-     * @param control
-     * @param test
-     * @return true if text nodes are similar, false otherwise
-     */
-    protected boolean similar(Text control, Text test) {
-        if (control == null) {
-            return test == null;
-        } else if (test == null) {
-            return false;
-        }
-        return control.getNodeValue().equals(test.getNodeValue());
-    }
+	/**
+	 * Determine whether the text nodes contain similar values
+	 * 
+	 * @param control
+	 * @param test
+	 * @return true if text nodes are similar, false otherwise
+	 */
+	protected boolean similar(Text control, Text test) {
+		if (control == null) {
+			return test == null;
+		} else if (test == null) {
+			return false;
+		}
+		return control.getNodeValue().equals(test.getNodeValue());
+	}
 
-    /**
-     * Extract the normalized text from within an element
-     * 
-     * @param fromElement
-     * @return extracted Text node (could be null)
-     */
-    protected Text extractText(Element fromElement) {
-        fromElement.normalize();
-        NodeList fromNodeList = fromElement.getChildNodes();
-        Node currentNode;
-        for (int i = 0; i < fromNodeList.getLength(); ++i) {
-            currentNode = fromNodeList.item(i);
-            if (currentNode.getNodeType() == Node.TEXT_NODE) {
-                return (Text) currentNode;
-            }
-        }
-        return null;
-    }
+	/**
+	 * Extract the normalized text from within an element
+	 * 
+	 * @param fromElement
+	 * @return extracted Text node (could be null)
+	 */
+	protected Text extractText(Element fromElement) {
+		fromElement.normalize();
+		NodeList fromNodeList = fromElement.getChildNodes();
+		Node currentNode;
+		for (int i = 0; i < fromNodeList.getLength(); ++i) {
+			currentNode = fromNodeList.item(i);
+			if (currentNode.getNodeType() == Node.TEXT_NODE) {
+				return (Text) currentNode;
+			}
+		}
+		return null;
+	}
 
 }

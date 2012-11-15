@@ -53,7 +53,7 @@ import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextQualifier;
+import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextSelector;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -76,14 +76,12 @@ public class DetailedDiffTest extends DiffTest {
 	}
 
 	@Override
-	protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws SAXException,
-	        IOException {
+	protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws Exception {
 		return new DetailedDiff(super.prepareDiff(properties, control, test));
 	}
 
 	@Override
-	protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws SAXException,
-	        IOException {
+	protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws Exception {
 		return new DetailedDiff(super.prepareDiff(properties, control, test));
 	}
 
@@ -92,7 +90,7 @@ public class DetailedDiffTest extends DiffTest {
 	        XmlUnitProperties properties,
 	        String control,
 	        String test,
-	        DifferenceEngineContract engine) throws SAXException, IOException {
+	        DifferenceEngineContract engine) throws Exception {
 
 		return new DetailedDiff(super.prepareDiff(properties, control, test, engine));
 	}
@@ -369,7 +367,7 @@ public class DetailedDiffTest extends DiffTest {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
+		diff.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
 		DetailedDiff detailedDiff = new DetailedDiff(diff);
 		List<Comparison> differences = detailedDiff.getAllDifferences();
 
@@ -411,7 +409,7 @@ public class DetailedDiffTest extends DiffTest {
 		        .betweenControlDocument(test)
 		        .andTestDocument(control)
 		        .build();
-		diff.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
+		diff.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
 		DetailedDiff detailedDiff = new DetailedDiff(diff);
 		List<Comparison> differences = detailedDiff.getAllDifferences();
 

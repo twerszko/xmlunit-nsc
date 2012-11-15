@@ -37,9 +37,9 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
-import org.custommonkey.xmlunit.ElementQualifier;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -52,155 +52,155 @@ import org.w3c.dom.Element;
  * @see test_Diff#testRepeatedElementNamesWithTextQualification()
  */
 public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
-    private static final String TAG_NAME = "tagYoureIt";
-    private static final String TAG_NAME2 = "tagYoureIt2";
-    private static final String TEXT_A = "textA";
-    private static final String TEXT_B = "textB";
-    private Document document;
+	private static final String TAG_NAME = "tagYoureIt";
+	private static final String TAG_NAME2 = "tagYoureIt2";
+	private static final String TEXT_A = "textA";
+	private static final String TEXT_B = "textB";
+	private Document document;
 
-    private XmlUnitProperties properties;
+	private XmlUnitProperties properties;
 
-    @Override
-    public void setUp() throws Exception {
-        properties = new XmlUnitProperties();
-        document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
-    }
+	@Override
+	public void setUp() throws Exception {
+		properties = new XmlUnitProperties();
+		document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
+	}
 
-    // copy of ElementNameAndTextQualifier test
-    public void testSingleTextValue() throws Exception {
-        ElementQualifier qualifier =
-                new MultiLevelElementNameAndTextQualifier(1);
+	// copy of ElementNameAndTextQualifier test
+	public void testSingleTextValue() throws Exception {
+		ElementSelector qualifier =
+		        new MultiLevelElementNameAndTextSelector(1);
 
-        Element control = document.createElement(TAG_NAME);
-        control.appendChild(document.createTextNode(TEXT_A));
+		Element control = document.createElement(TAG_NAME);
+		control.appendChild(document.createTextNode(TEXT_A));
 
-        Element test = document.createElement(TAG_NAME);
+		Element test = document.createElement(TAG_NAME);
 
-        assertFalse("control text not comparable to empty text",
-                qualifier.qualifyForComparison(control, test));
+		assertFalse("control text not comparable to empty text",
+		        qualifier.canBeCompared(control, test));
 
-        test.appendChild(document.createTextNode(TEXT_A));
-        assertTrue("control textA comparable to test textA",
-                qualifier.qualifyForComparison(control, test));
+		test.appendChild(document.createTextNode(TEXT_A));
+		assertTrue("control textA comparable to test textA",
+		        qualifier.canBeCompared(control, test));
 
-        test = document.createElement(TAG_NAME);
+		test = document.createElement(TAG_NAME);
 
-        test.appendChild(document.createTextNode(TEXT_B));
-        assertFalse("control textA not comparable to test textB",
-                qualifier.qualifyForComparison(control, test));
-    }
+		test.appendChild(document.createTextNode(TEXT_B));
+		assertFalse("control textA not comparable to test textB",
+		        qualifier.canBeCompared(control, test));
+	}
 
-    // copy of ElementNameAndTextQualifier test
-    public void testMultipleTextValues() throws Exception {
-        ElementQualifier qualifier =
-                new MultiLevelElementNameAndTextQualifier(1);
+	// copy of ElementNameAndTextQualifier test
+	public void testMultipleTextValues() throws Exception {
+		ElementSelector qualifier =
+		        new MultiLevelElementNameAndTextSelector(1);
 
-        Element control = document.createElement(TAG_NAME);
-        control.appendChild(document.createTextNode(TEXT_A));
-        control.appendChild(document.createTextNode(TEXT_B));
+		Element control = document.createElement(TAG_NAME);
+		control.appendChild(document.createTextNode(TEXT_A));
+		control.appendChild(document.createTextNode(TEXT_B));
 
-        Element test = document.createElement(TAG_NAME);
-        test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
-        assertTrue("denormalised control text comparable to normalised test text",
-                qualifier.qualifyForComparison(control, test));
-    }
+		Element test = document.createElement(TAG_NAME);
+		test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
+		assertTrue("denormalised control text comparable to normalised test text",
+		        qualifier.canBeCompared(control, test));
+	}
 
-    // three levels
-    public void testThreeLevels() throws Exception {
-        ElementQualifier qualifier =
-                new MultiLevelElementNameAndTextQualifier(3);
+	// three levels
+	public void testThreeLevels() throws Exception {
+		ElementSelector qualifier =
+		        new MultiLevelElementNameAndTextSelector(3);
 
-        Element control = document.createElement(TAG_NAME);
-        Element child = document.createElement(TAG_NAME2);
-        control.appendChild(child);
-        Element child2 = document.createElement(TAG_NAME);
-        child.appendChild(child2);
-        child2.appendChild(document.createTextNode(TEXT_B));
+		Element control = document.createElement(TAG_NAME);
+		Element child = document.createElement(TAG_NAME2);
+		control.appendChild(child);
+		Element child2 = document.createElement(TAG_NAME);
+		child.appendChild(child2);
+		child2.appendChild(document.createTextNode(TEXT_B));
 
-        Element test = document.createElement(TAG_NAME);
-        child = document.createElement(TAG_NAME2);
-        test.appendChild(child);
-        child2 = document.createElement(TAG_NAME);
-        child.appendChild(child2);
-        child2.appendChild(document.createTextNode(TEXT_B));
+		Element test = document.createElement(TAG_NAME);
+		child = document.createElement(TAG_NAME2);
+		test.appendChild(child);
+		child2 = document.createElement(TAG_NAME);
+		child.appendChild(child2);
+		child2.appendChild(document.createTextNode(TEXT_B));
 
-        assertTrue(qualifier.qualifyForComparison(control, test));
-    }
+		assertTrue(qualifier.canBeCompared(control, test));
+	}
 
-    /**
-     * @see https 
-     *      ://sourceforge.net/forum/forum.php?thread_id=1440169&forum_id=73274
-     */
-    public void testThread1440169() throws Exception {
-        String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
-        String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
-        Diff d = Diff.newDiff(properties)
-                .betweenControlDocument(s1)
-                .andTestDocument(s2)
-                .build();
-        assertFalse(d.similar());
+	/**
+	 * @see https 
+	 *      ://sourceforge.net/forum/forum.php?thread_id=1440169&forum_id=73274
+	 */
+	public void testThread1440169() throws Exception {
+		String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
+		String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
+		Diff d = Diff.newDiff(properties)
+		        .betweenControlDocument(s1)
+		        .andTestDocument(s2)
+		        .build();
+		assertFalse(d.similar());
 
-        // reset
-        d = Diff.newDiff(properties)
-                .betweenControlDocument(s1)
-                .andTestDocument(s2)
-                .build();
-        d.overrideElementQualifier(new ElementNameAndTextQualifier());
-        assertFalse(d.similar());
+		// reset
+		d = Diff.newDiff(properties)
+		        .betweenControlDocument(s1)
+		        .andTestDocument(s2)
+		        .build();
+		d.overrideElementSelector(new ElementNameAndTextQualifier());
+		assertFalse(d.similar());
 
-        // reset once again
-        d = Diff.newDiff(properties)
-                .betweenControlDocument(s1)
-                .andTestDocument(s2)
-                .build();
-        d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-        assertTrue(d.similar());
+		// reset once again
+		d = Diff.newDiff(properties)
+		        .betweenControlDocument(s1)
+		        .andTestDocument(s2)
+		        .build();
+		d.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
+		assertTrue(d.similar());
 
-    }
+	}
 
-    public void testUserGuideExample() throws Exception {
-        String control =
-                "<table>\n"
-                        + "  <tr>\n"
-                        + "    <td>foo</td>\n"
-                        + "  </tr>\n"
-                        + "  <tr>\n"
-                        + "    <td>bar</td>\n"
-                        + "  </tr>\n"
-                        + "</table>\n";
-        String test =
-                "<table>\n"
-                        + "  <tr>\n"
-                        + "    <td>bar</td>\n"
-                        + "  </tr>\n"
-                        + "  <tr>\n"
-                        + "    <td>foo</td>\n"
-                        + "  </tr>\n"
-                        + "</table>\n";
+	public void testUserGuideExample() throws Exception {
+		String control =
+		        "<table>\n"
+		                + "  <tr>\n"
+		                + "    <td>foo</td>\n"
+		                + "  </tr>\n"
+		                + "  <tr>\n"
+		                + "    <td>bar</td>\n"
+		                + "  </tr>\n"
+		                + "</table>\n";
+		String test =
+		        "<table>\n"
+		                + "  <tr>\n"
+		                + "    <td>bar</td>\n"
+		                + "  </tr>\n"
+		                + "  <tr>\n"
+		                + "    <td>foo</td>\n"
+		                + "  </tr>\n"
+		                + "</table>\n";
 
-        Diff d = Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-        assertFalse(d.toString(), d.similar());
+		Diff d = Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
+		d.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
+		assertFalse(d.toString(), d.similar());
 
-        properties.setIgnoreWhitespace(true);
-        d = Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2));
-        assertTrue(d.toString(), d.similar());
-        properties.setIgnoreWhitespace(false);
+		properties.setIgnoreWhitespace(true);
+		d = Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
+		d.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
+		assertTrue(d.toString(), d.similar());
+		properties.setIgnoreWhitespace(false);
 
-        d = Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        d.overrideElementQualifier(new MultiLevelElementNameAndTextQualifier(2,
-                true));
-        assertTrue(d.toString(), d.similar());
-    }
+		d = Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
+		d.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2,
+		        true));
+		assertTrue(d.toString(), d.similar());
+	}
 
 }

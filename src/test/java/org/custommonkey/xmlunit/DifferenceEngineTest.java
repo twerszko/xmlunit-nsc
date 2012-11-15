@@ -54,6 +54,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
@@ -80,7 +81,7 @@ public class DifferenceEngineTest {
 	private final ComparisonController PSEUDO_DIFF = new SimpleComparisonController();
 	private final ComparisonController PSEUDO_DETAILED_DIFF = new NeverHaltingComparisonController();
 
-	private final static ElementQualifier DEFAULT_ELEMENT_QUALIFIER = new ElementNameQualifier();
+	private final static ElementSelector DEFAULT_ELEMENT_QUALIFIER = new ElementNameSelector();
 	private final static String TEXT_A = "the pack on my back is aching";
 	private final static String TEXT_B = "the straps seem to cut me like a knife";
 	private final static String COMMENT_A = "Im no clown I wont back down";

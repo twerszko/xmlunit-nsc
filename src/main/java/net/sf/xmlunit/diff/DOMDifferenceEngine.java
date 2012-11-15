@@ -53,8 +53,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 			throw new IllegalArgumentException("test must not be null");
 		}
 		try {
-			compareNodes(Convert.toNode(control), new XPathContext(),
-			        Convert.toNode(test), new XPathContext());
+			compareNodes(Convert.toNode(control), new XPathContext(), Convert.toNode(test), new XPathContext());
 		} catch (Exception ex) {
 			// TODO remove pokemon exception handling
 			throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
@@ -148,13 +147,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		}
 
 		if (control.getNodeType() != Node.ATTRIBUTE_NODE) {
-			controlContext
-			        .setChildren(Linqy.map(controlChildren, TO_NODE_INFO));
-			testContext
-			        .setChildren(Linqy.map(testChildren, TO_NODE_INFO));
+			controlContext.setChildren(Linqy.map(controlChildren, TO_NODE_INFO));
+			testContext.setChildren(Linqy.map(testChildren, TO_NODE_INFO));
 
-			lastResult = compareNodeLists(controlChildren, controlContext,
-			        testChildren, testContext);
+			lastResult = compareNodeLists(controlChildren, controlContext, testChildren, testContext);
 			if (lastResult == ComparisonResult.CRITICAL) {
 				return lastResult;
 			}

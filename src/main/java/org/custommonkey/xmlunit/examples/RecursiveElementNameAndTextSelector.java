@@ -36,9 +36,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.examples;
 
+import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
+
 import org.w3c.dom.Element;
-import org.custommonkey.xmlunit.ElementQualifier;
 
 /**
  * Compares all Element and Text nodes in two pieces of XML. Allows elements of
@@ -47,26 +48,26 @@ import org.custommonkey.xmlunit.ElementQualifier;
  * 
  * @author Frank Callahan
  */
-public class RecursiveElementNameAndTextQualifier implements ElementQualifier {
+public class RecursiveElementNameAndTextSelector implements ElementSelector {
 
-    /**
-     * Uses element names and the text nested an arbitrary level of child
-     * elements deeper into the element to compare elements. Checks all nodes,
-     * not just first child element.
-     * 
-     * <p>
-     * Does not ignore empty text nodes.
-     */
-    public RecursiveElementNameAndTextQualifier() {
-    }
+	/**
+	 * Uses element names and the text nested an arbitrary level of child
+	 * elements deeper into the element to compare elements. Checks all nodes,
+	 * not just first child element.
+	 * 
+	 * <p>
+	 * Does not ignore empty text nodes.
+	 */
+	public RecursiveElementNameAndTextSelector() {
+	}
 
-    /**
-     * Returns result of recursive comparison of all the nodes of a control and
-     * test element.
-     */
-    public boolean qualifyForComparison(Element currentControl,
-            Element currentTest) {
-        return ElementSelectors.byNameAndTextRec.canBeCompared(currentControl,
-                currentTest);
-    }
+	/**
+	 * Returns result of recursive comparison of all the nodes of a control and
+	 * test element.
+	 */
+	public boolean canBeCompared(Element currentControl,
+	        Element currentTest) {
+		return ElementSelectors.byNameAndTextRec.canBeCompared(currentControl,
+		        currentTest);
+	}
 }

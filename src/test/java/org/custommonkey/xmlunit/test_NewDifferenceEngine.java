@@ -47,6 +47,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -69,8 +70,8 @@ public class test_NewDifferenceEngine extends TestCase {
 	private final ComparisonController PSEUDO_DIFF = new SimpleComparisonController();
 	private final ComparisonController PSEUDO_DETAILED_DIFF = new NeverHaltingComparisonController();
 
-	private final static ElementQualifier DEFAULT_ELEMENT_QUALIFIER = new ElementNameQualifier();
-	private final static ElementQualifier SEQUENCE_ELEMENT_QUALIFIER = null;
+	private final static ElementSelector DEFAULT_ELEMENT_QUALIFIER = new ElementNameSelector();
+	private final static ElementSelector SEQUENCE_ELEMENT_QUALIFIER = null;
 	private final static String TEXT_A = "the pack on my back is aching";
 	private final static String TEXT_B = "the straps seem to cut me like a knife";
 	private final static String COMMENT_A = "Im no clown I wont back down";
@@ -527,11 +528,11 @@ public class test_NewDifferenceEngine extends TestCase {
 	}
 
 	private void listenToDifferences(String control, String test,
-	        ElementQualifier eq)
+	        ElementSelector selector)
 	        throws SAXException, IOException {
 		Document controlDoc = new DocumentUtils(properties).buildControlDocument(control);
 		Document testDoc = new DocumentUtils(properties).buildTestDocument(test);
-		engine.compare(controlDoc, testDoc, listener, eq);
+		engine.compare(controlDoc, testDoc, listener, selector);
 	}
 
 	private void resetListener() {

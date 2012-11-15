@@ -50,6 +50,7 @@ import net.sf.xmlunit.diff.Comparison.Detail;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.comparators.StringComparator;
@@ -151,7 +152,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 * @param evaluator
 	 *            Notified of any {@link Difference differences} detected during
 	 *            node comparison testing
-	 * @param elementQualifier
+	 * @param elementSelector
 	 *            Used to determine which elements qualify for comparison e.g.
 	 *            when a node has repeated child elements that may occur in any
 	 *            sequence and that sequence is not considered important.
@@ -160,7 +161,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	        Node control,
 	        Node test,
 	        DifferenceEvaluator evaluator,
-	        ElementQualifier elementQualifier) {
+	        ElementSelector elementSelector) {
 		controlTracker.reset();
 		testTracker.reset();
 		try {
@@ -170,7 +171,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 			createValueComparator(evaluator).compare(comparison);
 
 			if (control != null) {
-				compareNode(control, test, evaluator, elementQualifier);
+				compareNode(control, test, evaluator, elementSelector);
 			}
 		} catch (DifferenceFoundException e) {
 			// thrown by the protected compare() method to terminate the
@@ -189,10 +190,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 * @param control
 	 * @param test
 	 * @param evaluator
-	 * @param elementQualifier
+	 * @param elementSelector
 	 * @throws DifferenceFoundException
 	 */
-	protected void compareNode(Node control, Node test, DifferenceEvaluator evaluator, ElementQualifier elementQualifier)
+	protected void compareNode(Node control, Node test, DifferenceEvaluator evaluator, ElementSelector elementSelector)
 	        throws DifferenceFoundException {
 		boolean comparable = compareNodeBasics(control, test, evaluator);
 		boolean isDocumentNode = false;
@@ -218,7 +219,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 					break;
 				case Node.DOCUMENT_NODE:
 					isDocumentNode = true;
-					compareDocument((Document) control, (Document) test, evaluator, elementQualifier);
+					compareDocument((Document) control, (Document) test, evaluator, elementSelector);
 					break;
 				default:
 					// listener.skippedComparison(control, test);
@@ -230,12 +231,12 @@ public class DifferenceEngine implements DifferenceEngineContract {
 			Element controlElement = ((Document) control).getDocumentElement();
 			Element testElement = ((Document) test).getDocumentElement();
 			if (controlElement != null && testElement != null) {
-				compareNode(controlElement, testElement, evaluator, elementQualifier);
+				compareNode(controlElement, testElement, evaluator, elementSelector);
 			}
 		} else {
 			controlTracker.indent();
 			testTracker.indent();
-			compareNodeChildren(control, test, evaluator, elementQualifier);
+			compareNodeChildren(control, test, evaluator, elementSelector);
 			controlTracker.outdent();
 			testTracker.outdent();
 		}
@@ -247,11 +248,11 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 * @param control
 	 * @param test
 	 * @param evaluator
-	 * @param elementQualifier
+	 * @param elementSelector
 	 * @throws DifferenceFoundException
 	 */
 	protected void compareDocument(Document control, Document test,
-	        DifferenceEvaluator evaluator, ElementQualifier elementQualifier)
+	        DifferenceEvaluator evaluator, ElementSelector elementSelector)
 	        throws DifferenceFoundException {
 		DocumentType controlDoctype = control.getDoctype();
 		DocumentType testDoctype = test.getDoctype();
@@ -264,7 +265,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		        .compare(comparison);
 
 		if (controlDoctype != null && testDoctype != null) {
-			compareNode(controlDoctype, testDoctype, evaluator, elementQualifier);
+			compareNode(controlDoctype, testDoctype, evaluator, elementSelector);
 		}
 	}
 
@@ -368,11 +369,11 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 * @param control
 	 * @param test
 	 * @param listener
-	 * @param elementQualifier
+	 * @param elementSelector
 	 * @throws DifferenceFoundException
 	 */
 	protected void compareNodeChildren(
-	        Node control, Node test, DifferenceEvaluator listener, ElementQualifier elementQualifier)
+	        Node control, Node test, DifferenceEvaluator listener, ElementSelector elementSelector)
 	        throws DifferenceFoundException {
 		if (control.hasChildNodes() && test.hasChildNodes()) {
 			List<Node> controlChildren = nodeList2List(control.getChildNodes());
@@ -388,7 +389,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 			        .compare(comparison);
 
 			compareNodeList(controlChildren, testChildren,
-			        controlLength.intValue(), listener, elementQualifier);
+			        controlLength.intValue(), listener, elementSelector);
 		}
 	}
 
@@ -403,7 +404,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 *            convenience parameter because the calling method should know
 	 *            the value already
 	 * @param evaluator
-	 * @param elementQualifier
+	 * @param elementSelector
 	 *            used to determine which of the child elements in the test
 	 *            NodeList should be compared to the current child element in
 	 *            the control NodeList.
@@ -414,10 +415,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	protected void compareNodeList(final NodeList control, final NodeList test,
 	        final int numNodes,
 	        final DifferenceEvaluator evaluator,
-	        final ElementQualifier elementQualifier)
+	        final ElementSelector elementSelector)
 	        throws DifferenceFoundException {
 		compareNodeList(nodeList2List(control), nodeList2List(test),
-		        numNodes, evaluator, elementQualifier);
+		        numNodes, evaluator, elementSelector);
 	}
 
 	/**
@@ -431,7 +432,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 *            convenience parameter because the calling method should know
 	 *            the value already
 	 * @param evaluator
-	 * @param elementQualifier
+	 * @param elementSelector
 	 *            used to determine which of the child elements in the test
 	 *            NodeList should be compared to the current child element in
 	 *            the control NodeList.
@@ -441,7 +442,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	        final List<Node> testChildren,
 	        final int numNodes,
 	        final DifferenceEvaluator evaluator,
-	        final ElementQualifier elementQualifier)
+	        final ElementSelector elementSelector)
 	        throws DifferenceFoundException {
 
 		int j = 0;
@@ -488,13 +489,10 @@ public class DifferenceEngine implements DifferenceEngineContract {
 
 			while (!matchFound) {
 				Node t = testChildren.get(j);
-				if (findNodeType == t.getNodeType()
-				        || comparingTextAndCDATA(findNodeType, t.getNodeType())) {
+				if (findNodeType == t.getNodeType() || comparingTextAndCDATA(findNodeType, t.getNodeType())) {
 					matchFound = !matchOnElement
-					        || elementQualifier == null
-					        || elementQualifier
-					                .qualifyForComparison((Element) nextControl,
-					                        (Element) t);
+					        || elementSelector == null
+					        || elementSelector.canBeCompared((Element) nextControl, (Element) t);
 				}
 				if (matchFound && !unmatchedTestNodes.contains(t)) {
 					/*
@@ -542,7 +540,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 				unmatchedTestNodes.remove(0);
 			}
 			if (nextTest != null) {
-				compareNode(nextControl, nextTest, evaluator, elementQualifier);
+				compareNode(nextControl, nextTest, evaluator, elementSelector);
 
 				Comparison comparison = new Comparison(ComparisonType.CHILD_NODELIST_SEQUENCE,
 				        nextControl, controlTracker.toXpathString(), i,

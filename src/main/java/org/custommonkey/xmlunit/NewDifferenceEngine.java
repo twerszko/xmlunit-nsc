@@ -64,7 +64,7 @@ import net.sf.xmlunit.input.WhitespaceStrippedSource;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Predicate;
 
-import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextQualifier;
+import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextSelector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -81,16 +81,14 @@ import org.w3c.dom.Node;
  * 
  * @see DifferenceListener#differenceFound(Difference)
  */
-public class NewDifferenceEngine
-        implements DifferenceEngineContract {
+public class NewDifferenceEngine implements DifferenceEngineContract {
 
-	public static final Integer ZERO = Integer.valueOf(0);
 	private static final Map<Class<?>, ElementSelector> KNOWN_SELECTORS;
 	static {
 		Map<Class<?>, ElementSelector> m = new HashMap<Class<?>, ElementSelector>();
 		m.put(ElementNameAndTextQualifier.class, ElementSelectors.byNameAndText);
-		m.put(ElementQualifier.class, ElementSelectors.byName);
-		m.put(RecursiveElementNameAndTextQualifier.class, ElementSelectors.byNameAndTextRec);
+		m.put(ElementSelector.class, ElementSelectors.byName);
+		m.put(RecursiveElementNameAndTextSelector.class, ElementSelectors.byNameAndTextRec);
 		KNOWN_SELECTORS = Collections.unmodifiableMap(m);
 	}
 
@@ -155,39 +153,33 @@ public class NewDifferenceEngine
 	 * @param diffEvaluator
 	 *            Notified of any {@link Difference differences} detected during
 	 *            node comparison testing
-	 * @param elementQualifier
+	 * @param elementSelector
 	 *            Used to determine which elements qualify for comparison e.g.
 	 *            when a node has repeated child elements that may occur in any
 	 *            sequence and that sequence is not considered important.
 	 */
-	public void compare(Node control, Node test, DifferenceEvaluator diffEvaluator, ElementQualifier elementQualifier) {
+	public void compare(Node control, Node test, DifferenceEvaluator diffEvaluator, ElementSelector elementSelector) {
 		DOMDifferenceEngine engine = new DOMDifferenceEngine();
 
-		final IsBetweenDocumentNodeAndRootElement checkPrelude =
-		        new IsBetweenDocumentNodeAndRootElement();
+		final IsBetweenDocumentNodeAndRootElement checkPrelude = new IsBetweenDocumentNodeAndRootElement();
 		engine.addComparisonListener(checkPrelude);
 
 		if (matchTracker != null) {
-			engine
-			        .addMatchListener(new MatchTracker2ComparisonListener(matchTracker));
+			engine.addMatchListener(new MatchTracker2ComparisonListener(matchTracker));
 		}
 
-		DifferenceEvaluator controllerAsEvaluator =
-		        new ComparisonController2DifferenceEvaluator(controller);
+		DifferenceEvaluator controllerAsEvaluator = new ComparisonController2DifferenceEvaluator(controller);
 		DifferenceEvaluator ev = null;
 		if (diffEvaluator != null) {
 			ev = DifferenceEvaluators
-			        .first(new DifferenceListener2DifferenceEvaluator(diffEvaluator),
-			                controllerAsEvaluator);
+			        .first(new DifferenceListener2DifferenceEvaluator(diffEvaluator), controllerAsEvaluator);
 		} else {
 			ev = controllerAsEvaluator;
 		}
 		final DifferenceEvaluator evaluator = ev;
 		engine.setDifferenceEvaluator(new DifferenceEvaluator() {
-			public ComparisonResult evaluate(Comparison comparison,
-			        ComparisonResult outcome) {
-				if (!swallowComparison(comparison, outcome,
-				        checkPrelude)) {
+			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+				if (!swallowComparison(comparison, outcome, checkPrelude)) {
 					return evaluator.evaluate(comparison, outcome);
 				}
 				return outcome;
@@ -195,12 +187,12 @@ public class NewDifferenceEngine
 		});
 
 		NodeMatcher m = new DefaultNodeMatcher();
-		if (elementQualifier != null) {
-			Class<?> c = elementQualifier.getClass();
+		if (elementSelector != null) {
+			Class<?> c = elementSelector.getClass();
 			if (KNOWN_SELECTORS.containsKey(c)) {
 				m = new DefaultNodeMatcher(KNOWN_SELECTORS.get(c));
 			} else {
-				m = new DefaultNodeMatcher(new ElementQualifier2ElementSelector(elementQualifier));
+				m = new DefaultNodeMatcher(new ElementQualifier2ElementSelector(elementSelector));
 			}
 		}
 		if (!properties.getCompareUnmatched()) {
@@ -272,8 +264,7 @@ public class NewDifferenceEngine
 		return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
 	}
 
-	public static class MatchTracker2ComparisonListener
-	        implements ComparisonListener {
+	public static class MatchTracker2ComparisonListener implements ComparisonListener {
 		private final MatchTracker mt;
 
 		public MatchTracker2ComparisonListener(MatchTracker m) {
@@ -288,11 +279,10 @@ public class NewDifferenceEngine
 		}
 	}
 
-	public static class DifferenceListener2ComparisonListener
-	        implements ComparisonListener {
+	public static class DifferenceEvaluator2ComparisonListener implements ComparisonListener {
 		private final DifferenceEvaluator de;
 
-		public DifferenceListener2ComparisonListener(DifferenceEvaluator de) {
+		public DifferenceEvaluator2ComparisonListener(DifferenceEvaluator de) {
 			this.de = de;
 		}
 
@@ -305,8 +295,7 @@ public class NewDifferenceEngine
 	}
 
 	private static final Short TEXT_TYPE = Short.valueOf(Node.TEXT_NODE);
-	private static final Short CDATA_TYPE =
-	        Short.valueOf(Node.CDATA_SECTION_NODE);
+	private static final Short CDATA_TYPE = Short.valueOf(Node.CDATA_SECTION_NODE);
 
 	private boolean swallowComparison(Comparison comparison,
 	        ComparisonResult outcome,
@@ -349,8 +338,7 @@ public class NewDifferenceEngine
 		        && detail.getTarget().getParentNode() instanceof Document;
 	}
 
-	public static class ComparisonController2DifferenceEvaluator
-	        implements DifferenceEvaluator {
+	public static class ComparisonController2DifferenceEvaluator implements DifferenceEvaluator {
 		private final ComparisonController cc;
 
 		public ComparisonController2DifferenceEvaluator(ComparisonController c) {
@@ -367,23 +355,20 @@ public class NewDifferenceEngine
 		}
 	}
 
-	public static class ElementQualifier2ElementSelector
-	        implements ElementSelector {
-		private final ElementQualifier eq;
+	public static class ElementQualifier2ElementSelector implements ElementSelector {
+		private final ElementSelector eq;
 
-		public ElementQualifier2ElementSelector(ElementQualifier eq) {
-			this.eq = eq;
+		public ElementQualifier2ElementSelector(ElementSelector selector) {
+			this.eq = selector;
 		}
 
-		public boolean canBeCompared(Element controlElement,
-		        Element testElement) {
-			return eq.qualifyForComparison(controlElement, testElement);
+		public boolean canBeCompared(Element controlElement, Element testElement) {
+			return eq.canBeCompared(controlElement, testElement);
 		}
 
 	}
 
-	public static class DifferenceListener2DifferenceEvaluator
-	        implements DifferenceEvaluator {
+	public static class DifferenceListener2DifferenceEvaluator implements DifferenceEvaluator {
 		private final DifferenceEvaluator de;
 
 		public DifferenceListener2DifferenceEvaluator(DifferenceEvaluator de) {
@@ -451,16 +436,13 @@ public class NewDifferenceEngine
 			nestedMatcher = nested;
 		}
 
-		public Iterable<Map.Entry<Node, Node>>
-		        match(Iterable<Node> controlNodes,
-		                Iterable<Node> testNodes) {
+		public Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
 			final Map<Node, Node> map = new HashMap<Node, Node>();
 			for (Map.Entry<Node, Node> e : nestedMatcher.match(controlNodes, testNodes)) {
 				map.put(e.getKey(), e.getValue());
 			}
 
-			final LinkedList<Map.Entry<Node, Node>> result =
-			        new LinkedList<Map.Entry<Node, Node>>();
+			final LinkedList<Map.Entry<Node, Node>> result = new LinkedList<Map.Entry<Node, Node>>();
 
 			for (Node n : controlNodes) {
 				if (map.containsKey(n)) {

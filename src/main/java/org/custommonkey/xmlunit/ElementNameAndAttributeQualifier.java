@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import java.util.Arrays;
+
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 
@@ -44,6 +45,7 @@ import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 
 /**
  * More complex interface implementation that tests two elements for tag name
@@ -53,121 +55,121 @@ import org.w3c.dom.NamedNodeMap;
  * 
  * @see DifferenceEngine#compareNodeList(NodeList, NodeList, int,
  *      DifferenceListener, ElementQualifier)
- * @see Diff#overrideElementQualifier(ElementQualifier)
+ * @see Diff#overrideElementSelector(ElementQualifier)
  */
-public class ElementNameAndAttributeQualifier extends ElementNameQualifier {
-    private final ElementSelector selector;
-    private static final String[] ALL_ATTRIBUTES = { "*" };
+public class ElementNameAndAttributeQualifier extends ElementNameSelector {
+	private final ElementSelector selector;
+	private static final String[] ALL_ATTRIBUTES = { "*" };
 
-    private final String[] qualifyingAttrNames;
+	private final String[] qualifyingAttrNames;
 
-    /**
-     * No-args constructor: use all attributes from all elements to determine
-     * whether elements qualify for comparability
-     */
-    public ElementNameAndAttributeQualifier() {
-        this(ALL_ATTRIBUTES);
-    }
+	/**
+	 * No-args constructor: use all attributes from all elements to determine
+	 * whether elements qualify for comparability
+	 */
+	public ElementNameAndAttributeQualifier() {
+		this(ALL_ATTRIBUTES);
+	}
 
-    /**
-     * Simple constructor for a single qualifying attribute name
-     * 
-     * @param attrName
-     *            the value to use to qualify whether two elements can be
-     *            compared further for differences
-     */
-    public ElementNameAndAttributeQualifier(String attrName) {
-        this(new String[] { attrName });
-    }
+	/**
+	 * Simple constructor for a single qualifying attribute name
+	 * 
+	 * @param attrName
+	 *            the value to use to qualify whether two elements can be
+	 *            compared further for differences
+	 */
+	public ElementNameAndAttributeQualifier(String attrName) {
+		this(new String[] { attrName });
+	}
 
-    /**
-     * Extended constructor for multiple qualifying attribute names
-     * 
-     * @param attrNames
-     *            the array of values to use to qualify whether two elements can
-     *            be compared further for differences
-     */
-    public ElementNameAndAttributeQualifier(String[] attrNames) {
-        this.qualifyingAttrNames = new String[attrNames.length];
-        System.arraycopy(attrNames, 0, qualifyingAttrNames, 0,
-                attrNames.length);
-        selector = matchesAllAttributes(attrNames)
-                ? ElementSelectors.byNameAndAllAttributes
-                : ElementSelectors.byNameAndAttributesControlNS(attrNames);
-    }
+	/**
+	 * Extended constructor for multiple qualifying attribute names
+	 * 
+	 * @param attrNames
+	 *            the array of values to use to qualify whether two elements can
+	 *            be compared further for differences
+	 */
+	public ElementNameAndAttributeQualifier(String[] attrNames) {
+		this.qualifyingAttrNames = new String[attrNames.length];
+		System.arraycopy(attrNames, 0, qualifyingAttrNames, 0,
+		        attrNames.length);
+		selector = matchesAllAttributes(attrNames)
+		        ? ElementSelectors.byNameAndAllAttributes
+		        : ElementSelectors.byNameAndAttributesControlNS(attrNames);
+	}
 
-    /**
-     * Determine whether two elements qualify for further Difference comparison.
-     * 
-     * @param differenceEngine
-     *            the DifferenceEngine instance wanting to determine if the
-     *            elements are comparable
-     * @param control
-     * @param test
-     * @return true if the two elements qualify for further comparison based on
-     *         both the superclass qualification (namespace URI and non-
-     *         namespaced tag name), and the presence of qualifying attributes
-     *         with the same values; false otherwise
-     */
-    public boolean qualifyForComparison(Element control, Element test) {
-        return selector.canBeCompared(control, test);
-    }
+	/**
+	 * Determine whether two elements qualify for further Difference comparison.
+	 * 
+	 * @param differenceEngine
+	 *            the DifferenceEngine instance wanting to determine if the
+	 *            elements are comparable
+	 * @param control
+	 * @param test
+	 * @return true if the two elements qualify for further comparison based on
+	 *         both the superclass qualification (namespace URI and non-
+	 *         namespaced tag name), and the presence of qualifying attributes
+	 *         with the same values; false otherwise
+	 */
+	public boolean canBeCompared(Element control, Element test) {
+		return selector.canBeCompared(control, test);
+	}
 
-    /**
-     * Determine whether the qualifying attributes are present in both elements
-     * and if so whether their values are the same
-     * 
-     * @param control
-     * @param test
-     * @return true if all qualifying attributes are present with the same
-     *         values, false otherwise
-     */
-    protected boolean areAttributesComparable(Element control, Element test) {
-        String controlValue, testValue;
-        Attr[] qualifyingAttributes;
-        NamedNodeMap namedNodeMap = control.getAttributes();
-        if (matchesAllAttributes(qualifyingAttrNames)) {
-            qualifyingAttributes = new Attr[namedNodeMap.getLength()];
-            for (int n = 0; n < qualifyingAttributes.length; ++n) {
-                qualifyingAttributes[n] = (Attr) namedNodeMap.item(n);
-            }
-        } else {
-            qualifyingAttributes = new Attr[qualifyingAttrNames.length];
-            for (int n = 0; n < qualifyingAttrNames.length; ++n) {
-                qualifyingAttributes[n] = (Attr) namedNodeMap.getNamedItem(qualifyingAttrNames[n]);
-            }
-        }
+	/**
+	 * Determine whether the qualifying attributes are present in both elements
+	 * and if so whether their values are the same
+	 * 
+	 * @param control
+	 * @param test
+	 * @return true if all qualifying attributes are present with the same
+	 *         values, false otherwise
+	 */
+	protected boolean areAttributesComparable(Element control, Element test) {
+		String controlValue, testValue;
+		Attr[] qualifyingAttributes;
+		NamedNodeMap namedNodeMap = control.getAttributes();
+		if (matchesAllAttributes(qualifyingAttrNames)) {
+			qualifyingAttributes = new Attr[namedNodeMap.getLength()];
+			for (int n = 0; n < qualifyingAttributes.length; ++n) {
+				qualifyingAttributes[n] = (Attr) namedNodeMap.item(n);
+			}
+		} else {
+			qualifyingAttributes = new Attr[qualifyingAttrNames.length];
+			for (int n = 0; n < qualifyingAttrNames.length; ++n) {
+				qualifyingAttributes[n] = (Attr) namedNodeMap.getNamedItem(qualifyingAttrNames[n]);
+			}
+		}
 
-        String nsURI, name;
-        for (int i = 0; i < qualifyingAttributes.length; ++i) {
-            if (qualifyingAttributes[i] != null) {
-                nsURI = qualifyingAttributes[i].getNamespaceURI();
-                controlValue = qualifyingAttributes[i].getNodeValue();
-                name = qualifyingAttributes[i].getName();
-            } else {
-                // cannot be "*" case
-                nsURI = controlValue = "";
-                name = qualifyingAttrNames[i];
-            }
-            if (nsURI == null || nsURI.length() == 0) {
-                testValue = test.getAttribute(name);
-            } else {
-                testValue = test.getAttributeNS(nsURI, qualifyingAttributes[i].getLocalName());
-            }
-            if (controlValue == null) {
-                if (testValue != null) {
-                    return false;
-                }
-            } else {
-                if (!controlValue.equals(testValue)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+		String nsURI, name;
+		for (int i = 0; i < qualifyingAttributes.length; ++i) {
+			if (qualifyingAttributes[i] != null) {
+				nsURI = qualifyingAttributes[i].getNamespaceURI();
+				controlValue = qualifyingAttributes[i].getNodeValue();
+				name = qualifyingAttributes[i].getName();
+			} else {
+				// cannot be "*" case
+				nsURI = controlValue = "";
+				name = qualifyingAttrNames[i];
+			}
+			if (nsURI == null || nsURI.length() == 0) {
+				testValue = test.getAttribute(name);
+			} else {
+				testValue = test.getAttributeNS(nsURI, qualifyingAttributes[i].getLocalName());
+			}
+			if (controlValue == null) {
+				if (testValue != null) {
+					return false;
+				}
+			} else {
+				if (!controlValue.equals(testValue)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-    private static boolean matchesAllAttributes(String[] attributes) {
-        return Arrays.equals(attributes, ALL_ATTRIBUTES);
-    }
+	private static boolean matchesAllAttributes(String[] attributes) {
+		return Arrays.equals(attributes, ALL_ATTRIBUTES);
+	}
 }

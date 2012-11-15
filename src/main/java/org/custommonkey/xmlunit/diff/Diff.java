@@ -47,6 +47,7 @@ import javax.xml.transform.dom.DOMSource;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.ComparisonController;
 import org.custommonkey.xmlunit.DetailedDiff;
@@ -54,8 +55,7 @@ import org.custommonkey.xmlunit.DifferenceEngine;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
-import org.custommonkey.xmlunit.ElementNameQualifier;
-import org.custommonkey.xmlunit.ElementQualifier;
+import org.custommonkey.xmlunit.ElementNameSelector;
 import org.custommonkey.xmlunit.MatchTracker;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
 import org.custommonkey.xmlunit.XmlUnit;
@@ -104,7 +104,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	private final StringBuffer messages;
 	private final DifferenceEngineContract differenceEngine;
 	private DifferenceEvaluator differenceEvaluator;
-	private ElementQualifier elementQualifier;
+	private ElementSelector elementSelector;
 	private MatchTracker matchTracker;
 
 	/**
@@ -115,7 +115,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		this.properties = builder.properties.clone();
 		this.controlDoc = getManipulatedDocument(builder.controlDocument);
 		this.testDoc = getManipulatedDocument(builder.testDocument);
-		this.elementQualifier = builder.elementQualifier;
+		this.elementSelector = builder.elementSelector;
 		this.differenceEngine = builder.differenceEngineContract;
 		this.messages = new StringBuffer();
 	}
@@ -132,7 +132,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		this.properties = prototype.properties.clone();
 		this.controlDoc = getManipulatedDocument(prototype.controlDoc);
 		this.testDoc = getManipulatedDocument(prototype.testDoc);
-		this.elementQualifier = prototype.elementQualifier;
+		this.elementSelector = prototype.elementSelector;
 		this.differenceEngine = prototype.differenceEngine;
 		this.differenceEvaluator = prototype.differenceEvaluator;
 		this.messages = new StringBuffer();
@@ -207,7 +207,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		if (compared) {
 			return;
 		}
-		getDifferenceEngine().compare(controlDoc, testDoc, this, elementQualifier);
+		getDifferenceEngine().compare(controlDoc, testDoc, this, elementSelector);
 		compared = true;
 	}
 
@@ -358,11 +358,11 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	 * Override the <code>ElementQualifier</code> used to determine which
 	 * control and test nodes are comparable for this difference comparison.
 	 * 
-	 * @param qualifier
+	 * @param selector
 	 *            the ElementQualifier instance to delegate to.
 	 */
-	public void overrideElementQualifier(ElementQualifier qualifier) {
-		this.elementQualifier = qualifier;
+	public void overrideElementSelector(ElementSelector selector) {
+		this.elementSelector = selector;
 	}
 
 	/**
@@ -399,10 +399,10 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	}
 
 	private boolean usesUnknownElementQualifier() {
-		return elementQualifier != null
-		        && !(elementQualifier instanceof ElementNameQualifier)
-		        && !(elementQualifier instanceof ElementNameAndTextQualifier)
-		        && !(elementQualifier instanceof ElementNameAndAttributeQualifier);
+		return elementSelector != null
+		        && !(elementSelector instanceof ElementNameSelector)
+		        && !(elementSelector instanceof ElementNameAndTextQualifier)
+		        && !(elementSelector instanceof ElementNameAndAttributeQualifier);
 	}
 
 	public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
@@ -417,7 +417,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		private Document controlDocument;
 
 		private DifferenceEngineContract differenceEngineContract = null;
-		private ElementQualifier elementQualifier = new ElementNameQualifier();
+		private ElementSelector elementSelector = new ElementNameSelector();
 
 		public DiffBuilder(@Nullable XmlUnitProperties properties) {
 			if (properties == null) {
@@ -502,7 +502,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 			if (testDocument == null) {
 				throw new BuilderException("Test document must be provided!");
 			}
-			if (elementQualifier == null) {
+			if (elementSelector == null) {
 				throw new BuilderException("Element qualifier cannot be null!");
 			}
 		}
@@ -566,11 +566,11 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 				return this;
 			}
 
-			public DiffPropertiesBuilder withElementQualifier(ElementQualifier qualifier) {
-				if (elementQualifier == null) {
+			public DiffPropertiesBuilder withElementQualifier(ElementSelector selector) {
+				if (elementSelector == null) {
 					throw new IllegalArgumentException("ElementQualifier cannot be null");
 				}
-				elementQualifier = qualifier;
+				elementSelector = selector;
 				return this;
 			}
 

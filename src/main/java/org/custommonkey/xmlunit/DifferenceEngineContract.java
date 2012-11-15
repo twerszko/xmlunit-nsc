@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelector;
 
 import org.w3c.dom.Node;
 
@@ -63,14 +64,13 @@ public interface DifferenceEngineContract {
 	 *            Control XML to compare
 	 * @param test
 	 *            Test XML to compare
-	 * @param listener
+	 * @param evaluator
 	 *            Notified of any {@link Difference differences} detected during
 	 *            node comparison testing
-	 * @param elementQualifier
+	 * @param elementSelector
 	 *            Used to determine which elements qualify for comparison e.g.
 	 *            when a node has repeated child elements that may occur in any
 	 *            sequence and that sequence is not considered important.
 	 */
-	void compare(Node control, Node test, DifferenceEvaluator listener,
-	        ElementQualifier elementQualifier);
+	void compare(Node control, Node test, DifferenceEvaluator evaluator, ElementSelector elementSelector);
 }

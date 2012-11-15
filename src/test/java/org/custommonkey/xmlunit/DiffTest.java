@@ -100,8 +100,7 @@ public class DiffTest {
 		}
 	}
 
-	protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws SAXException,
-	        IOException {
+	protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws Exception {
 		try {
 			return Diff.newDiff(properties)
 			        .betweenControlDocument(control)
@@ -113,8 +112,7 @@ public class DiffTest {
 		}
 	}
 
-	protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws SAXException,
-	        IOException {
+	protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws Exception {
 		try {
 			return Diff.newDiff(properties)
 			        .betweenControlDocument(control)
@@ -128,7 +126,7 @@ public class DiffTest {
 
 	protected Diff prepareDiff(XmlUnitProperties properties, String control, String test,
 	        DifferenceEngineContract engine)
-	        throws SAXException, IOException {
+	        throws Exception {
 
 		try {
 			return Diff.newDiff(properties)
@@ -198,7 +196,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_create_valid_toString_when_different_attributes() throws SAXException, IOException {
+	public void should_create_valid_toString_when_different_attributes() throws Exception {
 		// given
 		String fruitBat = "<bat type=\"fruit\"/>";
 		String longEaredBat = "<bat type=\"longeared\"/>";
@@ -219,7 +217,7 @@ public class DiffTest {
 	@Test
 	@Parameters(method = "provideXmlPairs")
 	public void should_check_if_two_xmls_arent_similar(String control, String test)
-	        throws SAXException, IOException {
+	        throws Exception {
 
 		// given
 		// when
@@ -273,7 +271,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_two_strings_arent_identical() throws SAXException, IOException {
+	public void should_pass_when_two_strings_arent_identical() throws Exception {
 		// given
 		String control = "<control><test>test1</test><test>test2</test></control>";
 		String test = "<control><test>test2</test><test>test1</test></control>";
@@ -286,7 +284,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_two_strings_are_identical() throws SAXException, IOException {
+	public void should_pass_when_two_strings_are_identical() throws Exception {
 		// given
 		File controlFile = TestResources.BLAME_FILE.getFile();
 		File testFile = TestResources.BLAME_FILE.getFile();
@@ -301,7 +299,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_string_is_identical_with_itself() throws SAXException, IOException {
+	public void should_pass_when_string_is_identical_with_itself() throws Exception {
 		// given
 		String control = "<same>pass</same>";
 
@@ -314,7 +312,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_one_node_missing_in_control_string() throws SAXException, IOException {
+	public void should_pass_when_one_node_missing_in_control_string() throws Exception {
 		// given
 		String control = "<root></root>";
 		String test = "<root><node/></root>";
@@ -328,7 +326,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_one_extra_node_in_control_string() throws SAXException, IOException {
+	public void should_pass_when_one_extra_node_in_control_string() throws Exception {
 		// given
 		String control = "<root><node/></root>";
 		String test = "<root></root>";
@@ -342,7 +340,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_similar_when_nodes_in_reverse_order() throws SAXException, IOException {
+	public void should_be_similar_when_nodes_in_reverse_order() throws Exception {
 		// given
 		String control = "<root><same/><pass/></root>";
 		String test = "<root><pass/><same/></root>";
@@ -356,7 +354,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_extra_attribute_in_test_string() throws SAXException, IOException {
+	public void should_pass_when_extra_attribute_in_test_string() throws Exception {
 		// given
 		String control = "<same>pass</same>";
 		String test = "<same except=\"this\">pass</same>";
@@ -370,7 +368,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_extra_attribute_in_control_string() throws SAXException, IOException {
+	public void should_pass_when_extra_attribute_in_control_string() throws Exception {
 		// given
 		String control = "<same except=\"this\">pass</same>";
 		String test = "<same>pass</same>";
@@ -384,7 +382,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_strings_have_attributes_in_reverse_order() throws SAXException, IOException {
+	public void should_pass_when_strings_have_attributes_in_reverse_order() throws Exception {
 		// given
 		String control = "<same zzz=\"qwerty\" aaa=\"uiop\">pass</same>";
 		String test = "<same aaa=\"uiop\" zzz=\"qwerty\">pass</same>";
@@ -403,7 +401,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_xml_and_xml_with_dtd_are_similar() throws SAXException, IOException {
+	public void should_pass_when_xml_and_xml_with_dtd_are_similar() throws Exception {
 		// given
 		String xmlWithoutDTD = "<test>" +
 		        "<assertion result=\"pass\"/>" +
@@ -426,7 +424,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_xml_and_xml_with_external_dtd_are_similar() throws SAXException, IOException {
+	public void should_pass_when_xml_and_xml_with_external_dtd_are_similar() throws Exception {
 		// given
 		String xmlWithoutDTD = "<test>" +
 		        "<assertion result=\"pass\"/>" +
@@ -465,7 +463,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_two_xmls_with_dtd_are_identical() throws SAXException, IOException {
+	public void should_pass_when_two_xmls_with_dtd_are_identical() throws Exception {
 		String xmlWithoutDTD = "<test>" +
 		        "<assertion result=\"pass\"/>" +
 		        "<assertion result=\"fail\"/>" +
@@ -493,7 +491,7 @@ public class DiffTest {
 	 * @throws SAXException
 	 */
 	@Test
-	public void should_check_whitespace_awareness() throws SAXException, IOException {
+	public void should_check_whitespace_awareness() throws Exception {
 		// to avoid test sequencing issues we need to restore whitespace setting
 		boolean whitespaceAwareDiffSimilar = true;
 		boolean whitespaceIgnoredDiffSimilar = false;
@@ -521,13 +519,13 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_whitespace_awareness_with_comment_handling() throws SAXException, IOException {
+	public void should_check_whitespace_awareness_with_comment_handling() throws Exception {
 		properties.setIgnoreComments(true);
 		should_check_whitespace_awareness();
 	}
 
 	@Test
-	public void should_check_whitespace_awareness_with_normalization() throws SAXException, IOException {
+	public void should_check_whitespace_awareness_with_normalization() throws Exception {
 		properties.setNormalize(true);
 		should_check_whitespace_awareness();
 	}
@@ -540,7 +538,7 @@ public class DiffTest {
 	 * @throws SAXException
 	 */
 	@Test
-	public void should_be_similar_with_different_namespaces() throws SAXException, IOException {
+	public void should_be_similar_with_different_namespaces() throws Exception {
 		// given
 		String control =
 		        "<control:abc xmlns:control=\"http://yada.com\">" +
@@ -569,7 +567,7 @@ public class DiffTest {
 	 * @throws SAXException
 	 */
 	@Test
-	public void should_be_similar_with_default_namespace() throws SAXException, IOException {
+	public void should_be_similar_with_default_namespace() throws Exception {
 		// given
 		String control =
 		        "<control:abc xmlns:control=\"http://yada.com\">" +
@@ -592,7 +590,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_similar_with_the_same_name_and_different_QName() throws SAXException, IOException {
+	public void should_be_similar_with_the_same_name_and_different_QName() throws Exception {
 		// given
 		String control =
 		        "<ns1:root xmlns:ns1=\"http://example.org/ns1\" xmlns:ns2=\"http://example.org/ns2\">" +
@@ -618,7 +616,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_different_when_different_nodes() throws SAXException, IOException {
+	public void should_be_different_when_different_nodes() throws Exception {
 		// given
 		String control =
 		        "<vehicles>" +
@@ -640,7 +638,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_diffs_with_overriden_DifferenceListener() throws SAXException, IOException {
+	public void should_check_diffs_with_overriden_DifferenceListener() throws Exception {
 		// given
 		String control =
 		        "<vehicles>" +
@@ -680,7 +678,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_files_with_namespaced_attributes() throws SAXException, IOException {
+	public void should_check_files_with_namespaced_attributes() throws Exception {
 		// given
 		File controlFile = TestResources.NAMESPACES_CONTROL.getFile();
 		File testFile = TestResources.NAMESPACES_TEST.getFile();
@@ -699,7 +697,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_different_structures() throws SAXException, IOException {
+	public void should_check_different_structures() throws Exception {
 		// given
 		String control = "<root><node>text</node></root>";
 		String test = "<root><node><inner-node>text</inner-node></node></root>";
@@ -712,8 +710,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_repeated_element_names_with_attribute_qualification()
-	        throws SAXException, IOException {
+	public void should_check_repeated_element_names_with_attribute_qualification() throws Exception {
 
 		// given
 		String control = "<root><node id=\"1\"/><node id=\"2\"/></root>";
@@ -721,7 +718,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier("id"));
+		diff.overrideElementSelector(new ElementNameAndAttributeQualifier("id"));
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -729,8 +726,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_repeated_element_names_with_attribute_qualification2()
-	        throws SAXException, IOException {
+	public void should_check_repeated_element_names_with_attribute_qualification2() throws Exception {
 
 		// given
 		String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
@@ -738,7 +734,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier("id"));
+		diff.overrideElementSelector(new ElementNameAndAttributeQualifier("id"));
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -746,8 +742,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_repeated_element_names_with_attribute_qualification3()
-	        throws SAXException, IOException {
+	public void should_check_repeated_element_names_with_attribute_qualification3() throws Exception {
 
 		// given
 		String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
@@ -755,7 +750,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -764,7 +759,7 @@ public class DiffTest {
 
 	@Test
 	public void should_check_repeated_element_names_with_attribute_qualification4()
-	        throws SAXException, IOException {
+	        throws Exception {
 
 		// given
 		String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
@@ -772,7 +767,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -780,8 +775,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_repeated_element_names_with_namespaced_attribute_qualification()
-	        throws SAXException, IOException {
+	public void should_check_repeated_element_names_with_namespaced_attribute_qualification() throws Exception {
 
 		// given
 		String control =
@@ -797,7 +791,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
 		diff.overrideDifferenceEvaluator(
 		        new ExpectedDifferenceEvaluator(
 		                new ComparisonType[] {
@@ -813,7 +807,7 @@ public class DiffTest {
 
 	@Test
 	public void should_check_repeated_element_names_with_text_qualification()
-	        throws SAXException, IOException {
+	        throws Exception {
 
 		// given
 		String control = "<root><node>1</node><node>2</node></root>";
@@ -833,7 +827,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndTextQualifier());
+		diff.overrideElementSelector(new ElementNameAndTextQualifier());
 		diff.overrideDifferenceEvaluator(delegate);
 
 		// then
@@ -849,7 +843,7 @@ public class DiffTest {
 
 	// defect raised by Kevin Krouse Jan 2003
 	@Test
-	public void should_check_XMLNS_number_of_attributes() throws SAXException, IOException {
+	public void should_check_XMLNS_number_of_attributes() throws Exception {
 		// given
 		String control = "<root xmlns=\"qwerty\"><node/></root>";
 		String test = "<root xmlns=\"qwerty\" xmlns:qwerty=\"qwerty\"><qwerty:node/></root>";
@@ -899,7 +893,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_issue_1189681() throws SAXException, IOException {
+	public void should_check_issue_1189681() throws Exception {
 		// given
 		String control =
 		        "<farm>\n" +
@@ -930,7 +924,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_different_when_CDATA_not_ignored() throws SAXException, IOException {
+	public void should_be_different_when_CDATA_not_ignored() throws Exception {
 		// given
 		String expected = "<a>Hello</a>";
 		String actual = "<a><![CDATA[Hello]]></a>";
@@ -944,7 +938,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_identical_when_CDATA_ignored() throws SAXException, IOException {
+	public void should_be_identical_when_CDATA_ignored() throws Exception {
 		// given
 		properties.setIgnoreDiffBetweenTextAndCDATA(true);
 
@@ -960,7 +954,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_neither_be_identical_nor_similar_when_different_commants() throws SAXException, IOException {
+	public void should_neither_be_identical_nor_similar_when_different_commants() throws Exception {
 		// given
 		String control = "<foo><!-- test --><bar a=\"b\"/> </foo>";
 		String test = "<foo><bar a=\"b\"><!-- test --></bar> </foo>";
@@ -974,7 +968,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_identical_and_similar_when_different_commants() throws SAXException, IOException {
+	public void should_be_identical_and_similar_when_different_commants() throws Exception {
 		// given
 		String control = "<foo><!-- test --><bar a=\"b\"/> </foo>";
 		String test = "<foo><bar a=\"b\"><!-- test --></bar> </foo>";
@@ -989,14 +983,14 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_pass_when_whitespaces_ignored() throws SAXException, IOException {
+	public void should_pass_when_whitespaces_ignored() throws Exception {
 		properties.setIgnoreWhitespace(true);
 		should_neither_be_identical_nor_similar_when_different_commants();
 		should_be_identical_and_similar_when_different_commants();
 	}
 
 	@Test
-	public void should_pass_when_normalization() throws SAXException, IOException {
+	public void should_pass_when_normalization() throws Exception {
 		properties.setNormalize(true);
 		should_neither_be_identical_nor_similar_when_different_commants();
 		should_be_identical_and_similar_when_different_commants();
@@ -1055,7 +1049,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_neither_be_identical_nor_similar_when_different_whitespaces() throws SAXException, IOException {
+	public void should_neither_be_identical_nor_similar_when_different_whitespaces() throws Exception {
 		// given
 		String control = "<foo>a = b;</foo>";
 		String test = "<foo>\r\n\ta =\tb; \r\n</foo>";
@@ -1069,7 +1063,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_identical_and_similar_when_different_whitespaces() throws SAXException, IOException {
+	public void should_be_identical_and_similar_when_different_whitespaces() throws Exception {
 		// given
 		properties.setNormalizeWhitespace(true);
 		String control = "<foo>a = b;</foo>";
@@ -1093,7 +1087,7 @@ public class DiffTest {
 	 * @throws SAXException
 	 */
 	@Test
-	public void should_pass_when_differently_specified_namespace() throws SAXException, IOException {
+	public void should_pass_when_differently_specified_namespace() throws Exception {
 		// given
 		String control =
 		        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -1127,8 +1121,7 @@ public class DiffTest {
 	 *      amp;group_id=23187&amp;atid=377768
 	 */
 	@Test
-	public void should_be_identical_when_namespaces_present_and_whitespaces_ignored()
-	        throws SAXException, IOException {
+	public void should_be_identical_when_namespaces_present_and_whitespaces_ignored() throws Exception {
 
 		// given
 		String control =
@@ -1159,7 +1152,7 @@ public class DiffTest {
 	 *      amp;group_id=23187&amp;atid=377768
 	 */
 	@Test
-	public void should_be_identical_when_whitespaces_ignored() throws SAXException, IOException {
+	public void should_be_identical_when_whitespaces_ignored() throws Exception {
 		// given
 		String control = "<a><b/></a>";
 		String test = "<a>\r\n  <b/>\r\n</a>";
@@ -1174,7 +1167,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_check_upgrading_of_recoverable_difference() throws SAXException, IOException {
+	public void should_check_upgrading_of_recoverable_difference() throws Exception {
 		// given
 		String control = "<foo:bar xmlns:foo='urn:foo'/>";
 		String test = "<bar xmlns='urn:foo'/>";
@@ -1200,7 +1193,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_verify_calls_on_overriden_MatchTracker() throws SAXException, IOException {
+	public void should_verify_calls_on_overriden_MatchTracker() throws Exception {
 		// given
 		MatchTracker mockedTracker = mock(MatchTracker.class);
 		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
@@ -1215,7 +1208,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_verify_calls_on_MatchTracker_overriden_in_engine() throws SAXException, IOException {
+	public void should_verify_calls_on_MatchTracker_overriden_in_engine() throws Exception {
 		// given
 		MatchTracker mockedTracker = mock(MatchTracker.class);
 		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
@@ -1235,7 +1228,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_verify_calls_on_MatchTracker_overriden_in_diff() throws SAXException, IOException {
+	public void should_verify_calls_on_MatchTracker_overriden_in_diff() throws Exception {
 		// given
 		MatchTracker mockedTracker = mock(MatchTracker.class);
 		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
@@ -1256,8 +1249,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_verify_calls_on_MatchTracker_overriden_in_newEngine()
-	        throws SAXException, IOException {
+	public void should_verify_calls_on_MatchTracker_overriden_in_newEngine() throws Exception {
 
 		// given
 		MatchTracker mockedTracker = mock(MatchTracker.class);
@@ -1276,8 +1268,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_verify_calls_on_MatchTracker_overriden_in_diff2()
-	        throws SAXException, IOException {
+	public void should_verify_calls_on_MatchTracker_overriden_in_diff2() throws Exception {
 
 		// given
 		MatchTracker mockedTracker = mock(MatchTracker.class);
@@ -1299,8 +1290,7 @@ public class DiffTest {
 	}
 
 	@Test
-	public void should_be_similar_when_CDATA_and_ignored_whitespaces()
-	        throws SAXException, IOException {
+	public void should_be_similar_when_CDATA_and_ignored_whitespaces() throws Exception {
 
 		// given
 		String control =
@@ -1334,7 +1324,7 @@ public class DiffTest {
 	// TODO: investigate wtf.
 	@Ignore
 	@Test
-	public void testEntityExpansion() throws SAXException, IOException {
+	public void testEntityExpansion() throws Exception {
 		String control = "<root>bla&#13;bla</root>";
 		String test = "<root>bla&#xD;bla</root>";
 		// XMLUnit.setExpandEntityReferences(true);
@@ -1354,7 +1344,7 @@ public class DiffTest {
 	 *      &atid=377768
 	 */
 	@Test
-	public void should_check_issue_2807167() throws SAXException, IOException {
+	public void should_check_issue_2807167() throws Exception {
 		// given
 		String test =
 		        "<tag>" +
@@ -1376,14 +1366,14 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
 
 		// then
 		assertThat(diff.similar()).isTrue();
 	}
 
 	@Test
-	public void should_check_cocoon_xml_test_case() throws SAXException, IOException {
+	public void should_check_cocoon_xml_test_case() throws Exception {
 		// given
 		String control = "<!DOCTYPE skinconfig []>" + "<!--abcd--><root></root>";
 		String test = "<!DOCTYPE skinconfig [<!--abcd-->]>" + "<root></root>";
