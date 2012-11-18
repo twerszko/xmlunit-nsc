@@ -44,6 +44,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
@@ -394,8 +395,9 @@ public class test_NewDifferenceEngine extends TestCase {
 		final int[] count = new int[1];
 		NewDifferenceEngine d =
 		        new NewDifferenceEngine(new XmlUnitProperties(), new SimpleComparisonController(),
-		                new MatchTracker() {
-			                public void matchFound(Comparison d) {
+		                new ComparisonListener() {
+			                @Override
+			                public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
 				                count[0]++;
 			                }
 		                });
@@ -411,8 +413,9 @@ public class test_NewDifferenceEngine extends TestCase {
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");
 		final int[] count = new int[1];
-		engine.setMatchTracker(new MatchTracker() {
-			public void matchFound(Comparison d) {
+		engine.setMatchTracker(new ComparisonListener() {
+			@Override
+			public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
 				count[0]++;
 			}
 		});

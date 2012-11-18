@@ -45,6 +45,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
@@ -56,7 +57,6 @@ import org.custommonkey.xmlunit.DifferenceEngineContract;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.ElementNameAndTextSelector;
 import org.custommonkey.xmlunit.ElementNameSelector;
-import org.custommonkey.xmlunit.MatchTracker;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
 import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -105,7 +105,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	private final DifferenceEngineContract differenceEngine;
 	private DifferenceEvaluator differenceEvaluator;
 	private ElementSelector elementSelector;
-	private MatchTracker matchTracker;
+	private ComparisonListener matchTracker;
 
 	/**
 	 * Construct a Diff that compares the XML in two Documents using a specific
@@ -353,7 +353,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	 * @param tracker
 	 *            the MatchTracker instance to delegate handling to.
 	 */
-	public void overrideMatchTracker(MatchTracker tracker) {
+	public void overrideMatchTracker(ComparisonListener tracker) {
 		this.matchTracker = tracker;
 		if (differenceEngine != null) {
 			differenceEngine.setMatchTracker(tracker);

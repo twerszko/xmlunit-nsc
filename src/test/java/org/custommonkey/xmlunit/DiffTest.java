@@ -59,6 +59,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
@@ -1195,8 +1196,8 @@ public class DiffTest {
 	@Test
 	public void should_verify_calls_on_overriden_MatchTracker() throws Exception {
 		// given
-		MatchTracker mockedTracker = mock(MatchTracker.class);
-		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
+		ComparisonListener mockedTracker = mock(ComparisonListener.class);
+		doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
 		// when
 		Diff diff = prepareDiff(properties, "<foo/>", "<foo/>");
@@ -1204,14 +1205,14 @@ public class DiffTest {
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedTracker, times(14)).matchFound(any(Comparison.class));
+		verify(mockedTracker, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 	}
 
 	@Test
 	public void should_verify_calls_on_MatchTracker_overriden_in_engine() throws Exception {
 		// given
-		MatchTracker mockedTracker = mock(MatchTracker.class);
-		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
+		ComparisonListener mockedTracker = mock(ComparisonListener.class);
+		doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
 		ComparisonController mockedController = mock(ComparisonController.class);
 		Mockito.doReturn(false).when(mockedController).haltComparison(any(Comparison.class));
@@ -1223,15 +1224,15 @@ public class DiffTest {
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedTracker, times(12)).matchFound(any(Comparison.class));
+		verify(mockedTracker, times(12)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 		verify(mockedController, times(0)).haltComparison(any(Comparison.class));
 	}
 
 	@Test
 	public void should_verify_calls_on_MatchTracker_overriden_in_diff() throws Exception {
 		// given
-		MatchTracker mockedTracker = mock(MatchTracker.class);
-		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
+		ComparisonListener mockedTracker = mock(ComparisonListener.class);
+		doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
 		ComparisonController mockedController = mock(ComparisonController.class);
 		Mockito.doReturn(false).when(mockedController).haltComparison(any(Comparison.class));
@@ -1244,7 +1245,7 @@ public class DiffTest {
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedTracker, times(12)).matchFound(any(Comparison.class));
+		verify(mockedTracker, times(12)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 		verify(mockedController, times(0)).haltComparison(any(Comparison.class));
 	}
 
@@ -1252,8 +1253,8 @@ public class DiffTest {
 	public void should_verify_calls_on_MatchTracker_overriden_in_newEngine() throws Exception {
 
 		// given
-		MatchTracker mockedTracker = mock(MatchTracker.class);
-		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
+		ComparisonListener mockedTracker = mock(ComparisonListener.class);
+		doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
 		ComparisonController mockedController = mock(ComparisonController.class);
 		Mockito.doReturn(false).when(mockedController).haltComparison(any(Comparison.class));
@@ -1263,7 +1264,7 @@ public class DiffTest {
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedTracker, times(14)).matchFound(any(Comparison.class));
+		verify(mockedTracker, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 		verify(mockedController, times(0)).haltComparison(any(Comparison.class));
 	}
 
@@ -1271,8 +1272,8 @@ public class DiffTest {
 	public void should_verify_calls_on_MatchTracker_overriden_in_diff2() throws Exception {
 
 		// given
-		MatchTracker mockedTracker = mock(MatchTracker.class);
-		doNothing().when(mockedTracker).matchFound(any(Comparison.class));
+		ComparisonListener mockedTracker = mock(ComparisonListener.class);
+		doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
 		ComparisonController mockedController = mock(ComparisonController.class);
 		Mockito.doReturn(false).when(mockedController).haltComparison(any(Comparison.class));
@@ -1285,7 +1286,7 @@ public class DiffTest {
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedTracker, times(14)).matchFound(any(Comparison.class));
+		verify(mockedTracker, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 		verify(mockedController, times(0)).haltComparison(any(Comparison.class));
 	}
 

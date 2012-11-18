@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.Comparison.Detail;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
@@ -87,7 +88,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	private static final String NOT_NULL_NODE = "not null";
 	private static final String ATTRIBUTE_ABSENT = "[attribute absent]";
 	private final ComparisonController controller;
-	private MatchTracker matchTracker;
+	private ComparisonListener matchTracker;
 	private final XpathNodeTracker controlTracker;
 	private final XpathNodeTracker testTracker;
 
@@ -118,7 +119,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	public DifferenceEngine(
 	        @Nullable XmlUnitProperties properties,
 	        ComparisonController controller,
-	        MatchTracker matchTracker) {
+	        ComparisonListener matchTracker) {
 
 		if (properties == null) {
 			this.properties = new XmlUnitProperties();
@@ -138,7 +139,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 */
-	public void setMatchTracker(MatchTracker matchTracker) {
+	public void setMatchTracker(ComparisonListener matchTracker) {
 		this.matchTracker = matchTracker;
 	}
 
@@ -950,17 +951,22 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		}
 
 		public void compare(Comparison comparison) throws DifferenceFoundException {
+			comparison = NewDifferenceEngine.filter(comparison);
+			if (comparison == null) {
+				return;
+			}
+
 			Detail controlDetails = comparison.getControlDetails();
 			Detail testDetails = comparison.getTestDetails();
 
-			comparison = NewDifferenceEngine.filter(comparison);
 			if (!haveEqualValues(controlDetails.getValue(), testDetails.getValue())) {
 				evaluator.evaluate(comparison, ComparisonResult.DIFFERENT);
 				if (controller.haltComparison(comparison)) {
 					throw new DifferenceFoundException();
 				}
 			} else if (matchTracker != null) {
-				matchTracker.matchFound(comparison);
+				// TODO always similar?
+				matchTracker.comparisonPerformed(comparison, ComparisonResult.SIMILAR);
 			}
 		}
 

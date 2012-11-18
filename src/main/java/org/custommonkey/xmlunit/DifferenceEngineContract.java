@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 
@@ -55,7 +56,7 @@ public interface DifferenceEngineContract {
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 */
-	void setMatchTracker(MatchTracker matchTracker);
+	void setMatchTracker(ComparisonListener matchTracker);
 
 	/**
 	 * Entry point for Node comparison testing.

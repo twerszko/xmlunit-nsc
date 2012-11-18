@@ -51,6 +51,7 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
@@ -935,8 +936,9 @@ public class DifferenceEngineTest {
 		final int[] count = new int[1];
 		DifferenceEngine d =
 		        new DifferenceEngine(null, new SimpleComparisonController(),
-		                new MatchTracker() {
-			                public void matchFound(Comparison d) {
+		                new ComparisonListener() {
+			                @Override
+			                public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
 				                count[0]++;
 			                }
 		                });
@@ -952,11 +954,13 @@ public class DifferenceEngineTest {
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");
 		final int[] count = new int[1];
-		engine.setMatchTracker(new MatchTracker() {
-			public void matchFound(Comparison d) {
-				count[0]++;
-			}
-		});
+		engine.setMatchTracker(
+		        new ComparisonListener() {
+			        @Override
+			        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+				        count[0]++;
+			        }
+		        });
 		engine.compare(control, test, listener, null);
 		// NODE_TYPE (not null), NODE_TYPE(Element), NAMESPACE_URI(none),
 		// NAMESPACE_PREFIX(none), ELEMENT_TAG_NAME(foo),

@@ -95,7 +95,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	private final XmlUnitProperties properties;
 
 	private final ComparisonController controller;
-	private MatchTracker matchTracker;
+	private ComparisonListener matchTracker;
 
 	/**
 	 * Simple constructor that uses no MatchTracker at all.
@@ -122,7 +122,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	 * @see MatchTracker#matchFound(Difference)
 	 */
 	public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
-	        MatchTracker matchTracker) {
+	        ComparisonListener matchTracker) {
 
 		if (properties == null) {
 			this.properties = new XmlUnitProperties();
@@ -139,7 +139,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 */
-	public void setMatchTracker(MatchTracker matchTracker) {
+	public void setMatchTracker(ComparisonListener matchTracker) {
 		this.matchTracker = matchTracker;
 	}
 
@@ -165,7 +165,15 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 		engine.addComparisonListener(checkPrelude);
 
 		if (matchTracker != null) {
-			engine.addMatchListener(new MatchTracker2ComparisonListener(matchTracker));
+			engine.addMatchListener(new ComparisonListener() {
+				@Override
+				public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+					comparison = filter(comparison);
+					if (comparison != null) {
+						matchTracker.comparisonPerformed(comparison, outcome);
+					}
+				}
+			});
 		}
 
 		DifferenceEvaluator controllerAsEvaluator = new ComparisonController2DifferenceEvaluator(controller);
@@ -262,21 +270,6 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			value = ((Node) detail.getValue()).getNodeName();
 		}
 		return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
-	}
-
-	public static class MatchTracker2ComparisonListener implements ComparisonListener {
-		private final MatchTracker mt;
-
-		public MatchTracker2ComparisonListener(MatchTracker m) {
-			mt = m;
-		}
-
-		public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-			comparison = filter(comparison);
-			if (comparison != null) {
-				mt.matchFound(comparison);
-			}
-		}
 	}
 
 	public static class DifferenceEvaluator2ComparisonListener implements ComparisonListener {
