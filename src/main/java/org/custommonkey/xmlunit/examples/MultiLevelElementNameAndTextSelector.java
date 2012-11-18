@@ -38,7 +38,7 @@ package org.custommonkey.xmlunit.examples;
 
 import net.sf.xmlunit.diff.ElementSelector;
 
-import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
+import org.custommonkey.xmlunit.ElementNameAndTextSelector;
 import org.custommonkey.xmlunit.ElementNameSelector;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
  * the text node containes in the n'th child node to compare elements.
  * 
  * <p>
- * This means {@link ElementNameAndTextQualifier ElementNameQualifier} and
+ * This means {@link ElementNameAndTextSelector ElementNameQualifier} and
  * MultiLevelElementNameQualifier(1) should lead to the same results.
  * </p>
  * 
@@ -68,8 +68,8 @@ public class MultiLevelElementNameAndTextSelector implements ElementSelector {
 
 	private static final ElementNameSelector NAME_QUALIFIER =
 	        new ElementNameSelector();
-	private static final ElementNameAndTextQualifier NAME_AND_TEXT_QUALIFIER =
-	        new ElementNameAndTextQualifier();
+	private static final ElementNameAndTextSelector NAME_AND_TEXT_QUALIFIER =
+	        new ElementNameAndTextSelector();
 
 	/**
 	 * Uses element names and the text nested <code>levels</code> child elements

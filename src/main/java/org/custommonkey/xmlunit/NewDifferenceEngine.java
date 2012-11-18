@@ -83,10 +83,10 @@ import org.w3c.dom.Node;
  */
 public class NewDifferenceEngine implements DifferenceEngineContract {
 
-	private static final Map<Class<?>, ElementSelector> KNOWN_SELECTORS;
+	private static final Map<Class<? extends ElementSelector>, ElementSelector> KNOWN_SELECTORS;
 	static {
-		Map<Class<?>, ElementSelector> m = new HashMap<Class<?>, ElementSelector>();
-		m.put(ElementNameAndTextQualifier.class, ElementSelectors.byNameAndText);
+		Map<Class<? extends ElementSelector>, ElementSelector> m = new HashMap<Class<? extends ElementSelector>, ElementSelector>();
+		m.put(ElementNameAndTextSelector.class, ElementSelectors.byNameAndText);
 		m.put(ElementSelector.class, ElementSelectors.byName);
 		m.put(RecursiveElementNameAndTextSelector.class, ElementSelectors.byNameAndTextRec);
 		KNOWN_SELECTORS = Collections.unmodifiableMap(m);
@@ -188,11 +188,11 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 
 		NodeMatcher m = new DefaultNodeMatcher();
 		if (elementSelector != null) {
-			Class<?> c = elementSelector.getClass();
+			Class<? extends ElementSelector> c = elementSelector.getClass();
 			if (KNOWN_SELECTORS.containsKey(c)) {
 				m = new DefaultNodeMatcher(KNOWN_SELECTORS.get(c));
 			} else {
-				m = new DefaultNodeMatcher(new ElementQualifier2ElementSelector(elementSelector));
+				m = new DefaultNodeMatcher(elementSelector);
 			}
 		}
 		if (!properties.getCompareUnmatched()) {
@@ -345,27 +345,13 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			cc = c;
 		}
 
-		public ComparisonResult evaluate(Comparison comparison,
-		        ComparisonResult outcome) {
+		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 			comparison = filter(comparison);
 			if (comparison != null && cc.haltComparison(comparison)) {
 				return ComparisonResult.CRITICAL;
 			}
 			return outcome;
 		}
-	}
-
-	public static class ElementQualifier2ElementSelector implements ElementSelector {
-		private final ElementSelector eq;
-
-		public ElementQualifier2ElementSelector(ElementSelector selector) {
-			this.eq = selector;
-		}
-
-		public boolean canBeCompared(Element controlElement, Element testElement) {
-			return eq.canBeCompared(controlElement, testElement);
-		}
-
 	}
 
 	public static class DifferenceListener2DifferenceEvaluator implements DifferenceEvaluator {
@@ -416,8 +402,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 				haveSeenXmlEncoding = true;
 			} else if (comparison.getControlDetails().getTarget()
 			        instanceof Element
-			        &&
-			        (comparison.getType() == ComparisonType.NODE_TYPE
+			        && (comparison.getType() == ComparisonType.NODE_TYPE
 			        || comparison.getType() == ComparisonType.CHILD_LOOKUP)) {
 				haveSeenElementNodeComparison = true;
 			}

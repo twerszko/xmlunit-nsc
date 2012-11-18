@@ -54,7 +54,7 @@ import org.w3c.dom.Text;
  *      DifferenceListener, ElementQualifier)
  * @see Diff#overrideElementSelector(ElementQualifier)
  */
-public class ElementNameAndTextQualifier extends ElementNameSelector {
+public class ElementNameAndTextSelector extends ElementNameSelector {
 	/**
 	 * Determine whether two elements qualify for further Difference comparison.
 	 * 

@@ -42,18 +42,14 @@ public final class DifferenceEvaluators {
 	 */
 	public static final DifferenceEvaluator Default =
 	        new DifferenceEvaluator() {
-		        public ComparisonResult evaluate(Comparison comparison,
-		                ComparisonResult outcome) {
+		        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 			        if (outcome == ComparisonResult.DIFFERENT) {
 				        switch (comparison.getType()) {
 							case NODE_TYPE:
-								Short control = (Short) comparison
-								        .getControlDetails().getValue();
-								Short test = (Short) comparison
-								        .getTestDetails().getValue();
+								Short control = (Short) comparison.getControlDetails().getValue();
+								Short test = (Short) comparison.getTestDetails().getValue();
 								if ((control.equals(TEXT) && test.equals(CDATA))
-								        ||
-								        (control.equals(CDATA) && test.equals(TEXT))) {
+								        || (control.equals(CDATA) && test.equals(TEXT))) {
 									outcome = ComparisonResult.SIMILAR;
 								}
 								break;
@@ -66,6 +62,8 @@ public final class DifferenceEvaluators {
 							case CHILD_NODELIST_SEQUENCE:
 							case XML_ENCODING:
 								outcome = ComparisonResult.SIMILAR;
+								break;
+							default:
 								break;
 						}
 					}

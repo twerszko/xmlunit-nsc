@@ -827,7 +827,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndTextQualifier());
+		diff.overrideElementSelector(new ElementNameAndTextSelector());
 		diff.overrideDifferenceEvaluator(delegate);
 
 		// then

@@ -49,12 +49,12 @@ public class ElementNameAndTextQualifierTest {
 	private static final String TEXT_A = "textA";
 	private static final String TEXT_B = "textB";
 	private Document document;
-	private ElementNameAndTextQualifier elementNameAndTextQualifier;
+	private ElementNameAndTextSelector elementNameAndTextQualifier;
 
 	@Before
 	public void setUp() throws Exception {
 		document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
-		elementNameAndTextQualifier = new ElementNameAndTextQualifier();
+		elementNameAndTextQualifier = new ElementNameAndTextSelector();
 	}
 
 	@Test

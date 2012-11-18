@@ -77,8 +77,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	 * package private to support tests.
 	 * </p>
 	 */
-	ComparisonResult compareNodes(Node control, XPathContext controlContext,
-	        Node test, XPathContext testContext) {
+	ComparisonResult compareNodes(Node control, XPathContext controlContext, Node test, XPathContext testContext) {
 		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.NODE_TYPE,
 		                control, getXPath(controlContext),

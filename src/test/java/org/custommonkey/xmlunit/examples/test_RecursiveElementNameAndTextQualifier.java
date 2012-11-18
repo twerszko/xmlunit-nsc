@@ -40,7 +40,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.ElementSelector;
 
-import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
+import org.custommonkey.xmlunit.ElementNameAndTextSelector;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -148,7 +148,7 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
 		        .betweenControlDocument(s1)
 		        .andTestDocument(s2)
 		        .build();
-		d.overrideElementSelector(new ElementNameAndTextQualifier());
+		d.overrideElementSelector(new ElementNameAndTextSelector());
 		assertFalse(d.similar());
 
 		// reset once again

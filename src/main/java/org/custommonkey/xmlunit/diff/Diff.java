@@ -54,7 +54,7 @@ import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.DifferenceEngine;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
-import org.custommonkey.xmlunit.ElementNameAndTextQualifier;
+import org.custommonkey.xmlunit.ElementNameAndTextSelector;
 import org.custommonkey.xmlunit.ElementNameSelector;
 import org.custommonkey.xmlunit.MatchTracker;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
@@ -285,25 +285,6 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	}
 
 	/**
-	 * DifferenceListener implementation. If the
-	 * {@link Diff#overrideDifferenceListener overrideDifferenceListener} method
-	 * has been called then the call will be delegated otherwise a message is
-	 * printed to <code>System.err</code>.
-	 * 
-	 * @param control
-	 * @param test
-	 */
-	// public void skippedComparison(Node control, Node test) {
-	// if (differenceListener != null) {
-	// differenceListener.skippedComparison(control, test);
-	// } else {
-	// System.err.println("DifferenceListener.skippedComparison: "
-	// + "unhandled control node type=" + control
-	// + ", unhandled test node type=" + test);
-	// }
-	// }
-
-	/**
 	 * ComparisonController implementation.
 	 * 
 	 * @param afterDifference
@@ -390,8 +371,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 
 		// FIXME WTF?
 		if (properties.getIgnoreAttributeOrder()
-		        &&
-		        (!usesUnknownElementQualifier()
+		        && (!usesUnknownElementQualifier()
 		        || properties.getCompareUnmatched())) {
 			return new NewDifferenceEngine(properties, this, matchTracker);
 		}
@@ -401,7 +381,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	private boolean usesUnknownElementQualifier() {
 		return elementSelector != null
 		        && !(elementSelector instanceof ElementNameSelector)
-		        && !(elementSelector instanceof ElementNameAndTextQualifier)
+		        && !(elementSelector instanceof ElementNameAndTextSelector)
 		        && !(elementSelector instanceof ElementNameAndAttributeQualifier);
 	}
 
