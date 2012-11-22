@@ -41,7 +41,6 @@ import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -68,36 +67,4 @@ public class ElementNameSelector implements ElementSelector {
 	public boolean canBeCompared(Element control, Element test) {
 		return ElementSelectors.byName.canBeCompared(control, test);
 	}
-
-	/**
-	 * Determine whether two nodes are defined by the same namespace URI
-	 * 
-	 * @param control
-	 * @param test
-	 * @return true if the two nodes are both defined by the same namespace URI
-	 *         (including the default - empty - namespace), false otherwise
-	 */
-	protected boolean equalsNamespace(Node control, Node test) {
-		String controlNS = control.getNamespaceURI();
-		String testNS = test.getNamespaceURI();
-		if (controlNS == null) {
-			return testNS == null;
-		}
-		return controlNS.equals(testNS);
-	}
-
-	/**
-	 * Strip any namespace information off a node name
-	 * 
-	 * @param node
-	 * @return the localName if the node is namespaced, or the name otherwise
-	 */
-	protected String getNonNamespacedNodeName(Node node) {
-		String name = node.getLocalName();
-		if (name == null) {
-			return node.getNodeName();
-		}
-		return name;
-	}
-
 }

@@ -951,11 +951,6 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		}
 
 		public void compare(Comparison comparison) throws DifferenceFoundException {
-			comparison = NewDifferenceEngine.filter(comparison);
-			if (comparison == null) {
-				return;
-			}
-
 			Detail controlDetails = comparison.getControlDetails();
 			Detail testDetails = comparison.getTestDetails();
 

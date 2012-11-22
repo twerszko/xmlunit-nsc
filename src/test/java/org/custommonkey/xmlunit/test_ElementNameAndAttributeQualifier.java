@@ -51,16 +51,16 @@ import org.w3c.dom.Element;
  */
 public class test_ElementNameAndAttributeQualifier extends TestCase {
 	private Document document;
-	private ElementNameAndAttributeQualifier elementNameAndAttributeQualifier;
+	private ElementNameAndAttributeSelector elementNameAndAttributeQualifier;
 	private static final String TAG_NAME = "qwerty";
 
 	public void testSingleQualifyingAttribute() throws Exception {
 		final String attrName = "id";
 
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier();
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector();
 		testAssertionsFor(attrName, new boolean[] { false, false });
 
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier(attrName);
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector(attrName);
 		testAssertionsFor(attrName, new boolean[] { true, true });
 	}
 
@@ -92,10 +92,10 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
 	public void testMultipleQualifyingAttributes() throws Exception {
 		final String[] attrNames = { "id", "uid" };
 
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier();
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector();
 		testAssertionsFor(attrNames, new boolean[] { false, false });
 
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier(attrNames);
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector(attrNames);
 		testAssertionsFor(attrNames, new boolean[] { true, true });
 	}
 
@@ -144,10 +144,10 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
 		final String attrName = "id";
 		final String nsURI = "http://xmlunit.sourceforge.net/tests";
 
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier();
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector();
 		testAssertionsFor(attrName, nsURI, new boolean[] { false, false }, true);
 
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier(attrName);
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector(attrName);
 		testAssertionsFor(attrName, nsURI, new boolean[] { true, true }, false);
 	}
 
@@ -188,9 +188,9 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
 
 	// Bug 952920
 	public void testQualifyingAttributeMissingInControl() throws Exception {
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier("foo");
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector("foo");
 		assertQualifyingAttributeMissingInControl();
-		elementNameAndAttributeQualifier = new ElementNameAndAttributeQualifier(new String[] { "foo", "bar" });
+		elementNameAndAttributeQualifier = new ElementNameAndAttributeSelector(new String[] { "foo", "bar" });
 		assertQualifyingAttributeMissingInControl();
 	}
 
@@ -253,7 +253,7 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
 		        .betweenControlDocument(control)
 		        .andTestDocument(test)
 		        .build();
-		d.overrideElementSelector(new ElementNameAndAttributeQualifier());
+		d.overrideElementSelector(new ElementNameAndAttributeSelector());
 		assertTrue(d.similar());
 	}
 

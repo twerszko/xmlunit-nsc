@@ -54,8 +54,6 @@ import org.custommonkey.xmlunit.ComparisonController;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.DifferenceEngine;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
-import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
-import org.custommonkey.xmlunit.ElementNameAndTextSelector;
 import org.custommonkey.xmlunit.ElementNameSelector;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
 import org.custommonkey.xmlunit.XmlUnit;
@@ -370,19 +368,15 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		}
 
 		// FIXME WTF?
-		if (properties.getIgnoreAttributeOrder()
-		        && (!usesUnknownElementQualifier()
-		        || properties.getCompareUnmatched())) {
+		if (properties.getIgnoreAttributeOrder() &&
+		        (usesKnownElementSelector() || properties.getCompareUnmatched())) {
 			return new NewDifferenceEngine(properties, this, matchTracker);
 		}
 		return new DifferenceEngine(properties, this, matchTracker);
 	}
 
-	private boolean usesUnknownElementQualifier() {
-		return elementSelector != null
-		        && !(elementSelector instanceof ElementNameSelector)
-		        && !(elementSelector instanceof ElementNameAndTextSelector)
-		        && !(elementSelector instanceof ElementNameAndAttributeQualifier);
+	private boolean usesKnownElementSelector() {
+		return elementSelector == null || elementSelector instanceof ElementNameSelector;
 	}
 
 	public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {

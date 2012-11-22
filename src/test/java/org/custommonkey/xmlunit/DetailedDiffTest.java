@@ -586,7 +586,6 @@ public class DetailedDiffTest extends DiffTest {
 
 		assertThat(difference3.getType())
 		        .isEqualTo(ComparisonType.CHILD_LOOKUP);
-		System.out.println(controlValue3.getClass());
 		assertThat(controlValue3).isEqualTo("Apple");
 		assertThat(testValue3).isEqualTo("null");
 		assertThat(controlXpathLocation3).isEqualTo("/Fruits[1]/Apple[2]");

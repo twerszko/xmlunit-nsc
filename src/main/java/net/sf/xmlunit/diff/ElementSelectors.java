@@ -45,8 +45,7 @@ public final class ElementSelectors {
 	 * </p>
 	 */
 	public static final ElementSelector Default = new ElementSelector() {
-		public boolean canBeCompared(Element controlElement,
-		        Element testElement) {
+		public boolean canBeCompared(Element controlElement, Element testElement) {
 			return true;
 		}
 	};

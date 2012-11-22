@@ -719,7 +719,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndAttributeQualifier("id"));
+		diff.overrideElementSelector(new ElementNameAndAttributeSelector("id"));
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -735,7 +735,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndAttributeQualifier("id"));
+		diff.overrideElementSelector(new ElementNameAndAttributeSelector("id"));
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -751,7 +751,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeSelector());
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -768,7 +768,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeSelector());
 
 		// then
 		assertThat(diff.identical()).isFalse();
@@ -792,7 +792,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeSelector());
 		diff.overrideDifferenceEvaluator(
 		        new ExpectedDifferenceEvaluator(
 		                new ComparisonType[] {
@@ -1367,7 +1367,7 @@ public class DiffTest {
 
 		// when
 		Diff diff = prepareDiff(properties, control, test);
-		diff.overrideElementSelector(new ElementNameAndAttributeQualifier());
+		diff.overrideElementSelector(new ElementNameAndAttributeSelector());
 
 		// then
 		assertThat(diff.similar()).isTrue();

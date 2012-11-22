@@ -40,9 +40,7 @@ import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 /**
  * More complex interface implementation that tests two elements for tag name
@@ -68,40 +66,4 @@ public class ElementNameAndTextSelector extends ElementNameSelector {
 	public boolean canBeCompared(Element control, Element test) {
 		return ElementSelectors.byNameAndText.canBeCompared(control, test);
 	}
-
-	/**
-	 * Determine whether the text nodes contain similar values
-	 * 
-	 * @param control
-	 * @param test
-	 * @return true if text nodes are similar, false otherwise
-	 */
-	protected boolean similar(Text control, Text test) {
-		if (control == null) {
-			return test == null;
-		} else if (test == null) {
-			return false;
-		}
-		return control.getNodeValue().equals(test.getNodeValue());
-	}
-
-	/**
-	 * Extract the normalized text from within an element
-	 * 
-	 * @param fromElement
-	 * @return extracted Text node (could be null)
-	 */
-	protected Text extractText(Element fromElement) {
-		fromElement.normalize();
-		NodeList fromNodeList = fromElement.getChildNodes();
-		Node currentNode;
-		for (int i = 0; i < fromNodeList.getLength(); ++i) {
-			currentNode = fromNodeList.item(i);
-			if (currentNode.getNodeType() == Node.TEXT_NODE) {
-				return (Text) currentNode;
-			}
-		}
-		return null;
-	}
-
 }

@@ -677,4 +677,11 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		        }
 	        };
 
+	@SuppressWarnings("serial")
+	protected static final class DifferenceFoundException extends Exception {
+		private DifferenceFoundException() {
+			super("This exception is used to control flow");
+		}
+	}
+
 }

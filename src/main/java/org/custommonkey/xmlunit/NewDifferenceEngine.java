@@ -259,6 +259,12 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 				return comp;
 			default:
 				return null;
+				// case XML_ENCODING:
+				// break;
+				// case XML_STANDALONE:
+				// break;
+				// case XML_VERSION:
+				// break;
 		}
 	}
 
