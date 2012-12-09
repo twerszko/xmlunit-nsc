@@ -83,6 +83,7 @@ public class DetailedDiff extends Diff {
 	@Override
 	public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
 		final ComparisonResult returnValue = super.evaluate(difference, outcome);
+		ComparisonResult evaluatedValue = returnValue;
 		switch (returnValue) {
 			case EQUAL:
 				return returnValue;
@@ -93,23 +94,13 @@ public class DetailedDiff extends Diff {
 				break;
 			case CRITICAL:
 				difference.setRecoverable(false);
+				evaluatedValue = ComparisonResult.DIFFERENT;
 				break;
 			default:
 				throw new IllegalArgumentException(returnValue + " is not supported");
 		}
 		allDifferences.add(difference);
-		return returnValue;
-	}
-
-	/**
-	 * ComparisonController implementation.
-	 * 
-	 * @param afterDifference
-	 * @return false always as this class wants to see all differences
-	 */
-	@Override
-	public boolean haltComparison(Comparison comparison) {
-		return false;
+		return evaluatedValue;
 	}
 
 	/**

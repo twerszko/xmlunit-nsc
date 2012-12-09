@@ -86,7 +86,6 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	private static final String NULL_NODE = "null";
 	private static final String NOT_NULL_NODE = "not null";
 	private static final String ATTRIBUTE_ABSENT = "[attribute absent]";
-	private final ComparisonController controller;
 	private ComparisonListener matchListener;
 	private XpathNodeTracker controlTracker;
 	private XpathNodeTracker testTracker;
@@ -99,8 +98,8 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 *            by this class should halt further comparison or not
 	 * @see ComparisonController#haltComparison(Difference)
 	 */
-	public DifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller) {
-		this(properties, controller, null);
+	public DifferenceEngine(@Nullable XmlUnitProperties properties) {
+		this(properties, null);
 	}
 
 	/**
@@ -117,7 +116,6 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 */
 	public DifferenceEngine(
 	        @Nullable XmlUnitProperties properties,
-	        ComparisonController controller,
 	        ComparisonListener matchListener) {
 
 		if (properties == null) {
@@ -127,7 +125,6 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		}
 		this.stringComparator = new StringComparator(this.properties);
 
-		this.controller = controller;
 		this.matchListener = matchListener;
 		this.controlTracker = new XpathNodeTracker();
 		this.testTracker = new XpathNodeTracker();
@@ -954,8 +951,8 @@ public class DifferenceEngine implements DifferenceEngineContract {
 			Detail testDetails = comparison.getTestDetails();
 
 			if (!haveEqualValues(controlDetails.getValue(), testDetails.getValue())) {
-				evaluator.evaluate(comparison, ComparisonResult.DIFFERENT);
-				if (controller.haltComparison(comparison)) {
+				ComparisonResult result = evaluator.evaluate(comparison, ComparisonResult.DIFFERENT);
+				if (result == ComparisonResult.CRITICAL) {
 					throw new DifferenceFoundException();
 				}
 			} else if (matchListener != null) {

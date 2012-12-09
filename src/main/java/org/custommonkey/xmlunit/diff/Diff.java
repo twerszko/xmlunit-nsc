@@ -50,7 +50,6 @@ import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 
-import org.custommonkey.xmlunit.ComparisonController;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.DifferenceEngine;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
@@ -90,7 +89,7 @@ import org.xml.sax.SAXException;
  * Examples and more at <a
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
-public class Diff implements ComparisonController, DifferenceEvaluator {
+public class Diff implements DifferenceEvaluator {
 	private final XmlUnitProperties properties;
 
 	private final Document controlDoc;
@@ -281,23 +280,11 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 
 		appendComparison(messages, comparison);
 
-		// // TODO extremely ugly
-		// if (haltComparison) {
-		// return ComparisonResult.CRITICAL;
-		// }
+		// TODO extremely ugly
+		if (haltComparison) {
+			return ComparisonResult.CRITICAL;
+		}
 		return evaluatedOutcome;
-	}
-
-	/**
-	 * ComparisonController implementation.
-	 * 
-	 * @param afterDifference
-	 * @return true if the difference is not recoverable and the comparison
-	 *         should be halted, or false if the difference is recoverable and
-	 *         the comparison can continue
-	 */
-	public boolean haltComparison(Comparison comparison) {
-		return haltComparison;
 	}
 
 	/**
@@ -376,9 +363,9 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		// FIXME WTF?
 		if (properties.getIgnoreAttributeOrder() &&
 		        (usesKnownElementSelector() || properties.getCompareUnmatched())) {
-			return new NewDifferenceEngine(properties, this, matchTracker);
+			return new NewDifferenceEngine(properties, matchTracker);
 		}
-		return new DifferenceEngine(properties, this, matchTracker);
+		return new DifferenceEngine(properties, matchTracker);
 	}
 
 	private boolean usesKnownElementSelector() {

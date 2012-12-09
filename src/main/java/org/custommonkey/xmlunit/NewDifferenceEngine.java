@@ -54,7 +54,6 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DOMDifferenceEngine;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
-import net.sf.xmlunit.diff.DifferenceEvaluators;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 import net.sf.xmlunit.diff.NodeMatcher;
@@ -93,8 +92,6 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	}
 
 	private final XmlUnitProperties properties;
-
-	private final ComparisonController controller;
 	private ComparisonListener matchListener;
 
 	/**
@@ -105,8 +102,8 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	 *            by this class should halt further comparison or not
 	 * @see ComparisonController#haltComparison(Difference)
 	 */
-	public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller) {
-		this(properties, controller, null);
+	public NewDifferenceEngine(@Nullable XmlUnitProperties properties) {
+		this(properties, null);
 	}
 
 	/**
@@ -121,7 +118,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	 * @see ComparisonController#haltComparison(Difference)
 	 * @see MatchTracker#matchFound(Difference)
 	 */
-	public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
+	public NewDifferenceEngine(@Nullable XmlUnitProperties properties,
 	        ComparisonListener matchListener) {
 
 		if (properties == null) {
@@ -130,7 +127,6 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			this.properties = properties.clone();
 		}
 
-		this.controller = controller;
 		this.matchListener = matchListener;
 	}
 
@@ -176,15 +172,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			});
 		}
 
-		DifferenceEvaluator controllerAsEvaluator = new ComparisonController2DifferenceEvaluator(controller);
-		DifferenceEvaluator ev = null;
-		if (diffEvaluator != null) {
-			ev = DifferenceEvaluators
-			        .first(new DifferenceListener2DifferenceEvaluator(diffEvaluator), controllerAsEvaluator);
-		} else {
-			ev = controllerAsEvaluator;
-		}
-		final DifferenceEvaluator evaluator = ev;
+		final DifferenceEvaluator evaluator = new DifferenceListener2DifferenceEvaluator(diffEvaluator);
 		engine.setDifferenceEvaluator(new DifferenceEvaluator() {
 			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 				if (!swallowComparison(comparison, outcome, checkPrelude)) {
@@ -335,22 +323,6 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 		return detail != null && detail.getTarget() instanceof Node
 		        && !(detail.getTarget() instanceof Element)
 		        && detail.getTarget().getParentNode() instanceof Document;
-	}
-
-	public static class ComparisonController2DifferenceEvaluator implements DifferenceEvaluator {
-		private final ComparisonController cc;
-
-		public ComparisonController2DifferenceEvaluator(ComparisonController c) {
-			cc = c;
-		}
-
-		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-			comparison = filter(comparison);
-			if (comparison != null && cc.haltComparison(comparison)) {
-				return ComparisonResult.CRITICAL;
-			}
-			return outcome;
-		}
 	}
 
 	public static class DifferenceListener2DifferenceEvaluator implements DifferenceEvaluator {

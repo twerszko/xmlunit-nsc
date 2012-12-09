@@ -413,13 +413,14 @@ public class DetailedDiffTest extends DiffTest {
 		DetailedDiff detailedDiff = new DetailedDiff(diff);
 		List<Comparison> differences = detailedDiff.getAllDifferences();
 
+		// then
+		assertThat(differences).hasSize(3);
+
 		// (0) number of children, (1) order different, (2) node not found
 		Comparison difference = differences.get(2);
 		String reverseControlXpathLocation = difference.getControlDetails().getXpath();
 		String reverseTestXpathLocation = difference.getTestDetails().getXpath();
 
-		// then
-		assertThat(differences).hasSize(3);
 		assertThat(difference.getType())
 		        .isEqualTo(ComparisonType.CHILD_LOOKUP);
 		assertThat(reverseTestXpathLocation).isEqualTo("/books[1]/book[1]");
