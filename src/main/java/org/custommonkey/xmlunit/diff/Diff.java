@@ -278,7 +278,13 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 		} else {
 			messages.append("\n[not identical]");
 		}
+
 		appendComparison(messages, comparison);
+
+		// // TODO extremely ugly
+		// if (haltComparison) {
+		// return ComparisonResult.CRITICAL;
+		// }
 		return evaluatedOutcome;
 	}
 
@@ -354,7 +360,7 @@ public class Diff implements ComparisonController, DifferenceEvaluator {
 	public void overrideMatchTracker(ComparisonListener tracker) {
 		this.matchTracker = tracker;
 		if (differenceEngine != null) {
-			differenceEngine.setMatchTracker(tracker);
+			differenceEngine.setMatchListener(tracker);
 		}
 	}
 

@@ -20,8 +20,7 @@ import java.util.Map;
  * Useful base-implementation of some parts of the DifferenceEngine interface.
  */
 public abstract class AbstractDifferenceEngine implements DifferenceEngine {
-	private final ComparisonListenerSupport listeners =
-	        new ComparisonListenerSupport();
+	private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
 	private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
 	private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
 	private Map<String, String> uri2Prefix = Collections.emptyMap();

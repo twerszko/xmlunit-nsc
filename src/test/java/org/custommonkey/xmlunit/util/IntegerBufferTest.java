@@ -36,172 +36,191 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.util;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 import org.junit.Test;
 
 public class IntegerBufferTest {
 
-    @Test
-    public void should_get_empty_int_array() {
-        // given
-        // when
-        int[] intArray = new IntegerBuffer().toIntArray();
+	@Test
+	public void should_get_empty_int_array() {
+		// given
+		// when
+		int[] intArray = new IntegerBuffer().toIntArray();
 
-        // then
-        assertNotNull(intArray);
-        assertThat(intArray.length, is(equalTo(0)));
-    }
+		// then
+		assertThat(intArray).isNotNull();
+		assertThat(intArray.length).isEqualTo(0);
+	}
 
-    @Test
-    public void should_append_to_empty_buffer() {
-        // given
-        IntegerBuffer buffer = new IntegerBuffer();
+	@Test
+	public void should_append_to_empty_buffer() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer();
 
-        // when
-        buffer.append(1);
+		// when
+		buffer.append(1);
 
-        // then
-        assertNotNull(buffer.toIntArray());
-        assertThat(buffer.toIntArray().length, is(equalTo(1)));
-        assertThat(buffer.toIntArray()[0], is(equalTo(1)));
-    }
+		// then
+		assertThat(buffer.toIntArray()).isNotNull();
+		assertThat(buffer.toIntArray().length).isEqualTo(1);
+		assertThat(buffer.toIntArray()[0]).isEqualTo(1);
+	}
 
-    @Test
-    public void should_append_array_with_one_element_to_empty_buffer() {
-        // given
-        IntegerBuffer buffer = new IntegerBuffer();
+	@Test
+	public void should_append_array_with_one_element_to_empty_buffer() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer();
 
-        // when
-        buffer.append(new int[] { 1, 2 });
-        int[] intArray = buffer.toIntArray();
+		// when
+		buffer.append(new int[] { 1, 2 });
+		int[] intArray = buffer.toIntArray();
 
-        // then
-        assertNotNull(intArray);
-        assertThat(intArray.length, is(equalTo(2)));
-        assertThat(intArray[0], is(equalTo(1)));
-        assertThat(intArray[1], is(equalTo(2)));
-    }
+		// then
+		assertThat(intArray).isNotNull();
+		assertThat(intArray.length).isEqualTo(2);
+		assertThat(intArray[0]).isEqualTo(1);
+		assertThat(intArray[1]).isEqualTo(2);
+	}
 
-    @Test
-    public void should_append_two_elements_to_buffer() {
-        // given
-        IntegerBuffer buffer = new IntegerBuffer(1);
+	@Test
+	public void should_append_two_elements_to_buffer() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer(1);
 
-        // when
-        buffer.append(0);
-        buffer.append(1);
-        int[] intArray = buffer.toIntArray();
+		// when
+		buffer.append(0);
+		buffer.append(1);
+		int[] intArray = buffer.toIntArray();
 
-        // then
-        assertNotNull(intArray);
-        assertEquals(2, intArray.length);
-        assertThat(intArray[0], is(equalTo(0)));
-        assertThat(intArray[1], is(equalTo(1)));
-    }
+		// then
+		assertThat(intArray).isNotNull();
+		assertThat(intArray).hasSize(2);
+		assertThat(intArray[0]).isEqualTo(0);
+		assertThat(intArray[1]).isEqualTo(1);
+	}
 
-    @Test
-    public void should_append_array_to_empty_buffer() {
-        // given
-        IntegerBuffer buffer = new IntegerBuffer(1);
+	@Test
+	public void should_append_array_to_empty_buffer() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer(1);
 
-        // when
-        buffer.append(new int[] { 1, 2 });
+		// when
+		buffer.append(new int[] { 1, 2 });
 
-        // then
-        assertNotNull(buffer.toIntArray());
-        assertEquals(2, buffer.toIntArray().length);
-        assertThat(buffer.toIntArray()[0], is(equalTo(1)));
-        assertThat(buffer.toIntArray()[1], is(equalTo(2)));
-    }
+		// then
+		assertThat(buffer.toIntArray()).isNotNull();
+		assertThat(buffer.toIntArray()).hasSize(2);
+		assertThat(buffer.toIntArray()[0]).isEqualTo(1);
+		assertThat(buffer.toIntArray()[1]).isEqualTo(2);
+	}
 
-    @Test
-    public void should_get_size() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        assertThat(buffer.size(), is(equalTo(0)));
-        buffer.append(0);
-        assertThat(buffer.size(), is(equalTo(1)));
-        buffer.append(new int[] { 1, 2 });
-        assertThat(buffer.size(), is(equalTo(3)));
-    }
+	@Test
+	public void should_get_size() {
+		IntegerBuffer buffer = new IntegerBuffer();
+		assertThat(buffer.size()).isEqualTo(0);
+		buffer.append(0);
+		assertThat(buffer.size()).isEqualTo(1);
+		buffer.append(new int[] { 1, 2 });
+		assertThat(buffer.size()).isEqualTo(3);
+	}
 
-    @Test
-    public void should_test_capacity() {
-        IntegerBuffer buffer = new IntegerBuffer(1);
-        assertThat(buffer.capacity(), is(equalTo(1)));
-        buffer.append(0);
-        assertThat(buffer.capacity(), is(equalTo(1)));
-        buffer.append(0);
-        assertThat(buffer.capacity(), is(greaterThan(1)));
-    }
+	@Test
+	public void should_test_capacity() {
+		IntegerBuffer buffer = new IntegerBuffer(1);
+		assertThat(buffer.capacity()).isEqualTo(1);
+		buffer.append(0);
+		assertThat(buffer.capacity()).isEqualTo(1);
+		buffer.append(0);
+		assertThat(buffer.capacity()).isGreaterThan(1);
+	}
 
-    @Test
-    public void should_get_index_of_array() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        int[] testArray = new int[] { 1, 2, 3 };
-        assertThat(buffer.indexOf(testArray), is(equalTo(-1)));
-        buffer.append(testArray);
-        assertThat(buffer.indexOf(testArray), is(equalTo(0)));
-        buffer.append(testArray);
-        assertThat(buffer.indexOf(testArray), is(equalTo(0)));
-    }
+	@Test
+	public void should_get_index_of_array() {
+		IntegerBuffer buffer = new IntegerBuffer();
+		int[] testArray = new int[] { 1, 2, 3 };
+		assertThat(buffer.indexOf(testArray)).isEqualTo(-1);
+		buffer.append(testArray);
+		assertThat(buffer.indexOf(testArray)).isEqualTo(0);
+		buffer.append(testArray);
+		assertThat(buffer.indexOf(testArray)).isEqualTo(0);
+	}
 
-    @Test
-    public void should_get_index_of_array_2() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        int[] testArray = new int[] { 1, 2, 3 };
-        buffer.append(0);
-        assertThat(buffer.indexOf(testArray), is(equalTo(-1)));
-        buffer.append(testArray);
-        assertThat(buffer.indexOf(testArray), is(equalTo(1)));
-    }
+	@Test
+	public void should_get_index_of_array_2() {
+		IntegerBuffer buffer = new IntegerBuffer();
+		int[] testArray = new int[] { 1, 2, 3 };
+		buffer.append(0);
+		assertThat(buffer.indexOf(testArray)).isEqualTo(-1);
+		buffer.append(testArray);
+		assertThat(buffer.indexOf(testArray)).isEqualTo(1);
+	}
 
-    @Test
-    public void should_get_index_of_array_when_first_element_is_repeated() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        int[] testArray = new int[] { 1, 2, 3 };
-        buffer.append(1);
-        assertThat(buffer.indexOf(testArray), is(equalTo(-1)));
-        buffer.append(testArray);
-        assertThat(buffer.indexOf(testArray), is(equalTo(1)));
-    }
+	@Test
+	public void should_get_index_of_array_when_first_element_is_repeated() {
+		IntegerBuffer buffer = new IntegerBuffer();
+		int[] testArray = new int[] { 1, 2, 3 };
+		buffer.append(1);
+		assertThat(buffer.indexOf(testArray)).isEqualTo(-1);
+		buffer.append(testArray);
+		assertThat(buffer.indexOf(testArray)).isEqualTo(1);
+	}
 
-    @Test
-    public void should_get_index_of_subsequence() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        int[] testArray = new int[] { 1, 2, 3 };
-        buffer.append(new int[] { 1, 2 });
-        buffer.append(4);
-        assertThat(buffer.indexOf(testArray), is(equalTo(-1)));
-    }
+	@Test
+	public void should_get_index_of_subsequence() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer();
+		int[] testArray = new int[] { 1, 2, 3 };
 
-    @Test
-    public void should_test_all_bytes() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        for (byte b = Byte.MIN_VALUE; b < Byte.MAX_VALUE; b++) {
-            buffer.append(b);
-        }
-        buffer.append(Byte.MAX_VALUE);
-        int[] intArray = buffer.toIntArray();
-        for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
-            assertEquals((byte) i, intArray[i + Math.abs(Byte.MIN_VALUE)]);
-        }
-    }
+		// when
+		buffer.append(new int[] { 1, 2 });
+		buffer.append(4);
 
-    public void should_test_all_chars() {
-        IntegerBuffer buffer = new IntegerBuffer();
-        for (char c = Character.MIN_VALUE; c < Character.MAX_VALUE; c++) {
-            buffer.append(c);
-        }
-        buffer.append(Character.MAX_VALUE);
-        int[] is = buffer.toIntArray();
-        for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++) {
-            assertEquals((char) i, is[i + Math.abs(Character.MIN_VALUE)]);
-        }
-    }
+		// then
+		assertThat(buffer.indexOf(testArray)).isEqualTo(-1);
+	}
+
+	@Test
+	public void should_test_all_bytes() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer();
+
+		// when
+		fillWithAllBytes(buffer);
+
+		// then
+		int[] ints = buffer.toIntArray();
+		for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
+			assertThat(ints[i + Math.abs(Byte.MIN_VALUE)]).isEqualTo(i);
+		}
+	}
+
+	private void fillWithAllBytes(IntegerBuffer buffer) {
+		for (byte b = Byte.MIN_VALUE; b < Byte.MAX_VALUE; b++) {
+			buffer.append(b);
+		}
+		buffer.append(Byte.MAX_VALUE);
+	}
+
+	@Test
+	public void should_test_all_chars() {
+		// given
+		IntegerBuffer buffer = new IntegerBuffer();
+
+		// when
+		fillWithAllChars(buffer);
+		int[] chars = buffer.toIntArray();
+
+		// then
+		for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++) {
+			assertThat(chars[i + Math.abs(Character.MIN_VALUE)]).isEqualTo((char) i);
+		}
+	}
+
+	private void fillWithAllChars(IntegerBuffer buffer) {
+		for (char c = Character.MIN_VALUE; c < Character.MAX_VALUE; c++) {
+			buffer.append(c);
+		}
+		buffer.append(Character.MAX_VALUE);
+	}
 }

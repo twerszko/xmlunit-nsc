@@ -108,6 +108,10 @@ public class DifferenceEngineTest {
 		document = documentBuilder.newDocument();
 	}
 
+	private void resetListener() {
+		listener = new CollectingDifferenceListener();
+	}
+
 	private class SimpleComparisonController implements ComparisonController {
 		public boolean haltComparison(Comparison afterDifference) {
 			return !afterDifference.isRecoverable();
@@ -954,7 +958,7 @@ public class DifferenceEngineTest {
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");
 		final int[] count = new int[1];
-		engine.setMatchTracker(
+		engine.setMatchListener(
 		        new ComparisonListener() {
 			        @Override
 			        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
@@ -1065,10 +1069,6 @@ public class DifferenceEngineTest {
 		Document controlDoc = documentUtils.buildControlDocument(control);
 		Document testDoc = documentUtils.buildTestDocument(test);
 		engine.compare(controlDoc, testDoc, listener, DEFAULT_ELEMENT_QUALIFIER);
-	}
-
-	private void resetListener() {
-		listener = new CollectingDifferenceListener();
 	}
 
 	private class CollectingDifferenceListener implements DifferenceEvaluator {

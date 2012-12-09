@@ -676,12 +676,4 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 			        return n.getNodeType() != Node.DOCUMENT_TYPE_NODE;
 		        }
 	        };
-
-	@SuppressWarnings("serial")
-	protected static final class DifferenceFoundException extends Exception {
-		private DifferenceFoundException() {
-			super("This exception is used to control flow");
-		}
-	}
-
 }

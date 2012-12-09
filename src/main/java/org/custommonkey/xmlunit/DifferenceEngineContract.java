@@ -56,7 +56,7 @@ public interface DifferenceEngineContract {
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 */
-	void setMatchTracker(ComparisonListener matchTracker);
+	void setMatchListener(ComparisonListener matchTracker);
 
 	/**
 	 * Entry point for Node comparison testing.

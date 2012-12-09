@@ -80,7 +80,6 @@ import org.w3c.dom.ProcessingInstruction;
  * @see DifferenceListener#differenceFound(Difference)
  */
 public class DifferenceEngine implements DifferenceEngineContract {
-
 	private final XmlUnitProperties properties;
 	private final StringComparator stringComparator;
 
@@ -88,9 +87,9 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	private static final String NOT_NULL_NODE = "not null";
 	private static final String ATTRIBUTE_ABSENT = "[attribute absent]";
 	private final ComparisonController controller;
-	private ComparisonListener matchTracker;
-	private final XpathNodeTracker controlTracker;
-	private final XpathNodeTracker testTracker;
+	private ComparisonListener matchListener;
+	private XpathNodeTracker controlTracker;
+	private XpathNodeTracker testTracker;
 
 	/**
 	 * Simple constructor that uses no MatchTracker at all.
@@ -110,7 +109,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 * @param controller
 	 *            the instance used to determine whether a Difference detected
 	 *            by this class should halt further comparison or not
-	 * @param matchTracker
+	 * @param matchListener
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 * @see ComparisonController#haltComparison(Difference)
@@ -119,7 +118,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	public DifferenceEngine(
 	        @Nullable XmlUnitProperties properties,
 	        ComparisonController controller,
-	        ComparisonListener matchTracker) {
+	        ComparisonListener matchListener) {
 
 		if (properties == null) {
 			this.properties = new XmlUnitProperties();
@@ -129,18 +128,18 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		this.stringComparator = new StringComparator(this.properties);
 
 		this.controller = controller;
-		this.matchTracker = matchTracker;
+		this.matchListener = matchListener;
 		this.controlTracker = new XpathNodeTracker();
 		this.testTracker = new XpathNodeTracker();
 	}
 
 	/**
-	 * @param matchTracker
+	 * @param matchListener
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 */
-	public void setMatchTracker(ComparisonListener matchTracker) {
-		this.matchTracker = matchTracker;
+	public void setMatchListener(ComparisonListener matchListener) {
+		this.matchListener = matchListener;
 	}
 
 	/**
@@ -163,8 +162,8 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	        Node test,
 	        DifferenceEvaluator evaluator,
 	        ElementSelector elementSelector) {
-		controlTracker.reset();
-		testTracker.reset();
+		controlTracker = new XpathNodeTracker();
+		testTracker = new XpathNodeTracker();
 		try {
 			Comparison comparison = new Comparison(ComparisonType.NODE_TYPE,
 			        control, controlTracker.toXpathString(), getNullOrNotNull(control),
@@ -666,7 +665,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 				}
 
 				if (isRecognizedXMLSchemaInstanceAttribute(nextAttr)) {
-					compareRecognizedXMLSchemaInstanceAttribute(nextAttr, compareTo, evaluator);
+					compareRecognizedXmlSchemaInstanceAttribute(nextAttr, compareTo, evaluator);
 
 				} else if (compareTo != null) {
 					compareAttribute(nextAttr, compareTo, evaluator);
@@ -698,7 +697,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		for (Iterator<Attr> iter = unmatchedTestAttrs.iterator(); iter.hasNext();) {
 			Attr nextAttr = iter.next();
 			if (isRecognizedXMLSchemaInstanceAttribute(nextAttr)) {
-				compareRecognizedXMLSchemaInstanceAttribute(null, nextAttr,
+				compareRecognizedXmlSchemaInstanceAttribute(null, nextAttr,
 				        evaluator);
 			} else {
 				controlTracker.clearTrackedAttribute();
@@ -755,7 +754,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 * @param evaluator
 	 * @throws DifferenceFoundException
 	 */
-	protected void compareRecognizedXMLSchemaInstanceAttribute(Attr control, Attr test, DifferenceEvaluator evaluator)
+	protected void compareRecognizedXmlSchemaInstanceAttribute(Attr control, Attr test, DifferenceEvaluator evaluator)
 	        throws DifferenceFoundException {
 		Attr nonNullNode = control != null ? control : test;
 		if (control != null) {
@@ -959,9 +958,9 @@ public class DifferenceEngine implements DifferenceEngineContract {
 				if (controller.haltComparison(comparison)) {
 					throw new DifferenceFoundException();
 				}
-			} else if (matchTracker != null) {
+			} else if (matchListener != null) {
 				// TODO always similar?
-				matchTracker.comparisonPerformed(comparison, ComparisonResult.SIMILAR);
+				matchListener.comparisonPerformed(comparison, ComparisonResult.SIMILAR);
 			}
 		}
 

@@ -413,7 +413,7 @@ public class test_NewDifferenceEngine extends TestCase {
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");
 		final int[] count = new int[1];
-		engine.setMatchTracker(new ComparisonListener() {
+		engine.setMatchListener(new ComparisonListener() {
 			@Override
 			public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
 				count[0]++;

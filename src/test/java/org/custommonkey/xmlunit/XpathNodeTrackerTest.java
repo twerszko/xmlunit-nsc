@@ -51,162 +51,160 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 public class XpathNodeTrackerTest {
-    private XpathNodeTracker xpathNodeTracker;
-    private static final Node DUMMY_NODE = null;
-    private DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
+	private XpathNodeTracker xpathNodeTracker;
+	private static final Node DUMMY_NODE = null;
+	private DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
 
-    @Before
-    public void setUp() {
-        xpathNodeTracker = new XpathNodeTracker();
-        xpathNodeTracker.reset();
+	@Before
+	public void setUp() {
+		xpathNodeTracker = new XpathNodeTracker();
+	}
 
-    }
+	@Test
+	public void should_track_diary() {
+		// when
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
+		String xpathString = xpathNodeTracker.toXpathString();
 
-    @Test
-    public void should_track_diary() {
-        // when
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
-        String xpathString = xpathNodeTracker.toXpathString();
+		// then
+		assertThat(xpathString).isEqualTo("/diary[1]");
+	}
 
-        // then
-        assertThat(xpathString).isEqualTo("/diary[1]");
-    }
+	@Test
+	public void should_track_one_level_of_children() {
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
 
-    @Test
-    public void should_track_one_level_of_children() {
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
+		xpathNodeTracker.indent();
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]");
 
-        xpathNodeTracker.indent();
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]");
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[1]");
 
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[1]");
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]");
 
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]");
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[3]");
 
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[3]");
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "reminder");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/reminder[1]");
 
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "reminder");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/reminder[1]");
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[4]");
+	}
 
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[4]");
-    }
+	@Test
+	public void should_track_two_levels_of_children() {
+		// then
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
 
-    @Test
-    public void should_track_two_levels_of_children() {
-        // then
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
+		xpathNodeTracker.indent();
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
 
-        xpathNodeTracker.indent();
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
+		xpathNodeTracker.indent();
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "details");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[1]/details[1]");
 
-        xpathNodeTracker.indent();
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "details");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[1]/details[1]");
+		xpathNodeTracker.outdent();
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]");
 
-        xpathNodeTracker.outdent();
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "event");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]");
+		xpathNodeTracker.indent();
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "details");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]/details[1]");
 
-        xpathNodeTracker.indent();
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "details");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]/details[1]");
+		xpathNodeTracker.outdent();
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]");
 
-        xpathNodeTracker.outdent();
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]/event[2]");
+		xpathNodeTracker.outdent();
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]");
+	}
 
-        xpathNodeTracker.outdent();
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]");
-    }
+	@Test
+	public void should_check_nodes() {
+		Document doc = documentUtils.newControlDocumentBuilder().newDocument();
+		Element element = doc.createElementNS("http://example.com/xmlunit", "eg:root");
+		xpathNodeTracker.visited(element);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]");
 
-    @Test
-    public void should_check_nodes() {
-        Document doc = documentUtils.newControlDocumentBuilder().newDocument();
-        Element element = doc.createElementNS("http://example.com/xmlunit", "eg:root");
-        xpathNodeTracker.visited(element);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]");
+		Attr attr = doc.createAttributeNS("http://example.com/xmlunit", "eg:type");
+		attr.setValue("qwerty");
+		element.setAttributeNodeNS(attr);
+		xpathNodeTracker.visited(attr);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/@type");
 
-        Attr attr = doc.createAttributeNS("http://example.com/xmlunit", "eg:type");
-        attr.setValue("qwerty");
-        element.setAttributeNodeNS(attr);
-        xpathNodeTracker.visited(attr);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/@type");
+		xpathNodeTracker.indent();
 
-        xpathNodeTracker.indent();
+		Comment comment = doc.createComment("testing a comment");
+		xpathNodeTracker.visited(comment);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/comment()[1]");
 
-        Comment comment = doc.createComment("testing a comment");
-        xpathNodeTracker.visited(comment);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/comment()[1]");
+		ProcessingInstruction pi = doc.createProcessingInstruction("target", "data");
+		xpathNodeTracker.visited(pi);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/processing-instruction()[1]");
 
-        ProcessingInstruction pi = doc.createProcessingInstruction("target", "data");
-        xpathNodeTracker.visited(pi);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/processing-instruction()[1]");
+		Text text = doc.createTextNode("some text");
+		xpathNodeTracker.visited(text);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/text()[1]");
 
-        Text text = doc.createTextNode("some text");
-        xpathNodeTracker.visited(text);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/text()[1]");
+		CDATASection cdata = doc.createCDATASection("some characters");
+		xpathNodeTracker.visited(cdata);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/text()[2]");
+	}
 
-        CDATASection cdata = doc.createCDATASection("some characters");
-        xpathNodeTracker.visited(cdata);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/root[1]/text()[2]");
-    }
+	@Test
+	public void should_check_repeat_nodes_for_test_tracker() {
+		Document doc = documentUtils.newControlDocumentBuilder().newDocument();
+		final Element element = doc.createElement("repeated");
+		final Element copy = doc.createElement("repeated");
 
-    @Test
-    public void should_check_repeat_nodes_for_test_tracker() {
-        Document doc = documentUtils.newControlDocumentBuilder().newDocument();
-        final Element element = doc.createElement("repeated");
-        final Element copy = doc.createElement("repeated");
+		NodeList nodeList = new NodeList() {
+			public Node item(int index) {
+				switch (index) {
+					case 0:
+						return element;
+					case 1:
+						return copy;
+					default:
+						return null;
+				}
+			}
 
-        NodeList nodeList = new NodeList() {
-            public Node item(int index) {
-                switch (index) {
-                case 0:
-                    return element;
-                case 1:
-                    return copy;
-                default:
-                    return null;
-                }
-            }
+			public int getLength() {
+				return 2;
+			}
+		};
+		xpathNodeTracker.preloadNodeList(nodeList);
 
-            public int getLength() {
-                return 2;
-            }
-        };
-        xpathNodeTracker.preloadNodeList(nodeList);
+		xpathNodeTracker.visited(element);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[1]");
 
-        xpathNodeTracker.visited(element);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[1]");
+		xpathNodeTracker.visited(element);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[1]");
 
-        xpathNodeTracker.visited(element);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[1]");
+		xpathNodeTracker.visited(copy);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[2]");
+	}
 
-        xpathNodeTracker.visited(copy);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[2]");
-    }
+	@Test
+	public void should_check_repeat_nodes_for_control_tracker() {
+		Document doc = documentUtils.newControlDocumentBuilder().newDocument();
+		Element element = doc.createElement("repeated");
 
-    @Test
-    public void should_check_repeat_nodes_for_control_tracker() {
-        Document doc = documentUtils.newControlDocumentBuilder().newDocument();
-        Element element = doc.createElement("repeated");
+		xpathNodeTracker.visited(element);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[1]");
 
-        xpathNodeTracker.visited(element);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[1]");
+		xpathNodeTracker.visited(element);
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[2]");
+	}
 
-        xpathNodeTracker.visited(element);
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/repeated[2]");
-    }
-
-    // bug 1047364
-    @Test
-    public void should_check_empty_indent_outdent_root_node() {
-        xpathNodeTracker.indent();
-        xpathNodeTracker.outdent();
-        xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
-        assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]");
-    }
+	// bug 1047364
+	@Test
+	public void should_check_empty_indent_outdent_root_node() {
+		xpathNodeTracker.indent();
+		xpathNodeTracker.outdent();
+		xpathNodeTracker.visitedNode(DUMMY_NODE, "diary");
+		assertThat(xpathNodeTracker.toXpathString()).isEqualTo("/diary[1]");
+	}
 
 }

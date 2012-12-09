@@ -95,7 +95,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	private final XmlUnitProperties properties;
 
 	private final ComparisonController controller;
-	private ComparisonListener matchTracker;
+	private ComparisonListener matchListener;
 
 	/**
 	 * Simple constructor that uses no MatchTracker at all.
@@ -115,14 +115,14 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	 * @param controller
 	 *            the instance used to determine whether a Difference detected
 	 *            by this class should halt further comparison or not
-	 * @param matchTracker
+	 * @param matchListener
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 * @see ComparisonController#haltComparison(Difference)
 	 * @see MatchTracker#matchFound(Difference)
 	 */
 	public NewDifferenceEngine(@Nullable XmlUnitProperties properties, ComparisonController controller,
-	        ComparisonListener matchTracker) {
+	        ComparisonListener matchListener) {
 
 		if (properties == null) {
 			this.properties = new XmlUnitProperties();
@@ -131,16 +131,16 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 		}
 
 		this.controller = controller;
-		this.matchTracker = matchTracker;
+		this.matchListener = matchListener;
 	}
 
 	/**
-	 * @param matchTracker
+	 * @param matchListener
 	 *            the instance that is notified on each successful match. May be
 	 *            null.
 	 */
-	public void setMatchTracker(ComparisonListener matchTracker) {
-		this.matchTracker = matchTracker;
+	public void setMatchListener(ComparisonListener matchListener) {
+		this.matchListener = matchListener;
 	}
 
 	/**
@@ -164,13 +164,13 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 		final IsBetweenDocumentNodeAndRootElement checkPrelude = new IsBetweenDocumentNodeAndRootElement();
 		engine.addComparisonListener(checkPrelude);
 
-		if (matchTracker != null) {
+		if (matchListener != null) {
 			engine.addMatchListener(new ComparisonListener() {
 				@Override
 				public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
 					comparison = filter(comparison);
 					if (comparison != null) {
-						matchTracker.comparisonPerformed(comparison, outcome);
+						matchListener.comparisonPerformed(comparison, outcome);
 					}
 				}
 			});
