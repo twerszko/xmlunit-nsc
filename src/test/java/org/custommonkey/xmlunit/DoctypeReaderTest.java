@@ -46,7 +46,7 @@ import org.junit.Test;
 
 import com.google.common.io.Closeables;
 
-public class DoctypeReaderTest extends AbstractDoctypeTests {
+public class DoctypeReaderTest extends DoctypeTestAbstract {
     private static final String NEWLINE = System.getProperty("line.separator");
 
     @Test

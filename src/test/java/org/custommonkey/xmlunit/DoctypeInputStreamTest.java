@@ -44,7 +44,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.io.Closeables;
 
-public class DoctypeInputStreamTest extends AbstractDoctypeTests {
+public class DoctypeInputStreamTest extends DoctypeTestAbstract {
 
     private static final String ISO_8859_1 = "ISO-8859-1";
 

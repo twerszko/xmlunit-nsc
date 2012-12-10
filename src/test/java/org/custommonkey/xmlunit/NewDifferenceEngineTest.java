@@ -78,34 +78,6 @@ public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 	}
 
 	@Test
-	public void testMissingSchemaLocation() throws Exception {
-		testMissingXSIAttribute(XMLConstants
-		        .W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR,
-		        ComparisonType.SCHEMA_LOCATION);
-	}
-
-	@Test
-	public void testMissingNoNamespaceSchemaLocation() throws Exception {
-		testMissingXSIAttribute(XMLConstants
-		        .W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR,
-		        ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
-	}
-
-	private void testMissingXSIAttribute(String attrName,
-	        ComparisonType expectedDifference)
-	        throws Exception {
-		Element control = document.createElement("foo");
-		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
-		        attrName, "bar");
-		Element test = document.createElement("foo");
-		engine.compare(control, test, evaluator, null);
-		assertEquals(expectedDifference, evaluator.comparingWhat);
-		resetEvaluator();
-		engine.compare(test, control, evaluator, null);
-		assertEquals(expectedDifference, evaluator.comparingWhat);
-	}
-
-	@Test
 	public void testMatchTrackerSetViaConstructor() throws Exception {
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");

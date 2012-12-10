@@ -258,8 +258,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		        control, controlTracker.toXpathString(), getNullOrNotNull(controlDoctype),
 		        test, controlTracker.toXpathString(), getNullOrNotNull(testDoctype));
 
-		createValueComparator(evaluator)
-		        .compare(comparison);
+		createValueComparator(evaluator).compare(comparison);
 
 		if (controlDoctype != null && testDoctype != null) {
 			compareNode(controlDoctype, testDoctype, evaluator, elementSelector);
@@ -337,8 +336,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		        Comparison(ComparisonType.HAS_CHILD_NODES,
 		                control, controlTracker.toXpathString(), controlChildren.size() > 0,
 		                test, testTracker.toXpathString(), testChildren.size() > 0);
-		createValueComparator(evaluator)
-		        .compare(comparison);
+		createValueComparator(evaluator).compare(comparison);
 
 	}
 
@@ -382,8 +380,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 			Comparison comparison = new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
 			        control, controlTracker.toXpathString(), controlLength,
 			        test, testTracker.toXpathString(), testLength);
-			createValueComparator(listener)
-			        .compare(comparison);
+			createValueComparator(listener).compare(comparison);
 
 			compareNodeList(controlChildren, testChildren,
 			        controlLength.intValue(), listener, elementSelector);

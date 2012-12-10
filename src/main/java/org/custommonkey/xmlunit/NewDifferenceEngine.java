@@ -172,7 +172,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			});
 		}
 
-		final DifferenceEvaluator evaluator = new DifferenceListener2DifferenceEvaluator(diffEvaluator);
+		final DifferenceEvaluator evaluator = new FilteringDifferenceEvaluator(diffEvaluator);
 		engine.setDifferenceEvaluator(new DifferenceEvaluator() {
 			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 				if (!swallowComparison(comparison, outcome, checkPrelude)) {
@@ -325,10 +325,10 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 		        && detail.getTarget().getParentNode() instanceof Document;
 	}
 
-	public static class DifferenceListener2DifferenceEvaluator implements DifferenceEvaluator {
+	public static class FilteringDifferenceEvaluator implements DifferenceEvaluator {
 		private final DifferenceEvaluator de;
 
-		public DifferenceListener2DifferenceEvaluator(DifferenceEvaluator de) {
+		public FilteringDifferenceEvaluator(DifferenceEvaluator de) {
 			this.de = de;
 		}
 

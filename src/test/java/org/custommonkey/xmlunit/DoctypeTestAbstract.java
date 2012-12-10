@@ -45,7 +45,7 @@ import org.junit.Test;
 /**
  * Base for tests for DoctypeReader and DoctypeInputStream
  */
-public abstract class AbstractDoctypeTests {
+public abstract class DoctypeTestAbstract {
 
     private static final String COMMENT = "<!-- comment -->";
     protected static final String NO_DTD_XML = "<document><element>one</element></document>";

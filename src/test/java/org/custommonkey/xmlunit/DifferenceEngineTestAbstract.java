@@ -226,7 +226,7 @@ public abstract class DifferenceEngineTestAbstract {
 	@Test
 	public void should_ignore_different_schema_location() {
 		// given
-		ComparisonType expectedComparison = ComparisonType.SCHEMA_LOCATION;
+		ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
 		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
 
 		Element control = document.createElement("foo");
@@ -240,13 +240,13 @@ public abstract class DifferenceEngineTestAbstract {
 
 		// then
 		assertThat(evaluator.different).isFalse();
-		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparison);
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparisonType);
 	}
 
 	@Test
 	public void should_ignore_different_no_namespace_schema_location() {
 		// given
-		ComparisonType expectedComparison = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
+		ComparisonType expectedComparisonType = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
 		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR;
 
 		Element control = document.createElement("foo");
@@ -260,7 +260,79 @@ public abstract class DifferenceEngineTestAbstract {
 
 		// then
 		assertThat(evaluator.different).isFalse();
-		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparison);
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparisonType);
+	}
+
+	@Test
+	public void should_ignore_missing_schema_location_in_test() {
+		// given
+		ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
+
+		Element control = document.createElement("foo");
+		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+		Element test = document.createElement("foo");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparisonType);
+	}
+
+	@Test
+	public void should_ignore_missing_schema_location_in_control() {
+		// given
+		ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
+
+		Element control = document.createElement("foo");
+		Element test = document.createElement("foo");
+		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparisonType);
+	}
+
+	@Test
+	public void should_ignore_missing_no_namespace_location_in_test() {
+		// given
+		ComparisonType expectedComparisonType = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR;
+
+		Element control = document.createElement("foo");
+		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+		Element test = document.createElement("foo");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparisonType);
+	}
+
+	@Test
+	public void should_ignore_missing_no_namespace_location_in_control() {
+		// given
+		ComparisonType expectedComparisonType = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR;
+
+		Element control = document.createElement("foo");
+		Element test = document.createElement("foo");
+		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparisonType);
 	}
 
 	/**
