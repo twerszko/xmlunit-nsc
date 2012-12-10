@@ -54,139 +54,145 @@ import org.w3c.dom.Document;
 
 public class XMLUnitTest {
 
-    private XmlUnitProperties properties;
+	private static final String XML_WITH_WHITESPACE =
+	        "<aakture>  <node>text</node>\t<node>text2</node> \n </aakture>";
 
-    @Before
-    public void setUp() {
-        properties = new XmlUnitProperties();
-    }
+	private static final String XML_WITHOUT_WHITESPACE =
+	        "<aakture><node>text</node><node>text2</node></aakture>";
 
-    /**
-     * Test overiding the SAX parser used to parse control documents
-     */
-    @Test
-    public void testSetControlParser() throws Exception {
-        // given
-        DocumentBuilder builderBefore = new DocumentUtils(properties).newControlDocumentBuilder();
-        DocumentBuilderFactory controlDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+	private XmlUnitProperties properties;
 
-        // when
-        properties.setControlDocumentBuilderFactoryClass(controlDocumentBuilderFactory.getClass());
-        DocumentBuilder builderAfter = new DocumentUtils(properties).newControlDocumentBuilder();
+	@Before
+	public void setUp() {
+		properties = new XmlUnitProperties();
+	}
 
-        // then
-        assertFalse(builderBefore == builderAfter);
-    }
+	/**
+	 * Test overiding the SAX parser used to parse control documents
+	 */
+	@Test
+	public void testSetControlParser() throws Exception {
+		// given
+		DocumentBuilder builderBefore = new DocumentUtils(properties).newControlDocumentBuilder();
+		DocumentBuilderFactory controlDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
 
-    @Test
-    public void testSetDocumentBuilderFactory() throws Exception {
-        // given
-        DocumentBuilder builderBefore = new DocumentUtils(properties).newTestDocumentBuilder();
-        DocumentBuilderFactory testDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+		// when
+		properties.setControlDocumentBuilderFactoryClass(controlDocumentBuilderFactory.getClass());
+		DocumentBuilder builderAfter = new DocumentUtils(properties).newControlDocumentBuilder();
 
-        // when
-        properties.setTestDocumentBuilderFactoryClass(testDocumentBuilderFactory.getClass());
-        DocumentBuilder builderAfter = new DocumentUtils(properties).newTestDocumentBuilder();
+		// then
+		assertFalse(builderBefore == builderAfter);
+	}
 
-        // then
-        assertThat(builderBefore).isNotSameAs(builderAfter);
-    }
+	@Test
+	public void testSetDocumentBuilderFactory() throws Exception {
+		// given
+		DocumentBuilder builderBefore = new DocumentUtils(properties).newTestDocumentBuilder();
+		DocumentBuilderFactory testDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
 
-    // TODO more casses of loading different document builder factories
+		// when
+		properties.setTestDocumentBuilderFactoryClass(testDocumentBuilderFactory.getClass());
+		DocumentBuilder builderAfter = new DocumentUtils(properties).newTestDocumentBuilder();
 
-    @Test
-    public void testIgnoreWhitespace() throws Exception {
-        properties.setIgnoreWhitespace(true);
-        String test = "<test>  monkey   </test>";
-        String control = "<test>monkey</test>";
-        assertThat(Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build()
-                .similar())
-                .isTrue();
+		// then
+		assertThat(builderBefore).isNotSameAs(builderAfter);
+	}
 
-        properties.setIgnoreWhitespace(false);
-        assertThat(Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build()
-                .similar())
-                .isFalse();
-    }
+	// TODO more casses of loading different document builder factories
 
-    @Test
-    public void testSetTransformerFactory() throws Exception {
-        // given
-        TransformerFactory factoryBefore = new XsltUtils(properties).newTransformerFactory();
-        Class<? extends TransformerFactory> factoryClass = factoryBefore.getClass();
+	@Test
+	public void testIgnoreWhitespace() throws Exception {
+		properties.setIgnoreWhitespace(true);
+		String test = "<test>  monkey   </test>";
+		String control = "<test>monkey</test>";
+		assertThat(Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build()
+		        .similar())
+		        .isTrue();
 
-        // when
-        properties.setTransformerFactoryClass(factoryClass);
-        TransformerFactory factoryAfter = new XsltUtils(properties).newTransformerFactory();
+		properties.setIgnoreWhitespace(false);
+		assertThat(Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build()
+		        .similar())
+		        .isFalse();
+	}
 
-        // then
-        assertThat(factoryBefore).isNotSameAs(factoryAfter);
-        assertThat(factoryAfter.getClass().getName()).isEqualTo(factoryClass.getName());
+	@Test
+	public void testSetTransformerFactory() throws Exception {
+		// given
+		TransformerFactory factoryBefore = new XsltUtils(properties).newTransformerFactory();
+		Class<? extends TransformerFactory> factoryClass = factoryBefore.getClass();
 
-    }
+		// when
+		properties.setTransformerFactoryClass(factoryClass);
+		TransformerFactory factoryAfter = new XsltUtils(properties).newTransformerFactory();
 
-    @Test
-    public void testStripWhitespaceTransform() throws Exception {
-        Document doc = new DocumentUtils(properties).buildTestDocument(
-                test_Constants.XML_WITH_WHITESPACE);
+		// then
+		assertThat(factoryBefore).isNotSameAs(factoryAfter);
+		assertThat(factoryAfter.getClass().getName()).isEqualTo(factoryClass.getName());
 
-        Document transformedDocument = new XsltUtils(properties).getStripWhitespaceTransform(doc)
-                .toDocument();
-        // TODO simpify?
-        Diff diff = Diff.newDiff(properties)
-                .betweenControlDocument(test_Constants.XML_WITHOUT_WHITESPACE)
-                .andTestDocument(transformedDocument)
-                .build();
-        assertTrue(diff.similar());
-    }
+	}
 
-    @Test
-    public void should_use_default_xslt_version() {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
+	@Test
+	public void testStripWhitespaceTransform() throws Exception {
+		Document doc = new DocumentUtils(properties).buildTestDocument(
+		        XML_WITH_WHITESPACE);
 
-        // when
-        XsltUtils xsltUtils = new XsltUtils(properties);
+		Document transformedDocument = new XsltUtils(properties).getStripWhitespaceTransform(doc)
+		        .toDocument();
+		// TODO simpify?
+		Diff diff = Diff.newDiff(properties)
+		        .betweenControlDocument(XML_WITHOUT_WHITESPACE)
+		        .andTestDocument(transformedDocument)
+		        .build();
+		assertTrue(diff.similar());
+	}
 
-        // then
-        assertThat(properties.getXsltVersion()).isEqualTo("1.0");
-        assertThat(xsltUtils.getXSLTStart()).isEqualTo(XSLTConstants.XSLT_START);
-    }
+	@Test
+	public void should_use_default_xslt_version() {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
 
-    @Test
-    public void should_use_other_xslt_version() {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
-        properties.setXsltVersion("2.0");
+		// when
+		XsltUtils xsltUtils = new XsltUtils(properties);
 
-        // when
-        XsltUtils xsltUtils = new XsltUtils(properties);
+		// then
+		assertThat(properties.getXsltVersion()).isEqualTo("1.0");
+		assertThat(xsltUtils.getXSLTStart()).isEqualTo(XSLTConstants.XSLT_START);
+	}
 
-        // then
-        assertThat(properties.getXsltVersion()).isEqualTo("2.0");
-        assertThat(xsltUtils.getXSLTStart()).startsWith(XSLTConstants.XSLT_START_NO_VERSION);
-        assertThat(xsltUtils.getXSLTStart()).endsWith("\"2.0\">");
-    }
+	@Test
+	public void should_use_other_xslt_version() {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
+		properties.setXsltVersion("2.0");
 
-    @Test(expected = ConfigurationException.class)
-    public void should_not_use_incorrect_xslt_version() {
-        // given - when
-        new XmlUnitBuilder().usingXsltVersion("foo").build();
+		// when
+		XsltUtils xsltUtils = new XsltUtils(properties);
 
-        // then exception
-    }
+		// then
+		assertThat(properties.getXsltVersion()).isEqualTo("2.0");
+		assertThat(xsltUtils.getXSLTStart()).startsWith(XSLTConstants.XSLT_START_NO_VERSION);
+		assertThat(xsltUtils.getXSLTStart()).endsWith("\"2.0\">");
+	}
 
-    @Test(expected = ConfigurationException.class)
-    public void should_not_use_negative_xslt_version() {
-        // given - when
-        new XmlUnitBuilder().usingXsltVersion("-1.0").build();
+	@Test(expected = ConfigurationException.class)
+	public void should_not_use_incorrect_xslt_version() {
+		// given - when
+		new XmlUnitBuilder().usingXsltVersion("foo").build();
 
-        // then exception
-    }
+		// then exception
+	}
+
+	@Test(expected = ConfigurationException.class)
+	public void should_not_use_negative_xslt_version() {
+		// given - when
+		new XmlUnitBuilder().usingXsltVersion("-1.0").build();
+
+		// then exception
+	}
 }
