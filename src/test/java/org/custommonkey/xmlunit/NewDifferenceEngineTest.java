@@ -38,20 +38,23 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 
 import org.junit.Test;
-import org.w3c.dom.Comment;
 import org.w3c.dom.Element;
 
 public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 
 	@Override
 	protected DifferenceEngineContract newDifferenceEngine() {
+		return new NewDifferenceEngine(properties);
+	}
+
+	@Override
+	protected DifferenceEngineContract newDifferenceEngine(XmlUnitProperties properties) {
 		return new NewDifferenceEngine(properties);
 	}
 
@@ -72,55 +75,6 @@ public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 		        evaluator.controlXpath);
 		assertEquals("15th test xpath", "/stuff[1]/item[1]",
 		        evaluator.testXpath);
-	}
-
-	@Test
-	public void testExtraComment() {
-		testExtraComment(true);
-		resetEvaluator();
-
-		properties.setIgnoreComments(true);
-		engine = new NewDifferenceEngine(properties);
-
-		testExtraComment(false);
-	}
-
-	private void testExtraComment(boolean expectDifference) {
-		Element control = document.createElement("foo");
-		Element test = document.createElement("foo");
-		Comment c = document.createComment("bar");
-		control.appendChild(c);
-		Element cChild = document.createElement("baz");
-		control.appendChild(cChild);
-		Element tChild = document.createElement("baz");
-		test.appendChild(tChild);
-		engine.compare(control, test, evaluator, null);
-		assertEquals(expectDifference, evaluator.different);
-		resetEvaluator();
-		engine.compare(test, control, evaluator, null);
-		assertEquals(expectDifference, evaluator.different);
-	}
-
-	@Test
-	public void testCommentContent() {
-		testCommentContent(true);
-		resetEvaluator();
-
-		properties.setIgnoreComments(true);
-		engine = new NewDifferenceEngine(properties);
-
-		testCommentContent(false);
-	}
-
-	private void testCommentContent(boolean expectDifference) {
-		Element control = document.createElement("foo");
-		Element test = document.createElement("foo");
-		Comment c = document.createComment("bar");
-		control.appendChild(c);
-		Comment c2 = document.createComment("baz");
-		test.appendChild(c2);
-		engine.compare(control, test, evaluator, null);
-		assertEquals(expectDifference, evaluator.different);
 	}
 
 	@Test
@@ -149,43 +103,6 @@ public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 		resetEvaluator();
 		engine.compare(test, control, evaluator, null);
 		assertEquals(expectedDifference, evaluator.comparingWhat);
-	}
-
-	@Test
-	public void testDifferentSchemaLocation() throws Exception {
-		testDifferentXSIAttribute(XMLConstants
-		        .W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR,
-		        ComparisonType.SCHEMA_LOCATION);
-	}
-
-	@Test
-	public void testDifferentNoNamespaceSchemaLocation() throws Exception {
-		testDifferentXSIAttribute(XMLConstants
-		        .W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR,
-		        ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
-	}
-
-	private void testDifferentXSIAttribute(String attrName,
-	        ComparisonType expectedDifference)
-	        throws Exception {
-		Element control = document.createElement("foo");
-		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
-		        attrName, "bar");
-		Element test = document.createElement("foo");
-		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI,
-		        attrName, "baz");
-		engine.compare(control, test, evaluator, null);
-		assertEquals(expectedDifference, evaluator.comparingWhat);
-	}
-
-	@Test
-	public void testMissingAttribute() throws Exception {
-		Element control = document.createElement("foo");
-		control.setAttribute("bar", "baz");
-		Element test = document.createElement("foo");
-		test.setAttribute("baz", "bar");
-		engine.compare(control, test, evaluator, null);
-		assertEquals(ComparisonType.ATTR_NAME_LOOKUP, evaluator.comparingWhat);
 	}
 
 	@Test
@@ -226,106 +143,6 @@ public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 		// ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
 		// SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
 		assertEquals(8, count[0]);
-	}
-
-	/**
-	 * @see http 
-	 *      ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
-	 */
-	@Test
-	public void testNamespaceAttributeDifferences() throws Exception {
-		String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-		        + "<ns0:Message xmlns:ns0 = \"http://mynamespace\">"
-		        + "<ns0:EventHeader>"
-		        + "<ns0:EventID>9999</ns0:EventID>"
-		        + "<ns0:MessageID>1243409665297</ns0:MessageID>"
-		        + "<ns0:MessageVersionID>1.0</ns0:MessageVersionID>"
-		        + "<ns0:EventName>TEST-EVENT</ns0:EventName>"
-		        + "<ns0:BWDomain>TEST</ns0:BWDomain>"
-		        + "<ns0:DateTimeStamp>2009-01-01T12:00:00</ns0:DateTimeStamp>"
-		        + "<ns0:SchemaPayloadRef>anything</ns0:SchemaPayloadRef>"
-		        + "<ns0:MessageURI>anything</ns0:MessageURI>"
-		        + "<ns0:ResendFlag>F</ns0:ResendFlag>"
-		        + "</ns0:EventHeader>"
-		        + "<ns0:EventBody>"
-		        + "<ns0:XMLContent>"
-		        + "<xyz:root xmlns:xyz=\"http://test.com/xyz\">"
-		        + "<xyz:test1>A</xyz:test1>"
-		        + "<xyz:test2>B</xyz:test2>"
-		        + "</xyz:root>"
-		        + "</ns0:XMLContent>"
-		        + "</ns0:EventBody>"
-		        + "</ns0:Message>";
-		String test =
-		        "<abc:Message xmlns:abc=\"http://mynamespace\" xmlns:xyz=\"http://test.com/xyz\">"
-		                + "<abc:EventHeader>"
-		                + "<abc:EventID>9999</abc:EventID>"
-		                + "<abc:MessageID>1243409665297</abc:MessageID>"
-		                + "<abc:MessageVersionID>1.0</abc:MessageVersionID>"
-		                + "<abc:EventName>TEST-EVENT</abc:EventName>"
-		                + "<abc:BWDomain>TEST</abc:BWDomain>"
-		                + "<abc:DateTimeStamp>2009-01-01T12:00:00</abc:DateTimeStamp>"
-		                + "<abc:SchemaPayloadRef>anything</abc:SchemaPayloadRef>"
-		                + "<abc:MessageURI>anything</abc:MessageURI>"
-		                + "<abc:ResendFlag>F</abc:ResendFlag>"
-		                + "</abc:EventHeader>"
-		                + "<abc:EventBody>"
-		                + "<abc:XMLContent>"
-		                + "<xyz:root>"
-		                + "<xyz:test1>A</xyz:test1>"
-		                + "<xyz:test2>B</xyz:test2>"
-		                + "</xyz:root>"
-		                + "</abc:XMLContent>"
-		                + "</abc:EventBody>"
-		                + "</abc:Message>";
-		listenToDifferences(control, test);
-		assertFalse(evaluator.different);
-	}
-
-	/**
-	 * XMLUnit 1.3 jumps from the document node straight to the root element,
-	 * ignoring any other children the document might have. Some people consider
-	 * this a bug (Issue 2770386) others rely on it.
-	 * 
-	 * <p>
-	 * XMLUnit 2.x doesn't ignore differences in the prelude but we want to keep
-	 * the behavior for the legacy code base.
-	 * </p>
-	 */
-	@Test
-	public void testIgnoresDifferencesBetweenDocAndRootElement()
-	        throws Throwable {
-		String control =
-		        "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-		                + "<!-- some comment -->"
-		                + "<?foo some PI ?>"
-		                + "<bar/>";
-		String test = "<bar/>";
-		listenToDifferences(control, test);
-		assertFalse("unexpected difference: " + evaluator.comparingWhat,
-		        evaluator.different);
-		resetEvaluator();
-		listenToDifferences(test, control);
-		assertFalse("unexpected difference: " + evaluator.comparingWhat,
-		        evaluator.different);
-		resetEvaluator();
-		control =
-		        "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-		                + "<!-- some comment -->"
-		                + "<?foo some PI ?>"
-		                + "<bar/>";
-		test =
-		        "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-		                + "<?foo some other PI ?>"
-		                + "<!-- some other comment -->"
-		                + "<bar/>";
-		listenToDifferences(control, test);
-		assertFalse("unexpected difference: " + evaluator.comparingWhat,
-		        evaluator.different);
-		resetEvaluator();
-		listenToDifferences(test, control);
-		assertFalse("unexpected difference: " + evaluator.comparingWhat,
-		        evaluator.different);
 	}
 
 	@Override

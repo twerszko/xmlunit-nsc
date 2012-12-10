@@ -13,7 +13,9 @@ import net.sf.xmlunit.diff.ElementSelector;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public abstract class DifferenceEngineTestAbstract {
@@ -37,6 +39,8 @@ public abstract class DifferenceEngineTestAbstract {
 	protected DocumentUtils documentUtils;
 
 	protected abstract DifferenceEngineContract newDifferenceEngine();
+
+	protected abstract DifferenceEngineContract newDifferenceEngine(XmlUnitProperties properties);
 
 	@Before
 	public void setUp() throws Exception {
@@ -95,6 +99,293 @@ public abstract class DifferenceEngineTestAbstract {
 			control = control.getNextSibling();
 			test = test.getNextSibling();
 		}
+	}
+
+	@Test
+	public void should_detect_different_comments() {
+		// given
+		Element control = document.createElement("foo");
+		Comment controlComment = document.createComment("bar");
+		control.appendChild(controlComment);
+
+		Element test = document.createElement("foo");
+		Comment testComment = document.createComment("baz");
+		test.appendChild(testComment);
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isTrue();
+	}
+
+	@Test
+	public void should_ignore_different_comments() {
+		// given
+		properties.setIgnoreComments(true);
+		engine = newDifferenceEngine(properties);
+
+		Element control = document.createElement("foo");
+		Comment controlComment = document.createComment("bar");
+		control.appendChild(controlComment);
+
+		Element test = document.createElement("foo");
+		Comment testComment = document.createComment("baz");
+		test.appendChild(testComment);
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+	}
+
+	@Test
+	public void should_detect_extra_comment_in_control() {
+		// given
+		Element control = document.createElement("foo");
+		Comment controlComment = document.createComment("bar");
+		control.appendChild(controlComment);
+		Element controlChild = document.createElement("baz");
+		control.appendChild(controlChild);
+
+		Element test = document.createElement("foo");
+		Element testChild = document.createElement("baz");
+		test.appendChild(testChild);
+
+		// when
+		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(this.evaluator.different).isTrue();
+	}
+
+	@Test
+	public void should_detect_extra_comment_in_test() {
+		// given
+		Element control = document.createElement("foo");
+		Element testChild = document.createElement("baz");
+		control.appendChild(testChild);
+
+		Element test = document.createElement("foo");
+		Comment controlComment = document.createComment("bar");
+		test.appendChild(controlComment);
+		Element controlChild = document.createElement("baz");
+		test.appendChild(controlChild);
+
+		// when
+		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(this.evaluator.different).isTrue();
+	}
+
+	@Test
+	public void should_ignore_extra_comment() {
+		// given
+		properties.setIgnoreComments(true);
+		engine = newDifferenceEngine(properties);
+
+		Element control = document.createElement("foo");
+		Comment controlComment = document.createComment("bar");
+		control.appendChild(controlComment);
+		Element controlChild = document.createElement("baz");
+		control.appendChild(controlChild);
+
+		Element test = document.createElement("foo");
+		Element testChild = document.createElement("baz");
+		test.appendChild(testChild);
+
+		// when
+		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(this.evaluator.different).isFalse();
+	}
+
+	@Test
+	public void should_detect_missing_attribute() throws Exception {
+		// given
+		Element control = document.createElement("foo");
+		control.setAttribute("bar", "baz");
+
+		Element test = document.createElement("foo");
+		test.setAttribute("baz", "bar");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isTrue();
+		assertThat(evaluator.comparingWhat).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+	}
+
+	@Test
+	public void should_ignore_different_schema_location() {
+		// given
+		ComparisonType expectedComparison = ComparisonType.SCHEMA_LOCATION;
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
+
+		Element control = document.createElement("foo");
+		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+
+		Element test = document.createElement("foo");
+		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparison);
+	}
+
+	@Test
+	public void should_ignore_different_no_namespace_schema_location() {
+		// given
+		ComparisonType expectedComparison = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR;
+
+		Element control = document.createElement("foo");
+		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+
+		Element test = document.createElement("foo");
+		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
+
+		// when
+		engine.compare(control, test, evaluator, null);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedComparison);
+	}
+
+	/**
+	 * @see http 
+	 *      ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
+	 */
+	@Test
+	public void should_ignore_namespace_attribute_differences() throws Exception {
+		// given
+		String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+		        + "<ns0:Message xmlns:ns0 = \"http://mynamespace\">"
+		        + "<ns0:EventHeader>"
+		        + "<ns0:EventID>9999</ns0:EventID>"
+		        + "<ns0:MessageID>1243409665297</ns0:MessageID>"
+		        + "<ns0:MessageVersionID>1.0</ns0:MessageVersionID>"
+		        + "<ns0:EventName>TEST-EVENT</ns0:EventName>"
+		        + "<ns0:BWDomain>TEST</ns0:BWDomain>"
+		        + "<ns0:DateTimeStamp>2009-01-01T12:00:00</ns0:DateTimeStamp>"
+		        + "<ns0:SchemaPayloadRef>anything</ns0:SchemaPayloadRef>"
+		        + "<ns0:MessageURI>anything</ns0:MessageURI>"
+		        + "<ns0:ResendFlag>F</ns0:ResendFlag>"
+		        + "</ns0:EventHeader>"
+		        + "<ns0:EventBody>"
+		        + "<ns0:XMLContent>"
+		        + "<xyz:root xmlns:xyz=\"http://test.com/xyz\">"
+		        + "<xyz:test1>A</xyz:test1>"
+		        + "<xyz:test2>B</xyz:test2>"
+		        + "</xyz:root>"
+		        + "</ns0:XMLContent>"
+		        + "</ns0:EventBody>"
+		        + "</ns0:Message>";
+
+		String test = "<abc:Message xmlns:abc=\"http://mynamespace\" xmlns:xyz=\"http://test.com/xyz\">"
+		        + "<abc:EventHeader>"
+		        + "<abc:EventID>9999</abc:EventID>"
+		        + "<abc:MessageID>1243409665297</abc:MessageID>"
+		        + "<abc:MessageVersionID>1.0</abc:MessageVersionID>"
+		        + "<abc:EventName>TEST-EVENT</abc:EventName>"
+		        + "<abc:BWDomain>TEST</abc:BWDomain>"
+		        + "<abc:DateTimeStamp>2009-01-01T12:00:00</abc:DateTimeStamp>"
+		        + "<abc:SchemaPayloadRef>anything</abc:SchemaPayloadRef>"
+		        + "<abc:MessageURI>anything</abc:MessageURI>"
+		        + "<abc:ResendFlag>F</abc:ResendFlag>"
+		        + "</abc:EventHeader>"
+		        + "<abc:EventBody>"
+		        + "<abc:XMLContent>"
+		        + "<xyz:root>"
+		        + "<xyz:test1>A</xyz:test1>"
+		        + "<xyz:test2>B</xyz:test2>"
+		        + "</xyz:root>"
+		        + "</abc:XMLContent>"
+		        + "</abc:EventBody>"
+		        + "</abc:Message>";
+
+		// when
+		listenToDifferences(control, test);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+	}
+
+	/**
+	 * XMLUnit 1.3 jumps from the document node straight to the root element,
+	 * ignoring any other children the document might have. Some people consider
+	 * this a bug (Issue 2770386) others rely on it.
+	 * 
+	 * <p>
+	 * XMLUnit 2.x doesn't ignore differences in the prelude but we want to keep
+	 * the behavior for the legacy code base.
+	 * </p>
+	 */
+	@Test
+	public void should_ignore_missing_elements_between_doc_and_root_element_in_test() throws Exception {
+		// given
+		String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+		        + "<!-- some comment -->"
+		        + "<?foo some PI ?>"
+		        + "<bar/>";
+
+		String test = "<bar/>";
+
+		// when
+		listenToDifferences(control, test);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+
+	}
+
+	@Test
+	public void should_ignore_missing_elements_between_doc_and_root_element_in_control() throws Exception {
+		// given
+		String test =
+		        "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+		                + "<!-- some comment -->"
+		                + "<?foo some PI ?>"
+		                + "<bar/>";
+
+		String control = "<bar/>";
+
+		// when
+		listenToDifferences(control, test);
+
+		// then
+		assertThat(evaluator.different).isFalse();
+	}
+
+	@Test
+	public void hould_ignore_different_elements_between_doc_and_root() throws Exception {
+		// given
+		String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+		        + "<!-- some comment -->"
+		        + "<?foo some PI ?>"
+		        + "<bar/>";
+
+		String test = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+		        + "<?foo some other PI ?>"
+		        + "<!-- some other comment -->"
+		        + "<bar/>";
+
+		// when
+		listenToDifferences(control, test);
+
+		// then
+		assertThat(evaluator.different).isFalse();
 	}
 
 	@Test
