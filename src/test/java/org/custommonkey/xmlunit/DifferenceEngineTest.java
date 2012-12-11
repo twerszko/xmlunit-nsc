@@ -36,13 +36,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
+
+import javax.annotation.Nullable;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
@@ -374,8 +376,7 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 				        + " but was " + evaluator.actual);
 			}
 		}
-		assertEquals(expectedDifference == null ? null : expectedDifference.getType(),
-		        evaluator.comparingWhat);
+		assertThat(evaluator.comparingWhat).isEqualTo(expectedDifference == null ? null : expectedDifference.getType());
 		assertEquals(fatal, evaluator.different);
 		resetEvaluator();
 	}
@@ -520,7 +521,7 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 	@Test
 	public void testAttributeSequence() throws Exception {
 		properties.setIgnoreAttributeOrder(false);
-		engine = new DifferenceEngine(properties);
+		engine = newDifferenceEngine(properties);
 
 		testAttributeSequence(ComparisonType.ATTR_SEQUENCE);
 
@@ -631,7 +632,7 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 	}
 
 	private class OrderPreservingNamedNodeMap implements NamedNodeMap {
-		private final ArrayList/* Attr */nodes = new ArrayList();
+		private final ArrayList<Attr> nodes = new ArrayList<Attr>();
 
 		void add(Attr attr) {
 			nodes.add(attr);
@@ -645,22 +646,20 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 			return (Node) nodes.get(index);
 		}
 
+		@Nullable
 		public Node getNamedItem(String name) {
-			for (Iterator iter = nodes.iterator(); iter.hasNext();) {
-				Attr a = (Attr) iter.next();
-				if (a.getName().equals(name)) {
-					return a;
+			for (Attr attr : nodes) {
+				if (attr.getName().equals(name)) {
+					return attr;
 				}
 			}
 			return null;
 		}
 
 		public Node getNamedItemNS(String ns, String localName) {
-			for (Iterator iter = nodes.iterator(); iter.hasNext();) {
-				Attr a = (Attr) iter.next();
-				if (a.getLocalName().equals(localName)
-				        && a.getNamespaceURI().equals(ns)) {
-					return a;
+			for (Attr attr : nodes) {
+				if (attr.getLocalName().equals(localName) && attr.getNamespaceURI().equals(ns)) {
+					return attr;
 				}
 			}
 			return null;

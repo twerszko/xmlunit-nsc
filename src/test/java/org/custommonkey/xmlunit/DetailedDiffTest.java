@@ -343,7 +343,7 @@ public class DetailedDiffTest extends DiffTest {
 	 *      &amp;group_id=23187&amp;atid=377768
 	 */
 	@Test
-	public void should_check_xpath_of_missing_node() throws SAXException, IOException, BuilderException {
+	public void should_check_xpath_of_missing_node() throws Exception {
 		// given
 		String control =
 		        "<books>" +
@@ -378,8 +378,7 @@ public class DetailedDiffTest extends DiffTest {
 
 		// then
 		assertThat(differences).hasSize(3);
-		assertThat(difference.getType())
-		        .isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
 		assertThat(controlXpathLocation).isEqualTo("/books[1]/book[1]");
 		assertThat(testXpathLocation).isNull();
 	}

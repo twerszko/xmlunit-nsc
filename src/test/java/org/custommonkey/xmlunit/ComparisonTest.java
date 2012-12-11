@@ -155,8 +155,7 @@ public class ComparisonTest {
 		// then
 		assertThat(diffs).hasSize(2);
 
-		assertThat(difference1.getType())
-		        .isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
+		assertThat(difference1.getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
 		assertThat(controlXpathLocation1).isEqualTo("/foo[1]/bar[1]");
 		assertThat(testXpathLocation1).isEqualTo("/foo[1]/bar[1]");
 
@@ -164,8 +163,7 @@ public class ComparisonTest {
 		String controlXpathLocation2 = difference2.getControlDetails().getXpath();
 		String testXpathLocation2 = difference2.getTestDetails().getXpath();
 
-		assertThat(difference2.getType())
-		        .isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(difference2.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
 		assertThat(controlXpathLocation2).isEqualTo("/foo[1]/bar[1]/@y");
 		assertThat(testXpathLocation2).isEqualTo("/foo[1]/bar[1]");
 	}

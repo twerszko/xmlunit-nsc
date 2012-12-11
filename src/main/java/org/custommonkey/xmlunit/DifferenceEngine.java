@@ -446,7 +446,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 		Map<Node, Node> matchingNodes = new HashMap<Node, Node>();
 		Map<Node, Integer> matchingNodeIndexes = new HashMap<Node, Integer>();
 
-		List<Node> unmatchedTestNodes = new ArrayList<Node>(testChildren);
+		List<Node> unmatchedTestNodes = new LinkedList<Node>(testChildren);
 
 		// first pass to find the matching nodes in control and test docs
 		for (int i = 0; i < numNodes; ++i) {
@@ -533,37 +533,35 @@ public class DifferenceEngine implements DifferenceEngineContract {
 				testIndex = new Integer(testChildren.indexOf(nextTest));
 				unmatchedTestNodes.remove(0);
 			}
-			if (nextTest != null) {
+			if (nextTest == null) {
+				controlTracker.visited(nextControl);
+				missingNode(nextControl, null, evaluator);
+			} else {
 				compareNode(nextControl, nextTest, evaluator, elementSelector);
 
 				Comparison comparison = new Comparison(ComparisonType.CHILD_NODELIST_SEQUENCE,
 				        nextControl, controlTracker.toXpathString(), i,
 				        nextTest, testTracker.toXpathString(), testIndex);
 				createValueComparator(evaluator).compare(comparison);
-			} else {
-				missingNode(nextControl, null, evaluator);
 			}
 		}
 
 		// now handle remaining unmatched test nodes
-		for (Iterator<Node> iter = unmatchedTestNodes.iterator(); iter.hasNext();) {
-			missingNode(null, iter.next(), evaluator);
+		for (Node unmatchedTest : unmatchedTestNodes) {
+			testTracker.visited(unmatchedTest);
+			missingNode(null, unmatchedTest, evaluator);
 		}
 	}
 
-	private void missingNode(Node control, Node test,
-	        DifferenceEvaluator evaluator)
+	private void missingNode(Node control, Node test, DifferenceEvaluator evaluator)
 	        throws DifferenceFoundException {
 		if (control != null) {
-			controlTracker.visited(control);
 			Comparison comparison = new Comparison(
 			        ComparisonType.CHILD_LOOKUP,
 			        control, controlTracker.toXpathString(), control.getNodeName(),
 			        null, null, null);
-			createValueComparator(evaluator)
-			        .compare(comparison);
+			createValueComparator(evaluator).compare(comparison);
 		} else {
-			testTracker.visited(test);
 			Comparison comparison = new Comparison(
 			        ComparisonType.CHILD_LOOKUP,
 			        null, null, null,
