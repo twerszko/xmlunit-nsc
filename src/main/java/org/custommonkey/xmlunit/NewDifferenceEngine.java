@@ -155,7 +155,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	 *            sequence and that sequence is not considered important.
 	 */
 	public void compare(Node control, Node test, DifferenceEvaluator diffEvaluator, ElementSelector elementSelector) {
-		DOMDifferenceEngine engine = new DOMDifferenceEngine();
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(properties);
 
 		final IsBetweenDocumentNodeAndRootElement checkPrelude = new IsBetweenDocumentNodeAndRootElement();
 		engine.addComparisonListener(checkPrelude);
@@ -264,21 +264,6 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			value = ((Node) detail.getValue()).getNodeName();
 		}
 		return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
-	}
-
-	public static class DifferenceEvaluator2ComparisonListener implements ComparisonListener {
-		private final DifferenceEvaluator de;
-
-		public DifferenceEvaluator2ComparisonListener(DifferenceEvaluator de) {
-			this.de = de;
-		}
-
-		public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-			comparison = filter(comparison);
-			if (comparison != null) {
-				de.evaluate(comparison, outcome);
-			}
-		}
 	}
 
 	private static final Short TEXT_TYPE = Short.valueOf(Node.TEXT_NODE);

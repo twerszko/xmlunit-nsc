@@ -628,6 +628,7 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	        NamedNodeMap testAttr,
 	        DifferenceEvaluator evaluator)
 	        throws DifferenceFoundException {
+
 		ArrayList<Attr> unmatchedTestAttrs = new ArrayList<Attr>();
 		for (int i = 0; i < testAttr.getLength(); ++i) {
 			Attr nextAttr = (Attr) testAttr.item(i);
@@ -640,49 +641,49 @@ public class DifferenceEngine implements DifferenceEngineContract {
 			Attr nextAttr = (Attr) controlAttr.item(i);
 			if (isXMLNSAttribute(nextAttr)) {
 				// xml namespacing is handled in compareNodeBasics
+				continue;
+			}
+			boolean isNamespacedAttr = isNamespaced(nextAttr);
+			String attrName = getUnNamespacedNodeName(nextAttr, isNamespacedAttr);
+			Attr compareTo = null;
+
+			if (isNamespacedAttr) {
+				compareTo = (Attr) testAttr.getNamedItemNS(
+				        nextAttr.getNamespaceURI(), attrName);
 			} else {
-				boolean isNamespacedAttr = isNamespaced(nextAttr);
-				String attrName = getUnNamespacedNodeName(nextAttr, isNamespacedAttr);
-				Attr compareTo = null;
+				compareTo = (Attr) testAttr.getNamedItem(attrName);
+			}
 
-				if (isNamespacedAttr) {
-					compareTo = (Attr) testAttr.getNamedItemNS(
-					        nextAttr.getNamespaceURI(), attrName);
-				} else {
-					compareTo = (Attr) testAttr.getNamedItem(attrName);
-				}
+			if (compareTo != null) {
+				unmatchedTestAttrs.remove(compareTo);
+			}
 
-				if (compareTo != null) {
-					unmatchedTestAttrs.remove(compareTo);
-				}
+			if (isRecognizedXMLSchemaInstanceAttribute(nextAttr)) {
+				compareRecognizedXmlSchemaInstanceAttribute(nextAttr, compareTo, evaluator);
 
-				if (isRecognizedXMLSchemaInstanceAttribute(nextAttr)) {
-					compareRecognizedXmlSchemaInstanceAttribute(nextAttr, compareTo, evaluator);
+			} else if (compareTo != null) {
+				compareAttribute(nextAttr, compareTo, evaluator);
 
-				} else if (compareTo != null) {
-					compareAttribute(nextAttr, compareTo, evaluator);
-
-					if (!properties.getIgnoreAttributeOrder()) {
-						Attr attributeItem = (Attr) testAttr.item(i);
-						String testAttrName = ATTRIBUTE_ABSENT;
-						if (attributeItem != null) {
-							testAttrName = getUnNamespacedNodeName(attributeItem);
-						}
-
-						Comparison comparison = new Comparison(ComparisonType.ATTR_SEQUENCE,
-						        nextAttr, controlTracker.toXpathString(), attrName,
-						        compareTo, testTracker.toXpathString(), testAttrName);
-						createValueComparator(evaluator).compare(comparison);
+				if (!properties.getIgnoreAttributeOrder()) {
+					Attr attributeItem = (Attr) testAttr.item(i);
+					String testAttrName = ATTRIBUTE_ABSENT;
+					if (attributeItem != null) {
+						testAttrName = getUnNamespacedNodeName(attributeItem);
 					}
-				} else {
-					controlTracker.clearTrackedAttribute();
-					testTracker.clearTrackedAttribute();
 
-					Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-					        control, controlTracker.toXpathString(), attrName,
-					        test, testTracker.toXpathString(), null);
+					Comparison comparison = new Comparison(ComparisonType.ATTR_SEQUENCE,
+					        nextAttr, controlTracker.toXpathString(), attrName,
+					        compareTo, testTracker.toXpathString(), testAttrName);
 					createValueComparator(evaluator).compare(comparison);
 				}
+			} else {
+				controlTracker.clearTrackedAttribute();
+				testTracker.clearTrackedAttribute();
+
+				Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
+				        control, controlTracker.toXpathString(), attrName,
+				        test, testTracker.toXpathString(), null);
+				createValueComparator(evaluator).compare(comparison);
 			}
 		}
 

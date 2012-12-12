@@ -81,8 +81,7 @@ public abstract class AbstractDifferenceEngine implements DifferenceEngine {
 	protected final ComparisonResult compare(Comparison comp) {
 		Object controlValue = comp.getControlDetails().getValue();
 		Object testValue = comp.getTestDetails().getValue();
-		boolean equal = controlValue == null
-		        ? testValue == null : controlValue.equals(testValue);
+		boolean equal = controlValue == null ? testValue == null : controlValue.equals(testValue);
 		ComparisonResult initial = equal ? ComparisonResult.EQUAL : ComparisonResult.DIFFERENT;
 		ComparisonResult altered = getDifferenceEvaluator().evaluate(comp, initial);
 		listeners.fireComparisonPerformed(comp, altered);

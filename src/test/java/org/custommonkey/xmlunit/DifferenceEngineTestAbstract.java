@@ -662,38 +662,6 @@ public abstract class DifferenceEngineTestAbstract {
 		assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[2]/@id");
 	}
 
-	protected class CollectingDifferenceEvaluator implements DifferenceEvaluator {
-		public String expected;
-		public String actual;
-		public Node control;
-		public Node test;
-		public ComparisonType comparingWhat = null;
-		public boolean different = false;
-		public boolean nodesSkipped = false;
-		public String controlXpath;
-		public String testXpath;
-
-		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
-			assertThat(difference).isNotNull();
-			assertThat(difference.getControlDetails()).isNotNull();
-			assertThat(difference.getTestDetails()).isNotNull();
-
-			this.expected = String.valueOf(difference.getControlDetails().getValue());
-			this.actual = String.valueOf(difference.getTestDetails().getValue());
-			this.control = difference.getControlDetails().getTarget();
-			this.test = difference.getTestDetails().getTarget();
-			this.comparingWhat = difference.getType();
-			this.different = !difference.isRecoverable();
-			this.controlXpath = difference.getControlDetails().getXpath();
-			this.testXpath = difference.getTestDetails().getXpath();
-			return ComparisonResult.DIFFERENT;
-		}
-
-		public void skippedComparison(Node control, Node test) {
-			nodesSkipped = true;
-		}
-	}
-
 	protected class StoppingOnFirstNotRecoverableDifferenceEvaluator implements DifferenceEvaluator {
 
 		private final DifferenceEvaluator delegation;

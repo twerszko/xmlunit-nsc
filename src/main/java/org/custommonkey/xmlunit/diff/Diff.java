@@ -361,8 +361,7 @@ public class Diff implements DifferenceEvaluator {
 		}
 
 		// FIXME WTF?
-		if (properties.getIgnoreAttributeOrder() &&
-		        (usesKnownElementSelector() || properties.getCompareUnmatched())) {
+		if (usesKnownElementSelector() || properties.getCompareUnmatched()) {
 			return new NewDifferenceEngine(properties, matchTracker);
 		}
 		return new DifferenceEngine(properties, matchTracker);

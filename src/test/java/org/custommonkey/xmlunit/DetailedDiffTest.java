@@ -130,7 +130,7 @@ public class DetailedDiffTest extends DiffTest {
 	}
 
 	@Test
-	public void should_check_all_differences_in_second_forecast() throws SAXException, IOException, BuilderException {
+	public void should_check_all_differences_in_second_forecast() throws Exception {
 		// given
 		String firstForecast =
 		        "<weather>" +
@@ -140,6 +140,7 @@ public class DetailedDiffTest extends DiffTest {
 		String secondForecast = "<weather><today temp=\"20\"/></weather>";
 
 		// when
+
 		Diff multipleDifferences = Diff.newDiff(properties)
 		        .betweenControlDocument(secondForecast)
 		        .andTestDocument(firstForecast)
@@ -154,6 +155,36 @@ public class DetailedDiffTest extends DiffTest {
 		assertThat(differences.get(2).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
 		assertThat(differences.get(3).getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
 		assertThat(differences.get(4).getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+	}
+
+	@Test
+	public void should_check_all_differences_in_second_forecast_with_attr_order() throws Exception {
+		// given
+		String firstForecast =
+		        "<weather>" +
+		                "<today icon=\"clouds\" temp=\"17\">" +
+		                "<outlook>unsettled</outlook></today>" +
+		                "</weather>";
+		String secondForecast = "<weather><today temp=\"20\"/></weather>";
+
+		// when
+		properties.setIgnoreAttributeOrder(false);
+		Diff multipleDifferences = Diff.newDiff(properties)
+		        .betweenControlDocument(secondForecast)
+		        .andTestDocument(firstForecast)
+		        .build();
+		DetailedDiff detailedDiff = new DetailedDiff(multipleDifferences);
+		List<Comparison> differences = detailedDiff.getAllDifferences();
+
+		// then
+		assertThat(differences).hasSize(6);
+		System.out.println(differences);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
+		assertThat(differences.get(2).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+		assertThat(differences.get(3).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
+		assertThat(differences.get(4).getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(differences.get(5).getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
 	}
 
 	@Test

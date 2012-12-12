@@ -535,8 +535,7 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 	private void testAttributeSequence(ComparisonType expected) throws Exception {
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");
-		OrderPreservingNamedNodeMap controlMap =
-		        new OrderPreservingNamedNodeMap();
+		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
 		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
 		for (int i = 0; i < 2; i++) {
 			int j = 1 - i;

@@ -30,6 +30,7 @@ import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Nodes;
 import net.sf.xmlunit.util.Predicate;
 
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
@@ -40,10 +41,22 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Difference engine based on DOM.
  */
 public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
+
+	private final XmlUnitProperties properties;
+
+	public DOMDifferenceEngine(XmlUnitProperties properties) {
+		if (properties == null) {
+			this.properties = new XmlUnitProperties();
+		} else {
+			this.properties = properties.clone();
+		}
+	}
 
 	public void compare(Source control, Source test) {
 		if (control == null) {
@@ -110,11 +123,9 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		}
 
 		Iterable<Node> controlChildren =
-		        Linqy.filter(new IterableNodeList(control.getChildNodes()),
-		                INTERESTING_NODES);
+		        Linqy.filter(new IterableNodeList(control.getChildNodes()), INTERESTING_NODES);
 		Iterable<Node> testChildren =
-		        Linqy.filter(new IterableNodeList(test.getChildNodes()),
-		                INTERESTING_NODES);
+		        Linqy.filter(new IterableNodeList(test.getChildNodes()), INTERESTING_NODES);
 		if (control.getNodeType() != Node.ATTRIBUTE_NODE) {
 			if (Linqy.count(controlChildren) > 0 && Linqy.count(testChildren) > 0) {
 				lastResult =
@@ -139,8 +150,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 			}
 		}
 
-		lastResult = nodeTypeSpecificComparison(control, controlContext,
-		        test, testContext);
+		lastResult = nodeTypeSpecificComparison(control, controlContext, test, testContext);
 		if (lastResult == ComparisonResult.CRITICAL) {
 			return lastResult;
 		}
@@ -331,10 +341,11 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	 * Compares elements node properties, in particular the element's name and
 	 * its attributes.
 	 */
-	private ComparisonResult compareElements(Element control,
-	        XPathContext controlContext,
-	        Element test,
-	        XPathContext testContext) {
+
+	private ComparisonResult compareElements(
+	        Element control, XPathContext controlContext,
+	        Element test, XPathContext testContext) {
+
 		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.ELEMENT_TAG_NAME,
 		                control, getXPath(controlContext),
@@ -345,17 +356,27 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 			return lastResult;
 		}
 
-		Attributes controlAttributes = splitAttributes(control.getAttributes());
-		controlContext
-		        .addAttributes(Linqy.map(controlAttributes.remainingAttributes,
-		                QNAME_MAPPER));
-		Attributes testAttributes = splitAttributes(test.getAttributes());
-		testContext
-		        .addAttributes(Linqy.map(testAttributes.remainingAttributes,
-		                QNAME_MAPPER));
-		Set<Attr> foundTestAttributes = new HashSet<Attr>();
+		NamedNodeMap controlAttrList = control.getAttributes();
+		NamedNodeMap testAttrList = test.getAttributes();
 
-		lastResult =
+		lastResult = compareElementAttributes(
+		        control, controlContext, controlAttrList,
+		        test, testContext, testAttrList);
+		return lastResult;
+
+	}
+
+	@VisibleForTesting
+	ComparisonResult compareElementAttributes(
+	        Element control, XPathContext controlContext, NamedNodeMap controlAttrList,
+	        Element test, XPathContext testContext, NamedNodeMap testAttrList) {
+
+		Attributes controlAttributes = splitAttributes(controlAttrList);
+		Attributes testAttributes = splitAttributes(testAttrList);
+		controlContext.addAttributes(Linqy.map(controlAttributes.remainingAttributes, QNAME_MAPPER));
+		testContext.addAttributes(Linqy.map(testAttributes.remainingAttributes, QNAME_MAPPER));
+
+		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
 		                control, getXPath(controlContext),
 		                controlAttributes.remainingAttributes.size(),
@@ -365,10 +386,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 			return lastResult;
 		}
 
-		for (Attr controlAttr : controlAttributes.remainingAttributes) {
-			final Attr testAttr =
-			        findMatchingAttr(testAttributes.remainingAttributes,
-			                controlAttr);
+		Set<Attr> foundTestAttributes = new HashSet<Attr>();
+		for (int i = 0; i < controlAttributes.remainingAttributes.size(); i++) {
+			Attr controlAttr = controlAttributes.remainingAttributes.get(i);
+			final Attr testAttr = findMatchingAttr(testAttributes.remainingAttributes, controlAttr);
 
 			controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
 			try {
@@ -383,10 +404,38 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 				}
 
 				if (testAttr != null) {
-					testContext.navigateToAttribute(Nodes.getQName(testAttr));
+					// ===
+
+					if (!properties.getIgnoreAttributeOrder()) {
+						if (testAttributes.remainingAttributes.indexOf(testAttr) != i) {
+							Node orderedTestNode = null;
+							String orderedTestNodeName = "[attribute absent]";
+							if (testAttributes.remainingAttributes.size() > i) {
+								orderedTestNode = testAttributes.remainingAttributes.get(i);
+								orderedTestNodeName = getUnNamespacedNodeName(orderedTestNode);
+							}
+							if (orderedTestNode != null) {
+								testContext.navigateToAttribute(Nodes.getQName(orderedTestNode));
+								try {
+									compare(new Comparison(ComparisonType.ATTR_SEQUENCE,
+									        controlAttr, getXPath(controlContext),
+									        getUnNamespacedNodeName(controlAttr),
+									        orderedTestNode, getXPath(testContext), orderedTestNodeName));
+
+									if (lastResult == ComparisonResult.CRITICAL) {
+										return lastResult;
+									}
+								} finally {
+									testContext.navigateToParent();
+								}
+							}
+						}
+					}
+
+					// ===
 					try {
-						lastResult = compareNodes(controlAttr, controlContext,
-						        testAttr, testContext);
+						testContext.navigateToAttribute(Nodes.getQName(testAttr));
+						lastResult = compareNodes(controlAttr, controlContext, testAttr, testContext);
 						if (lastResult == ComparisonResult.CRITICAL) {
 							return lastResult;
 						}
@@ -441,6 +490,26 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		        testAttributes.noNamespaceSchemaLocation != null
 		                ? testAttributes.noNamespaceSchemaLocation.getValue()
 		                : null));
+	}
+
+	/**
+	 * @param aNode
+	 * @return true if the node has a namespace
+	 */
+	private boolean isNamespaced(Node aNode) {
+		String namespace = aNode.getNamespaceURI();
+		return namespace != null && namespace.length() > 0;
+	}
+
+	private String getUnNamespacedNodeName(Node aNode) {
+		return getUnNamespacedNodeName(aNode, isNamespaced(aNode));
+	}
+
+	private String getUnNamespacedNodeName(Node aNode, boolean isNamespacedNode) {
+		if (isNamespacedNode) {
+			return aNode.getLocalName();
+		}
+		return aNode.getNodeName();
 	}
 
 	/**
@@ -590,20 +659,16 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	 * Separates XML namespace related attributes from "normal" attributes.xb
 	 */
 	private static Attributes splitAttributes(final NamedNodeMap map) {
-		Attr sLoc = (Attr) map.getNamedItemNS(XMLConstants
-		        .W3C_XML_SCHEMA_INSTANCE_NS_URI,
-		        "schemaLocation");
-		Attr nNsLoc = (Attr) map.getNamedItemNS(XMLConstants
-		        .W3C_XML_SCHEMA_INSTANCE_NS_URI,
-		        "noNamespaceSchemaLocation");
+		Attr sLoc = (Attr) map
+		        .getNamedItemNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation");
+		Attr nNsLoc = (Attr) map
+		        .getNamedItemNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "noNamespaceSchemaLocation");
 		List<Attr> rest = new LinkedList<Attr>();
 		final int len = map.getLength();
 		for (int i = 0; i < len; i++) {
 			Attr a = (Attr) map.item(i);
 			if (!XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(a.getNamespaceURI())
-			        &&
-			        !XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI
-			                .equals(a.getNamespaceURI())) {
+			        && !XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI.equals(a.getNamespaceURI())) {
 				rest.add(a);
 			}
 		}
@@ -627,12 +692,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	 * Find the attribute with the same namespace and local name as a given
 	 * attribute in a list of attributes.
 	 */
-	private static Attr findMatchingAttr(final List<Attr> attrs,
-	        final Attr attrToMatch) {
+	private static Attr findMatchingAttr(final List<Attr> attrs, final Attr attrToMatch) {
 		final boolean hasNs = attrToMatch.getNamespaceURI() != null;
 		final String nsToMatch = attrToMatch.getNamespaceURI();
-		final String nameToMatch = hasNs ? attrToMatch.getLocalName()
-		        : attrToMatch.getName();
+		final String nameToMatch = hasNs ? attrToMatch.getLocalName() : attrToMatch.getName();
 		for (Attr a : attrs) {
 			if (((!hasNs && a.getNamespaceURI() == null)
 			        ||
