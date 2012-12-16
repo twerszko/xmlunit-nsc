@@ -403,34 +403,6 @@ public class DifferenceEngine implements DifferenceEngineContract {
 	 *            NodeList should be compared to the current child element in
 	 *            the control NodeList.
 	 * @throws DifferenceFoundException
-	 * @deprecated Use the version with List arguments instead
-	 */
-	@Deprecated
-	protected void compareNodeList(final NodeList control, final NodeList test,
-	        final int numNodes,
-	        final DifferenceEvaluator evaluator,
-	        final ElementSelector elementSelector)
-	        throws DifferenceFoundException {
-		compareNodeList(nodeList2List(control), nodeList2List(test),
-		        numNodes, evaluator, elementSelector);
-	}
-
-	/**
-	 * Compare the contents of two node list one by one, assuming that order of
-	 * children is NOT important: matching begins at same position in test list
-	 * as control list.
-	 * 
-	 * @param control
-	 * @param test
-	 * @param numNodes
-	 *            convenience parameter because the calling method should know
-	 *            the value already
-	 * @param evaluator
-	 * @param elementSelector
-	 *            used to determine which of the child elements in the test
-	 *            NodeList should be compared to the current child element in
-	 *            the control NodeList.
-	 * @throws DifferenceFoundException
 	 */
 	protected void compareNodeList(final List<Node> controlChildren,
 	        final List<Node> testChildren,

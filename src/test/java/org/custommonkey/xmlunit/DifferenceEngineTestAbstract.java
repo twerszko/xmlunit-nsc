@@ -2,6 +2,8 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.util.List;
+
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
@@ -9,6 +11,7 @@ import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
+import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -62,6 +65,14 @@ public abstract class DifferenceEngineTestAbstract {
 		Document testDoc = documentUtils.buildTestDocument(test);
 		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
 		engine.compare(controlDoc, testDoc, evaluator, DEFAULT_ELEMENT_QUALIFIER);
+	}
+
+	protected List<Comparison> checkDifferences(String control, String test) throws Exception {
+		Document controlDoc = documentUtils.buildControlDocument(control);
+		Document testDoc = documentUtils.buildTestDocument(test);
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.compare(controlDoc, testDoc, evaluator, DEFAULT_ELEMENT_QUALIFIER);
+		return evaluator.getDifferences();
 	}
 
 	protected void listenToAllDifferences(String control, String test) throws Exception {
@@ -660,6 +671,55 @@ public abstract class DifferenceEngineTestAbstract {
 		// then
 		assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[1]/@id");
 		assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[2]/@id");
+	}
+
+	@Test
+	public void should_detect_different_text() throws Exception {
+		// given
+		String control = "<stuff>string</stuff>";
+		String test = "<stuff>  string  </stuff>";
+
+		// when
+		List<Comparison> differences = checkDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/text()[1]");
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/text()[1]");
+	}
+
+	@Test
+	public void should_ignore_different_text_when_whitespace_normalized() throws Exception {
+		// given
+		String control = "<stuff>string</stuff>";
+		String test = "<stuff>  string  </stuff>";
+
+		properties.setNormalizeWhitespace(true);
+		engine = newDifferenceEngine(properties);
+
+		// when
+		List<Comparison> differences = checkDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_ignore_different_text_when_whitespace_ignored() throws Exception {
+		// given
+		String control = "<stuff>string</stuff>";
+		String test = "<stuff>  string  </stuff>";
+
+		properties.setIgnoreWhitespace(true);
+		engine = newDifferenceEngine(properties);
+
+		// when
+		List<Comparison> differences = checkDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
 	}
 
 	protected class StoppingOnFirstNotRecoverableDifferenceEvaluator implements DifferenceEvaluator {

@@ -780,6 +780,84 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
+	public void should_detect_equal_string_values() throws Exception {
+		// given
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		engine.setDifferenceEvaluator(evaluator);
+
+		Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
+		        null, null, "black",
+		        null, null, "black");
+
+		// when
+		ComparisonResult result = engine.compare(comparison);
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(evaluator.getDifferences()).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_string_values() throws Exception {
+		// given
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		engine.setDifferenceEvaluator(evaluator);
+
+		Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
+		        null, null, "black",
+		        null, null, "white");
+
+		// when
+		ComparisonResult result = engine.compare(comparison);
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(evaluator.getDifferences()).hasSize(1);
+		assertThat(evaluator.getDifferences()).contains(comparison);
+	}
+
+	@Test
+	public void should_detect_equal_boolean_values() throws Exception {
+		// given
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		engine.setDifferenceEvaluator(evaluator);
+
+		Comparison comparison = new Comparison(ComparisonType.HAS_CHILD_NODES,
+		        null, null, true,
+		        null, null, true);
+
+		// when
+		ComparisonResult result = engine.compare(comparison);
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(evaluator.getDifferences()).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_boolean_values() throws Exception {
+		// given
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		engine.setDifferenceEvaluator(evaluator);
+
+		Comparison comparison = new Comparison(ComparisonType.HAS_CHILD_NODES,
+		        null, null, false,
+		        null, null, true);
+
+		// when
+		ComparisonResult result = engine.compare(comparison);
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(evaluator.getDifferences()).hasSize(1);
+		assertThat(evaluator.getDifferences()).contains(comparison);
+	}
+
+	@Test
 	public void childNodeListSequence() {
 		Element e1 = doc.createElement("foo");
 		Element e3 = doc.createElement("bar");
@@ -843,22 +921,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
 		Document document = documentBuilder.newDocument();
 
-		final List<Comparison> differences = new ArrayList<Comparison>();
-		DifferenceEvaluator evaluator = new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (outcome == ComparisonResult.DIFFERENT) {
-					differences.add(comparison);
-				}
-				return outcome;
-			}
-		};
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
 		engine.setDifferenceEvaluator(evaluator);
 
 		Element control = document.createElement("foo");
 		Element test = document.createElement("foo");
-		OrderPreservingNamedNodeMap controlMap =
-		        new OrderPreservingNamedNodeMap();
+		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
 		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
 		for (int i = 0; i < 2; i++) {
 			int j = 1 - i;
@@ -873,7 +941,63 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 			testMap.add(attrJ);
 		}
 		engine.compareElementAttributes(control, new XPathContext(), controlMap, test, new XPathContext(), testMap);
-		return differences;
+		return evaluator.getDifferences();
+	}
+
+	@Test
+	public void should_ignore_different_attribute_ns_sequence() throws Exception {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
+		properties.setIgnoreAttributeOrder(true);
+
+		// when
+		List<Comparison> differences = testAttributeSequenceNS(properties);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_differenct_ns_attribute_sequence() throws Exception {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
+		properties.setIgnoreAttributeOrder(false);
+
+		// when
+		List<Comparison> differences = testAttributeSequenceNS(properties);
+
+		// then
+		assertThat(differences).hasSize(2);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+	}
+
+	private List<Comparison> testAttributeSequenceNS(XmlUnitProperties properties) throws Exception {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(properties);
+		DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		Element control = document.createElementNS("ns", "foo");
+		Element test = document.createElementNS("ns", "foo");
+		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
+		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
+		for (int i = 0; i < 2; i++) {
+			int j = 1 - i;
+			Attr attrI = document.createAttributeNS("ns", "attr" + i);
+			attrI.setValue(String.valueOf(i));
+			Attr attrJ = document.createAttributeNS("ns", "attr" + j);
+			attrJ.setValue(String.valueOf(j));
+
+			control.setAttributeNode(attrI);
+			controlMap.add(attrI);
+			test.setAttributeNode(attrJ);
+			testMap.add(attrJ);
+		}
+		engine.compareElementAttributes(control, new XPathContext(), controlMap, test, new XPathContext(), testMap);
+		return evaluator.getDifferences();
 	}
 
 	private class OrderPreservingNamedNodeMap implements NamedNodeMap {

@@ -405,7 +405,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 
 				if (testAttr != null) {
 					// ===
-
+					// TODO extract
 					if (!properties.getIgnoreAttributeOrder()) {
 						if (testAttributes.remainingAttributes.indexOf(testAttr) != i) {
 							Node orderedTestNode = null;

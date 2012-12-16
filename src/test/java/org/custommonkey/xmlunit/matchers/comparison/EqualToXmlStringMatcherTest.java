@@ -29,52 +29,64 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitParamsRunner.class)
 public class EqualToXmlStringMatcherTest extends AbstractComparisonTest {
 
-    @Test
-    @Parameters(method = "provideEqualXmlStringPairs")
-    public void should_compare_equal_xml_strings(String testString, String expectedString) {
-        assertThat(testString, is(equalToXmlString(expectedString)));
-    }
+	@Test
+	@Parameters(method = "provideEqualXmlStringPairs")
+	public void should_compare_equal_xml_strings(String testString, String expectedString) {
+		assertThat(testString, is(equalToXmlString(expectedString)));
+	}
 
-    @Test
-    @Parameters(method = "provideNotEqualXmlStringPairs")
-    public void should_compare_npt_equal_xml_strings(String testString, String expectedString) {
-        assertThat(testString, is(notEqualToXmlString(expectedString)));
-    }
+	@Test(expected = AssertionError.class)
+	@Parameters(method = "provideNotEqualXmlStringPairs")
+	public void should_throw_when_not_equal_xml_strings(String testString, String expectedString) {
+		assertThat(testString, is(equalToXmlString(expectedString)));
+	}
 
-    // Bug 585555
-    @Test
-    public void should_check_if_nused_namespaces_dont_matter() throws Exception {
-        XmlUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
-        String a =
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                        "<outer xmlns:NS2=\"http://namespace2/foo\">\n" +
-                        "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" +
-                        "</outer>\n";
+	@Test
+	@Parameters(method = "provideNotEqualXmlStringPairs")
+	public void should_compare_not_equal_xml_strings(String testString, String expectedString) {
+		assertThat(testString, is(notEqualToXmlString(expectedString)));
+	}
 
-        String b =
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                        "<outer xmlns:NS2=\"http://namespace2\">\n" +
-                        "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" +
-                        "</outer>\n";
+	@Test(expected = AssertionError.class)
+	@Parameters(method = "provideEqualXmlStringPairs")
+	public void should_throw_when_equal_xml_strings(String testString, String expectedString) {
+		assertThat(testString, is(notEqualToXmlString(expectedString)));
+	}
 
-        assertThat(b, is(equalToXmlString(a).using(xmlUnit)));
-    }
+	// Bug 585555
+	@Test
+	public void should_check_if_used_namespaces_dont_matter() throws Exception {
+		XmlUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
+		String a =
+		        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+		                "<outer xmlns:NS2=\"http://namespace2/foo\">\n" +
+		                "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" +
+		                "</outer>\n";
 
-    // Bug 585555
-    @Test
-    public void should_check_if_namespace_matters() throws Exception {
-        XmlUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
+		String b =
+		        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+		                "<outer xmlns:NS2=\"http://namespace2\">\n" +
+		                "    <inner xmlns:NS2=\"http://namespace2/\">5</inner>\n" +
+		                "</outer>\n";
 
-        String a =
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                        "<outer xmlns=\"http://namespace2/\">\n" +
-                        "</outer>";
+		assertThat(b, is(equalToXmlString(a).using(xmlUnit)));
+	}
 
-        String b =
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                        "<outer xmlns=\"http://namespace2\">\n" +
-                        "</outer>\n";
+	// Bug 585555
+	@Test
+	public void should_check_if_namespace_matters() throws Exception {
+		XmlUnit xmlUnit = new XmlUnitBuilder().ignoringWhitespace(true).build();
 
-        assertThat(b, is(notEqualToXmlString(a).using(xmlUnit)));
-    }
+		String a =
+		        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+		                "<outer xmlns=\"http://namespace2/\">\n" +
+		                "</outer>";
+
+		String b =
+		        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+		                "<outer xmlns=\"http://namespace2\">\n" +
+		                "</outer>\n";
+
+		assertThat(b, is(notEqualToXmlString(a).using(xmlUnit)));
+	}
 }

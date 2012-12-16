@@ -38,6 +38,9 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
@@ -60,21 +63,21 @@ public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 
 	@Test
 	public void testIssue1027863() throws Exception {
-		engine = new NewDifferenceEngine(new XmlUnitProperties());
+		// given
 		String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
 		String test = "<stuff><item id=\"2\"/></stuff>";
-		listenToDifferences(control, test);
-		assertEquals("15th difference type",
-		        ComparisonType.HAS_CHILD_NODES,
-		        evaluator.comparingWhat);
-		assertEquals("15th difference control value", "true",
-		        evaluator.expected);
-		assertEquals("15th difference test value", "false",
-		        evaluator.actual);
-		assertEquals("15th control xpath", "/stuff[1]/item[1]",
-		        evaluator.controlXpath);
-		assertEquals("15th test xpath", "/stuff[1]/item[1]",
-		        evaluator.testXpath);
+
+		// when
+		List<Comparison> differences = checkDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(3);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
+		assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
 	}
 
 	@Test

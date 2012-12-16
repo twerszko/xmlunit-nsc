@@ -43,6 +43,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -50,6 +51,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.util.IterableNodeList;
 
 import org.junit.Test;
 import org.w3c.dom.Attr;
@@ -360,10 +362,10 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 
 	private void assertDifferentChildren(Node control, Node test, Comparison expectedDifference, boolean fatal) {
 		try {
-			((DifferenceEngine) engine).compareHasChildNodes(control, test,
-			        new StoppingOnFirstNotRecoverableDifferenceEvaluator(evaluator));
-			((DifferenceEngine) engine).compareNodeChildren(control, test,
-			        new StoppingOnFirstNotRecoverableDifferenceEvaluator(evaluator),
+			((DifferenceEngine) engine).compareHasChildNodes(
+			        control, test, new StoppingOnFirstNotRecoverableDifferenceEvaluator(evaluator));
+			((DifferenceEngine) engine).compareNodeChildren(
+			        control, test, new StoppingOnFirstNotRecoverableDifferenceEvaluator(evaluator),
 			        DEFAULT_ELEMENT_QUALIFIER);
 			if (fatal) {
 				fail("Expected fatal difference");
@@ -404,8 +406,10 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 
 	private void assertDifferentNodeLists(Node control, Node test, Comparison expectedDifference, boolean fatal) {
 		try {
-			((DifferenceEngine) engine).compareNodeList(control.getChildNodes(), test.getChildNodes(),
-			        control.getChildNodes().getLength(), evaluator, DEFAULT_ELEMENT_QUALIFIER);
+			List<Node> controlChildNodes = new IterableNodeList(control.getChildNodes()).asList();
+			List<Node> testChildNodes = new IterableNodeList(test.getChildNodes()).asList();
+			((DifferenceEngine) engine).compareNodeList
+			        (controlChildNodes, testChildNodes, controlChildNodes.size(), evaluator, DEFAULT_ELEMENT_QUALIFIER);
 			if (fatal) {
 				fail("Expected fatal difference");
 			}
@@ -468,6 +472,7 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 		assertDifferentChildren(test, control, createComparison(ComparisonType.CHILD_NODELIST_SEQUENCE), false);
 	}
 
+	// TODO Tests below are also added to DOMDifferenceEngine
 	@Test
 	public void testBasicCompare() throws Exception {
 		try {
@@ -501,57 +506,21 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 
 	@Test
 	public void testIssue1027863() throws Exception {
-		engine = new DifferenceEngine(null);
+		// given
 		String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
 		String test = "<stuff><item id=\"2\"/></stuff>";
-		listenToAllDifferences(control, test);
-		assertEquals("15th difference type",
-		        ComparisonType.HAS_CHILD_NODES,
-		        evaluator.comparingWhat);
-		assertEquals("15th difference control value", "true",
-		        evaluator.expected);
-		assertEquals("15th difference test value", "false",
-		        evaluator.actual);
-		assertEquals("15th control xpath", "/stuff[1]/item[1]",
-		        evaluator.controlXpath);
-		assertEquals("15th test xpath", "/stuff[1]/item[1]",
-		        evaluator.testXpath);
-	}
 
-	@Test
-	public void testAttributeSequence() throws Exception {
-		properties.setIgnoreAttributeOrder(false);
-		engine = newDifferenceEngine(properties);
+		// when
+		List<Comparison> differences = checkDifferences(control, test);
 
-		testAttributeSequence(ComparisonType.ATTR_SEQUENCE);
-
-		properties.setIgnoreAttributeOrder(true);
-		engine = new DifferenceEngine(properties);
-
-		resetEvaluator();
-		testAttributeSequence(null);
-	}
-
-	private void testAttributeSequence(ComparisonType expected) throws Exception {
-		Element control = document.createElement("foo");
-		Element test = document.createElement("foo");
-		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
-		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
-		for (int i = 0; i < 2; i++) {
-			int j = 1 - i;
-			Attr attrI = document.createAttribute("attr" + i);
-			attrI.setValue(String.valueOf(i));
-			Attr attrJ = document.createAttribute("attr" + j);
-			attrJ.setValue(String.valueOf(j));
-
-			control.setAttributeNode(attrI);
-			controlMap.add(attrI);
-			test.setAttributeNode(attrJ);
-			testMap.add(attrJ);
-		}
-		((DifferenceEngine) engine).compareElementAttributes(control, test, controlMap, testMap,
-		        evaluator);
-		assertEquals(expected, evaluator.comparingWhat);
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison difference = differences.get(1);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
+		assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
 	}
 
 	@Test
@@ -628,6 +597,42 @@ public class DifferenceEngineTest extends DifferenceEngineTestAbstract {
 		// NAMESPACE_PREFIX(none), ELEMENT_TAG_NAME(foo),
 		// ELEMENT_NUM_ATTRIBUTE(none), HAS_CHILD_NODES(false)
 		assertEquals(7, count[0]);
+	}
+
+	@Test
+	public void testAttributeSequence() throws Exception {
+		properties.setIgnoreAttributeOrder(false);
+		engine = newDifferenceEngine(properties);
+
+		testAttributeSequence(ComparisonType.ATTR_SEQUENCE);
+
+		properties.setIgnoreAttributeOrder(true);
+		engine = new DifferenceEngine(properties);
+
+		resetEvaluator();
+		testAttributeSequence(null);
+	}
+
+	private void testAttributeSequence(ComparisonType expected) throws Exception {
+		Element control = document.createElement("foo");
+		Element test = document.createElement("foo");
+		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
+		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
+		for (int i = 0; i < 2; i++) {
+			int j = 1 - i;
+			Attr attrI = document.createAttribute("attr" + i);
+			attrI.setValue(String.valueOf(i));
+			Attr attrJ = document.createAttribute("attr" + j);
+			attrJ.setValue(String.valueOf(j));
+
+			control.setAttributeNode(attrI);
+			controlMap.add(attrI);
+			test.setAttributeNode(attrJ);
+			testMap.add(attrJ);
+		}
+		((DifferenceEngine) engine).compareElementAttributes(control, test, controlMap, testMap,
+		        evaluator);
+		assertEquals(expected, evaluator.comparingWhat);
 	}
 
 	private class OrderPreservingNamedNodeMap implements NamedNodeMap {

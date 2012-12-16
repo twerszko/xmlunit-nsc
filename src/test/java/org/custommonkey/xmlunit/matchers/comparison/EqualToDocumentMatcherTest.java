@@ -18,9 +18,6 @@ import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.equalToXmlDocume
 import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.notEqualToXmlDocument;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-
-import java.io.IOException;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
@@ -30,39 +27,58 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 @RunWith(JUnitParamsRunner.class)
 public class EqualToDocumentMatcherTest extends AbstractComparisonTest {
 
-    private DocumentUtils documentUtils;
+	private DocumentUtils documentUtils;
 
-    @Before
-    public void setUp() {
-        documentUtils = new DocumentUtils(new XmlUnitProperties());
-    }
+	@Before
+	public void setUp() {
+		documentUtils = new DocumentUtils(new XmlUnitProperties());
+	}
 
-    @Test
-    @Parameters(method = "provideEqualXmlStringPairs")
-    public void should_compare_equal_xml_strings(String testString, String expectedString) throws SAXException,
-            IOException {
-        // given
-        Document testDocument = documentUtils.buildTestDocument(testString);
-        Document expectedDocument = documentUtils.buildControlDocument(expectedString);
+	@Test
+	@Parameters(method = "provideEqualXmlStringPairs")
+	public void should_compare_equal_xml_strings(String testString, String expectedString) throws Exception {
+		// given
+		Document testDocument = documentUtils.buildTestDocument(testString);
+		Document expectedDocument = documentUtils.buildControlDocument(expectedString);
 
-        // then
-        assertThat(testDocument, is(equalToXmlDocument(expectedDocument)));
-    }
+		// then
+		assertThat(testDocument, is(equalToXmlDocument(expectedDocument)));
+	}
 
-    @Test
-    @Parameters(method = "provideNotEqualXmlStringPairs")
-    public void should_compare_npt_equal_xml_strings(String testString, String expectedString) throws SAXException,
-            IOException {
-        // given
-        Document testDocument = documentUtils.buildTestDocument(testString);
-        Document expectedDocument = documentUtils.buildControlDocument(expectedString);
+	@Test(expected = AssertionError.class)
+	@Parameters(method = "provideNotEqualXmlStringPairs")
+	public void should_throw_when_not_equal_xml_strings(String testString, String expectedString) throws Exception {
+		// given
+		Document testDocument = documentUtils.buildTestDocument(testString);
+		Document expectedDocument = documentUtils.buildControlDocument(expectedString);
 
-        // then
-        assertThat(testDocument, is(notEqualToXmlDocument(expectedDocument)));
-    }
+		// then
+		assertThat(testDocument, is(equalToXmlDocument(expectedDocument)));
+	}
+
+	@Test
+	@Parameters(method = "provideNotEqualXmlStringPairs")
+	public void should_compare_not_equal_xml_strings(String testString, String expectedString) throws Exception {
+		// given
+		Document testDocument = documentUtils.buildTestDocument(testString);
+		Document expectedDocument = documentUtils.buildControlDocument(expectedString);
+
+		// then
+		assertThat(testDocument, is(notEqualToXmlDocument(expectedDocument)));
+	}
+
+	@Test(expected = AssertionError.class)
+	@Parameters(method = "provideEqualXmlStringPairs")
+	public void should_throw_when_equal_xml_strings(String testString, String expectedString) throws Exception {
+		// given
+		Document testDocument = documentUtils.buildTestDocument(testString);
+		Document expectedDocument = documentUtils.buildControlDocument(expectedString);
+
+		// then
+		assertThat(testDocument, is(notEqualToXmlDocument(expectedDocument)));
+	}
 }
