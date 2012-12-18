@@ -1213,14 +1213,14 @@ public class DiffTest {
 		ComparisonListener mockedListener = mock(ComparisonListener.class);
 		doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-		DifferenceEngineContract engine = new DifferenceEngine(properties, mockedListener);
+		DifferenceEngineContract engine = new NewDifferenceEngine(properties, mockedListener);
 
 		// when
 		Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedListener, times(12)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+		verify(mockedListener, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 	}
 
 	@Test
@@ -1229,7 +1229,7 @@ public class DiffTest {
 		ComparisonListener mockedListener = mock(ComparisonListener.class);
 		doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-		DifferenceEngineContract engine = new DifferenceEngine(properties);
+		DifferenceEngineContract engine = new NewDifferenceEngine(properties);
 
 		// when
 		Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
@@ -1237,7 +1237,7 @@ public class DiffTest {
 
 		// then
 		assertThat(diff.identical()).isTrue();
-		verify(mockedListener, times(12)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+		verify(mockedListener, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 	}
 
 	@Test

@@ -21,6 +21,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,7 @@ import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.util.Convert;
+import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -102,6 +105,66 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	@Before
 	public void createDoc() throws Exception {
 		doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+	}
+
+	public final static String[] PROC_A = { "down", "down down" };
+	public final static String[] PROC_B = { "dadada", "down" };
+
+	@Test
+	public void should_detect_different_target_of_processing_instructions() throws Exception {
+		// given
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		String expectedTarget = "down";
+		String expectedData = "down down";
+		String actualTarget = "dadada";
+		String actualData = "down";
+
+		// when
+		ProcessingInstruction control = document.createProcessingInstruction(expectedTarget, expectedData);
+		ProcessingInstruction test = document.createProcessingInstruction(actualTarget, actualData);
+
+		engine.compareProcessingInstructions(control, new XPathContext(), test, new XPathContext());
+		List<Comparison> differences = evaluator.getDifferences();
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison first = differences.get(0);
+		Comparison last = differences.get(1);
+		assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
+		assertThat(last.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+	}
+
+	@Test
+	public void should_detect_different_target_of_processing_data() throws Exception {
+		// given
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		String target = "down";
+		String expectedData = "down down";
+		String actualData = "down";
+
+		// when
+		ProcessingInstruction control = document.createProcessingInstruction(target, expectedData);
+		ProcessingInstruction test = document.createProcessingInstruction(target, actualData);
+
+		engine.compareProcessingInstructions(control, new XPathContext(), test, new XPathContext());
+		List<Comparison> differences = evaluator.getDifferences();
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison first = differences.get(0);
+		assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
 	}
 
 	@Test
@@ -312,6 +375,177 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
+	public void should_detect_different_text_nodes() throws Exception {
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		String expected = "the pack on my back is aching";
+		String actual = "the straps seem to cut me like a knife";
+		Text control = document.createTextNode(expected);
+		Text test = document.createTextNode(actual);
+
+		List<Comparison> differences = testTextNodes(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+	}
+
+	private List<Comparison> testTextNodes(CharacterData control, CharacterData test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		engine.compareCharacterData(control, new XPathContext(), test, new XPathContext());
+
+		return evaluator.getDifferences();
+	}
+
+	@Test
+	public void should_detect_different_attribute_value() throws Exception {
+		// given
+		String expected = "These boots were made for walking";
+		String actual = "The marquis de sade never wore no boots like these";
+
+		DocumentUtils documentUtils = new DocumentUtils();
+		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		Attr control = document.createAttribute("testAttr");
+		control.setValue(expected);
+		Attr test = document.createAttribute("testAttr");
+		test.setValue(actual);
+
+		// when
+		List<Comparison> differences = findAttrDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
+	}
+
+	@Test
+	public void should_detect_attr_value_explicitely_specified() throws Exception {
+		// given
+		DocumentUtils documentUtils = new DocumentUtils();
+
+		String doctypeDeclaration = "<!DOCTYPE manchester [" +
+		        "<!ELEMENT sound EMPTY><!ATTLIST sound sorted (true|false) \"true\">" +
+		        "<!ELEMENT manchester (sound)>]>";
+
+		Document controlDoc =
+		        documentUtils.buildControlDocument(doctypeDeclaration +
+		                "<manchester><sound sorted=\"true\"/></manchester>");
+		Attr control = (Attr) controlDoc.getDocumentElement().getFirstChild()
+		        .getAttributes().getNamedItem("sorted");
+
+		Document testDoc = documentUtils.buildTestDocument(doctypeDeclaration
+		        +
+		        "<manchester><sound/></manchester>");
+		Attr test = (Attr) testDoc.getDocumentElement().getFirstChild()
+		        .getAttributes().getNamedItem("sorted");
+
+		// when
+		List<Comparison> differences = findAttrDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
+	}
+
+	private List<Comparison> findAttrDifferences(Attr control, Attr test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		engine.compareAttributes(control, new XPathContext(), test, new XPathContext());
+		List<Comparison> differences = evaluator.getDifferences();
+		return differences;
+	}
+
+	@Test
+	public void testCompareComment() throws Exception {
+		String expected = "Im no clown I wont back down";
+		String actual = "dont need you to tell me whats going down";
+		Comment control = doc.createComment(expected);
+		Comment test = doc.createComment(actual);
+
+		List<Comparison> differences = testTextNodes(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
+	}
+
+	@Test
+	public void testCompareCDATA() throws Exception {
+		String expected = "I'm standing alone, you're weighing the gold";
+		String actual = "I'm watching you sinking... Fools Gold";
+
+		CDATASection control = doc.createCDATASection(expected);
+		CDATASection test = doc.createCDATASection(actual);
+
+		List<Comparison> differences = testTextNodes(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CDATA_VALUE);
+	}
+
+	@Test
+	public void testCompareDocumentType() throws Exception {
+		DocumentUtils documentUtils = new DocumentUtils();
+
+		File tmpFile = File.createTempFile("Roses", "dtd");
+		tmpFile.deleteOnExit();
+		String tmpDTD = "<!ELEMENT leaf (#PCDATA)><!ELEMENT root (leaf)>";
+		new FileWriter(tmpFile).write(tmpDTD);
+		String rosesDTD = tmpFile.toURI().toURL().toExternalForm();
+
+		File altTmpFile = File.createTempFile("TheCrows", "dtd");
+		altTmpFile.deleteOnExit();
+		new FileWriter(altTmpFile).write(tmpDTD);
+		String theCrowsDTD = altTmpFile.toURI().toURL().toExternalForm();
+
+		Document controlDoc = documentUtils.buildControlDocument(
+		        "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDTD + "'>"
+		                + "<root><leaf/></root>");
+		Document testDoc = documentUtils.buildTestDocument(
+		        "<!DOCTYPE tree PUBLIC 'Stone' '" + rosesDTD + "'>"
+		                + "<tree><leaf/></tree>");
+
+		DocumentType control = controlDoc.getDoctype();
+		DocumentType test = testDoc.getDoctype();
+
+		List<Comparison> differences = findDoctypeDifferences(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_NAME);
+
+		test = documentUtils.buildTestDocument(
+		        "<!DOCTYPE root PUBLIC 'id' '" + rosesDTD + "'>" + "<root><leaf/></root>").getDoctype();
+		differences = findDoctypeDifferences(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+		//
+		test = documentUtils.buildTestDocument(
+		        "<!DOCTYPE root SYSTEM '" + rosesDTD + "'>" + "<root><leaf/></root>").getDoctype();
+		differences = findDoctypeDifferences(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+
+		test = documentUtils.buildTestDocument(
+		        "<!DOCTYPE root SYSTEM '" + theCrowsDTD + "'>" + "<root><leaf/></root>").getDoctype();
+		differences = findDoctypeDifferences(control, test);
+		assertThat(differences).hasSize(2);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+	}
+
+	private List<Comparison> findDoctypeDifferences(DocumentType control, DocumentType test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		engine.compareDocTypes(control, new XPathContext(), test, new XPathContext());
+		List<Comparison> differences = evaluator.getDifferences();
+		return differences;
+	}
+
+	@Test
 	public void should_compare_character_data() {
 		// given
 		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
@@ -330,8 +564,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		diffEngine.setDifferenceEvaluator(new DifferenceEvaluator() {
 			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 				if (comparison.getType() == ComparisonType.NODE_TYPE) {
-					Object controlTarget = comparison.getControlDetails().getTarget();
-					Object testTarget = comparison.getTestDetails().getTarget();
+					Node controlTarget = comparison.getControlDetails().getTarget();
+					Node testTarget = comparison.getTestDetails().getTarget();
 
 					if (outcome == ComparisonResult.EQUAL
 					        || (controlTarget instanceof CharacterData && testTarget instanceof CharacterData)) {
@@ -855,6 +1089,269 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
 		assertThat(evaluator.getDifferences()).hasSize(1);
 		assertThat(evaluator.getDifferences()).contains(comparison);
+	}
+
+	@Test
+	public void should_find_no_child_node_list_differences() throws Exception {
+		// given
+		DocumentUtils documentUtils = new DocumentUtils();
+		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		document = documentUtils.buildControlDocument(
+		        "<down><im standing=\"alone\"/><im><watching/>you all</im>"
+		                + "<im watching=\"you\">sinking</im></down>");
+
+		Node control = document.getDocumentElement().getFirstChild();
+		Node test = control;
+
+		// when
+		List<Comparison> differences = testChildNodesDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_find_no_child_node_list_differences2() throws Exception {
+		// given
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		Element control = document.createElement("root");
+		control.appendChild(document.createElement("leafElemA"));
+		control.appendChild(document.createElement("leafElemB"));
+
+		Element test = document.createElement("root");
+		test.appendChild(document.createElement("leafElemB"));
+		test.appendChild(document.createElement("leafElemA"));
+
+		// when
+		List<Comparison> differences = testChildNodesDifferences(control, test);
+		List<Comparison> differencesReverse = testChildNodesDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+		assertThat(differencesReverse).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_tags_in_child_node_list() throws Exception {
+		// given
+		Document document = new DocumentUtils().buildControlDocument(
+		        "<down>" +
+		                "<im><standing/>alone</im>" +
+		                "<im><watching/>you all</im>" +
+		                "</down>");
+
+		Node control = document.getDocumentElement().getFirstChild();
+		Node test = control.getNextSibling();
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison tagDifference = differences.get(0);
+		Comparison textDifference = differences.get(1);
+		assertThat(tagDifference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
+		assertThat(tagDifference.getControlDetails().getValue()).isEqualTo("standing");
+		assertThat(tagDifference.getTestDetails().getValue()).isEqualTo("watching");
+		assertThat(textDifference.getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+	}
+
+	@Test
+	public void should_detect_different_text_in_child_nodes() throws Exception {
+		// given
+		Document document = new DocumentUtils().buildControlDocument(
+		        "<down>" +
+		                "<im><watching/>you all</im>" +
+		                "<im><watching/>you sinking</im>" +
+		                "</down>");
+
+		Node control = document.getDocumentElement().getFirstChild();
+		Node test = control.getNextSibling();
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison textDifference = differences.get(0);
+		assertThat(textDifference.getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+		assertThat(textDifference.getControlDetails().getValue()).isEqualTo("you all");
+		assertThat(textDifference.getTestDetails().getValue()).isEqualTo("you sinking");
+	}
+
+	private List<Comparison> findDifferences(Node control, Node test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		engine.compareNodes(control, new XPathContext(), test, new XPathContext());
+		List<Comparison> differences = evaluator.getDifferences();
+		return differences;
+	}
+
+	@Test
+	public void should_detect_child_nodes_in_test() throws Exception {
+		// given
+		DocumentUtils documentUtils = new DocumentUtils();
+		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		document = documentUtils.buildControlDocument(
+		        "<down>" +
+		                "<im standing=\"alone\"/>" +
+		                "<im><watching/>you all</im></down>");
+
+		Node control = document.getDocumentElement().getFirstChild();
+		Node test = control.getNextSibling();
+
+		// when
+		List<Comparison> differences = testChildNodesDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo(false);
+		assertThat(difference.getTestDetails().getValue()).isEqualTo(true);
+	}
+
+	@Test
+	public void should_detect_different_child_nodes_list_length() throws Exception {
+		// given
+		DocumentUtils documentUtils = new DocumentUtils();
+		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		document = documentUtils.buildControlDocument(
+		        "<down>" +
+		                "<im><watching/>you all</im>" +
+		                "<im watching=\"you\">sinking</im></down>");
+
+		Node control = document.getDocumentElement().getFirstChild();
+		Node test = control.getNextSibling();
+
+		// when
+		List<Comparison> differences = testChildNodesDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo(2);
+		assertThat(difference.getTestDetails().getValue()).isEqualTo(1);
+	}
+
+	@Test
+	public void should_find_no_child_node_list_differences_when_mixed_content() throws Exception {
+		// given
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		Element control = document.createElement("root");
+		control.appendChild(document.createTextNode("text leaf"));
+		control.appendChild(document.createElement("leafElem"));
+
+		Element test = document.createElement("root");
+		test.appendChild(document.createElement("leafElem"));
+		test.appendChild(document.createTextNode("text leaf"));
+
+		// when
+		List<Comparison> differences = testChildNodesDifferences(control, test);
+		List<Comparison> differencesReverse = testChildNodesDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+		assertThat(differencesReverse).hasSize(0);
+	}
+
+	private List<Comparison> testChildNodesDifferences(Node control, Node test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		List<Node> controlChildNodes = new IterableNodeList(control.getChildNodes()).asList();
+		List<Node> testChildNodes = new IterableNodeList(test.getChildNodes()).asList();
+		engine.compareNodeList(control, new XPathContext(), controlChildNodes, test, new XPathContext(), testChildNodes);
+
+		return evaluator.getDifferences();
+	}
+
+	@Test
+	public void should_not_detect_differences_in_namespace() throws Exception {
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		String namespace = "http://example.org/StoneRoses";
+		String prefix = "music";
+		String elemName = "nowPlaying";
+
+		Element control = document.createElementNS(namespace, prefix + ':' + elemName);
+
+		// when
+		List<Comparison> differences = testNamespaceDetails(control, control);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_namespace_uri() throws Exception {
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		String namespaceA = "http://example.org/StoneRoses";
+		String namespaceB = "http://example.org/Stone/Roses";
+		String prefixA = "music";
+		String elemName = "nowPlaying";
+
+		Element control = document.createElementNS(namespaceA, prefixA + ':' + elemName);
+		Element test = document.createElementNS(namespaceB, prefixA + ':' + elemName);
+
+		// when
+		List<Comparison> differences = testNamespaceDetails(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_URI);
+	}
+
+	@Test
+	public void should_detect_different_namespace_prefix() throws Exception {
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		String namespaceA = "http://example.org/StoneRoses";
+		String prefixA = "music";
+		String prefixB = "cd";
+		String elemName = "nowPlaying";
+
+		Element control = document.createElementNS(namespaceA, prefixA + ':' + elemName);
+		Element test = document.createElementNS(namespaceA, prefixB + ':' + elemName);
+
+		// when
+		List<Comparison> differences = testNamespaceDetails(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_PREFIX);
+	}
+
+	private List<Comparison> testNamespaceDetails(Node control, Node test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		engine.compareNodes(control, new XPathContext(), test, new XPathContext());
+
+		return evaluator.getDifferences();
 	}
 
 	@Test

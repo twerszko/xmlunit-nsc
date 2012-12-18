@@ -51,7 +51,6 @@ import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.DetailedDiff;
-import org.custommonkey.xmlunit.DifferenceEngine;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
 import org.custommonkey.xmlunit.ElementNameSelector;
 import org.custommonkey.xmlunit.NewDifferenceEngine;
@@ -360,15 +359,7 @@ public class Diff implements DifferenceEvaluator {
 			return differenceEngine;
 		}
 
-		// FIXME WTF?
-		if (usesKnownElementSelector() || properties.getCompareUnmatched()) {
-			return new NewDifferenceEngine(properties, matchTracker);
-		}
-		return new DifferenceEngine(properties, matchTracker);
-	}
-
-	private boolean usesKnownElementSelector() {
-		return elementSelector == null || elementSelector instanceof ElementNameSelector;
+		return new NewDifferenceEngine(properties, matchTracker);
 	}
 
 	public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {

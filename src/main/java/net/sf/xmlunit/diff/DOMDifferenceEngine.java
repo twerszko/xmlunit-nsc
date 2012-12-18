@@ -90,6 +90,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	 * package private to support tests.
 	 * </p>
 	 */
+	@VisibleForTesting
 	ComparisonResult compareNodes(Node control, XPathContext controlContext, Node test, XPathContext testContext) {
 		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.NODE_TYPE,
@@ -126,27 +127,11 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		        Linqy.filter(new IterableNodeList(control.getChildNodes()), INTERESTING_NODES);
 		Iterable<Node> testChildren =
 		        Linqy.filter(new IterableNodeList(test.getChildNodes()), INTERESTING_NODES);
+
 		if (control.getNodeType() != Node.ATTRIBUTE_NODE) {
-			if (Linqy.count(controlChildren) > 0 && Linqy.count(testChildren) > 0) {
-				lastResult =
-				        compare(new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
-				                control, getXPath(controlContext),
-				                Linqy.count(controlChildren),
-				                test, getXPath(testContext),
-				                Linqy.count(testChildren)));
-				if (lastResult == ComparisonResult.CRITICAL) {
-					return lastResult;
-				}
-			} else {
-				lastResult =
-				        compare(new Comparison(ComparisonType.HAS_CHILD_NODES,
-				                control, getXPath(controlContext),
-				                Linqy.count(controlChildren) > 0,
-				                test, getXPath(testContext),
-				                Linqy.count(testChildren) > 0));
-				if (lastResult == ComparisonResult.CRITICAL) {
-					return lastResult;
-				}
+			lastResult = compareNodeList(control, controlContext, controlChildren, test, testContext, testChildren);
+			if (lastResult == ComparisonResult.CRITICAL) {
+				return lastResult;
 			}
 		}
 
@@ -167,14 +152,37 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		return lastResult;
 	}
 
+	@VisibleForTesting
+	ComparisonResult compareNodeList(
+	        Node control, XPathContext controlContext, Iterable<Node> controlChildren,
+	        Node test, XPathContext testContext, Iterable<Node> testChildren) {
+
+		ComparisonResult lastResult;
+		if (Linqy.count(controlChildren) > 0 && Linqy.count(testChildren) > 0) {
+			lastResult =
+			        compare(new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
+			                control, getXPath(controlContext),
+			                Linqy.count(controlChildren),
+			                test, getXPath(testContext),
+			                Linqy.count(testChildren)));
+		} else {
+			lastResult =
+			        compare(new Comparison(ComparisonType.HAS_CHILD_NODES,
+			                control, getXPath(controlContext),
+			                Linqy.count(controlChildren) > 0,
+			                test, getXPath(testContext),
+			                Linqy.count(testChildren) > 0));
+		}
+		return lastResult;
+	}
+
 	/**
 	 * Dispatches to the node type specific comparison if one is defined for the
 	 * given combination of nodes.
 	 */
-	private ComparisonResult
-	        nodeTypeSpecificComparison(Node control,
-	                XPathContext controlContext,
-	                Node test, XPathContext testContext) {
+	private ComparisonResult nodeTypeSpecificComparison(
+	        Node control, XPathContext controlContext,
+	        Node test, XPathContext testContext) {
 		switch (control.getNodeType()) {
 			case Node.CDATA_SECTION_NODE:
 			case Node.COMMENT_NODE:
@@ -224,10 +232,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	/**
 	 * Compares textual content.
 	 */
-	private ComparisonResult compareCharacterData(CharacterData control,
-	        XPathContext controlContext,
-	        CharacterData test,
-	        XPathContext testContext) {
+	@VisibleForTesting
+	ComparisonResult compareCharacterData(
+	        CharacterData control, XPathContext controlContext,
+	        CharacterData test, XPathContext testContext) {
 
 		ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
 		if (control.getNodeType() == test.getNodeType()) {
@@ -308,10 +316,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	/**
 	 * Compares properties of the doctype declaration.
 	 */
-	private ComparisonResult compareDocTypes(DocumentType control,
-	        XPathContext controlContext,
-	        DocumentType test,
-	        XPathContext testContext) {
+	@VisibleForTesting
+	ComparisonResult compareDocTypes(
+	        DocumentType control, XPathContext controlContext,
+	        DocumentType test, XPathContext testContext) {
 		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.DOCTYPE_NAME,
 		                control, getXPath(controlContext),
@@ -342,7 +350,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	 * its attributes.
 	 */
 
-	private ComparisonResult compareElements(
+	@VisibleForTesting
+	ComparisonResult compareElements(
 	        Element control, XPathContext controlContext,
 	        Element test, XPathContext testContext) {
 
@@ -515,17 +524,15 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	/**
 	 * Compares properties of a processing instruction.
 	 */
-	private ComparisonResult
-	        compareProcessingInstructions(ProcessingInstruction control,
-	                XPathContext controlContext,
-	                ProcessingInstruction test,
-	                XPathContext testContext) {
+	@VisibleForTesting
+	ComparisonResult compareProcessingInstructions(
+	        ProcessingInstruction control, XPathContext controlContext,
+	        ProcessingInstruction test, XPathContext testContext) {
+
 		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET,
-		                control, getXPath(controlContext),
-		                control.getTarget(),
-		                test, getXPath(testContext),
-		                test.getTarget()));
+		                control, getXPath(controlContext), control.getTarget(),
+		                test, getXPath(testContext), test.getTarget()));
 		if (lastResult == ComparisonResult.CRITICAL) {
 			return lastResult;
 		}
@@ -634,10 +641,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 	/**
 	 * Compares properties of an attribute.
 	 */
-	private ComparisonResult compareAttributes(Attr control,
-	        XPathContext controlContext,
-	        Attr test,
-	        XPathContext testContext) {
+	@VisibleForTesting
+	ComparisonResult compareAttributes(
+	        Attr control, XPathContext controlContext,
+	        Attr test, XPathContext testContext) {
 		ComparisonResult lastResult =
 		        compare(new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
 		                control, getXPath(controlContext),
