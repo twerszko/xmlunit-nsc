@@ -220,39 +220,12 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 	@Nullable
 	public static Comparison filter(Comparison comp) {
 		switch (comp.getType()) {
-			case ATTR_VALUE_EXPLICITLY_SPECIFIED:
-			case HAS_DOCTYPE_DECLARATION:
-			case DOCTYPE_NAME:
-			case DOCTYPE_PUBLIC_ID:
-			case DOCTYPE_SYSTEM_ID:
-			case SCHEMA_LOCATION:
-			case NO_NAMESPACE_SCHEMA_LOCATION:
-			case NODE_TYPE:
-			case NAMESPACE_PREFIX:
-			case NAMESPACE_URI:
-			case TEXT_VALUE:
-			case COMMENT_VALUE:
-			case CDATA_VALUE:
-			case PROCESSING_INSTRUCTION_TARGET:
-			case PROCESSING_INSTRUCTION_DATA:
-			case ELEMENT_TAG_NAME:
-			case ELEMENT_NUM_ATTRIBUTES:
-			case ATTR_VALUE:
-			case CHILD_NODELIST_LENGTH:
-			case HAS_CHILD_NODES:
-			case CHILD_NODELIST_SEQUENCE:
-			case CHILD_LOOKUP:
-			case ATTR_NAME_LOOKUP:
-			case ATTR_SEQUENCE:
-				return comp;
-			default:
+			case XML_ENCODING:
+			case XML_STANDALONE:
+			case XML_VERSION:
 				return null;
-				// case XML_ENCODING:
-				// break;
-				// case XML_STANDALONE:
-				// break;
-				// case XML_VERSION:
-				// break;
+			default:
+				return comp;
 		}
 	}
 
