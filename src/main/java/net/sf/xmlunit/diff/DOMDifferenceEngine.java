@@ -24,6 +24,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
+import net.sf.xmlunit.diff.comparators.AttributeComparator;
 import net.sf.xmlunit.diff.comparators.DocTypeComparator;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
@@ -615,23 +616,12 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
      */
     @VisibleForTesting
     ComparisonResult compareAttributes(
-            Attr control, XPathContext controlContext,
-            Attr test, XPathContext testContext) {
-        ComparisonResult lastResult =
-                compare(new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                        control, getXPath(controlContext),
-                        control.getSpecified(),
-                        test, getXPath(testContext),
-                        test.getSpecified()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
+            Attr controlAttr, XPathContext controlContext,
+            Attr testAttr, XPathContext testContext) {
 
-        return compare(new Comparison(ComparisonType.ATTR_VALUE,
-                control, getXPath(controlContext),
-                control.getValue(),
-                test, getXPath(testContext),
-                test.getValue()));
+        NodeAndXpathCtx<Attr> control = new NodeAndXpathCtx<Attr>(controlAttr, controlContext);
+        NodeAndXpathCtx<Attr> test = new NodeAndXpathCtx<Attr>(testAttr, testContext);
+        return new AttributeComparator(getComparisonPerformer()).compare(control, test);
     }
 
     private static class Attributes {

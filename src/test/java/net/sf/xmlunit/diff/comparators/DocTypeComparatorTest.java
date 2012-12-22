@@ -34,7 +34,7 @@ public class DocTypeComparatorTest {
     public static void initFiles() throws Exception {
         String dtd = "<!ELEMENT leaf (#PCDATA)><!ELEMENT root (leaf)>";
 
-        rosesFile = File.createTempFile("Roses", "dtd");
+        rosesFile = File.createTempFile("Roses", ".dtd");
         rosesFile.deleteOnExit();
         FileWriter rosesWriter = new FileWriter(rosesFile);
         try {
@@ -44,7 +44,7 @@ public class DocTypeComparatorTest {
         }
         rosesDtd = rosesFile.toURI().toURL().toExternalForm();
 
-        crowsFile = File.createTempFile("TheCrows", "dtd");
+        crowsFile = File.createTempFile("TheCrows", ".dtd");
         crowsFile.deleteOnExit();
         FileWriter crowsWriter = new FileWriter(crowsFile);
         try {
@@ -125,7 +125,7 @@ public class DocTypeComparatorTest {
     }
 
     @Test
-    public void should_detect_different_doctype_public_id_3() throws Exception {
+    public void should_detect_different_doctype_public_id_and_system_id() throws Exception {
         // given
         Document controlDoc = documentUtils.buildControlDocument(
                 "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDtd + "'>"
@@ -142,7 +142,10 @@ public class DocTypeComparatorTest {
 
         // then
         assertThat(differences).hasSize(2);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+        Comparison first = differences.get(0);
+        assertThat(first.getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+        Comparison second = differences.get(1);
+        assertThat(second.getType()).isEqualTo(ComparisonType.DOCTYPE_SYSTEM_ID);
     }
 
     private List<Comparison> findDoctypeDifferences(DocumentType controlType, DocumentType testType) {

@@ -403,68 +403,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
     }
 
     @Test
-    public void should_detect_different_attribute_value() throws Exception {
-        // given
-        String expected = "These boots were made for walking";
-        String actual = "The marquis de sade never wore no boots like these";
-
-        DocumentUtils documentUtils = new DocumentUtils();
-        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        Attr control = document.createAttribute("testAttr");
-        control.setValue(expected);
-        Attr test = document.createAttribute("testAttr");
-        test.setValue(actual);
-
-        // when
-        List<Comparison> differences = findAttrDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
-    }
-
-    @Test
-    public void should_detect_attr_value_explicitely_specified() throws Exception {
-        // given
-        DocumentUtils documentUtils = new DocumentUtils();
-
-        String doctypeDeclaration = "<!DOCTYPE manchester [" +
-                "<!ELEMENT sound EMPTY><!ATTLIST sound sorted (true|false) \"true\">" +
-                "<!ELEMENT manchester (sound)>]>";
-
-        Document controlDoc =
-                documentUtils.buildControlDocument(doctypeDeclaration +
-                        "<manchester><sound sorted=\"true\"/></manchester>");
-        Attr control = (Attr) controlDoc.getDocumentElement().getFirstChild()
-                .getAttributes().getNamedItem("sorted");
-
-        Document testDoc = documentUtils.buildTestDocument(doctypeDeclaration
-                +
-                "<manchester><sound/></manchester>");
-        Attr test = (Attr) testDoc.getDocumentElement().getFirstChild()
-                .getAttributes().getNamedItem("sorted");
-
-        // when
-        List<Comparison> differences = findAttrDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
-    }
-
-    private List<Comparison> findAttrDifferences(Attr control, Attr test) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-
-        engine.compareAttributes(control, new XPathContext(), test, new XPathContext());
-        List<Comparison> differences = evaluator.getDifferences();
-        return differences;
-    }
-
-    @Test
     public void testCompareComment() throws Exception {
         String expected = "Im no clown I wont back down";
         String actual = "dont need you to tell me whats going down";
