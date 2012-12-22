@@ -34,21 +34,11 @@ public final class Linqy {
     }
 
     /**
-     * Turns an iterable into its type-safe cousin.
-     */
-    public static <E> Iterable<E> cast(final Iterable i) {
-        return map(i, new Mapper<Object, E>() {
-            public E map(Object o) {
-                return (E) o;
-            }
-        });
-    }
-
-    /**
      * An iterable containing a single element.
      */
     public static <E> Iterable<E> singleton(final E single) {
         return new Iterable<E>() {
+            @Override
             public Iterator<E> iterator() {
                 return new OnceOnlyIterator<E>(single);
             }
@@ -59,9 +49,9 @@ public final class Linqy {
      * Create a new iterable by applying a mapper function to each element of a
      * given sequence.
      */
-    public static <F, T> Iterable<T> map(final Iterable<F> from,
-            final Mapper<? super F, T> mapper) {
+    public static <F, T> Iterable<T> map(final Iterable<F> from, final Mapper<? super F, T> mapper) {
         return new Iterable<T>() {
+            @Override
             public Iterator<T> iterator() {
                 return new MappingIterator<F, T>(from.iterator(), mapper);
             }
@@ -78,9 +68,9 @@ public final class Linqy {
     /**
      * Exclude all elements from an iterable that don't match a given predicate.
      */
-    public static <T> Iterable<T> filter(final Iterable<T> sequence,
-            final Predicate<? super T> filter) {
+    public static <T> Iterable<T> filter(final Iterable<T> sequence, final Predicate<? super T> filter) {
         return new Iterable<T>() {
+            @Override
             public Iterator<T> iterator() {
                 return new FilteringIterator<T>(sequence.iterator(), filter);
             }
@@ -90,9 +80,9 @@ public final class Linqy {
     /**
      * Count the number of elements in a sequence.
      */
-    public static int count(Iterable seq) {
+    public static <T> int count(Iterable<T> seq) {
         int c = 0;
-        Iterator it = seq.iterator();
+        Iterator<T> it = seq.iterator();
         while (it.hasNext()) {
             c++;
             it.next();
@@ -108,10 +98,12 @@ public final class Linqy {
             this.element = element;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public E next() {
             if (iterated) {
                 throw new NoSuchElementException();
@@ -120,6 +112,7 @@ public final class Linqy {
             return element;
         }
 
+        @Override
         public boolean hasNext() {
             return !iterated;
         }
@@ -134,14 +127,17 @@ public final class Linqy {
             this.mapper = mapper;
         }
 
+        @Override
         public void remove() {
             i.remove();
         }
 
+        @Override
         public T next() {
             return mapper.map(i.next());
         }
 
+        @Override
         public boolean hasNext() {
             return i.hasNext();
         }
@@ -157,10 +153,12 @@ public final class Linqy {
             this.filter = filter;
         }
 
+        @Override
         public void remove() {
             i.remove();
         }
 
+        @Override
         public T next() {
             if (lookAhead == null) {
                 throw new NoSuchElementException();
@@ -170,6 +168,7 @@ public final class Linqy {
             return next;
         }
 
+        @Override
         public boolean hasNext() {
             while (lookAhead == null && i.hasNext()) {
                 T next = i.next();

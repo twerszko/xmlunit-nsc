@@ -1,0 +1,160 @@
+package net.sf.xmlunit.diff.comparators;
+
+import static org.fest.assertions.api.Assertions.assertThat;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
+
+import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DOMDifferenceEngine;
+import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
+import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.internal.ComparisonPerformer;
+import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+
+import org.custommonkey.xmlunit.util.DocumentUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+
+public class DocTypeComparatorTest {
+    private final DocumentUtils documentUtils = new DocumentUtils();
+
+    private static File rosesFile;
+    private static String rosesDtd;
+
+    private static String crowsDtd;
+    private static File crowsFile;
+
+    @BeforeClass
+    public static void initFiles() throws Exception {
+        String dtd = "<!ELEMENT leaf (#PCDATA)><!ELEMENT root (leaf)>";
+
+        rosesFile = File.createTempFile("Roses", "dtd");
+        rosesFile.deleteOnExit();
+        FileWriter rosesWriter = new FileWriter(rosesFile);
+        try {
+            rosesWriter.write(dtd);
+        } finally {
+            rosesWriter.close();
+        }
+        rosesDtd = rosesFile.toURI().toURL().toExternalForm();
+
+        crowsFile = File.createTempFile("TheCrows", "dtd");
+        crowsFile.deleteOnExit();
+        FileWriter crowsWriter = new FileWriter(crowsFile);
+        try {
+            crowsWriter.write(dtd);
+        } finally {
+            crowsWriter.close();
+        }
+        crowsDtd = crowsFile.toURI().toURL().toExternalForm();
+    }
+
+    @AfterClass
+    public static void removeFiles() {
+        rosesFile.delete();
+        crowsFile.delete();
+    }
+
+    @Test
+    public void should_detect_different_doctype_name() throws Exception {
+        // given
+        Document controlDoc = documentUtils.buildControlDocument(
+                "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDtd + "'>"
+                        + "<root><leaf/></root>");
+        Document testDoc = documentUtils.buildTestDocument(
+                "<!DOCTYPE tree PUBLIC 'Stone' '" + rosesDtd + "'>"
+                        + "<tree><leaf/></tree>");
+
+        DocumentType control = controlDoc.getDoctype();
+        DocumentType test = testDoc.getDoctype();
+
+        // when
+        List<Comparison> differences = findDoctypeDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_NAME);
+    }
+
+    @Test
+    public void should_detect_different_doctype_public_id_1() throws Exception {
+        // given
+        Document controlDoc = documentUtils.buildControlDocument(
+                "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDtd + "'>"
+                        + "<root><leaf/></root>");
+        Document testDoc = documentUtils.buildTestDocument(
+                "<!DOCTYPE root PUBLIC 'id' '" + rosesDtd + "'>"
+                        + "<root><leaf/></root>");
+
+        DocumentType control = controlDoc.getDoctype();
+        DocumentType test = testDoc.getDoctype();
+
+        // when
+        List<Comparison> differences = findDoctypeDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+    }
+
+    @Test
+    public void should_detect_different_doctype_public_id_2() throws Exception {
+        // given
+        Document controlDoc = documentUtils.buildControlDocument(
+                "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDtd + "'>"
+                        + "<root><leaf/></root>");
+        Document testDoc = documentUtils.buildTestDocument(
+                "<!DOCTYPE root SYSTEM '" + rosesDtd + "'>"
+                        + "<root><leaf/></root>");
+
+        DocumentType control = controlDoc.getDoctype();
+        DocumentType test = testDoc.getDoctype();
+
+        // when
+        List<Comparison> differences = findDoctypeDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+    }
+
+    @Test
+    public void should_detect_different_doctype_public_id_3() throws Exception {
+        // given
+        Document controlDoc = documentUtils.buildControlDocument(
+                "<!DOCTYPE root PUBLIC 'Stone' '" + rosesDtd + "'>"
+                        + "<root><leaf/></root>");
+        Document testDoc = documentUtils.buildTestDocument(
+                "<!DOCTYPE root SYSTEM '" + crowsDtd + "'>"
+                        + "<root><leaf/></root>");
+
+        DocumentType control = controlDoc.getDoctype();
+        DocumentType test = testDoc.getDoctype();
+
+        // when
+        List<Comparison> differences = findDoctypeDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(2);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+    }
+
+    private List<Comparison> findDoctypeDifferences(DocumentType controlType, DocumentType testType) {
+        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engine.setDifferenceEvaluator(evaluator);
+
+        ComparisonPerformer performer = engine.getComparisonPerformer();
+        NodeAndXpathCtx<DocumentType> control = new NodeAndXpathCtx<DocumentType>(controlType, new XPathContext());
+        NodeAndXpathCtx<DocumentType> test = new NodeAndXpathCtx<DocumentType>(testType, new XPathContext());
+
+        new DocTypeComparator(performer).compare(control, test);
+        return evaluator.getDifferences();
+    }
+}

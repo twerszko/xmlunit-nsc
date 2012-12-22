@@ -13,6 +13,8 @@
  */
 package net.sf.xmlunit.diff;
 
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
+
 import org.custommonkey.xmlunit.diff.DifferenceFormater;
 import org.w3c.dom.Node;
 
@@ -21,113 +23,128 @@ import org.w3c.dom.Node;
  */
 public class Comparison {
 
-	private boolean recoverable;
-	private final Detail control, test;
-	private final ComparisonType type;
+    private boolean recoverable;
+    private final Detail control, test;
+    private final ComparisonType type;
 
-	public Comparison(ComparisonType t,
-	        Node controlTarget, String controlXPath, Object controlValue,
-	        Node testTarget, String testXPath, Object testValue) {
-		type = t;
-		control = new Detail(controlTarget, controlXPath, controlValue);
-		test = new Detail(testTarget, testXPath, testValue);
-		recoverable = type.isRecoverable();
-	}
+    public Comparison(ComparisonType type,
+            Node controlTarget, String controlXPath, Object controlValue,
+            Node testTarget, String testXPath, Object testValue) {
+        this.type = type;
+        control = new Detail(controlTarget, controlXPath, controlValue);
+        test = new Detail(testTarget, testXPath, testValue);
+        recoverable = type.isRecoverable();
+    }
 
-	/**
-	 * The details of a target (usually some representation of an XML Node) that
-	 * took part in the comparison.
-	 */
-	public static class Detail {
-		private final Node target;
-		private final String xpath;
-		private final Object value;
+    public Comparison(ComparisonType type,
+            NodeAndXpath<? extends Node> controlTarget, Object controlValue,
+            NodeAndXpath<? extends Node> testTarget, Object testValue) {
+        this.type = type;
+        control = new Detail(controlTarget, controlValue);
+        test = new Detail(testTarget, testValue);
+        recoverable = type.isRecoverable();
+    }
 
-		public Detail(Node node, String xpath, Object value) {
-			this.target = node;
-			this.xpath = xpath;
-			this.value = value;
-		}
+    /**
+     * The details of a target (usually some representation of an XML Node) that
+     * took part in the comparison.
+     */
+    public static class Detail {
+        private final Node target;
+        private final String xpath;
+        private final Object value;
 
-		/**
-		 * The actual target.
-		 */
-		public Node getTarget() {
-			return target;
-		}
+        public Detail(Node node, String xpath, Object value) {
+            this.target = node;
+            this.xpath = xpath;
+            this.value = value;
+        }
 
-		/**
-		 * XPath leading to the target.
-		 */
-		public String getXpath() {
-			return xpath;
-		}
+        public Detail(NodeAndXpath<? extends Node> node, Object value) {
+            this.target = node.getNode();
+            this.xpath = node.getXpath();
+            this.value = value;
+        }
 
-		/**
-		 * The value for comparison found at the current target.
-		 */
-		public Object getValue() {
-			return value;
-		}
-	}
+        /**
+         * The actual target.
+         */
+        public Node getTarget() {
+            return target;
+        }
 
-	/**
-	 * The kind of comparison performed.
-	 */
-	public ComparisonType getType() {
-		return type;
-	}
+        /**
+         * XPath leading to the target.
+         */
+        public String getXpath() {
+            return xpath;
+        }
 
-	/**
-	 * Details of the control target.
-	 */
-	public Detail getControlDetails() {
-		return control;
-	}
+        /**
+         * The value for comparison found at the current target.
+         */
+        public Object getValue() {
+            return value;
+        }
+    }
 
-	/**
-	 * Details of the test target.
-	 */
-	public Detail getTestDetails() {
-		return test;
-	}
+    /**
+     * The kind of comparison performed.
+     */
+    public ComparisonType getType() {
+        return type;
+    }
 
-	public boolean isRecoverable() {
-		return recoverable;
-	}
+    /**
+     * Details of the control target.
+     */
+    public Detail getControlDetails() {
+        return control;
+    }
 
-	public void setRecoverable(boolean recoverable) {
-		this.recoverable = recoverable;
-	}
+    /**
+     * Details of the test target.
+     */
+    public Detail getTestDetails() {
+        return test;
+    }
 
-	/**
-	 * Now that Differences can be constructed from prototypes we need to be
-	 * able to compare them to those in DifferenceConstants
-	 */
-	@Override
-	public boolean equals(Object other) {
-		if (other == null) {
-			return false;
-		} else if (other instanceof Comparison) {
-			Comparison otherDifference = (Comparison) other;
-			return type == otherDifference.getType();
-		} else {
-			return false;
-		}
-	}
+    public boolean isRecoverable() {
+        return recoverable;
+    }
 
-	/**
-	 * hashcode implementation to go with equals.
-	 */
-	@Override
-	public int hashCode() {
-		return type.hashCode();
-	}
+    public void setRecoverable(boolean recoverable) {
+        this.recoverable = recoverable;
+    }
 
-	@Override
-	public String toString() {
-		// TODO: This shouldn be here
-		return new DifferenceFormater(this).toString();
-	}
+    /**
+     * Now that Differences can be constructed from prototypes we need to be
+     * able to compare them to those in DifferenceConstants
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        } else if (other instanceof Comparison) {
+            Comparison otherDifference = (Comparison) other;
+            return type == otherDifference.getType();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * hashcode implementation to go with equals.
+     */
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        // TODO: This shouldn be here
+        return new DifferenceFormater(this).toString();
+    }
 
 }
