@@ -38,13 +38,8 @@ public class ProcessingInstructionComparatorTest {
     @Test
     public void should_detect_different_target_of_processing_instructions() throws Exception {
         // given
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
         DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
         Document document = documentBuilder.newDocument();
-
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-        ComparisonPerformer performer = engine.getComparisonPerformer();
 
         String expectedTarget = "down";
         String expectedData = "down down";
@@ -55,13 +50,7 @@ public class ProcessingInstructionComparatorTest {
         ProcessingInstruction controlInstr = document.createProcessingInstruction(expectedTarget, expectedData);
         ProcessingInstruction testInstr = document.createProcessingInstruction(actualTarget, actualData);
 
-        NodeAndXpathCtx<ProcessingInstruction> control =
-                new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, new XPathContext());
-        NodeAndXpathCtx<ProcessingInstruction> test =
-                new NodeAndXpathCtx<ProcessingInstruction>(testInstr, new XPathContext());
-
-        new ProcessingInstructionComparator(performer).compare(control, test);
-        List<Comparison> differences = evaluator.getDifferences();
+        List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
 
         // then
         assertThat(differences).hasSize(2);
@@ -69,5 +58,45 @@ public class ProcessingInstructionComparatorTest {
         Comparison last = differences.get(1);
         assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
         assertThat(last.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+    }
+
+    @Test
+    public void should_detect_different_target_of_processing_data() throws Exception {
+        // given
+        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+        Document document = documentBuilder.newDocument();
+
+        String target = "down";
+        String expectedData = "down down";
+        String actualData = "down";
+
+        // when
+        ProcessingInstruction controlInstr = document.createProcessingInstruction(target, expectedData);
+        ProcessingInstruction testInstr = document.createProcessingInstruction(target, actualData);
+
+        List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
+
+        // then
+        assertThat(differences).hasSize(1);
+        Comparison first = differences.get(0);
+        assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+    }
+
+    private List<Comparison> findProcessingInstrDifferences(
+            ProcessingInstruction controlInstr, ProcessingInstruction testInstr) {
+
+        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engine.setDifferenceEvaluator(evaluator);
+
+        ComparisonPerformer performer = engine.getComparisonPerformer();
+
+        NodeAndXpathCtx<ProcessingInstruction> control =
+                new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, new XPathContext());
+        NodeAndXpathCtx<ProcessingInstruction> test =
+                new NodeAndXpathCtx<ProcessingInstruction>(testInstr, new XPathContext());
+
+        new ProcessingInstructionComparator(performer).compare(control, test);
+        return evaluator.getDifferences();
     }
 }

@@ -33,7 +33,6 @@ import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -104,33 +103,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
     @Before
     public void createDoc() throws Exception {
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-    }
-
-    @Test
-    public void should_detect_different_target_of_processing_data() throws Exception {
-        // given
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-
-        String target = "down";
-        String expectedData = "down down";
-        String actualData = "down";
-
-        // when
-        ProcessingInstruction control = document.createProcessingInstruction(target, expectedData);
-        ProcessingInstruction test = document.createProcessingInstruction(target, actualData);
-
-        engine.compareProcessingInstructions(control, new XPathContext(), test, new XPathContext());
-        List<Comparison> differences = evaluator.getDifferences();
-
-        // then
-        assertThat(differences).hasSize(1);
-        Comparison first = differences.get(0);
-        assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
     }
 
     @Test
@@ -956,50 +928,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
     }
 
     @Test
-    public void should_find_no_child_node_list_differences() throws Exception {
-        // given
-        DocumentUtils documentUtils = new DocumentUtils();
-        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        document = documentUtils.buildControlDocument(
-                "<down><im standing=\"alone\"/><im><watching/>you all</im>"
-                        + "<im watching=\"you\">sinking</im></down>");
-
-        Node control = document.getDocumentElement().getFirstChild();
-        Node test = control;
-
-        // when
-        List<Comparison> differences = testChildNodesDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(0);
-    }
-
-    @Test
-    public void should_find_no_child_node_list_differences2() throws Exception {
-        // given
-        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        Element control = document.createElement("root");
-        control.appendChild(document.createElement("leafElemA"));
-        control.appendChild(document.createElement("leafElemB"));
-
-        Element test = document.createElement("root");
-        test.appendChild(document.createElement("leafElemB"));
-        test.appendChild(document.createElement("leafElemA"));
-
-        // when
-        List<Comparison> differences = testChildNodesDifferences(control, test);
-        List<Comparison> differencesReverse = testChildNodesDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(0);
-        assertThat(differencesReverse).hasSize(0);
-    }
-
-    @Test
     public void should_detect_different_tags_in_child_node_list() throws Exception {
         // given
         Document document = new DocumentUtils().buildControlDocument(
@@ -1055,94 +983,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         engine.compareNodes(control, new XPathContext(), test, new XPathContext());
         List<Comparison> differences = evaluator.getDifferences();
         return differences;
-    }
-
-    @Test
-    public void should_detect_child_nodes_in_test() throws Exception {
-        // given
-        DocumentUtils documentUtils = new DocumentUtils();
-        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        document = documentUtils.buildControlDocument(
-                "<down>" +
-                        "<im standing=\"alone\"/>" +
-                        "<im><watching/>you all</im></down>");
-
-        Node control = document.getDocumentElement().getFirstChild();
-        Node test = control.getNextSibling();
-
-        // when
-        List<Comparison> differences = testChildNodesDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(1);
-        Comparison difference = differences.get(0);
-        assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
-        assertThat(difference.getControlDetails().getValue()).isEqualTo(false);
-        assertThat(difference.getTestDetails().getValue()).isEqualTo(true);
-    }
-
-    @Test
-    public void should_detect_different_child_nodes_list_length() throws Exception {
-        // given
-        DocumentUtils documentUtils = new DocumentUtils();
-        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        document = documentUtils.buildControlDocument(
-                "<down>" +
-                        "<im><watching/>you all</im>" +
-                        "<im watching=\"you\">sinking</im></down>");
-
-        Node control = document.getDocumentElement().getFirstChild();
-        Node test = control.getNextSibling();
-
-        // when
-        List<Comparison> differences = testChildNodesDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(1);
-        Comparison difference = differences.get(0);
-        assertThat(difference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
-        assertThat(difference.getControlDetails().getValue()).isEqualTo(2);
-        assertThat(difference.getTestDetails().getValue()).isEqualTo(1);
-    }
-
-    @Test
-    public void should_find_no_child_node_list_differences_when_mixed_content() throws Exception {
-        // given
-        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        Element control = document.createElement("root");
-        control.appendChild(document.createTextNode("text leaf"));
-        control.appendChild(document.createElement("leafElem"));
-
-        Element test = document.createElement("root");
-        test.appendChild(document.createElement("leafElem"));
-        test.appendChild(document.createTextNode("text leaf"));
-
-        // when
-        List<Comparison> differences = testChildNodesDifferences(control, test);
-        List<Comparison> differencesReverse = testChildNodesDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(0);
-        assertThat(differencesReverse).hasSize(0);
-    }
-
-    private List<Comparison> testChildNodesDifferences(Node control, Node test) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-
-        List<Node> controlChildNodes = new IterableNodeList(control.getChildNodes()).asList();
-        List<Node> testChildNodes = new IterableNodeList(test.getChildNodes()).asList();
-        engine.compareNodeList(control, new XPathContext(), controlChildNodes, test, new XPathContext(), testChildNodes);
-
-        return evaluator.getDifferences();
     }
 
     @Test
