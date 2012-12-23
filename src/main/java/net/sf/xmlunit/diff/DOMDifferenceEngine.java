@@ -23,8 +23,9 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.diff.comparators.AttributeComparator;
-import net.sf.xmlunit.diff.comparators.DocTypeComparator;
+import net.sf.xmlunit.diff.comparators.CharacterDataComparator;
 import net.sf.xmlunit.diff.comparators.ChildrenNumberComparator;
+import net.sf.xmlunit.diff.comparators.DocTypeComparator;
 import net.sf.xmlunit.diff.comparators.ProcessingInstructionComparator;
 import net.sf.xmlunit.diff.internal.Attributes;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
@@ -221,31 +222,13 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
     /**
      * Compares textual content.
      */
-    @VisibleForTesting
-    ComparisonResult compareCharacterData(
-            CharacterData control, XPathContext controlContext,
-            CharacterData test, XPathContext testContext) {
+    private ComparisonResult compareCharacterData(
+            CharacterData controlText, XPathContext controlContext,
+            CharacterData testText, XPathContext testContext) {
 
-        NodeAndXpath controlNode = new NodeAndXpath(control, getXPath(controlContext));
-        NodeAndXpath testNode = new NodeAndXpath(test, getXPath(testContext));
-
-        ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
-        if (control.getNodeType() == test.getNodeType()) {
-            switch (control.getNodeType()) {
-                case Node.CDATA_SECTION_NODE:
-                    comparisonType = ComparisonType.CDATA_VALUE;
-                    break;
-                case Node.COMMENT_NODE:
-                    comparisonType = ComparisonType.COMMENT_VALUE;
-                case Node.TEXT_NODE:
-                default:
-                    break;
-            }
-        }
-
-        return compare(new Comparison(comparisonType,
-                controlNode, control.getData(),
-                testNode, test.getData()));
+        NodeAndXpathCtx<CharacterData> control = new NodeAndXpathCtx<CharacterData>(controlText, controlContext);
+        NodeAndXpathCtx<CharacterData> test = new NodeAndXpathCtx<CharacterData>(testText, testContext);
+        return new CharacterDataComparator(getComparisonPerformer()).compare(control, test);
     }
 
     /**
@@ -255,8 +238,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             Document control, XPathContext controlContext,
             Document test, XPathContext testContext) {
 
-        NodeAndXpath controlNode = new NodeAndXpath(control, getXPath(controlContext));
-        NodeAndXpath testNode = new NodeAndXpath(test, getXPath(testContext));
+        NodeAndXpath<Document> controlNode = new NodeAndXpath<Document>(control, getXPath(controlContext));
+        NodeAndXpath<Document> testNode = new NodeAndXpath<Document>(test, getXPath(testContext));
 
         DocumentType controlDt = control.getDoctype();
         DocumentType testDt = test.getDoctype();
@@ -317,8 +300,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             Element control, XPathContext controlContext,
             Element test, XPathContext testContext) {
 
-        NodeAndXpath controlNode = new NodeAndXpath(control, getXPath(controlContext));
-        NodeAndXpath testNode = new NodeAndXpath(test, getXPath(testContext));
+        NodeAndXpath<Element> controlNode = new NodeAndXpath<Element>(control, getXPath(controlContext));
+        NodeAndXpath<Element> testNode = new NodeAndXpath<Element>(test, getXPath(testContext));
 
         ComparisonResult lastResult = compare(new Comparison(ComparisonType.ELEMENT_TAG_NAME,
                 controlNode, Nodes.getQName(control).getLocalPart(),
@@ -342,8 +325,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             Element control, XPathContext controlContext, NamedNodeMap controlAttrList,
             Element test, XPathContext testContext, NamedNodeMap testAttrList) {
 
-        NodeAndXpath controlNode = new NodeAndXpath(control, getXPath(controlContext));
-        NodeAndXpath testNode = new NodeAndXpath(test, getXPath(testContext));
+        NodeAndXpath<Element> controlNode = new NodeAndXpath<Element>(control, getXPath(controlContext));
+        NodeAndXpath<Element> testNode = new NodeAndXpath<Element>(test, getXPath(testContext));
 
         Attributes controlAttributes = Attributes.createFrom(controlAttrList);
         Attributes testAttributes = Attributes.createFrom(testAttrList);

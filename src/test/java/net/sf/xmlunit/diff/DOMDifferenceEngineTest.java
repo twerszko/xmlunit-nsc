@@ -316,57 +316,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
     }
 
     @Test
-    public void should_detect_different_text_nodes() throws Exception {
-        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        String expected = "the pack on my back is aching";
-        String actual = "the straps seem to cut me like a knife";
-        Text control = document.createTextNode(expected);
-        Text test = document.createTextNode(actual);
-
-        List<Comparison> differences = testTextNodes(control, test);
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
-    }
-
-    private List<Comparison> testTextNodes(CharacterData control, CharacterData test) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-
-        engine.compareCharacterData(control, new XPathContext(), test, new XPathContext());
-
-        return evaluator.getDifferences();
-    }
-
-    @Test
-    public void testCompareComment() throws Exception {
-        String expected = "Im no clown I wont back down";
-        String actual = "dont need you to tell me whats going down";
-        Comment control = doc.createComment(expected);
-        Comment test = doc.createComment(actual);
-
-        List<Comparison> differences = testTextNodes(control, test);
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
-    }
-
-    @Test
-    public void testCompareCDATA() throws Exception {
-        String expected = "I'm standing alone, you're weighing the gold";
-        String actual = "I'm watching you sinking... Fools Gold";
-
-        CDATASection control = doc.createCDATASection(expected);
-        CDATASection test = doc.createCDATASection(actual);
-
-        List<Comparison> differences = testTextNodes(control, test);
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CDATA_VALUE);
-    }
-
-    @Test
     public void should_compare_character_data() {
         // given
         DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
