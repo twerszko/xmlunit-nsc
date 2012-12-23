@@ -26,6 +26,7 @@ import net.sf.xmlunit.diff.comparators.AttributeComparator;
 import net.sf.xmlunit.diff.comparators.CharacterDataComparator;
 import net.sf.xmlunit.diff.comparators.ChildrenNumberComparator;
 import net.sf.xmlunit.diff.comparators.DocTypeComparator;
+import net.sf.xmlunit.diff.comparators.NamespaceComparator;
 import net.sf.xmlunit.diff.comparators.ProcessingInstructionComparator;
 import net.sf.xmlunit.diff.internal.Attributes;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
@@ -99,26 +100,18 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
      */
     @VisibleForTesting
     ComparisonResult compareNodes(Node control, XPathContext controlContext, Node test, XPathContext testContext) {
-        NodeAndXpath<Node> controlNode = new NodeAndXpath<Node>(control, getXPath(controlContext));
-        NodeAndXpath<Node> testNode = new NodeAndXpath<Node>(test, getXPath(testContext));
+        NodeAndXpathCtx<Node> controlNode = new NodeAndXpathCtx<Node>(control, controlContext);
+        NodeAndXpathCtx<Node> testNode = new NodeAndXpathCtx<Node>(test, testContext);
 
-        ComparisonResult lastResult = compare(new Comparison(ComparisonType.NODE_TYPE,
-                controlNode, control.getNodeType(),
-                testNode, test.getNodeType()));
+        ComparisonResult lastResult = compare(
+                new Comparison(ComparisonType.NODE_TYPE,
+                        controlNode, control.getNodeType(),
+                        testNode, test.getNodeType()));
         if (lastResult == ComparisonResult.CRITICAL) {
             return lastResult;
         }
 
-        lastResult = compare(new Comparison(ComparisonType.NAMESPACE_URI,
-                controlNode, control.getNamespaceURI(),
-                testNode, test.getNamespaceURI()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compare(new Comparison(ComparisonType.NAMESPACE_PREFIX,
-                controlNode, control.getPrefix(),
-                testNode, test.getPrefix()));
+        lastResult = new NamespaceComparator(getComparisonPerformer()).compare(controlNode, testNode);
         if (lastResult == ComparisonResult.CRITICAL) {
             return lastResult;
         }
