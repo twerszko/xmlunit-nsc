@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-public class DocTypeComparatorTest {
+public class DoctypeComparatorTest {
     private final DocumentUtils documentUtils = new DocumentUtils();
 
     private static File rosesFile;
@@ -170,7 +170,7 @@ public class DocTypeComparatorTest {
         NodeAndXpathCtx<DocumentType> control = new NodeAndXpathCtx<DocumentType>(controlType, new XPathContext());
         NodeAndXpathCtx<DocumentType> test = new NodeAndXpathCtx<DocumentType>(testType, new XPathContext());
 
-        new DocTypeComparator(performer).compare(control, test);
+        new DoctypeComparator(performer).compare(control, test);
         return evaluator.getDifferences();
     }
 }

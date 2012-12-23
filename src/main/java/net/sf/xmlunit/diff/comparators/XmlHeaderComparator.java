@@ -19,39 +19,39 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
-import org.w3c.dom.DocumentType;
+import org.w3c.dom.Document;
 
-public class DocTypeComparator extends NodeComparator<DocumentType> {
+public class XmlHeaderComparator extends NodeComparator<Document> {
 
-    public DocTypeComparator(ComparisonPerformer compPerformer) {
+    public XmlHeaderComparator(ComparisonPerformer compPerformer) {
         super(compPerformer);
     }
 
     @Override
-    public ComparisonResult compare(NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
-        DocumentType controlNode = control.getNode();
-        DocumentType testNode = test.getNode();
+    public ComparisonResult compare(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
+        Document controlDoc = control.getNode();
+        Document testDoc = test.getNode();
 
         ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.DOCTYPE_NAME,
-                        control, controlNode.getName(),
-                        test, testNode.getName()));
+                new Comparison(ComparisonType.XML_VERSION,
+                        control, controlDoc.getXmlVersion(),
+                        test, testDoc.getXmlVersion()));
         if (lastResult == ComparisonResult.CRITICAL) {
             return lastResult;
         }
 
         lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.DOCTYPE_PUBLIC_ID,
-                        control, controlNode.getPublicId(),
-                        test, testNode.getPublicId()));
+                new Comparison(ComparisonType.XML_STANDALONE,
+                        control, controlDoc.getXmlStandalone(),
+                        test, testDoc.getXmlStandalone()));
         if (lastResult == ComparisonResult.CRITICAL) {
             return lastResult;
         }
 
         lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.DOCTYPE_SYSTEM_ID,
-                        controlNode, null, controlNode.getSystemId(),
-                        testNode, null, testNode.getSystemId()));
+                new Comparison(ComparisonType.XML_ENCODING,
+                        control, controlDoc.getXmlEncoding(),
+                        test, testDoc.getXmlEncoding()));
 
         return lastResult;
     }

@@ -33,4 +33,12 @@ public class NodeAndXpathCtx<T extends Node> extends NodeAndXpath<T> {
         return ctx == null ? null : ctx.getXPath();
     }
 
+    public static <T extends Node> NodeAndXpathCtx<T> from(T node, XPathContext xpathCtx) {
+        return new NodeAndXpathCtx<T>(node, xpathCtx);
+    }
+
+    public static <T extends Node> NodeAndXpathCtx<T> from(T node) {
+        return new NodeAndXpathCtx<T>(node, new XPathContext());
+    }
+
 }
