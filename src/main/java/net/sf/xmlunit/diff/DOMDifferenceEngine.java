@@ -26,6 +26,7 @@ import javax.xml.transform.Source;
 
 import net.sf.xmlunit.diff.comparators.AttributeComparator;
 import net.sf.xmlunit.diff.comparators.DocTypeComparator;
+import net.sf.xmlunit.diff.comparators.ProcessingInstructionComparator;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 import net.sf.xmlunit.util.Convert;
@@ -500,22 +501,14 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
      */
     @VisibleForTesting
     ComparisonResult compareProcessingInstructions(
-            ProcessingInstruction control, XPathContext controlContext,
-            ProcessingInstruction test, XPathContext testContext) {
+            ProcessingInstruction controlInstr, XPathContext controlContext,
+            ProcessingInstruction testInstr, XPathContext testContext) {
 
-        NodeAndXpath controlNode = new NodeAndXpath(control, getXPath(controlContext));
-        NodeAndXpath testNode = new NodeAndXpath(test, getXPath(testContext));
-
-        ComparisonResult lastResult = compare(new Comparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET,
-                controlNode, control.getTarget(),
-                testNode, test.getTarget()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        return compare(new Comparison(ComparisonType.PROCESSING_INSTRUCTION_DATA,
-                controlNode, control.getData(),
-                testNode, test.getData()));
+        NodeAndXpathCtx<ProcessingInstruction> control =
+                new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, controlContext);
+        NodeAndXpathCtx<ProcessingInstruction> test =
+                new NodeAndXpathCtx<ProcessingInstruction>(testInstr, testContext);
+        return new ProcessingInstructionComparator(getComparisonPerformer()).compare(control, test);
     }
 
     /**

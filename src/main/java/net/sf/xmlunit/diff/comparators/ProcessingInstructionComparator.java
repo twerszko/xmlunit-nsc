@@ -19,30 +19,34 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
-import org.w3c.dom.Attr;
+import org.w3c.dom.ProcessingInstruction;
 
-public class AttributeComparator extends NodeComparator<Attr> {
+public class ProcessingInstructionComparator extends NodeComparator<ProcessingInstruction> {
 
-    public AttributeComparator(ComparisonPerformer compPerformer) {
+    public ProcessingInstructionComparator(ComparisonPerformer compPerformer) {
         super(compPerformer);
     }
 
     @Override
-    public ComparisonResult compare(NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
-        Attr controlAttr = control.getNode();
-        Attr testAttr = test.getNode();
+    public ComparisonResult compare(
+            NodeAndXpathCtx<ProcessingInstruction> control,
+            NodeAndXpathCtx<ProcessingInstruction> test) {
+
+        ProcessingInstruction controlInstr = control.getNode();
+        ProcessingInstruction testInstr = test.getNode();
 
         ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                        control, controlAttr.getSpecified(),
-                        test, testAttr.getSpecified()));
+                new Comparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET,
+                        control, controlInstr.getTarget(),
+                        test, testInstr.getTarget()));
         if (lastResult == ComparisonResult.CRITICAL) {
             return lastResult;
         }
 
-        lastResult = compPerformer.performComparison(new Comparison(ComparisonType.ATTR_VALUE,
-                control, controlAttr.getValue(),
-                test, testAttr.getValue()));
+        lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.PROCESSING_INSTRUCTION_DATA,
+                        control, controlInstr.getData(),
+                        test, testInstr.getData()));
 
         return lastResult;
     }

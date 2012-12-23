@@ -106,39 +106,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
-    public final static String[] PROC_A = { "down", "down down" };
-    public final static String[] PROC_B = { "dadada", "down" };
-
-    @Test
-    public void should_detect_different_target_of_processing_instructions() throws Exception {
-        // given
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
-
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-
-        String expectedTarget = "down";
-        String expectedData = "down down";
-        String actualTarget = "dadada";
-        String actualData = "down";
-
-        // when
-        ProcessingInstruction control = document.createProcessingInstruction(expectedTarget, expectedData);
-        ProcessingInstruction test = document.createProcessingInstruction(actualTarget, actualData);
-
-        engine.compareProcessingInstructions(control, new XPathContext(), test, new XPathContext());
-        List<Comparison> differences = evaluator.getDifferences();
-
-        // then
-        assertThat(differences).hasSize(2);
-        Comparison first = differences.get(0);
-        Comparison last = differences.get(1);
-        assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
-        assertThat(last.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
-    }
-
     @Test
     public void should_detect_different_target_of_processing_data() throws Exception {
         // given
