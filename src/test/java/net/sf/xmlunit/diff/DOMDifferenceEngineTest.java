@@ -114,7 +114,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         // when
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         ComparisonResult comparisonResult = diffEngine.compareNodes(
-                doc.createElement("x"), new XPathContext(), doc.createComment("x"), new XPathContext());
+                NodeAndXpathCtx.<Node> from(doc.createElement("x")),
+                NodeAndXpathCtx.<Node> from(doc.createComment("x")));
 
         // then
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
@@ -131,7 +132,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         // when
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         ComparisonResult comparisonResult = diffEngine.compareNodes(
-                doc.createElement("x"), new XPathContext(), doc.createElement("x"), new XPathContext());
+                NodeAndXpathCtx.<Node> from(doc.createElement("x")),
+                NodeAndXpathCtx.<Node> from(doc.createElement("x")));
 
         // then
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
@@ -148,7 +150,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         // when
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         ComparisonResult comparisonResult = diffEngine.compareNodes(
-                doc.createElementNS("x", "y"), new XPathContext(), doc.createElementNS("z", "y"), new XPathContext());
+                NodeAndXpathCtx.<Node> from(doc.createElementNS("x", "y")),
+                NodeAndXpathCtx.<Node> from(doc.createElementNS("z", "y")));
 
         // then
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
@@ -175,8 +178,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             }
         });
         ComparisonResult comparisonResult = diffEngine.compareNodes(
-                doc.createElementNS("x", "x:y"), new XPathContext(),
-                doc.createElementNS("x", "z:y"), new XPathContext());
+                NodeAndXpathCtx.<Node> from(doc.createElementNS("x", "x:y")),
+                NodeAndXpathCtx.<Node> from(doc.createElementNS("x", "z:y")));
 
         // then
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
@@ -196,16 +199,22 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e1 = doc.createElement("x");
         Element e2 = doc.createElement("x");
 
-        comparisonResult = diffEngine.compareNodes(e1, new XPathContext(), e2, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
         e1.appendChild(doc.createElement("x"));
-        comparisonResult = diffEngine.compareNodes(e1, new XPathContext(), e2, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
         assertThat(ex.invoked, is(equalTo(1)));
 
         e2.appendChild(doc.createElement("x"));
-        comparisonResult = diffEngine.compareNodes(e1, new XPathContext(), e2, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
     }
 
@@ -222,16 +231,22 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e1 = doc.createElement("x");
         Element e2 = doc.createElement("x");
 
-        comparisonResult = diffEngine.compareNodes(e1, new XPathContext(), e2, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
         e1.appendChild(doc.createElement("x"));
         e2.appendChild(doc.createElement("x"));
-        comparisonResult = diffEngine.compareNodes(e1, new XPathContext(), e2, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
         e2.appendChild(doc.createElement("x"));
-        comparisonResult = diffEngine.compareNodes(e1, new XPathContext(), e2, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
         assertThat(ex.invoked, is(equalTo(1)));
     }
@@ -265,10 +280,14 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         });
 
         // then
-        comparisonResult = diffEngine.compareNodes(fooComment, new XPathContext(), fooComment, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooComment),
+                NodeAndXpathCtx.<Node> from(fooComment));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooComment, new XPathContext(), barComment, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooComment),
+                NodeAndXpathCtx.<Node> from(barComment));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
         assertThat(ex.invoked, is(equalTo(1)));
@@ -304,11 +323,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
         // then
         comparisonResult = diffEngine.compareNodes(
-                fooCDATASection, new XPathContext(), fooCDATASection, new XPathContext());
+                NodeAndXpathCtx.<Node> from(fooCDATASection),
+                NodeAndXpathCtx.<Node> from(fooCDATASection));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
         comparisonResult = diffEngine.compareNodes(
-                fooCDATASection, new XPathContext(), barCDATASection, new XPathContext());
+                NodeAndXpathCtx.<Node> from(fooCDATASection),
+                NodeAndXpathCtx.<Node> from(barCDATASection));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
         assertThat(ex.invoked, is(equalTo(1)));
@@ -347,46 +368,74 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         });
 
         // then
-        comparisonResult = diffEngine.compareNodes(fooText, new XPathContext(), fooText, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooText),
+                NodeAndXpathCtx.<Node> from(fooText));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooText, new XPathContext(), barText, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooText),
+                NodeAndXpathCtx.<Node> from(barText));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooComment, new XPathContext(), fooText, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooComment),
+                NodeAndXpathCtx.<Node> from(fooText));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooComment, new XPathContext(), barText, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooComment),
+                NodeAndXpathCtx.<Node> from(barText));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooComment, new XPathContext(), fooCDATASection, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooComment),
+                NodeAndXpathCtx.<Node> from(fooCDATASection));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooComment, new XPathContext(), barCDATASection, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooComment),
+                NodeAndXpathCtx.<Node> from(barCDATASection));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooText, new XPathContext(), fooComment, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooText),
+                NodeAndXpathCtx.<Node> from(fooComment));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooText, new XPathContext(), barComment, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooText),
+                NodeAndXpathCtx.<Node> from(barComment));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooText, new XPathContext(), fooCDATASection, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooText),
+                NodeAndXpathCtx.<Node> from(fooCDATASection));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooText, new XPathContext(), barCDATASection, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooText),
+                NodeAndXpathCtx.<Node> from(barCDATASection));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooCDATASection, new XPathContext(), fooText, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooCDATASection),
+                NodeAndXpathCtx.<Node> from(fooText));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooCDATASection, new XPathContext(), barText, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooCDATASection),
+                NodeAndXpathCtx.<Node> from(barText));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooCDATASection, new XPathContext(), fooComment, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooCDATASection),
+                NodeAndXpathCtx.<Node> from(fooComment));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.EQUAL)));
 
-        comparisonResult = diffEngine.compareNodes(fooCDATASection, new XPathContext(), barComment, new XPathContext());
+        comparisonResult = diffEngine.compareNodes(
+                NodeAndXpathCtx.<Node> from(fooCDATASection),
+                NodeAndXpathCtx.<Node> from(barComment));
         assertThat(comparisonResult, is(equalTo(ComparisonResult.CRITICAL)));
 
         assertThat(ex.invoked, is(equalTo(7)));
@@ -406,9 +455,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ProcessingInstruction bar1 = doc.createProcessingInstruction("bar", "1");
 
         assertEquals(ComparisonResult.EQUAL,
-                diffEngine.compareNodes(foo1, new XPathContext(), foo1, new XPathContext()));
+                diffEngine.compareNodes(
+                        NodeAndXpathCtx.<Node> from(foo1),
+                        NodeAndXpathCtx.<Node> from(foo1)));
         assertEquals(ComparisonResult.CRITICAL,
-                diffEngine.compareNodes(foo1, new XPathContext(), bar1, new XPathContext()));
+                diffEngine.compareNodes(
+                        NodeAndXpathCtx.<Node> from(foo1),
+                        NodeAndXpathCtx.<Node> from(bar1)));
         assertEquals(1, ex.invoked);
 
         diffEngine = new DOMDifferenceEngine(null);
@@ -417,9 +470,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         ProcessingInstruction foo2 = doc.createProcessingInstruction("foo", "2");
         assertEquals(ComparisonResult.EQUAL,
-                diffEngine.compareNodes(foo1, new XPathContext(), foo1, new XPathContext()));
+                diffEngine.compareNodes(
+                        NodeAndXpathCtx.<Node> from(foo1),
+                        NodeAndXpathCtx.<Node> from(foo1)));
         assertEquals(ComparisonResult.CRITICAL,
-                diffEngine.compareNodes(foo1, new XPathContext(), foo2, new XPathContext()));
+                diffEngine.compareNodes(
+                        NodeAndXpathCtx.<Node> from(foo1),
+                        NodeAndXpathCtx.<Node> from(foo2)));
         assertEquals(1, ex.invoked);
     }
 
@@ -444,7 +501,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Document d2 = Convert.toDocument(Input.fromMemory(
                 "<!DOCTYPE Book PUBLIC " + "\"XMLUNIT/TEST/PUB\" " + "\"" + TestResources.BOOK_DTD.getFile() + "\">"
                         + "<Book/>").build());
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(d1, new XPathContext(), d2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(d1),
+                NodeAndXpathCtx.<Node> from(d2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -456,7 +515,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
         d2 = Convert
                 .toDocument(Input.fromMemory("<?xml version=\"1.1\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(d1, new XPathContext(), d2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(d1),
+                NodeAndXpathCtx.<Node> from(d2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -467,7 +528,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d1 = Convert
                 .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"yes\"?>" + "<Book/>").build());
         d2 = Convert.toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"no\"?>" + "<Book/>").build());
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(d1, new XPathContext(), d2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(d1),
+                NodeAndXpathCtx.<Node> from(d2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -489,7 +552,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
         d2 = Convert.toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-16\"?>" + "<Book/>")
                 .build());
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(d1, new XPathContext(), d2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(d1),
+                NodeAndXpathCtx.<Node> from(d2)));
         assertEquals(1, ex.invoked);
     }
 
@@ -546,7 +611,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         DocumentType dt1 = new DocType("name", "pub", "system");
         DocumentType dt2 = new DocType("name2", "pub", "system");
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(dt1, new XPathContext(), dt2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(dt1),
+                NodeAndXpathCtx.<Node> from(dt2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -554,7 +621,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         dt2 = new DocType("name", "pub2", "system");
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(dt1, new XPathContext(), dt2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(dt1),
+                NodeAndXpathCtx.<Node> from(dt2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -572,7 +641,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             }
         });
         dt2 = new DocType("name", "pub", "system2");
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(dt1, new XPathContext(), dt2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(dt1),
+                NodeAndXpathCtx.<Node> from(dt2)));
         assertEquals(1, ex.invoked);
     }
 
@@ -585,8 +656,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e1 = doc.createElement("foo");
         Element e2 = doc.createElement("foo");
         Element e3 = doc.createElement("bar");
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e3, new XPathContext()));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e3)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -594,7 +669,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         e1.setAttribute("attr1", "value1");
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -602,7 +679,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         e2.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -618,7 +697,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         e2.setAttributeNS(null, "attr1", "value1");
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
     }
 
     @Test
@@ -645,8 +726,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         a1.setValue("foo");
         a2.setValue("foo");
         a3.setValue("bar");
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(a1, new XPathContext(), a2, new XPathContext()));
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(a1, new XPathContext(), a3, new XPathContext()));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(a1),
+                NodeAndXpathCtx.<Node> from(a2)));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(a1),
+                NodeAndXpathCtx.<Node> from(a3)));
         assertEquals(1, ex.invoked);
     }
 
@@ -669,7 +754,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             }
         };
         d.setDifferenceEvaluator(ev);
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
 
         // symmetric?
@@ -677,7 +764,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP, null, "/bar[1]");
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(ev);
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e2, new XPathContext(), e1, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e2),
+                NodeAndXpathCtx.<Node> from(e1)));
         assertEquals(1, ex.invoked);
 
         Element c2 = doc.createElement("bar");
@@ -686,8 +775,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP);
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(ev);
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e2, new XPathContext(), e1, new XPathContext()));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e2),
+                NodeAndXpathCtx.<Node> from(e1)));
         assertEquals(0, ex.invoked);
     }
 
@@ -700,8 +793,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         CDATASection fooCDATASection = doc.createCDATASection("foo");
         e2.appendChild(fooCDATASection);
         DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e2, new XPathContext(), e1, new XPathContext()));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e2),
+                NodeAndXpathCtx.<Node> from(e1)));
     }
 
     @Test
@@ -716,7 +813,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         DiffExpecter ex = new DiffExpecter(ComparisonType.ELEMENT_TAG_NAME, "/bar[1]", "/baz[1]");
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -724,7 +823,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP, "/bar[1]", null);
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
     }
 
@@ -749,7 +850,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 return ComparisonResult.EQUAL;
             }
         });
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
 
         e1 = doc.createElement("foo");
@@ -770,7 +873,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 return ComparisonResult.EQUAL;
             }
         });
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
     }
 
@@ -793,7 +898,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         e1.setPrefix("p1");
         Element e2 = doc.createElementNS("urn:xmlunit:test", "foo");
         e2.setPrefix("p2");
-        assertEquals(ComparisonResult.EQUAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.EQUAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(0, ex.invoked);
     }
 
@@ -928,7 +1035,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
         engine.setDifferenceEvaluator(evaluator);
 
-        engine.compareNodes(control, new XPathContext(), test, new XPathContext());
+        engine.compareNodes(
+                NodeAndXpathCtx.<Node> from(control),
+                NodeAndXpathCtx.<Node> from(test));
         List<Comparison> differences = evaluator.getDifferences();
         return differences;
     }
@@ -1001,7 +1110,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
         engine.setDifferenceEvaluator(evaluator);
 
-        engine.compareNodes(control, new XPathContext(), test, new XPathContext());
+        engine.compareNodes(
+                NodeAndXpathCtx.<Node> from(control),
+                NodeAndXpathCtx.<Node> from(test));
 
         return evaluator.getDifferences();
     }
@@ -1035,7 +1146,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setDifferenceEvaluator(ev);
         d.setNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName));
 
-        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(e1, new XPathContext(), e2, new XPathContext()));
+        assertEquals(ComparisonResult.CRITICAL, d.compareNodes(
+                NodeAndXpathCtx.<Node> from(e1),
+                NodeAndXpathCtx.<Node> from(e2)));
         assertEquals(1, ex.invoked);
     }
 
