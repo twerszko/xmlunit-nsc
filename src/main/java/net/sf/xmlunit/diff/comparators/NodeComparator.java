@@ -13,10 +13,13 @@
  */
 package net.sf.xmlunit.diff.comparators;
 
+import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 
 public abstract class NodeComparator<T extends Node> {
@@ -27,4 +30,42 @@ public abstract class NodeComparator<T extends Node> {
     }
 
     public abstract ComparisonResult compare(NodeAndXpathCtx<T> control, NodeAndXpathCtx<T> test);
+
+    protected ComparisonResult compareNamespaces(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
+        Node controlNode = control.getNode();
+        Node testNode = test.getNode();
+
+        ComparisonResult lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.NAMESPACE_URI,
+                        control, controlNode.getNamespaceURI(),
+                        test, testNode.getNamespaceURI()));
+        if (lastResult == ComparisonResult.CRITICAL) {
+            return lastResult;
+        }
+
+        lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.NAMESPACE_PREFIX,
+                        control, controlNode.getPrefix(),
+                        test, testNode.getPrefix()));
+        return lastResult;
+    }
+
+    protected ComparisonResult compareAttributes(NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
+        Attr controlAttr = control.getNode();
+        Attr testAttr = test.getNode();
+
+        ComparisonResult lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+                        control, controlAttr.getSpecified(),
+                        test, testAttr.getSpecified()));
+        if (lastResult == ComparisonResult.CRITICAL) {
+            return lastResult;
+        }
+
+        lastResult = compPerformer.performComparison(new Comparison(ComparisonType.ATTR_VALUE,
+                control, controlAttr.getValue(),
+                test, testAttr.getValue()));
+
+        return lastResult;
+    }
 }

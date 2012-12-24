@@ -19,23 +19,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.diff.comparators.AttributeComparator;
 import net.sf.xmlunit.diff.comparators.CharacterDataComparator;
 import net.sf.xmlunit.diff.comparators.ChildrenNumberComparator;
 import net.sf.xmlunit.diff.comparators.DoctypeComparator;
+import net.sf.xmlunit.diff.comparators.ElementComparator;
 import net.sf.xmlunit.diff.comparators.NamespaceComparator;
 import net.sf.xmlunit.diff.comparators.ProcessingInstructionComparator;
 import net.sf.xmlunit.diff.comparators.XmlHeaderComparator;
-import net.sf.xmlunit.diff.internal.Attributes;
-import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.util.Linqy;
-import net.sf.xmlunit.util.Nodes;
 import net.sf.xmlunit.util.Predicate;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -45,7 +42,6 @@ import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 
@@ -181,9 +177,10 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 break;
             case Node.ELEMENT_NODE:
                 if (test instanceof Element) {
-                    return compareElements(
-                            (Element) control, controlContext,
-                            (Element) test, testContext);
+                    return new ElementComparator(getComparisonPerformer(), properties.getIgnoreAttributeOrder())
+                            .compare(
+                                    NodeAndXpathCtx.from((Element) control, controlContext),
+                                    NodeAndXpathCtx.from((Element) test, testContext));
                 }
                 break;
             case Node.PROCESSING_INSTRUCTION_NODE:
@@ -241,188 +238,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         }
 
         return new XmlHeaderComparator(getComparisonPerformer()).compare(control, test);
-    }
-
-    /**
-     * Compares elements node properties, in particular the element's name and
-     * its attributes.
-     */
-
-    @VisibleForTesting
-    ComparisonResult compareElements(
-            Element control, XPathContext controlContext,
-            Element test, XPathContext testContext) {
-
-        NodeAndXpath<Element> controlNode = new NodeAndXpath<Element>(control, getXPath(controlContext));
-        NodeAndXpath<Element> testNode = new NodeAndXpath<Element>(test, getXPath(testContext));
-
-        ComparisonResult lastResult = compare(new Comparison(ComparisonType.ELEMENT_TAG_NAME,
-                controlNode, Nodes.getQName(control).getLocalPart(),
-                testNode, Nodes.getQName(test).getLocalPart()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compareElementAttributes(
-                NodeAndXpathCtx.from(control, controlContext),
-                NodeAndXpathCtx.from(test, testContext));
-        return lastResult;
-    }
-
-    private ComparisonResult compareElementAttributes(
-            NodeAndXpathCtx<Element> control, NodeAndXpathCtx<Element> test) {
-        NamedNodeMap controlAttrList = control.getNode().getAttributes();
-        NamedNodeMap testAttrList = test.getNode().getAttributes();
-        return compareElementAttributes(control, controlAttrList, test, testAttrList);
-    }
-
-    @VisibleForTesting
-    ComparisonResult compareElementAttributes(
-            NodeAndXpathCtx<Element> control, NamedNodeMap controlAttrList,
-            NodeAndXpathCtx<Element> test, NamedNodeMap testAttrList) {
-
-        boolean ignoreOrder = properties.getIgnoreAttributeOrder();
-
-        Element controlElement = control.getNode();
-        Element testElement = test.getNode();
-
-        XPathContext controlContext = control.getXpathCtx();
-        XPathContext testContext = test.getXpathCtx();
-
-        Attributes controlAttributes = Attributes.from(controlAttrList);
-        Attributes testAttributes = Attributes.from(testAttrList);
-        controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(), QNAME_MAPPER));
-        testContext.addAttributes(Linqy.map(testAttributes.getRegularAttributes(), QNAME_MAPPER));
-
-        ComparisonResult lastResult = compare(new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
-                control, controlAttributes.getRegularAttributes().size(),
-                test, testAttributes.getRegularAttributes().size()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        Set<Attr> foundTestAttributes = new HashSet<Attr>();
-        for (int i = 0; i < controlAttributes.getRegularAttributes().size(); i++) {
-            final Attr controlAttr = controlAttributes.getRegularAttributes().get(i);
-            final Attr testAttr = testAttributes.findMatchingRegularAttr(controlAttr);
-
-            controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
-            try {
-                boolean hasMatchingAttr = testAttr != null;
-                lastResult =
-                        compare(new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                                NodeAndXpathCtx.from(controlElement, controlContext), true,
-                                NodeAndXpathCtx.from(testElement, testContext), hasMatchingAttr));
-                if (lastResult == ComparisonResult.CRITICAL) {
-                    return lastResult;
-                }
-
-                if (testAttr == null) {
-                    continue;
-                }
-
-                // ===
-                // TODO extract
-                if (!ignoreOrder) {
-                    if (testAttributes.getRegularAttributes().indexOf(testAttr) != i) {
-                        Node orderedTestNode = null;
-                        String orderedTestNodeName = "[attribute absent]";
-                        if (testAttributes.getRegularAttributes().size() > i) {
-                            orderedTestNode = testAttributes.getRegularAttributes().get(i);
-                            orderedTestNodeName = getUnNamespacedNodeName(orderedTestNode);
-                        }
-                        if (orderedTestNode != null) {
-                            testContext.navigateToAttribute(Nodes.getQName(orderedTestNode));
-                            try {
-                                compare(new Comparison(ComparisonType.ATTR_SEQUENCE,
-                                        controlAttr, getXPath(controlContext),
-                                        getUnNamespacedNodeName(controlAttr),
-                                        orderedTestNode, getXPath(testContext), orderedTestNodeName));
-
-                                if (lastResult == ComparisonResult.CRITICAL) {
-                                    return lastResult;
-                                }
-                            } finally {
-                                testContext.navigateToParent();
-                            }
-                        }
-                    }
-                }
-
-                // ===
-                try {
-                    testContext.navigateToAttribute(Nodes.getQName(testAttr));
-                    lastResult = compareNodes(
-                            NodeAndXpathCtx.<Node> from(controlAttr, controlContext),
-                            NodeAndXpathCtx.<Node> from(testAttr, testContext));
-                    if (lastResult == ComparisonResult.CRITICAL) {
-                        return lastResult;
-                    }
-
-                    foundTestAttributes.add(testAttr);
-                } finally {
-                    testContext.navigateToParent();
-                }
-            } finally {
-                controlContext.navigateToParent();
-            }
-        }
-
-        for (Attr testAttr : testAttributes.getRegularAttributes()) {
-            testContext.navigateToAttribute(Nodes.getQName(testAttr));
-            try {
-                lastResult =
-                        compare(new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                                NodeAndXpathCtx.from(controlElement, controlContext),
-                                foundTestAttributes.contains(testAttr),
-                                NodeAndXpathCtx.from(testElement, testContext), true));
-                if (lastResult == ComparisonResult.CRITICAL) {
-                    return lastResult;
-                }
-            } finally {
-                testContext.navigateToParent();
-            }
-        }
-
-        lastResult =
-                compare(new Comparison(ComparisonType.SCHEMA_LOCATION,
-                        NodeAndXpathCtx.from(controlElement, controlContext),
-                        controlAttributes.getSchemaLocation() != null
-                                ? controlAttributes.getSchemaLocation().getValue()
-                                : null,
-                        NodeAndXpathCtx.from(testElement, testContext),
-                        testAttributes.getSchemaLocation() != null
-                                ? testAttributes.getSchemaLocation().getValue()
-                                : null));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        return compare(new Comparison(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION,
-                NodeAndXpathCtx.from(controlElement, controlContext),
-                controlAttributes.getNoNamespaceSchemaLocation() != null ?
-                        controlAttributes.getNoNamespaceSchemaLocation().getValue()
-                        : null,
-                NodeAndXpathCtx.from(testElement, testContext),
-                testAttributes.getNoNamespaceSchemaLocation() != null
-                        ? testAttributes.getNoNamespaceSchemaLocation().getValue()
-                        : null));
-    }
-
-    /**
-     * @param aNode
-     * @return true if the node has a namespace
-     */
-    private boolean isNamespaced(Node aNode) {
-        String namespace = aNode.getNamespaceURI();
-        return namespace != null && namespace.length() > 0;
-    }
-
-    private String getUnNamespacedNodeName(Node aNode) {
-        if (isNamespaced(aNode)) {
-            return aNode.getLocalName();
-        }
-        return aNode.getNodeName();
     }
 
     /**
@@ -518,17 +333,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         }
         return lastResult;
     }
-
-    /**
-     * Maps Nodes to their QNames.
-     */
-    private static final Linqy.Mapper<Node, QName> QNAME_MAPPER =
-            new Linqy.Mapper<Node, QName>() {
-                @Override
-                public QName map(Node n) {
-                    return Nodes.getQName(n);
-                }
-            };
 
     /**
      * Maps Nodes to their NodeInfo equivalent.

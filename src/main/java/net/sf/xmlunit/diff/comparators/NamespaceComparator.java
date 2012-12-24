@@ -13,9 +13,7 @@
  */
 package net.sf.xmlunit.diff.comparators;
 
-import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
@@ -29,26 +27,6 @@ public class NamespaceComparator extends NodeComparator<Node> {
 
     @Override
     public ComparisonResult compare(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-        return compareNamespace(control, test);
+        return compareNamespaces(control, test);
     }
-
-    protected ComparisonResult compareNamespace(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-        Node controlNode = control.getNode();
-        Node testNode = test.getNode();
-
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.NAMESPACE_URI,
-                        control, controlNode.getNamespaceURI(),
-                        test, testNode.getNamespaceURI()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.NAMESPACE_PREFIX,
-                        control, controlNode.getPrefix(),
-                        test, testNode.getPrefix()));
-        return lastResult;
-    }
-
 }
