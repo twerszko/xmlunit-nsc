@@ -13,6 +13,8 @@
  */
 package net.sf.xmlunit.diff.comparators;
 
+import java.util.Queue;
+
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
@@ -31,6 +33,18 @@ public abstract class NodeComparator<T extends Node> {
     }
 
     public abstract ComparisonResult compare(NodeAndXpathCtx<T> control, NodeAndXpathCtx<T> test);
+
+    protected ComparisonResult compare(Queue<ComparisonStrategy<?>> strategies) {
+        ComparisonResult result = ComparisonResult.EQUAL;
+        for (ComparisonStrategy<?> strategy : strategies) {
+            result = strategy.performComparison();
+            if (result == ComparisonResult.CRITICAL) {
+                return result;
+            }
+        }
+
+        return result;
+    }
 
     protected ComparisonResult compareNamespaces(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
         Node controlNode = control.getNode();
@@ -63,9 +77,10 @@ public abstract class NodeComparator<T extends Node> {
             return lastResult;
         }
 
-        lastResult = compPerformer.performComparison(new Comparison(ComparisonType.ATTR_VALUE,
-                control, controlAttr.getValue(),
-                test, testAttr.getValue()));
+        lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.ATTR_VALUE,
+                        control, controlAttr.getValue(),
+                        test, testAttr.getValue()));
 
         return lastResult;
     }

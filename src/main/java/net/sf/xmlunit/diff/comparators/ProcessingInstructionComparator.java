@@ -13,6 +13,9 @@
  */
 package net.sf.xmlunit.diff.comparators;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
@@ -32,23 +35,51 @@ public class ProcessingInstructionComparator extends NodeComparator<ProcessingIn
             NodeAndXpathCtx<ProcessingInstruction> control,
             NodeAndXpathCtx<ProcessingInstruction> test) {
 
-        ProcessingInstruction controlInstr = control.getNode();
-        ProcessingInstruction testInstr = test.getNode();
+        Queue<ComparisonStrategy<?>> strategies = new LinkedList<ComparisonStrategy<?>>();
+        strategies.add(new CompareProcInstrTargetStrategy(control, test));
+        strategies.add(new CompareProcInstrDataStrategy(control, test));
+        return compare(strategies);
+    }
 
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET,
-                        control, controlInstr.getTarget(),
-                        test, testInstr.getTarget()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
+    protected class CompareProcInstrTargetStrategy extends ComparisonStrategy<ProcessingInstruction> {
+
+        public CompareProcInstrTargetStrategy(
+                NodeAndXpathCtx<ProcessingInstruction> control,
+                NodeAndXpathCtx<ProcessingInstruction> test) {
+            super(control, test);
         }
 
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.PROCESSING_INSTRUCTION_DATA,
-                        control, controlInstr.getData(),
-                        test, testInstr.getData()));
+        @Override
+        public ComparisonResult performComparison() {
+            ProcessingInstruction controlInstr = getControl().getNode();
+            ProcessingInstruction testInstr = getTest().getNode();
 
-        return lastResult;
+            return compPerformer.performComparison(
+                    new Comparison(ComparisonType.PROCESSING_INSTRUCTION_TARGET,
+                            getControl(), controlInstr.getTarget(),
+                            getTest(), testInstr.getTarget()));
+        }
+    }
+
+    protected class CompareProcInstrDataStrategy extends ComparisonStrategy<ProcessingInstruction> {
+
+        public CompareProcInstrDataStrategy(
+                NodeAndXpathCtx<ProcessingInstruction> control,
+                NodeAndXpathCtx<ProcessingInstruction> test) {
+            super(control, test);
+        }
+
+        @Override
+        public ComparisonResult performComparison() {
+            ProcessingInstruction controlInstr = getControl().getNode();
+            ProcessingInstruction testInstr = getTest().getNode();
+
+            return compPerformer.performComparison(
+                    new Comparison(ComparisonType.PROCESSING_INSTRUCTION_DATA,
+                            getControl(), controlInstr.getData(),
+                            getTest(), testInstr.getData()));
+        }
+
     }
 
 }

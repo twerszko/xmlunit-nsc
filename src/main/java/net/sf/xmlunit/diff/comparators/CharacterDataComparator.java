@@ -49,10 +49,11 @@ public class CharacterDataComparator extends NodeComparator<CharacterData> {
             }
         }
 
-        return compPerformer.performComparison(
+        ComparisonResult result = compPerformer.performComparison(
                 new Comparison(comparisonType,
                         control, controlNode.getData(),
                         test, testNode.getData()));
+        return result;
     }
 
 }

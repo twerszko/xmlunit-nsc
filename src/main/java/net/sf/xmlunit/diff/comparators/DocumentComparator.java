@@ -1,3 +1,16 @@
+/*
+  This file is licensed to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ */
 package net.sf.xmlunit.diff.comparators;
 
 import java.util.LinkedList;
@@ -32,15 +45,7 @@ public class DocumentComparator extends NodeComparator<Document> {
         strategies.add(new CompareXmlStandaloneStrategy(control, test));
         strategies.add(new CompareXmlEncodingStrategy(control, test));
 
-        ComparisonResult result = null;
-        for (ComparisonStrategy<?> strategy : strategies) {
-            result = strategy.performComparison();
-            if (result == ComparisonResult.CRITICAL) {
-                return result;
-            }
-        }
-
-        return result;
+        return compare(strategies);
     }
 
     protected class HasDoctypeStrategy extends ComparisonStrategy<Document> {
