@@ -168,16 +168,16 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             case Node.COMMENT_NODE:
             case Node.TEXT_NODE:
                 if (test instanceof CharacterData) {
-                    return compareCharacterData(
-                            (CharacterData) control, controlContext,
-                            (CharacterData) test, testContext);
+                    return new CharacterDataComparator(getComparisonPerformer()).compare(
+                            NodeAndXpathCtx.from((CharacterData) control, controlContext),
+                            NodeAndXpathCtx.from((CharacterData) test, testContext));
                 }
                 break;
             case Node.DOCUMENT_NODE:
                 if (test instanceof Document) {
                     return compareDocuments(
-                            (Document) control, controlContext,
-                            (Document) test, testContext);
+                            NodeAndXpathCtx.from((Document) control, controlContext),
+                            NodeAndXpathCtx.from((Document) test, testContext));
                 }
                 break;
             case Node.ELEMENT_NODE:
@@ -189,24 +189,23 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 break;
             case Node.PROCESSING_INSTRUCTION_NODE:
                 if (test instanceof ProcessingInstruction) {
-                    return compareProcessingInstructions((ProcessingInstruction) control,
-                            controlContext,
-                            (ProcessingInstruction) test,
-                            testContext);
+                    return new ProcessingInstructionComparator(getComparisonPerformer()).compare(
+                            NodeAndXpathCtx.from((ProcessingInstruction) control, controlContext),
+                            NodeAndXpathCtx.from((ProcessingInstruction) test, testContext));
                 }
                 break;
             case Node.DOCUMENT_TYPE_NODE:
                 if (test instanceof DocumentType) {
-                    return compareDoctypes(
-                            (DocumentType) control, controlContext,
-                            (DocumentType) test, testContext);
+                    return new DoctypeComparator(comparisonPerformer).compare(
+                            NodeAndXpathCtx.from((DocumentType) control, controlContext),
+                            NodeAndXpathCtx.from((DocumentType) test, testContext));
                 }
                 break;
             case Node.ATTRIBUTE_NODE:
                 if (test instanceof Attr) {
-                    return compareAttributes(
-                            (Attr) control, controlContext,
-                            (Attr) test, testContext);
+                    return new AttributeComparator(getComparisonPerformer()).compare(
+                            NodeAndXpathCtx.from((Attr) control, controlContext),
+                            NodeAndXpathCtx.from((Attr) test, testContext));
                 }
                 break;
         }
@@ -214,26 +213,13 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
     }
 
     /**
-     * Compares textual content.
-     */
-    private ComparisonResult compareCharacterData(
-            CharacterData controlText, XPathContext controlContext,
-            CharacterData testText, XPathContext testContext) {
-
-        NodeAndXpathCtx<CharacterData> control = new NodeAndXpathCtx<CharacterData>(controlText, controlContext);
-        NodeAndXpathCtx<CharacterData> test = new NodeAndXpathCtx<CharacterData>(testText, testContext);
-        return new CharacterDataComparator(getComparisonPerformer()).compare(control, test);
-    }
-
-    /**
      * Compares document node, doctype and XML declaration properties
      */
     private ComparisonResult compareDocuments(
-            Document controlDoc, XPathContext controlContext,
-            Document testDoc, XPathContext testContext) {
+            NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
 
-        NodeAndXpathCtx<Document> control = NodeAndXpathCtx.from(controlDoc, controlContext);
-        NodeAndXpathCtx<Document> test = NodeAndXpathCtx.from(testDoc, testContext);
+        Document controlDoc = control.getNode();
+        Document testDoc = test.getNode();
 
         DocumentType controlDt = controlDoc.getDoctype();
         DocumentType testDt = testDoc.getDoctype();
@@ -247,25 +233,14 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         }
 
         if (controlDt != null && testDt != null) {
-            lastResult = compareNodes(controlDt, controlContext, testDt, testContext);
+            lastResult = compareNodes(
+                    controlDt, control.getXpathCtx(), testDt, test.getXpathCtx());
             if (lastResult == ComparisonResult.CRITICAL) {
                 return lastResult;
             }
         }
 
         return new XmlHeaderComparator(getComparisonPerformer()).compare(control, test);
-    }
-
-    /**
-     * Compares properties of the doctype declaration.
-     */
-    private ComparisonResult compareDoctypes(
-            DocumentType controlType, XPathContext controlContext,
-            DocumentType testType, XPathContext testContext) {
-
-        NodeAndXpathCtx<DocumentType> control = NodeAndXpathCtx.from(controlType, controlContext);
-        NodeAndXpathCtx<DocumentType> test = NodeAndXpathCtx.from(testType, testContext);
-        return new DoctypeComparator(comparisonPerformer).compare(control, test);
     }
 
     /**
@@ -292,28 +267,31 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         NamedNodeMap testAttrList = test.getAttributes();
 
         lastResult = compareElementAttributes(
-                control, controlContext, controlAttrList,
-                test, testContext, testAttrList);
+                NodeAndXpathCtx.from(control, controlContext), controlAttrList,
+                NodeAndXpathCtx.from(test, testContext), testAttrList);
         return lastResult;
 
     }
 
     @VisibleForTesting
     ComparisonResult compareElementAttributes(
-            Element control, XPathContext controlContext, NamedNodeMap controlAttrList,
-            Element test, XPathContext testContext, NamedNodeMap testAttrList) {
+            NodeAndXpathCtx<Element> control, NamedNodeMap controlAttrList,
+            NodeAndXpathCtx<Element> test, NamedNodeMap testAttrList) {
 
-        NodeAndXpath<Element> controlNode = new NodeAndXpath<Element>(control, getXPath(controlContext));
-        NodeAndXpath<Element> testNode = new NodeAndXpath<Element>(test, getXPath(testContext));
+        Element controlElement = control.getNode();
+        Element testElement = test.getNode();
 
-        Attributes controlAttributes = Attributes.createFrom(controlAttrList);
-        Attributes testAttributes = Attributes.createFrom(testAttrList);
+        XPathContext controlContext = control.getXpathCtx();
+        XPathContext testContext = test.getXpathCtx();
+
+        Attributes controlAttributes = Attributes.from(controlAttrList);
+        Attributes testAttributes = Attributes.from(testAttrList);
         controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(), QNAME_MAPPER));
         testContext.addAttributes(Linqy.map(testAttributes.getRegularAttributes(), QNAME_MAPPER));
 
         ComparisonResult lastResult = compare(new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
-                controlNode, controlAttributes.getRegularAttributes().size(),
-                testNode, testAttributes.getRegularAttributes().size()));
+                control, controlAttributes.getRegularAttributes().size(),
+                test, testAttributes.getRegularAttributes().size()));
         if (lastResult == ComparisonResult.CRITICAL) {
             return lastResult;
         }
@@ -321,15 +299,15 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         Set<Attr> foundTestAttributes = new HashSet<Attr>();
         for (int i = 0; i < controlAttributes.getRegularAttributes().size(); i++) {
             Attr controlAttr = controlAttributes.getRegularAttributes().get(i);
-            final Attr testAttr = findMatchingAttr(testAttributes.getRegularAttributes(), controlAttr);
+            final Attr testAttr = testAttributes.findMatchingRegularAttr(controlAttr);
 
             controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
             try {
                 lastResult =
                         compare(new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                                control, getXPath(controlContext),
+                                NodeAndXpathCtx.from(controlElement, controlContext),
                                 Boolean.TRUE,
-                                test, getXPath(testContext),
+                                NodeAndXpathCtx.from(testElement, testContext),
                                 Boolean.valueOf(testAttr != null)));
                 if (lastResult == ComparisonResult.CRITICAL) {
                     return lastResult;
@@ -387,9 +365,9 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             try {
                 lastResult =
                         compare(new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                                control, getXPath(controlContext),
+                                NodeAndXpathCtx.from(controlElement, controlContext),
                                 Boolean.valueOf(foundTestAttributes.contains(testAttr)),
-                                test, getXPath(testContext),
+                                NodeAndXpathCtx.from(testElement, testContext),
                                 Boolean.TRUE));
                 if (lastResult == ComparisonResult.CRITICAL) {
                     return lastResult;
@@ -401,11 +379,11 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 
         lastResult =
                 compare(new Comparison(ComparisonType.SCHEMA_LOCATION,
-                        control, getXPath(controlContext),
+                        NodeAndXpathCtx.from(controlElement, controlContext),
                         controlAttributes.getSchemaLocation() != null
                                 ? controlAttributes.getSchemaLocation().getValue()
                                 : null,
-                        test, getXPath(testContext),
+                        NodeAndXpathCtx.from(testElement, testContext),
                         testAttributes.getSchemaLocation() != null
                                 ? testAttributes.getSchemaLocation().getValue()
                                 : null));
@@ -414,11 +392,11 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         }
 
         return compare(new Comparison(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION,
-                control, getXPath(controlContext),
+                NodeAndXpathCtx.from(controlElement, controlContext),
                 controlAttributes.getNoNamespaceSchemaLocation() != null ?
                         controlAttributes.getNoNamespaceSchemaLocation().getValue()
                         : null,
-                test, getXPath(testContext),
+                NodeAndXpathCtx.from(testElement, testContext),
                 testAttributes.getNoNamespaceSchemaLocation() != null
                         ? testAttributes.getNoNamespaceSchemaLocation().getValue()
                         : null));
@@ -442,20 +420,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             return aNode.getLocalName();
         }
         return aNode.getNodeName();
-    }
-
-    /**
-     * Compares properties of a processing instruction.
-     */
-    private ComparisonResult compareProcessingInstructions(
-            ProcessingInstruction controlInstr, XPathContext controlContext,
-            ProcessingInstruction testInstr, XPathContext testContext) {
-
-        NodeAndXpathCtx<ProcessingInstruction> control =
-                new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, controlContext);
-        NodeAndXpathCtx<ProcessingInstruction> test =
-                new NodeAndXpathCtx<ProcessingInstruction>(testInstr, testContext);
-        return new ProcessingInstructionComparator(getComparisonPerformer()).compare(control, test);
     }
 
     /**
@@ -549,40 +513,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             }
         }
         return lastResult;
-    }
-
-    /**
-     * Compares properties of an attribute.
-     */
-    private ComparisonResult compareAttributes(
-            Attr controlAttr, XPathContext controlContext,
-            Attr testAttr, XPathContext testContext) {
-
-        NodeAndXpathCtx<Attr> control = new NodeAndXpathCtx<Attr>(controlAttr, controlContext);
-        NodeAndXpathCtx<Attr> test = new NodeAndXpathCtx<Attr>(testAttr, testContext);
-        return new AttributeComparator(getComparisonPerformer()).compare(control, test);
-    }
-
-    /**
-     * Find the attribute with the same namespace and local name as a given
-     * attribute in a list of attributes.
-     */
-    private static Attr findMatchingAttr(final List<Attr> attrs, final Attr attrToMatch) {
-        final boolean hasNs = attrToMatch.getNamespaceURI() != null;
-        final String nsToMatch = attrToMatch.getNamespaceURI();
-        final String nameToMatch = hasNs ? attrToMatch.getLocalName() : attrToMatch.getName();
-        for (Attr a : attrs) {
-            if (((!hasNs && a.getNamespaceURI() == null)
-                    ||
-                    (hasNs && nsToMatch.equals(a.getNamespaceURI())))
-                    &&
-                    ((hasNs && nameToMatch.equals(a.getLocalName()))
-                    ||
-                    (!hasNs && nameToMatch.equals(a.getName())))) {
-                return a;
-            }
-        }
-        return null;
     }
 
     /**

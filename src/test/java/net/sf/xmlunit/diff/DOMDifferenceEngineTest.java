@@ -22,16 +22,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Input;
+import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -1091,7 +1090,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             test.setAttributeNode(attrJ);
             testMap.add(attrJ);
         }
-        engine.compareElementAttributes(control, new XPathContext(), controlMap, test, new XPathContext(), testMap);
+        engine.compareElementAttributes(
+                NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
+                NodeAndXpathCtx.from(test, new XPathContext()), testMap);
         return evaluator.getDifferences();
     }
 
@@ -1147,74 +1148,10 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             test.setAttributeNode(attrJ);
             testMap.add(attrJ);
         }
-        engine.compareElementAttributes(control, new XPathContext(), controlMap, test, new XPathContext(), testMap);
+        engine.compareElementAttributes(
+                NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
+                NodeAndXpathCtx.from(test, new XPathContext()), testMap);
         return evaluator.getDifferences();
-    }
-
-    private class OrderPreservingNamedNodeMap implements NamedNodeMap {
-        private final ArrayList<Attr> nodes = new ArrayList<Attr>();
-
-        void add(Attr attr) {
-            nodes.add(attr);
-        }
-
-        @Override
-        public int getLength() {
-            return nodes.size();
-        }
-
-        @Override
-        public Node item(int index) {
-            return nodes.get(index);
-        }
-
-        @Override
-        @Nullable
-        public Node getNamedItem(String name) {
-            for (Attr attr : nodes) {
-                if (attr.getName().equals(name)) {
-                    return attr;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public Node getNamedItemNS(String ns, String localName) {
-            for (Attr attr : nodes) {
-                String attrLocalName = attr.getLocalName();
-                String attrNamespaceURI = attr.getNamespaceURI();
-                if (localName.equals(attrLocalName) && ns.equals(attrNamespaceURI)) {
-                    return attr;
-                }
-            }
-            return null;
-        }
-
-        // not implemented, not needed in our case
-        @Override
-        public Node removeNamedItem(String n) {
-            return fail();
-        }
-
-        @Override
-        public Node removeNamedItemNS(String n1, String n2) {
-            return fail();
-        }
-
-        @Override
-        public Node setNamedItem(Node n) {
-            return fail();
-        }
-
-        @Override
-        public Node setNamedItemNS(Node n) {
-            return fail();
-        }
-
-        private Node fail() {
-            throw new RuntimeException("not implemented");
-        }
     }
 
 }
