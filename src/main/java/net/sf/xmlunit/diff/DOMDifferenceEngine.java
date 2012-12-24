@@ -25,10 +25,10 @@ import net.sf.xmlunit.diff.comparators.AttributeComparator;
 import net.sf.xmlunit.diff.comparators.CharacterDataComparator;
 import net.sf.xmlunit.diff.comparators.ChildrenNumberComparator;
 import net.sf.xmlunit.diff.comparators.DoctypeComparator;
+import net.sf.xmlunit.diff.comparators.DocumentComparator;
 import net.sf.xmlunit.diff.comparators.ElementComparator;
 import net.sf.xmlunit.diff.comparators.NamespaceComparator;
 import net.sf.xmlunit.diff.comparators.ProcessingInstructionComparator;
-import net.sf.xmlunit.diff.comparators.XmlHeaderComparator;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.IterableNodeList;
@@ -170,7 +170,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 break;
             case Node.DOCUMENT_NODE:
                 if (test instanceof Document) {
-                    return compareDocuments(
+                    return new DocumentComparator(getComparisonPerformer()).compare(
                             NodeAndXpathCtx.from((Document) control, controlContext),
                             NodeAndXpathCtx.from((Document) test, testContext));
                 }
@@ -206,38 +206,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 break;
         }
         return ComparisonResult.EQUAL;
-    }
-
-    /**
-     * Compares document node, doctype and XML declaration properties
-     */
-    private ComparisonResult compareDocuments(
-            NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
-
-        Document controlDoc = control.getNode();
-        Document testDoc = test.getNode();
-
-        DocumentType controlDt = controlDoc.getDoctype();
-        DocumentType testDt = testDoc.getDoctype();
-
-        ComparisonResult lastResult =
-                compare(new Comparison(ComparisonType.HAS_DOCTYPE_DECLARATION,
-                        control, Boolean.valueOf(controlDt != null),
-                        test, Boolean.valueOf(testDt != null)));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        if (controlDt != null && testDt != null) {
-            lastResult = compareNodes(
-                    NodeAndXpathCtx.<Node> from(controlDt, control.getXpathCtx()),
-                    NodeAndXpathCtx.<Node> from(testDt, test.getXpathCtx()));
-            if (lastResult == ComparisonResult.CRITICAL) {
-                return lastResult;
-            }
-        }
-
-        return new XmlHeaderComparator(getComparisonPerformer()).compare(control, test);
     }
 
     /**

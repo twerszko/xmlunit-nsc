@@ -29,7 +29,7 @@ import net.sf.xmlunit.util.Convert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-public class XmlHeaderComparatorTest {
+public class DocumentComparatorTest {
     @Test
     public void should_detect_different_xml_version() throws Exception {
         // given
@@ -93,7 +93,7 @@ public class XmlHeaderComparatorTest {
         engine.setDifferenceEvaluator(evaluator);
         ComparisonPerformer performer = engine.getComparisonPerformer();
 
-        new XmlHeaderComparator(performer).compare(
+        new DocumentComparator(performer).compare(
                 NodeAndXpathCtx.from(control), NodeAndXpathCtx.from(test));
 
         return evaluator.getDifferences();

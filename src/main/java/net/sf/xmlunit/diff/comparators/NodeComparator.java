@@ -20,6 +20,7 @@ import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.w3c.dom.Attr;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 
 public abstract class NodeComparator<T extends Node> {
@@ -67,5 +68,54 @@ public abstract class NodeComparator<T extends Node> {
                 test, testAttr.getValue()));
 
         return lastResult;
+    }
+
+    protected ComparisonResult compareDoctypes(
+            NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
+        DocumentType controlNode = control.getNode();
+        DocumentType testNode = test.getNode();
+
+        ComparisonResult lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.DOCTYPE_NAME,
+                        control, controlNode.getName(),
+                        test, testNode.getName()));
+        if (lastResult == ComparisonResult.CRITICAL) {
+            return lastResult;
+        }
+
+        lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.DOCTYPE_PUBLIC_ID,
+                        control, controlNode.getPublicId(),
+                        test, testNode.getPublicId()));
+        if (lastResult == ComparisonResult.CRITICAL) {
+            return lastResult;
+        }
+
+        lastResult = compPerformer.performComparison(
+                new Comparison(ComparisonType.DOCTYPE_SYSTEM_ID,
+                        controlNode, null, controlNode.getSystemId(),
+                        testNode, null, testNode.getSystemId()));
+
+        return lastResult;
+    }
+
+    protected abstract class ComparisonStrategy<U extends Node> {
+        private final NodeAndXpathCtx<U> control;
+        private final NodeAndXpathCtx<U> test;
+
+        public ComparisonStrategy(NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
+            this.control = control;
+            this.test = test;
+        }
+
+        public NodeAndXpathCtx<U> getControl() {
+            return control;
+        }
+
+        public NodeAndXpathCtx<U> getTest() {
+            return test;
+        }
+
+        public abstract ComparisonResult performComparison();
     }
 }
