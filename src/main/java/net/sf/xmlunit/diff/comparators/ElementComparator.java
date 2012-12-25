@@ -14,8 +14,11 @@
 package net.sf.xmlunit.diff.comparators;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 
 import net.sf.xmlunit.diff.Comparison;
@@ -77,16 +80,8 @@ public class ElementComparator extends NodeComparator<Element> {
             NodeAndXpathCtx<Element> control, NamedNodeMap controlAttrList,
             NodeAndXpathCtx<Element> test, NamedNodeMap testAttrList) {
 
-        Element controlElement = control.getNode();
-        Element testElement = test.getNode();
-
-        XPathContext controlContext = control.getXpathCtx();
-        XPathContext testContext = test.getXpathCtx();
-
         Attributes controlAttributes = Attributes.from(controlAttrList);
         Attributes testAttributes = Attributes.from(testAttrList);
-        controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(), QNAME_MAPPER));
-        testContext.addAttributes(Linqy.map(testAttributes.getRegularAttributes(), QNAME_MAPPER));
 
         ComparisonResult lastResult = compPerformer.performComparison(
                 new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
@@ -96,9 +91,32 @@ public class ElementComparator extends NodeComparator<Element> {
             return lastResult;
         }
 
+        lastResult = compareAttributeList(control, controlAttributes, test, testAttributes);
+        if (lastResult == ComparisonResult.CRITICAL) {
+            return lastResult;
+        }
+
+        lastResult = new CompareSchemasLocationOperation(
+                control, controlAttributes, test, testAttributes)
+                .executeComparison();
+        return lastResult;
+    }
+
+    private ComparisonResult compareAttributeList(
+            NodeAndXpathCtx<Element> control, Attributes controlAttributes,
+            NodeAndXpathCtx<Element> test, Attributes testAttributes) {
+
+        Element controlElement = control.getNode();
+        Element testElement = test.getNode();
+        XPathContext controlContext = control.getXpathCtx();
+        XPathContext testContext = test.getXpathCtx();
+
+        controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(), QNAME_MAPPER));
+        testContext.addAttributes(Linqy.map(testAttributes.getRegularAttributes(), QNAME_MAPPER));
+
+        ComparisonResult lastResult = ComparisonResult.EQUAL;
         Set<Attr> foundTestAttributes = new HashSet<Attr>();
-        for (int i = 0; i < controlAttributes.getRegularAttributes().size(); i++) {
-            final Attr controlAttr = controlAttributes.getRegularAttributes().get(i);
+        for (Attr controlAttr : controlAttributes.getRegularAttributes()) {
             final Attr testAttr = testAttributes.findMatchingRegularAttr(controlAttr);
 
             controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
@@ -113,60 +131,36 @@ public class ElementComparator extends NodeComparator<Element> {
                     return lastResult;
                 }
 
-                if (testAttr == null) {
-                    continue;
-                }
+                if (testAttr != null) {
 
-                // ===
-                // TODO extract
-                if (!ignoreAttributeOrder) {
-                    if (testAttributes.getRegularAttributes().indexOf(testAttr) != i) {
-                        Node orderedTestNode = null;
-                        String orderedTestNodeName = "[attribute absent]";
-                        if (testAttributes.getRegularAttributes().size() > i) {
-                            orderedTestNode = testAttributes.getRegularAttributes().get(i);
-                            orderedTestNodeName = getUnNamespacedNodeName(orderedTestNode);
-                        }
-                        if (orderedTestNode != null) {
-                            testContext.navigateToAttribute(Nodes.getQName(orderedTestNode));
-                            try {
-                                compPerformer.performComparison(
-                                        new Comparison(ComparisonType.ATTR_SEQUENCE,
-                                                NodeAndXpathCtx.from(controlAttr, controlContext),
-                                                getUnNamespacedNodeName(controlAttr),
-                                                NodeAndXpathCtx.from(orderedTestNode, testContext),
-                                                orderedTestNodeName));
-                                if (lastResult == ComparisonResult.CRITICAL) {
-                                    return lastResult;
-                                }
-                            } finally {
-                                testContext.navigateToParent();
-                            }
+                    if (!ignoreAttributeOrder) {
+                        lastResult = new CompareAttrSequenceNumberOperation(
+                                NodeAndXpathCtx.from(controlAttr, controlContext), controlAttributes,
+                                NodeAndXpathCtx.from(testAttr, testContext), testAttributes).executeComparison();
+                        if (lastResult == ComparisonResult.CRITICAL) {
+                            return lastResult;
                         }
                     }
-                }
 
-                // ===
-                try {
-                    testContext.navigateToAttribute(Nodes.getQName(testAttr));
+                    try {
+                        testContext.navigateToAttribute(Nodes.getQName(testAttr));
 
-                    lastResult = compareNamespaces(
-                            NodeAndXpathCtx.<Node> from(controlAttr, controlContext),
-                            NodeAndXpathCtx.<Node> from(testAttr, testContext));
-                    if (lastResult == ComparisonResult.CRITICAL) {
-                        return lastResult;
+                        Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+                        operations.add(new CompareNamespaceOperation(
+                                NodeAndXpathCtx.<Node> from(controlAttr, controlContext),
+                                NodeAndXpathCtx.<Node> from(testAttr, testContext)));
+                        operations.add(new CompareAttributeOperation(
+                                NodeAndXpathCtx.from(controlAttr, controlContext),
+                                NodeAndXpathCtx.from(testAttr, testContext)));
+                        lastResult = execute(operations);
+                        if (lastResult == ComparisonResult.CRITICAL) {
+                            return lastResult;
+                        }
+
+                        foundTestAttributes.add(testAttr);
+                    } finally {
+                        testContext.navigateToParent();
                     }
-
-                    lastResult = compareAttributes(
-                            NodeAndXpathCtx.from(controlAttr, controlContext),
-                            NodeAndXpathCtx.from(testAttr, testContext));
-                    if (lastResult == ComparisonResult.CRITICAL) {
-                        return lastResult;
-                    }
-
-                    foundTestAttributes.add(testAttr);
-                } finally {
-                    testContext.navigateToParent();
                 }
             } finally {
                 controlContext.navigateToParent();
@@ -189,46 +183,131 @@ public class ElementComparator extends NodeComparator<Element> {
             }
         }
 
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.SCHEMA_LOCATION,
-                        NodeAndXpathCtx.from(controlElement, controlContext),
-                        controlAttributes.getSchemaLocation() != null
-                                ? controlAttributes.getSchemaLocation().getValue()
-                                : null,
-                        NodeAndXpathCtx.from(testElement, testContext),
-                        testAttributes.getSchemaLocation() != null
-                                ? testAttributes.getSchemaLocation().getValue()
-                                : null));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        return compPerformer.performComparison(
-                new Comparison(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION,
-                        NodeAndXpathCtx.from(controlElement, controlContext),
-                        controlAttributes.getNoNamespaceSchemaLocation() != null ?
-                                controlAttributes.getNoNamespaceSchemaLocation().getValue()
-                                : null,
-                        NodeAndXpathCtx.from(testElement, testContext),
-                        testAttributes.getNoNamespaceSchemaLocation() != null
-                                ? testAttributes.getNoNamespaceSchemaLocation().getValue()
-                                : null));
+        return lastResult;
     }
 
-    /**
-     * @param aNode
-     * @return true if the node has a namespace
-     */
-    private boolean isNamespaced(Node aNode) {
-        String namespace = aNode.getNamespaceURI();
-        return namespace != null && namespace.length() > 0;
+    private class CompareAttrSequenceNumberOperation extends AbstractComparisonOperation<Attr> {
+
+        private final Attributes controlAttributes;
+        private final Attributes testAttributes;
+
+        public CompareAttrSequenceNumberOperation(
+                NodeAndXpathCtx<Attr> control, Attributes controlAttributes,
+                NodeAndXpathCtx<Attr> test, Attributes testAttributes) {
+            super(control, test);
+            this.controlAttributes = controlAttributes;
+            this.testAttributes = testAttributes;
+        }
+
+        @Nullable
+        @Override
+        public ComparisonResult executeComparison() {
+            Attr controlAttr = getControl().getNode();
+            Attr testAttr = getTest().getNode();
+            XPathContext controlContext = getControl().getXpathCtx();
+            XPathContext testContext = getTest().getXpathCtx();
+
+            ComparisonResult lastResult = null;
+
+            int controlAttrIndex = controlAttributes.getRegularAttributes().indexOf(controlAttr);
+            int testAttrIndex = testAttributes.getRegularAttributes().indexOf(testAttr);
+            if (testAttrIndex == controlAttrIndex) {
+                return lastResult;
+            }
+
+            Attr mirrorTestAttr = findMirrorTestAttr(controlAttrIndex);
+            String orderedTestNodeName = findMirrorTestAttrName(mirrorTestAttr);
+
+            if (mirrorTestAttr == null) {
+                return lastResult;
+            }
+            testContext.navigateToAttribute(Nodes.getQName(mirrorTestAttr));
+            try {
+                return compPerformer.performComparison(
+                        new Comparison(ComparisonType.ATTR_SEQUENCE,
+                                NodeAndXpathCtx.from(controlAttr, controlContext),
+                                getUnNamespacedNodeName(controlAttr),
+                                NodeAndXpathCtx.from(mirrorTestAttr, testContext),
+                                orderedTestNodeName));
+            } finally {
+                testContext.navigateToParent();
+            }
+        }
+
+        @Nullable
+        private Attr findMirrorTestAttr(int controlAttrIndex) {
+            if (testAttributes.getRegularAttributes().size() > controlAttrIndex) {
+                return testAttributes.getRegularAttributes().get(controlAttrIndex);
+            }
+            return null;
+        }
+
+        private String findMirrorTestAttrName(@Nullable Attr mirrorTestAttr) {
+            if (mirrorTestAttr == null) {
+                return "[attribute absent]";
+            }
+            return getUnNamespacedNodeName(mirrorTestAttr);
+        }
+
+        /**
+         * @param aNode
+         * @return true if the node has a namespace
+         */
+        private boolean isNamespaced(Node aNode) {
+            String namespace = aNode.getNamespaceURI();
+            return namespace != null && namespace.length() > 0;
+        }
+
+        private String getUnNamespacedNodeName(Node aNode) {
+            if (isNamespaced(aNode)) {
+                return aNode.getLocalName();
+            }
+            return aNode.getNodeName();
+        }
+
     }
 
-    private String getUnNamespacedNodeName(Node aNode) {
-        if (isNamespaced(aNode)) {
-            return aNode.getLocalName();
+    private class CompareSchemasLocationOperation extends AbstractComparisonOperation<Element> {
+
+        private final Attributes controlAttributes;
+        private final Attributes testAttributes;
+
+        public CompareSchemasLocationOperation(
+                NodeAndXpathCtx<Element> control, Attributes controlAttributes,
+                NodeAndXpathCtx<Element> test, Attributes testAttributes) {
+            super(control, test);
+            this.controlAttributes = controlAttributes;
+            this.testAttributes = testAttributes;
         }
-        return aNode.getNodeName();
+
+        @Override
+        public ComparisonResult executeComparison() {
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.SCHEMA_LOCATION,
+                                    getControl(), controlAttributes.getSchemaLocationValue(),
+                                    getTest(), testAttributes.getSchemaLocationValue()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION,
+                                    getControl(),
+                                    controlAttributes.getNoNamespaceSchemaLocationValue(),
+                                    getTest(), testAttributes.getNoNamespaceSchemaLocationValue()));
+                }
+
+            });
+
+            return execute(operations);
+
+        }
     }
 
     /**

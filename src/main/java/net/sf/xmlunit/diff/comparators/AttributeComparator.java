@@ -27,6 +27,6 @@ public class AttributeComparator extends NodeComparator<Attr> {
 
     @Override
     public ComparisonResult compare(NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
-        return compareAttributes(control, test);
+        return new CompareAttributeOperation(control, test).executeComparison();
     }
 }

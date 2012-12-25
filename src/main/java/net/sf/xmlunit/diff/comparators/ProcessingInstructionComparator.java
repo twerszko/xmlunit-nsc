@@ -35,22 +35,22 @@ public class ProcessingInstructionComparator extends NodeComparator<ProcessingIn
             NodeAndXpathCtx<ProcessingInstruction> control,
             NodeAndXpathCtx<ProcessingInstruction> test) {
 
-        Queue<ComparisonStrategy<?>> strategies = new LinkedList<ComparisonStrategy<?>>();
-        strategies.add(new CompareProcInstrTargetStrategy(control, test));
-        strategies.add(new CompareProcInstrDataStrategy(control, test));
-        return compare(strategies);
+        Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+        operations.add(new CompareProcInstrTargetOperations(control, test));
+        operations.add(new CompareProcInstrDataOperation(control, test));
+        return execute(operations);
     }
 
-    protected class CompareProcInstrTargetStrategy extends ComparisonStrategy<ProcessingInstruction> {
+    protected class CompareProcInstrTargetOperations extends AbstractComparisonOperation<ProcessingInstruction> {
 
-        public CompareProcInstrTargetStrategy(
+        public CompareProcInstrTargetOperations(
                 NodeAndXpathCtx<ProcessingInstruction> control,
                 NodeAndXpathCtx<ProcessingInstruction> test) {
             super(control, test);
         }
 
         @Override
-        public ComparisonResult performComparison() {
+        public ComparisonResult executeComparison() {
             ProcessingInstruction controlInstr = getControl().getNode();
             ProcessingInstruction testInstr = getTest().getNode();
 
@@ -61,16 +61,16 @@ public class ProcessingInstructionComparator extends NodeComparator<ProcessingIn
         }
     }
 
-    protected class CompareProcInstrDataStrategy extends ComparisonStrategy<ProcessingInstruction> {
+    protected class CompareProcInstrDataOperation extends AbstractComparisonOperation<ProcessingInstruction> {
 
-        public CompareProcInstrDataStrategy(
+        public CompareProcInstrDataOperation(
                 NodeAndXpathCtx<ProcessingInstruction> control,
                 NodeAndXpathCtx<ProcessingInstruction> test) {
             super(control, test);
         }
 
         @Override
-        public ComparisonResult performComparison() {
+        public ComparisonResult executeComparison() {
             ProcessingInstruction controlInstr = getControl().getNode();
             ProcessingInstruction testInstr = getTest().getNode();
 

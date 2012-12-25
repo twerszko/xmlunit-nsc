@@ -27,6 +27,6 @@ public class NamespaceComparator extends NodeComparator<Node> {
 
     @Override
     public ComparisonResult compare(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-        return compareNamespaces(control, test);
+        return new CompareNamespaceOperation(control, test).executeComparison();
     }
 }

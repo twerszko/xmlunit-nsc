@@ -13,7 +13,10 @@
  */
 package net.sf.xmlunit.diff.comparators;
 
+import java.util.LinkedList;
 import java.util.Queue;
+
+import javax.annotation.Nullable;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
@@ -34,10 +37,11 @@ public abstract class NodeComparator<T extends Node> {
 
     public abstract ComparisonResult compare(NodeAndXpathCtx<T> control, NodeAndXpathCtx<T> test);
 
-    protected ComparisonResult compare(Queue<ComparisonStrategy<?>> strategies) {
-        ComparisonResult result = ComparisonResult.EQUAL;
-        for (ComparisonStrategy<?> strategy : strategies) {
-            result = strategy.performComparison();
+    @Nullable
+    protected final ComparisonResult execute(Queue<ComparisonOperation> operations) {
+        ComparisonResult result = null;
+        for (ComparisonOperation operation : operations) {
+            result = operation.executeComparison();
             if (result == ComparisonResult.CRITICAL) {
                 return result;
             }
@@ -46,79 +50,15 @@ public abstract class NodeComparator<T extends Node> {
         return result;
     }
 
-    protected ComparisonResult compareNamespaces(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-        Node controlNode = control.getNode();
-        Node testNode = test.getNode();
-
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.NAMESPACE_URI,
-                        control, controlNode.getNamespaceURI(),
-                        test, testNode.getNamespaceURI()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.NAMESPACE_PREFIX,
-                        control, controlNode.getPrefix(),
-                        test, testNode.getPrefix()));
-        return lastResult;
+    protected interface ComparisonOperation {
+        public abstract ComparisonResult executeComparison();
     }
 
-    protected ComparisonResult compareAttributes(NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
-        Attr controlAttr = control.getNode();
-        Attr testAttr = test.getNode();
-
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-                        control, controlAttr.getSpecified(),
-                        test, testAttr.getSpecified()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.ATTR_VALUE,
-                        control, controlAttr.getValue(),
-                        test, testAttr.getValue()));
-
-        return lastResult;
-    }
-
-    protected ComparisonResult compareDoctypes(
-            NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
-        DocumentType controlNode = control.getNode();
-        DocumentType testNode = test.getNode();
-
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.DOCTYPE_NAME,
-                        control, controlNode.getName(),
-                        test, testNode.getName()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.DOCTYPE_PUBLIC_ID,
-                        control, controlNode.getPublicId(),
-                        test, testNode.getPublicId()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.DOCTYPE_SYSTEM_ID,
-                        controlNode, null, controlNode.getSystemId(),
-                        testNode, null, testNode.getSystemId()));
-
-        return lastResult;
-    }
-
-    protected abstract class ComparisonStrategy<U extends Node> {
+    protected abstract class AbstractComparisonOperation<U extends Node> implements ComparisonOperation {
         private final NodeAndXpathCtx<U> control;
         private final NodeAndXpathCtx<U> test;
 
-        public ComparisonStrategy(NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
+        public AbstractComparisonOperation(NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
             this.control = control;
             this.test = test;
         }
@@ -130,7 +70,125 @@ public abstract class NodeComparator<T extends Node> {
         public NodeAndXpathCtx<U> getTest() {
             return test;
         }
+    }
 
-        public abstract ComparisonResult performComparison();
+    protected class CompareNamespaceOperation extends AbstractComparisonOperation<Node> {
+
+        public CompareNamespaceOperation(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
+            super(control, test);
+        }
+
+        @Override
+        public ComparisonResult executeComparison() {
+            final Node controlNode = getControl().getNode();
+            final Node testNode = getTest().getNode();
+
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.NAMESPACE_URI,
+                                    getControl(), controlNode.getNamespaceURI(),
+                                    getTest(), testNode.getNamespaceURI()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.NAMESPACE_PREFIX,
+                                    getControl(), controlNode.getPrefix(),
+                                    getTest(), testNode.getPrefix()));
+                }
+            });
+            return execute(operations);
+        }
+
+    }
+
+    protected class CompareAttributeOperation extends AbstractComparisonOperation<Attr> {
+
+        public CompareAttributeOperation(NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
+            super(control, test);
+        }
+
+        @Override
+        public ComparisonResult executeComparison() {
+            final Attr controlAttr = getControl().getNode();
+            final Attr testAttr = getTest().getNode();
+
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+                                    getControl(), controlAttr.getSpecified(),
+                                    getTest(), testAttr.getSpecified()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.ATTR_VALUE,
+                                    getControl(), controlAttr.getValue(),
+                                    getTest(), testAttr.getValue()));
+                }
+            });
+
+            return execute(operations);
+        }
+    }
+
+    protected class CompareDoctypeOperation extends AbstractComparisonOperation<DocumentType> {
+
+        public CompareDoctypeOperation(
+                NodeAndXpathCtx<DocumentType> control,
+                NodeAndXpathCtx<DocumentType> test) {
+            super(control, test);
+        }
+
+        @Override
+        public ComparisonResult executeComparison() {
+            final DocumentType controlDt = getControl().getNode();
+            final DocumentType testDt = getTest().getNode();
+
+            if (controlDt == null || testDt == null) {
+                return null;
+            }
+
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.DOCTYPE_NAME,
+                                    getControl(), controlDt.getName(),
+                                    getTest(), testDt.getName()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.DOCTYPE_PUBLIC_ID,
+                                    getControl(), controlDt.getPublicId(),
+                                    getTest(), testDt.getPublicId()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.DOCTYPE_SYSTEM_ID,
+                                    getControl(), controlDt.getSystemId(),
+                                    getTest(), testDt.getSystemId()));
+                }
+            });
+
+            return execute(operations);
+        }
     }
 }

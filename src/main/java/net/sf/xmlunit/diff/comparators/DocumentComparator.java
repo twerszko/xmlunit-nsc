@@ -16,8 +16,6 @@ package net.sf.xmlunit.diff.comparators;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.annotation.Nullable;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
@@ -38,24 +36,23 @@ public class DocumentComparator extends NodeComparator<Document> {
      */
     @Override
     public ComparisonResult compare(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
-        Queue<ComparisonStrategy<?>> strategies = new LinkedList<ComparisonStrategy<?>>();
-        strategies.add(new HasDoctypeStrategy(control, test));
-        strategies.add(new CompareDoctypeStrategy(control, test));
-        strategies.add(new CompareXmlVersionStrategy(control, test));
-        strategies.add(new CompareXmlStandaloneStrategy(control, test));
-        strategies.add(new CompareXmlEncodingStrategy(control, test));
-
-        return compare(strategies);
+        Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+        operations.add(new HasDoctypeOperation(control, test));
+        operations.add(new CompareDoctypeOperation(
+                NodeAndXpathCtx.from(control.getNode().getDoctype(), control.getXpathCtx()),
+                NodeAndXpathCtx.from(test.getNode().getDoctype(), test.getXpathCtx())));
+        operations.add(new CompareXmlDeclarationOperation(control, test));
+        return execute(operations);
     }
 
-    protected class HasDoctypeStrategy extends ComparisonStrategy<Document> {
+    private class HasDoctypeOperation extends AbstractComparisonOperation<Document> {
 
-        public HasDoctypeStrategy(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
+        public HasDoctypeOperation(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
             super(control, test);
         }
 
         @Override
-        public ComparisonResult performComparison() {
+        public ComparisonResult executeComparison() {
             DocumentType controlDt = getControl().getNode().getDoctype();
             DocumentType testDt = getTest().getNode().getDoctype();
 
@@ -66,80 +63,47 @@ public class DocumentComparator extends NodeComparator<Document> {
         }
     }
 
-    protected class CompareDoctypeStrategy extends ComparisonStrategy<Document> {
+    private class CompareXmlDeclarationOperation extends AbstractComparisonOperation<Document> {
 
-        public CompareDoctypeStrategy(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
+        public CompareXmlDeclarationOperation(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
             super(control, test);
         }
 
         @Override
-        @Nullable
-        public ComparisonResult performComparison() {
-            DocumentType controlDt = getControl().getNode().getDoctype();
-            DocumentType testDt = getTest().getNode().getDoctype();
+        public ComparisonResult executeComparison() {
+            final Document controlDoc = getControl().getNode();
+            final Document testDoc = getTest().getNode();
 
-            if (controlDt == null || testDt == null) {
-                return null;
-            }
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.XML_VERSION,
+                                    getControl(), controlDoc.getXmlVersion(),
+                                    getTest(), testDoc.getXmlVersion()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.XML_STANDALONE,
+                                    getControl(), controlDoc.getXmlStandalone(),
+                                    getTest(), testDoc.getXmlStandalone()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.XML_ENCODING,
+                                    getControl(), controlDoc.getXmlEncoding(),
+                                    getTest(), testDoc.getXmlEncoding()));
+                }
+            });
 
-            return compareDoctypes(
-                    NodeAndXpathCtx.from(controlDt, getControl().getXpathCtx()),
-                    NodeAndXpathCtx.from(testDt, getTest().getXpathCtx()));
+            return execute(operations);
         }
-    }
-
-    protected class CompareXmlVersionStrategy extends ComparisonStrategy<Document> {
-
-        public CompareXmlVersionStrategy(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
-            super(control, test);
-        }
-
-        @Override
-        public ComparisonResult performComparison() {
-            Document controlDoc = getControl().getNode();
-            Document testDoc = getTest().getNode();
-
-            return compPerformer.performComparison(
-                    new Comparison(ComparisonType.XML_VERSION,
-                            getControl(), controlDoc.getXmlVersion(),
-                            getTest(), testDoc.getXmlVersion()));
-        }
-    }
-
-    protected class CompareXmlStandaloneStrategy extends ComparisonStrategy<Document> {
-
-        public CompareXmlStandaloneStrategy(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
-            super(control, test);
-        }
-
-        @Override
-        public ComparisonResult performComparison() {
-            Document controlDoc = getControl().getNode();
-            Document testDoc = getTest().getNode();
-
-            return compPerformer.performComparison(
-                    new Comparison(ComparisonType.XML_STANDALONE,
-                            getControl(), controlDoc.getXmlStandalone(),
-                            getTest(), testDoc.getXmlStandalone()));
-        }
-    }
-
-    protected class CompareXmlEncodingStrategy extends ComparisonStrategy<Document> {
-
-        public CompareXmlEncodingStrategy(NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
-            super(control, test);
-        }
-
-        @Override
-        public ComparisonResult performComparison() {
-            Document controlDoc = getControl().getNode();
-            Document testDoc = getTest().getNode();
-
-            return compPerformer.performComparison(
-                    new Comparison(ComparisonType.XML_ENCODING,
-                            getControl(), controlDoc.getXmlEncoding(),
-                            getTest(), testDoc.getXmlEncoding()));
-        }
-
     }
 }

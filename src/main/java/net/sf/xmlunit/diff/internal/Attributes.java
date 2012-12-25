@@ -54,12 +54,30 @@ public class Attributes {
         return XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(attr.getNamespaceURI());
     }
 
+    @Nullable
     public Attr getSchemaLocation() {
         return schemaLocation;
     }
 
+    @Nullable
+    public String getSchemaLocationValue() {
+        if (schemaLocation != null) {
+            return schemaLocation.getValue();
+        }
+        return null;
+    }
+
+    @Nullable
     public Attr getNoNamespaceSchemaLocation() {
         return noNamespaceSchemaLocation;
+    }
+
+    @Nullable
+    public String getNoNamespaceSchemaLocationValue() {
+        if (noNamespaceSchemaLocation != null) {
+            return noNamespaceSchemaLocation.getValue();
+        }
+        return null;
     }
 
     public List<Attr> getRegularAttributes() {

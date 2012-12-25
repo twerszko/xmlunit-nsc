@@ -27,6 +27,6 @@ public class DoctypeComparator extends NodeComparator<DocumentType> {
 
     @Override
     public ComparisonResult compare(NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
-        return compareDoctypes(control, test);
+        return new CompareDoctypeOperation(control, test).executeComparison();
     }
 }
