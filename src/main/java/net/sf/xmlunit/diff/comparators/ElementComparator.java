@@ -13,10 +13,8 @@
  */
 package net.sf.xmlunit.diff.comparators;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
@@ -52,138 +50,228 @@ public class ElementComparator extends NodeComparator<Element> {
      * its attributes.
      */
     @Override
-    public ComparisonResult compare(NodeAndXpathCtx<Element> control, NodeAndXpathCtx<Element> test) {
-        Element controlElement = control.getNode();
-        Element testElement = test.getNode();
+    public ComparisonResult compare(final NodeAndXpathCtx<Element> control, final NodeAndXpathCtx<Element> test) {
+        final Element controlElement = control.getNode();
+        final Element testElement = test.getNode();
 
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.ELEMENT_TAG_NAME,
-                        control, Nodes.getQName(controlElement).getLocalPart(),
-                        test, Nodes.getQName(testElement).getLocalPart()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
-        }
-
-        lastResult = compareElementAttributes(control, test);
-        return lastResult;
-    }
-
-    private ComparisonResult compareElementAttributes(
-            NodeAndXpathCtx<Element> control, NodeAndXpathCtx<Element> test) {
-        NamedNodeMap controlAttrList = control.getNode().getAttributes();
-        NamedNodeMap testAttrList = test.getNode().getAttributes();
-        return compareElementAttributes(control, controlAttrList, test, testAttrList);
+        Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+        operations.add(new ComparisonOperation() {
+            @Override
+            public ComparisonResult executeComparison() {
+                return compPerformer.performComparison(
+                        new Comparison(ComparisonType.ELEMENT_TAG_NAME,
+                                control, Nodes.getQName(controlElement).getLocalPart(),
+                                test, Nodes.getQName(testElement).getLocalPart()));
+            }
+        });
+        operations.add(new CompareElementAttributesOperation(control, test));
+        return execute(operations);
     }
 
     @VisibleForTesting
-    ComparisonResult compareElementAttributes(
-            NodeAndXpathCtx<Element> control, NamedNodeMap controlAttrList,
-            NodeAndXpathCtx<Element> test, NamedNodeMap testAttrList) {
+    class CompareElementAttributesOperation extends AbstractComparisonOperation<Element> {
 
-        Attributes controlAttributes = Attributes.from(controlAttrList);
-        Attributes testAttributes = Attributes.from(testAttrList);
+        private final NamedNodeMap controlAttributes;
+        private final NamedNodeMap testAttributes;
 
-        ComparisonResult lastResult = compPerformer.performComparison(
-                new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
-                        control, controlAttributes.getRegularAttributes().size(),
-                        test, testAttributes.getRegularAttributes().size()));
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
+        @VisibleForTesting
+        CompareElementAttributesOperation(
+                NodeAndXpathCtx<Element> control, NamedNodeMap controlAttributes,
+                NodeAndXpathCtx<Element> test, NamedNodeMap testAttributes) {
+            super(control, test);
+            this.controlAttributes = controlAttributes;
+            this.testAttributes = testAttributes;
         }
 
-        lastResult = compareAttributeList(control, controlAttributes, test, testAttributes);
-        if (lastResult == ComparisonResult.CRITICAL) {
-            return lastResult;
+        public CompareElementAttributesOperation(NodeAndXpathCtx<Element> control, NodeAndXpathCtx<Element> test) {
+            super(control, test);
+            this.controlAttributes = control.getNode().getAttributes();
+            this.testAttributes = test.getNode().getAttributes();
         }
 
-        lastResult = new CompareSchemasLocationOperation(
-                control, controlAttributes, test, testAttributes)
-                .executeComparison();
-        return lastResult;
+        @Override
+        public ComparisonResult executeComparison() {
+            final Attributes controlAttributes = Attributes.from(this.controlAttributes);
+            final Attributes testAttributes = Attributes.from(this.testAttributes);
+
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.ELEMENT_NUM_ATTRIBUTES,
+                                    getControl(), controlAttributes.getRegularAttributes().size(),
+                                    getTest(), testAttributes.getRegularAttributes().size()));
+                }
+            });
+            operations.add(
+                    new CompareAttributeListOperation(getControl(), controlAttributes, getTest(), testAttributes));
+            operations.add(
+                    new CompareSchemasLocationOperation(getControl(), controlAttributes, getTest(), testAttributes));
+            return execute(operations);
+        }
+
     }
 
-    private ComparisonResult compareAttributeList(
-            NodeAndXpathCtx<Element> control, Attributes controlAttributes,
-            NodeAndXpathCtx<Element> test, Attributes testAttributes) {
+    private class CompareAttributeListOperation extends AbstractComparisonOperation<Element> {
 
-        Element controlElement = control.getNode();
-        Element testElement = test.getNode();
-        XPathContext controlContext = control.getXpathCtx();
-        XPathContext testContext = test.getXpathCtx();
+        private final Attributes controlAttributes;
+        private final Attributes testAttributes;
 
-        controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(), QNAME_MAPPER));
-        testContext.addAttributes(Linqy.map(testAttributes.getRegularAttributes(), QNAME_MAPPER));
+        public CompareAttributeListOperation(
+                NodeAndXpathCtx<Element> control, Attributes controlAttributes,
+                NodeAndXpathCtx<Element> test, Attributes testAttributes) {
+            super(control, test);
+            this.controlAttributes = controlAttributes;
+            this.testAttributes = testAttributes;
+        }
 
-        ComparisonResult lastResult = ComparisonResult.EQUAL;
-        Set<Attr> foundTestAttributes = new HashSet<Attr>();
-        for (Attr controlAttr : controlAttributes.getRegularAttributes()) {
-            final Attr testAttr = testAttributes.findMatchingRegularAttr(controlAttr);
+        @Override
+        public ComparisonResult executeComparison() {
+            final Element controlElement = getControl().getNode();
+            final Element testElement = getTest().getNode();
+            final XPathContext controlContext = getControl().getXpathCtx();
+            final XPathContext testContext = getTest().getXpathCtx();
+
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+
+            controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(), QNAME_MAPPER));
+            testContext.addAttributes(Linqy.map(testAttributes.getRegularAttributes(), QNAME_MAPPER));
+
+            for (final Attr controlAttr : controlAttributes.getRegularAttributes()) {
+                final Attr testAttr = testAttributes.findMatchingRegularAttr(controlAttr);
+                final boolean hasMatchingAttr = testAttr != null;
+
+                operations.add(new ComparisonOperation() {
+                    @Override
+                    public ComparisonResult executeComparison() {
+                        controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
+                        try {
+                            return compPerformer.performComparison(
+                                    new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
+                                            NodeAndXpathCtx.from(controlElement, controlContext), true,
+                                            NodeAndXpathCtx.from(testElement, testContext), hasMatchingAttr));
+                        } finally {
+                            controlContext.navigateToParent();
+                        }
+                    }
+                });
+                if (testAttr != null) {
+                    operations.add(new CompareMatchedAttrOperation(
+                            NodeAndXpathCtx.from(controlAttr, controlContext), controlAttributes,
+                            NodeAndXpathCtx.from(testAttr, testContext), testAttributes));
+                }
+            }
+
+            if (testAttributes.getRegularAttributes().size() > 0) {
+                operations.add(new FindUnamtchedTestAttrOperation(
+                        getControl(), controlAttributes, getTest(), testAttributes));
+            }
+            return execute(operations);
+        }
+
+    }
+
+    private class CompareMatchedAttrOperation extends AbstractComparisonOperation<Attr> {
+
+        private final Attributes controlAttributes;
+        private final Attributes testAttributes;
+
+        public CompareMatchedAttrOperation(
+                NodeAndXpathCtx<Attr> control, Attributes controlAttributes,
+                NodeAndXpathCtx<Attr> test, Attributes testAttributes) {
+            super(control, test);
+            this.controlAttributes = controlAttributes;
+            this.testAttributes = testAttributes;
+        }
+
+        @Override
+        public ComparisonResult executeComparison() {
+            Attr controlAttr = getControl().getNode();
+            Attr testAttr = getTest().getNode();
+
+            XPathContext controlContext = getControl().getXpathCtx();
+            XPathContext testContext = getTest().getXpathCtx();
+
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
 
             controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
             try {
-                boolean hasMatchingAttr = testAttr != null;
-                lastResult =
-                        compPerformer.performComparison(
-                                new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                                        NodeAndXpathCtx.from(controlElement, controlContext), true,
-                                        NodeAndXpathCtx.from(testElement, testContext), hasMatchingAttr));
-                if (lastResult == ComparisonResult.CRITICAL) {
-                    return lastResult;
+                if (!ignoreAttributeOrder) {
+                    operations.add(new CompareAttrSequenceNumberOperation(
+                            NodeAndXpathCtx.from(controlAttr, controlContext), controlAttributes,
+                            NodeAndXpathCtx.from(testAttr, testContext), testAttributes));
                 }
 
-                if (testAttr != null) {
+                try {
+                    testContext.navigateToAttribute(Nodes.getQName(testAttr));
 
-                    if (!ignoreAttributeOrder) {
-                        lastResult = new CompareAttrSequenceNumberOperation(
-                                NodeAndXpathCtx.from(controlAttr, controlContext), controlAttributes,
-                                NodeAndXpathCtx.from(testAttr, testContext), testAttributes).executeComparison();
-                        if (lastResult == ComparisonResult.CRITICAL) {
-                            return lastResult;
-                        }
-                    }
-
-                    try {
-                        testContext.navigateToAttribute(Nodes.getQName(testAttr));
-
-                        Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
-                        operations.add(new CompareNamespaceOperation(
-                                NodeAndXpathCtx.<Node> from(controlAttr, controlContext),
-                                NodeAndXpathCtx.<Node> from(testAttr, testContext)));
-                        operations.add(new CompareAttributeOperation(
-                                NodeAndXpathCtx.from(controlAttr, controlContext),
-                                NodeAndXpathCtx.from(testAttr, testContext)));
-                        lastResult = execute(operations);
-                        if (lastResult == ComparisonResult.CRITICAL) {
-                            return lastResult;
-                        }
-
-                        foundTestAttributes.add(testAttr);
-                    } finally {
-                        testContext.navigateToParent();
-                    }
+                    operations.add(new CompareNamespaceOperation(
+                            NodeAndXpathCtx.<Node> from(controlAttr, controlContext),
+                            NodeAndXpathCtx.<Node> from(testAttr, testContext)));
+                    operations.add(new CompareAttributeOperation(
+                            NodeAndXpathCtx.from(controlAttr, controlContext),
+                            NodeAndXpathCtx.from(testAttr, testContext)));
+                } finally {
+                    testContext.navigateToParent();
                 }
             } finally {
                 controlContext.navigateToParent();
             }
+
+            return execute(operations);
         }
 
-        for (Attr testAttr : testAttributes.getRegularAttributes()) {
-            testContext.navigateToAttribute(Nodes.getQName(testAttr));
-            try {
-                lastResult = compPerformer.performComparison(
-                        new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                                NodeAndXpathCtx.from(controlElement, controlContext),
-                                foundTestAttributes.contains(testAttr),
-                                NodeAndXpathCtx.from(testElement, testContext), true));
-                if (lastResult == ComparisonResult.CRITICAL) {
-                    return lastResult;
+    }
+
+    private class FindUnamtchedTestAttrOperation extends AbstractComparisonOperation<Element> {
+
+        private final Attributes controlAttributes;
+        private final Attributes testAttributes;
+
+        public FindUnamtchedTestAttrOperation(
+                NodeAndXpathCtx<Element> control, Attributes controlAttributes,
+                NodeAndXpathCtx<Element> test, Attributes testAttributes) {
+            super(control, test);
+
+            this.controlAttributes = controlAttributes;
+            this.testAttributes = testAttributes;
+        }
+
+        @Nullable
+        @Override
+        public ComparisonResult executeComparison() {
+            final Element controlElement = getControl().getNode();
+            final Element testElement = getTest().getNode();
+
+            final XPathContext controlContext = getControl().getXpathCtx();
+            final XPathContext testContext = getTest().getXpathCtx();
+
+            Queue<ComparisonOperation> operations = new LinkedList<NodeComparator.ComparisonOperation>();
+
+            for (Attr testAttr : testAttributes.getRegularAttributes()) {
+                testContext.navigateToAttribute(Nodes.getQName(testAttr));
+                try {
+                    Attr matchingControlAttr = controlAttributes.findMatchingRegularAttr(testAttr);
+                    final boolean hasMatchingAttr = matchingControlAttr != null;
+
+                    operations.add(new ComparisonOperation() {
+                        @Override
+                        public ComparisonResult executeComparison() {
+                            return compPerformer.performComparison(
+                                    new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
+                                            NodeAndXpathCtx.from(controlElement, controlContext),
+                                            hasMatchingAttr,
+                                            NodeAndXpathCtx.from(testElement, testContext), true));
+                        }
+                    });
+                } finally {
+                    testContext.navigateToParent();
                 }
-            } finally {
-                testContext.navigateToParent();
             }
-        }
 
-        return lastResult;
+            return execute(operations);
+        }
     }
 
     private class CompareAttrSequenceNumberOperation extends AbstractComparisonOperation<Attr> {

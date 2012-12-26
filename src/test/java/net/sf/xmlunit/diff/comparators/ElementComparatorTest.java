@@ -88,10 +88,10 @@ public class ElementComparatorTest {
             test.setAttributeNode(attrJ);
             testMap.add(attrJ);
         }
-        new ElementComparator(performer, properties.getIgnoreAttributeOrder())
-                .compareElementAttributes(
-                        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-                        NodeAndXpathCtx.from(test, new XPathContext()), testMap);
+        new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
+                NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
+                NodeAndXpathCtx.from(test, new XPathContext()), testMap)
+                .executeComparison();
         return evaluator.getDifferences();
     }
 
@@ -149,10 +149,10 @@ public class ElementComparatorTest {
             testMap.add(attrJ);
         }
 
-        new ElementComparator(performer, properties.getIgnoreAttributeOrder())
-                .compareElementAttributes(
-                        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-                        NodeAndXpathCtx.from(test, new XPathContext()), testMap);
+        new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
+                NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
+                NodeAndXpathCtx.from(test, new XPathContext()), testMap)
+                .executeComparison();
         return evaluator.getDifferences();
     }
 }

@@ -39,7 +39,7 @@ public abstract class NodeComparator<T extends Node> {
 
     @Nullable
     protected final ComparisonResult execute(Queue<ComparisonOperation> operations) {
-        ComparisonResult result = null;
+        ComparisonResult result = ComparisonResult.EQUAL;
         for (ComparisonOperation operation : operations) {
             result = operation.executeComparison();
             if (result == ComparisonResult.CRITICAL) {
