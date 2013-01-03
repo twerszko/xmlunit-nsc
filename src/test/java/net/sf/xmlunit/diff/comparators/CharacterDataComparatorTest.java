@@ -21,10 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DOMDifferenceEngine;
-import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -36,64 +33,60 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 public class CharacterDataComparatorTest {
-    private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
 
-    @Test
-    public void should_detect_different_cdata() throws Exception {
-        Document document = documentBuilder.newDocument();
+	@Test
+	public void should_detect_different_cdata() throws Exception {
+		Document document = documentBuilder.newDocument();
 
-        String expected = "I'm standing alone, you're weighing the gold";
-        String actual = "I'm watching you sinking... Fools Gold";
+		String expected = "I'm standing alone, you're weighing the gold";
+		String actual = "I'm watching you sinking... Fools Gold";
 
-        CDATASection control = document.createCDATASection(expected);
-        CDATASection test = document.createCDATASection(actual);
+		CDATASection control = document.createCDATASection(expected);
+		CDATASection test = document.createCDATASection(actual);
 
-        List<Comparison> differences = findCharacterDataDifferences(control, test);
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CDATA_VALUE);
-    }
+		List<Comparison> differences = findCharacterDataDifferences(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CDATA_VALUE);
+	}
 
-    @Test
-    public void should_detect_different_text_nodes() throws Exception {
-        Document document = documentBuilder.newDocument();
+	@Test
+	public void should_detect_different_text_nodes() throws Exception {
+		Document document = documentBuilder.newDocument();
 
-        String expected = "the pack on my back is aching";
-        String actual = "the straps seem to cut me like a knife";
-        Text control = document.createTextNode(expected);
-        Text test = document.createTextNode(actual);
+		String expected = "the pack on my back is aching";
+		String actual = "the straps seem to cut me like a knife";
+		Text control = document.createTextNode(expected);
+		Text test = document.createTextNode(actual);
 
-        List<Comparison> differences = findCharacterDataDifferences(control, test);
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
-    }
+		List<Comparison> differences = findCharacterDataDifferences(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+	}
 
-    @Test
-    public void testCompareComment() throws Exception {
-        Document document = documentBuilder.newDocument();
+	@Test
+	public void testCompareComment() throws Exception {
+		Document document = documentBuilder.newDocument();
 
-        String expected = "Im no clown I wont back down";
-        String actual = "dont need you to tell me whats going down";
+		String expected = "Im no clown I wont back down";
+		String actual = "dont need you to tell me whats going down";
 
-        Comment control = document.createComment(expected);
-        Comment test = document.createComment(actual);
+		Comment control = document.createComment(expected);
+		Comment test = document.createComment(actual);
 
-        List<Comparison> differences = findCharacterDataDifferences(control, test);
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
-    }
+		List<Comparison> differences = findCharacterDataDifferences(control, test);
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
+	}
 
-    private List<Comparison> findCharacterDataDifferences(CharacterData controlText, CharacterData testText) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+	private List<Comparison> findCharacterDataDifferences(CharacterData controlText, CharacterData testText) {
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-        ComparisonPerformer performer = engine.getComparisonPerformer();
+		NodeAndXpathCtx<CharacterData> control = new NodeAndXpathCtx<CharacterData>(controlText, new XPathContext());
+		NodeAndXpathCtx<CharacterData> test = new NodeAndXpathCtx<CharacterData>(testText, new XPathContext());
 
-        NodeAndXpathCtx<CharacterData> control = new NodeAndXpathCtx<CharacterData>(controlText, new XPathContext());
-        NodeAndXpathCtx<CharacterData> test = new NodeAndXpathCtx<CharacterData>(testText, new XPathContext());
+		new CharacterDataComparator(performer).compare(control, test);
 
-        new CharacterDataComparator(performer).compare(control, test);
-
-        return evaluator.getDifferences();
-    }
+		return performer.getDifferences();
+	}
 }

@@ -16,6 +16,24 @@ package net.sf.xmlunit.diff.internal;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
-public interface ComparisonPerformer {
-    ComparisonResult performComparison(Comparison comp);
+public abstract class ComparisonPerformer {
+	public final ComparisonResult performComparison(Comparison comparison) {
+		Object controlValue = comparison.getControlDetails().getValue();
+		Object testValue = comparison.getTestDetails().getValue();
+		boolean equal = controlValue == null ? testValue == null : controlValue.equals(testValue);
+		ComparisonResult initialResult = equal ? ComparisonResult.EQUAL : ComparisonResult.DIFFERENT;
+
+		ComparisonResult alteredResult = evaluateResult(comparison, initialResult);
+		comparisonPerformed(comparison, alteredResult);
+
+		return alteredResult;
+	}
+
+	protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
+		return result;
+	}
+
+	protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+
+	}
 }

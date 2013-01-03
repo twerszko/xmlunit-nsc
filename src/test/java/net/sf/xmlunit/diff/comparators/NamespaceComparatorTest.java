@@ -21,10 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DOMDifferenceEngine;
-import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -34,55 +31,52 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class NamespaceComparatorTest {
-    private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
 
-    private List<Comparison> findNamespaceDifferences(Node control, Node test) {
-        DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        diffEngine.setDifferenceEvaluator(evaluator);
-        ComparisonPerformer performer = diffEngine.getComparisonPerformer();
+	private List<Comparison> findNamespaceDifferences(Node control, Node test) {
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-        new NamespaceComparator(performer).compare(
-                new NodeAndXpathCtx<Node>(control, new XPathContext()),
-                new NodeAndXpathCtx<Node>(test, new XPathContext()));
+		new NamespaceComparator(performer).compare(
+		        new NodeAndXpathCtx<Node>(control, new XPathContext()),
+		        new NodeAndXpathCtx<Node>(test, new XPathContext()));
 
-        return evaluator.getDifferences();
+		return performer.getDifferences();
 
-    }
+	}
 
-    @Test
-    public void should_compare_nodes_different_NS() {
-        // given
-        Document document = documentBuilder.newDocument();
-        Element control = document.createElementNS("x", "y");
-        Element test = document.createElementNS("z", "y");
+	@Test
+	public void should_compare_nodes_different_NS() {
+		// given
+		Document document = documentBuilder.newDocument();
+		Element control = document.createElementNS("x", "y");
+		Element test = document.createElementNS("z", "y");
 
-        // when
-        List<Comparison> differences = findNamespaceDifferences(control, test);
+		// when
+		List<Comparison> differences = findNamespaceDifferences(control, test);
 
-        // then
-        assertThat(differences).hasSize(1);
-        Comparison difference = differences.get(0);
-        assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_URI);
-        assertThat(difference.getControlDetails().getValue()).isEqualTo("x");
-        assertThat(difference.getTestDetails().getValue()).isEqualTo("z");
-    }
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_URI);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("x");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("z");
+	}
 
-    @Test
-    public void should_compare_nodes_with_different_prefix() {
-        // given
-        Document document = documentBuilder.newDocument();
-        Element control = document.createElementNS("x", "x:y");
-        Element test = document.createElementNS("x", "z:y");
+	@Test
+	public void should_compare_nodes_with_different_prefix() {
+		// given
+		Document document = documentBuilder.newDocument();
+		Element control = document.createElementNS("x", "x:y");
+		Element test = document.createElementNS("x", "z:y");
 
-        // when
-        List<Comparison> differences = findNamespaceDifferences(control, test);
+		// when
+		List<Comparison> differences = findNamespaceDifferences(control, test);
 
-        // then
-        assertThat(differences).hasSize(1);
-        Comparison difference = differences.get(0);
-        assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_PREFIX);
-        assertThat(difference.getControlDetails().getValue()).isEqualTo("x");
-        assertThat(difference.getTestDetails().getValue()).isEqualTo("z");
-    }
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_PREFIX);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("x");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("z");
+	}
 }

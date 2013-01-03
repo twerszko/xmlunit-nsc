@@ -22,16 +22,15 @@ public final class DifferenceEvaluators {
 	private DifferenceEvaluators() {
 	}
 
-	private static final Short CDATA = Node.TEXT_NODE;
-	private static final Short TEXT = Node.CDATA_SECTION_NODE;
+	private static final Short CDATA = Node.CDATA_SECTION_NODE;
+	private static final Short TEXT = Node.TEXT_NODE;
 
 	/**
 	 * Difference evaluator that just echos the result passed in.
 	 */
 	public static final DifferenceEvaluator Accept =
 	        new DifferenceEvaluator() {
-		        public ComparisonResult evaluate(Comparison comparison,
-		                ComparisonResult outcome) {
+		        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
 			        return outcome;
 		        }
 	        };

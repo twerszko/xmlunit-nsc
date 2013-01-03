@@ -21,10 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DOMDifferenceEngine;
-import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -33,70 +30,66 @@ import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
 public class ProcessingInstructionComparatorTest {
-    private final DocumentUtils documentUtils = new DocumentUtils();
+	private final DocumentUtils documentUtils = new DocumentUtils();
 
-    @Test
-    public void should_detect_different_target_of_processing_instructions() throws Exception {
-        // given
-        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
+	@Test
+	public void should_detect_different_target_of_processing_instructions() throws Exception {
+		// given
+		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
 
-        String expectedTarget = "down";
-        String expectedData = "down down";
-        String actualTarget = "dadada";
-        String actualData = "down";
+		String expectedTarget = "down";
+		String expectedData = "down down";
+		String actualTarget = "dadada";
+		String actualData = "down";
 
-        // when
-        ProcessingInstruction controlInstr = document.createProcessingInstruction(expectedTarget, expectedData);
-        ProcessingInstruction testInstr = document.createProcessingInstruction(actualTarget, actualData);
+		// when
+		ProcessingInstruction controlInstr = document.createProcessingInstruction(expectedTarget, expectedData);
+		ProcessingInstruction testInstr = document.createProcessingInstruction(actualTarget, actualData);
 
-        List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
+		List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
 
-        // then
-        assertThat(differences).hasSize(2);
-        Comparison first = differences.get(0);
-        Comparison last = differences.get(1);
-        assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
-        assertThat(last.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
-    }
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison first = differences.get(0);
+		Comparison last = differences.get(1);
+		assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
+		assertThat(last.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+	}
 
-    @Test
-    public void should_detect_different_target_of_processing_data() throws Exception {
-        // given
-        DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
+	@Test
+	public void should_detect_different_target_of_processing_data() throws Exception {
+		// given
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
 
-        String target = "down";
-        String expectedData = "down down";
-        String actualData = "down";
+		String target = "down";
+		String expectedData = "down down";
+		String actualData = "down";
 
-        // when
-        ProcessingInstruction controlInstr = document.createProcessingInstruction(target, expectedData);
-        ProcessingInstruction testInstr = document.createProcessingInstruction(target, actualData);
+		// when
+		ProcessingInstruction controlInstr = document.createProcessingInstruction(target, expectedData);
+		ProcessingInstruction testInstr = document.createProcessingInstruction(target, actualData);
 
-        List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
+		List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
 
-        // then
-        assertThat(differences).hasSize(1);
-        Comparison first = differences.get(0);
-        assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
-    }
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison first = differences.get(0);
+		assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+	}
 
-    private List<Comparison> findProcessingInstrDifferences(
-            ProcessingInstruction controlInstr, ProcessingInstruction testInstr) {
+	private List<Comparison> findProcessingInstrDifferences(
+	        ProcessingInstruction controlInstr, ProcessingInstruction testInstr) {
 
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-        ComparisonPerformer performer = engine.getComparisonPerformer();
+		NodeAndXpathCtx<ProcessingInstruction> control =
+		        new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, new XPathContext());
+		NodeAndXpathCtx<ProcessingInstruction> test =
+		        new NodeAndXpathCtx<ProcessingInstruction>(testInstr, new XPathContext());
 
-        NodeAndXpathCtx<ProcessingInstruction> control =
-                new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, new XPathContext());
-        NodeAndXpathCtx<ProcessingInstruction> test =
-                new NodeAndXpathCtx<ProcessingInstruction>(testInstr, new XPathContext());
-
-        new ProcessingInstructionComparator(performer).compare(control, test);
-        return evaluator.getDifferences();
-    }
+		new ProcessingInstructionComparator(performer).compare(control, test);
+		return performer.getDifferences();
+	}
 }

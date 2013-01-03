@@ -21,10 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DOMDifferenceEngine;
-import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -33,67 +30,64 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 
 public class AttributeComparatorTest {
-    private final DocumentUtils documentUtils = new DocumentUtils();
+	private final DocumentUtils documentUtils = new DocumentUtils();
 
-    @Test
-    public void should_detect_different_attribute_value() throws Exception {
-        // given
-        String expected = "These boots were made for walking";
-        String actual = "The marquis de sade never wore no boots like these";
+	@Test
+	public void should_detect_different_attribute_value() throws Exception {
+		// given
+		String expected = "These boots were made for walking";
+		String actual = "The marquis de sade never wore no boots like these";
 
-        DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
+		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
 
-        Attr control = document.createAttribute("testAttr");
-        control.setValue(expected);
-        Attr test = document.createAttribute("testAttr");
-        test.setValue(actual);
+		Attr control = document.createAttribute("testAttr");
+		control.setValue(expected);
+		Attr test = document.createAttribute("testAttr");
+		test.setValue(actual);
 
-        // when
-        List<Comparison> differences = findAttrDifferences(control, test);
+		// when
+		List<Comparison> differences = findAttrDifferences(control, test);
 
-        // then
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
-    }
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
+	}
 
-    @Test
-    public void should_detect_attr_value_explicitely_specified() throws Exception {
-        // given
-        String doctypeDeclaration = "<!DOCTYPE manchester [" +
-                "<!ELEMENT sound EMPTY><!ATTLIST sound sorted (true|false) \"true\">" +
-                "<!ELEMENT manchester (sound)>]>";
+	@Test
+	public void should_detect_attr_value_explicitely_specified() throws Exception {
+		// given
+		String doctypeDeclaration = "<!DOCTYPE manchester [" +
+		        "<!ELEMENT sound EMPTY><!ATTLIST sound sorted (true|false) \"true\">" +
+		        "<!ELEMENT manchester (sound)>]>";
 
-        Document controlDoc =
-                documentUtils.buildControlDocument(doctypeDeclaration +
-                        "<manchester><sound sorted=\"true\"/></manchester>");
-        Attr control = (Attr) controlDoc.getDocumentElement().getFirstChild()
-                .getAttributes().getNamedItem("sorted");
+		Document controlDoc =
+		        documentUtils.buildControlDocument(doctypeDeclaration +
+		                "<manchester><sound sorted=\"true\"/></manchester>");
+		Attr control = (Attr) controlDoc.getDocumentElement().getFirstChild()
+		        .getAttributes().getNamedItem("sorted");
 
-        Document testDoc = documentUtils.buildTestDocument(doctypeDeclaration
-                +
-                "<manchester><sound/></manchester>");
-        Attr test = (Attr) testDoc.getDocumentElement().getFirstChild()
-                .getAttributes().getNamedItem("sorted");
+		Document testDoc = documentUtils.buildTestDocument(doctypeDeclaration
+		        +
+		        "<manchester><sound/></manchester>");
+		Attr test = (Attr) testDoc.getDocumentElement().getFirstChild()
+		        .getAttributes().getNamedItem("sorted");
 
-        // when
-        List<Comparison> differences = findAttrDifferences(control, test);
+		// when
+		List<Comparison> differences = findAttrDifferences(control, test);
 
-        // then
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
-    }
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
+	}
 
-    private List<Comparison> findAttrDifferences(Attr controlAttr, Attr testAttr) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
+	private List<Comparison> findAttrDifferences(Attr controlAttr, Attr testAttr) {
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-        ComparisonPerformer performer = engine.getComparisonPerformer();
-        NodeAndXpathCtx<Attr> control = new NodeAndXpathCtx<Attr>(controlAttr, new XPathContext());
-        NodeAndXpathCtx<Attr> test = new NodeAndXpathCtx<Attr>(testAttr, new XPathContext());
+		NodeAndXpathCtx<Attr> control = new NodeAndXpathCtx<Attr>(controlAttr, new XPathContext());
+		NodeAndXpathCtx<Attr> test = new NodeAndXpathCtx<Attr>(testAttr, new XPathContext());
 
-        new AttributeComparator(performer).compare(control, test);
-        return evaluator.getDifferences();
-    }
+		new AttributeComparator(performer).compare(control, test);
+		return performer.getDifferences();
+	}
 }

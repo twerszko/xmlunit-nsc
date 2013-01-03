@@ -36,123 +36,120 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ElementComparatorTest {
-    @Test
-    public void should_ignore_different_attribute_sequence() throws Exception {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
+	@Test
+	public void should_ignore_different_attribute_sequence() throws Exception {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
 
-        // when
-        List<Comparison> differences = testAttributeSequence(properties);
+		// when
+		List<Comparison> differences = testAttributeSequence(properties);
 
-        // then
-        assertThat(differences).hasSize(0);
-    }
+		// then
+		assertThat(differences).hasSize(0);
+	}
 
-    @Test
-    public void should_detect_differenct_attribute_sequence() throws Exception {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
-        properties.setIgnoreAttributeOrder(false);
+	@Test
+	public void should_detect_differenct_attribute_sequence() throws Exception {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
+		properties.setIgnoreAttributeOrder(false);
 
-        // when
-        List<Comparison> differences = testAttributeSequence(properties);
+		// when
+		List<Comparison> differences = testAttributeSequence(properties);
 
-        // then
-        assertThat(differences).hasSize(2);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
-        assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
-    }
+		// then
+		assertThat(differences).hasSize(2);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+	}
 
-    private List<Comparison> testAttributeSequence(XmlUnitProperties properties) throws Exception {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(properties);
-        DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
+	private List<Comparison> testAttributeSequence(XmlUnitProperties properties) throws Exception {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(properties);
+		DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
 
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-        ComparisonPerformer performer = engine.getComparisonPerformer();
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+		ComparisonPerformer performer = engine.getComparisonPerformer();
 
-        Element control = document.createElement("foo");
-        Element test = document.createElement("foo");
-        OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
-        OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
-        for (int i = 0; i < 2; i++) {
-            int j = 1 - i;
-            Attr attrI = document.createAttribute("attr" + i);
-            attrI.setValue(String.valueOf(i));
-            Attr attrJ = document.createAttribute("attr" + j);
-            attrJ.setValue(String.valueOf(j));
+		Element control = document.createElement("foo");
+		Element test = document.createElement("foo");
+		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
+		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
+		for (int i = 0; i < 2; i++) {
+			int j = 1 - i;
+			Attr attrI = document.createAttribute("attr" + i);
+			attrI.setValue(String.valueOf(i));
+			Attr attrJ = document.createAttribute("attr" + j);
+			attrJ.setValue(String.valueOf(j));
 
-            control.setAttributeNode(attrI);
-            controlMap.add(attrI);
-            test.setAttributeNode(attrJ);
-            testMap.add(attrJ);
-        }
-        new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
-                NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-                NodeAndXpathCtx.from(test, new XPathContext()), testMap)
-                .executeComparison();
-        return evaluator.getDifferences();
-    }
+			control.setAttributeNode(attrI);
+			controlMap.add(attrI);
+			test.setAttributeNode(attrJ);
+			testMap.add(attrJ);
+		}
+		new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
+		        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
+		        NodeAndXpathCtx.from(test, new XPathContext()), testMap)
+		        .executeComparison();
+		return evaluator.getDifferences();
+	}
 
-    @Test
-    public void should_ignore_different_attribute_ns_sequence() throws Exception {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
-        properties.setIgnoreAttributeOrder(true);
+	@Test
+	public void should_ignore_different_attribute_ns_sequence() throws Exception {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
+		properties.setIgnoreAttributeOrder(true);
 
-        // when
-        List<Comparison> differences = testAttributeSequenceNS(properties);
+		// when
+		List<Comparison> differences = testAttributeSequenceNS(properties);
 
-        // then
-        assertThat(differences).hasSize(0);
-    }
+		// then
+		assertThat(differences).hasSize(0);
+	}
 
-    @Test
-    public void should_detect_differenct_ns_attribute_sequence() throws Exception {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
-        properties.setIgnoreAttributeOrder(false);
+	@Test
+	public void should_detect_differenct_ns_attribute_sequence() throws Exception {
+		// given
+		XmlUnitProperties properties = new XmlUnitProperties();
+		properties.setIgnoreAttributeOrder(false);
 
-        // when
-        List<Comparison> differences = testAttributeSequenceNS(properties);
+		// when
+		List<Comparison> differences = testAttributeSequenceNS(properties);
 
-        // then
-        assertThat(differences).hasSize(2);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
-        assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
-    }
+		// then
+		assertThat(differences).hasSize(2);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
+	}
 
-    private List<Comparison> testAttributeSequenceNS(XmlUnitProperties properties) throws Exception {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(properties);
-        DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
-        Document document = documentBuilder.newDocument();
+	private List<Comparison> testAttributeSequenceNS(XmlUnitProperties properties) throws Exception {
+		DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
 
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-        ComparisonPerformer performer = engine.getComparisonPerformer();
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-        Element control = document.createElementNS("ns", "foo");
-        Element test = document.createElementNS("ns", "foo");
-        OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
-        OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
-        for (int i = 0; i < 2; i++) {
-            int j = 1 - i;
-            Attr attrI = document.createAttributeNS("ns", "attr" + i);
-            attrI.setValue(String.valueOf(i));
-            Attr attrJ = document.createAttributeNS("ns", "attr" + j);
-            attrJ.setValue(String.valueOf(j));
+		Element control = document.createElementNS("ns", "foo");
+		Element test = document.createElementNS("ns", "foo");
+		OrderPreservingNamedNodeMap controlMap = new OrderPreservingNamedNodeMap();
+		OrderPreservingNamedNodeMap testMap = new OrderPreservingNamedNodeMap();
+		for (int i = 0; i < 2; i++) {
+			int j = 1 - i;
+			Attr attrI = document.createAttributeNS("ns", "attr" + i);
+			attrI.setValue(String.valueOf(i));
+			Attr attrJ = document.createAttributeNS("ns", "attr" + j);
+			attrJ.setValue(String.valueOf(j));
 
-            control.setAttributeNode(attrI);
-            controlMap.add(attrI);
-            test.setAttributeNode(attrJ);
-            testMap.add(attrJ);
-        }
+			control.setAttributeNode(attrI);
+			controlMap.add(attrI);
+			test.setAttributeNode(attrJ);
+			testMap.add(attrJ);
+		}
 
-        new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
-                NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-                NodeAndXpathCtx.from(test, new XPathContext()), testMap)
-                .executeComparison();
-        return evaluator.getDifferences();
-    }
+		new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
+		        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
+		        NodeAndXpathCtx.from(test, new XPathContext()), testMap)
+		        .executeComparison();
+		return performer.getDifferences();
+	}
 }
