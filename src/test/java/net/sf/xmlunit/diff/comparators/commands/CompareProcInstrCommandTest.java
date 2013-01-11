@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators;
+package net.sf.xmlunit.diff.comparators.commands;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.comparators.ListingComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -29,7 +30,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
-public class ProcessingInstructionComparatorTest {
+public class CompareProcInstrCommandTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 
 	@Test
@@ -84,12 +85,10 @@ public class ProcessingInstructionComparatorTest {
 
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		NodeAndXpathCtx<ProcessingInstruction> control =
-		        new NodeAndXpathCtx<ProcessingInstruction>(controlInstr, new XPathContext());
-		NodeAndXpathCtx<ProcessingInstruction> test =
-		        new NodeAndXpathCtx<ProcessingInstruction>(testInstr, new XPathContext());
+		NodeAndXpathCtx<ProcessingInstruction> control = NodeAndXpathCtx.from(controlInstr, new XPathContext());
+		NodeAndXpathCtx<ProcessingInstruction> test = NodeAndXpathCtx.from(testInstr, new XPathContext());
 
-		new ProcessingInstructionComparator(performer).compare(control, test);
+		new CompareProcInstrCommand(performer, control, test).execute();
 		return performer.getDifferences();
 	}
 }

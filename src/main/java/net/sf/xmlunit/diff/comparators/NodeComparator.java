@@ -21,18 +21,18 @@ import javax.annotation.Nullable;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.comparators.commands.ComparisonCommand;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
-import net.sf.xmlunit.util.IterableNodeList;
-import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Predicate;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 
 public abstract class NodeComparator<T extends Node> {
-	protected final ComparisonPerformer compPerformer;
+	protected ComparisonPerformer compPerformer = new ComparisonPerformer();
+
+	public NodeComparator() {
+	}
 
 	public NodeComparator(ComparisonPerformer compPerformer) {
 		this.compPerformer = compPerformer;
@@ -41,6 +41,7 @@ public abstract class NodeComparator<T extends Node> {
 	public abstract ComparisonResult compare(NodeAndXpathCtx<T> control, NodeAndXpathCtx<T> test);
 
 	@Nullable
+	// TODO remove
 	protected final ComparisonResult execute(Queue<ComparisonOperation> operations) {
 		ComparisonResult result = ComparisonResult.EQUAL;
 		for (ComparisonOperation operation : operations) {
@@ -51,6 +52,19 @@ public abstract class NodeComparator<T extends Node> {
 		}
 
 		return result;
+	}
+
+	@Nullable
+	// TODO modify
+	protected final ComparisonResult executeCommands(Queue<ComparisonCommand> commands) {
+		for (ComparisonCommand command : commands) {
+			command.execute();
+			if (command.isInterrupted()) {
+				return ComparisonResult.CRITICAL;
+			}
+		}
+
+		return ComparisonResult.EQUAL;
 	}
 
 	protected interface ComparisonOperation {
@@ -75,6 +89,7 @@ public abstract class NodeComparator<T extends Node> {
 		}
 	}
 
+	// TODO remove
 	protected class CompareNamespaceOperation extends AbstractComparisonOperation<Node> {
 
 		public CompareNamespaceOperation(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
@@ -107,129 +122,9 @@ public abstract class NodeComparator<T extends Node> {
 			});
 			return execute(operations);
 		}
-
 	}
 
-	protected class CompareAttributeOperation extends AbstractComparisonOperation<Attr> {
-
-		public CompareAttributeOperation(NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
-			super(control, test);
-		}
-
-		@Override
-		public ComparisonResult executeComparison() {
-			final Attr controlAttr = getControl().getNode();
-			final Attr testAttr = getTest().getNode();
-
-			Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-					                getControl(), controlAttr.getSpecified(),
-					                getTest(), testAttr.getSpecified()));
-				}
-			});
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.ATTR_VALUE,
-					                getControl(), controlAttr.getValue(),
-					                getTest(), testAttr.getValue()));
-				}
-			});
-
-			return execute(operations);
-		}
-	}
-
-	protected class CompareDoctypeOperation extends AbstractComparisonOperation<DocumentType> {
-
-		public CompareDoctypeOperation(
-		        NodeAndXpathCtx<DocumentType> control,
-		        NodeAndXpathCtx<DocumentType> test) {
-			super(control, test);
-		}
-
-		@Override
-		public ComparisonResult executeComparison() {
-			final DocumentType controlDt = getControl().getNode();
-			final DocumentType testDt = getTest().getNode();
-
-			if (controlDt == null || testDt == null) {
-				return null;
-			}
-
-			Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.DOCTYPE_NAME,
-					                getControl(), controlDt.getName(),
-					                getTest(), testDt.getName()));
-				}
-			});
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.DOCTYPE_PUBLIC_ID,
-					                getControl(), controlDt.getPublicId(),
-					                getTest(), testDt.getPublicId()));
-				}
-			});
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.DOCTYPE_SYSTEM_ID,
-					                getControl(), controlDt.getSystemId(),
-					                getTest(), testDt.getSystemId()));
-				}
-			});
-
-			return execute(operations);
-		}
-	}
-
-	protected class ChildrenNumberComparisonOperation extends AbstractComparisonOperation<Node> {
-
-		public ChildrenNumberComparisonOperation(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-			super(control, test);
-		}
-
-		@Override
-		public ComparisonResult executeComparison() {
-			Node controlNode = getControl().getNode();
-			Node testNode = getTest().getNode();
-
-			Iterable<Node> controlChildren =
-			        Linqy.filter(new IterableNodeList(controlNode.getChildNodes()), INTERESTING_NODES);
-			Iterable<Node> testChildren =
-			        Linqy.filter(new IterableNodeList(testNode.getChildNodes()), INTERESTING_NODES);
-
-			ComparisonResult lastResult;
-			if (Linqy.count(controlChildren) > 0 && Linqy.count(testChildren) > 0) {
-				lastResult = compPerformer.performComparison(
-				        new Comparison(ComparisonType.CHILD_NODELIST_LENGTH,
-				                getControl(), Linqy.count(controlChildren),
-				                getTest(), Linqy.count(testChildren)));
-			} else {
-				lastResult = compPerformer.performComparison(
-				        new Comparison(ComparisonType.HAS_CHILD_NODES,
-				                getControl(), Linqy.count(controlChildren) > 0,
-				                getTest(), Linqy.count(testChildren) > 0));
-			}
-			return lastResult;
-		}
-	}
-
-	/**
-	 * Suppresses document-type nodes.
-	 */
+	// TODO duplication in CompareNodeCommand.
 	protected static final Predicate<Node> INTERESTING_NODES =
 	        new Predicate<Node>() {
 		        @Override

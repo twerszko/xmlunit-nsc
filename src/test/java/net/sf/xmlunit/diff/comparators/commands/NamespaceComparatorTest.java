@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators;
+package net.sf.xmlunit.diff.comparators.commands;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.comparators.ListingComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -32,17 +33,6 @@ import org.w3c.dom.Node;
 
 public class NamespaceComparatorTest {
 	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-
-	private List<Comparison> findNamespaceDifferences(Node control, Node test) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
-
-		new NamespaceComparator(performer).compare(
-		        new NodeAndXpathCtx<Node>(control, new XPathContext()),
-		        new NodeAndXpathCtx<Node>(test, new XPathContext()));
-
-		return performer.getDifferences();
-
-	}
 
 	@Test
 	public void should_compare_nodes_different_NS() {
@@ -78,5 +68,16 @@ public class NamespaceComparatorTest {
 		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_PREFIX);
 		assertThat(difference.getControlDetails().getValue()).isEqualTo("x");
 		assertThat(difference.getTestDetails().getValue()).isEqualTo("z");
+	}
+
+	private List<Comparison> findNamespaceDifferences(Node control, Node test) {
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+
+		new CompareNamespaceCommand(performer,
+		        new NodeAndXpathCtx<Node>(control, new XPathContext()),
+		        new NodeAndXpathCtx<Node>(test, new XPathContext()))
+		        .execute();
+
+		return performer.getDifferences();
 	}
 }

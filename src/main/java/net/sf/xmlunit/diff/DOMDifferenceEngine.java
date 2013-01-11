@@ -23,13 +23,9 @@ import java.util.Set;
 
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.diff.comparators.AttributeComparator;
-import net.sf.xmlunit.diff.comparators.CharacterDataComparator;
-import net.sf.xmlunit.diff.comparators.DoctypeComparator;
-import net.sf.xmlunit.diff.comparators.DocumentComparator;
-import net.sf.xmlunit.diff.comparators.ElementComparator;
 import net.sf.xmlunit.diff.comparators.NodeComparator;
-import net.sf.xmlunit.diff.comparators.ProcessingInstructionComparator;
+import net.sf.xmlunit.diff.comparators.commands.CompareNodeCommand;
+import net.sf.xmlunit.diff.comparators.commands.ComparisonCommand;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 import net.sf.xmlunit.util.Convert;
@@ -38,13 +34,7 @@ import net.sf.xmlunit.util.Linqy;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
-import org.w3c.dom.Attr;
-import org.w3c.dom.CharacterData;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.ProcessingInstruction;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -86,6 +76,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		return new MasterComparator(getComparisonPerformer()).compare(control, test);
 	}
 
+	// private class Node
+
 	@VisibleForTesting
 	class MasterComparator extends NodeComparator<Node> {
 
@@ -118,33 +110,18 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 			final XPathContext controlContext = control.getXpathCtx();
 			final XPathContext testContext = test.getXpathCtx();
 
-			Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
-
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(
-					                ComparisonType.NODE_TYPE,
-					                control, controlNode.getNodeType(),
-					                test, testNode.getNodeType()));
-				}
-			});
-			operations.add(new CompareNamespaceOperation(control, test));
-
-			if (controlNode.getNodeType() != Node.ATTRIBUTE_NODE) {
-				operations.add(new ChildrenNumberComparisonOperation(control, test));
+			Queue<ComparisonCommand> commands = new LinkedList<ComparisonCommand>();
+			commands.add(new CompareNodeCommand(compPerformer, properties.getIgnoreAttributeOrder(), control, test));
+			ComparisonResult lastResult = executeCommands(commands);
+			// TODO
+			if (lastResult == ComparisonResult.CRITICAL) {
+				return lastResult;
 			}
 
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return nodeTypeSpecificComparison(
-					        controlNode, controlContext, testNode, testContext);
-				}
-			});
+			Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
 
 			if (controlNode.getNodeType() != Node.ATTRIBUTE_NODE) {
+
 				final Iterable<Node> controlChildren =
 				        Linqy.filter(new IterableNodeList(controlNode.getChildNodes()), INTERESTING_NODES);
 				final Iterable<Node> testChildren =
@@ -171,10 +148,9 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 		 * matched to one of the "other" list.
 		 * </p>
 		 */
-		private ComparisonResult compareNodeLists(Iterable<Node> controlSeq,
-		        XPathContext controlContext,
-		        Iterable<Node> testSeq,
-		        XPathContext testContext) {
+		private ComparisonResult compareNodeLists(
+		        Iterable<Node> controlSeq, XPathContext controlContext,
+		        Iterable<Node> testSeq, XPathContext testContext) {
 			// if there are no children on either Node, the result is equal
 			ComparisonResult lastResult = ComparisonResult.EQUAL;
 
@@ -196,9 +172,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 					lastResult =
 					        getComparisonPerformer().performComparison(
 					                new Comparison(ComparisonType.CHILD_NODELIST_SEQUENCE,
-					                        NodeAndXpathCtx.from(control, controlContext), Integer
-					                                .valueOf(controlIndex),
-					                        NodeAndXpathCtx.from(test, testContext), Integer.valueOf(testIndex)));
+					                        NodeAndXpathCtx.from(control, controlContext), controlIndex,
+					                        NodeAndXpathCtx.from(test, testContext), testIndex));
 					if (lastResult == ComparisonResult.CRITICAL) {
 						return lastResult;
 					}
@@ -257,64 +232,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 				}
 			}
 			return lastResult;
-		}
-
-		/**
-		 * Dispatches to the node type specific comparison if one is defined for
-		 * the given combination of nodes.
-		 */
-		private ComparisonResult nodeTypeSpecificComparison(
-		        Node control, XPathContext controlContext,
-		        Node test, XPathContext testContext) {
-
-			switch (control.getNodeType()) {
-				case Node.CDATA_SECTION_NODE:
-				case Node.COMMENT_NODE:
-				case Node.TEXT_NODE:
-					if (test instanceof CharacterData) {
-						return new CharacterDataComparator(getComparisonPerformer()).compare(
-						        NodeAndXpathCtx.from((CharacterData) control, controlContext),
-						        NodeAndXpathCtx.from((CharacterData) test, testContext));
-					}
-					break;
-				case Node.DOCUMENT_NODE:
-					if (test instanceof Document) {
-						return new DocumentComparator(getComparisonPerformer()).compare(
-						        NodeAndXpathCtx.from((Document) control, controlContext),
-						        NodeAndXpathCtx.from((Document) test, testContext));
-					}
-					break;
-				case Node.ELEMENT_NODE:
-					if (test instanceof Element) {
-						return new ElementComparator(getComparisonPerformer(), properties.getIgnoreAttributeOrder())
-						        .compare(
-						                NodeAndXpathCtx.from((Element) control, controlContext),
-						                NodeAndXpathCtx.from((Element) test, testContext));
-					}
-					break;
-				case Node.PROCESSING_INSTRUCTION_NODE:
-					if (test instanceof ProcessingInstruction) {
-						return new ProcessingInstructionComparator(getComparisonPerformer()).compare(
-						        NodeAndXpathCtx.from((ProcessingInstruction) control, controlContext),
-						        NodeAndXpathCtx.from((ProcessingInstruction) test, testContext));
-					}
-					break;
-				case Node.DOCUMENT_TYPE_NODE:
-					if (test instanceof DocumentType) {
-						return new DoctypeComparator(comparisonPerformer).compare(
-						        NodeAndXpathCtx.from((DocumentType) control, controlContext),
-						        NodeAndXpathCtx.from((DocumentType) test, testContext));
-					}
-					break;
-				case Node.ATTRIBUTE_NODE:
-					if (test instanceof Attr) {
-						return new AttributeComparator(getComparisonPerformer()).compare(
-						        NodeAndXpathCtx.from((Attr) control, controlContext),
-						        NodeAndXpathCtx.from((Attr) test, testContext));
-					}
-					break;
-			}
-			return ComparisonResult.EQUAL;
 		}
 	}
 

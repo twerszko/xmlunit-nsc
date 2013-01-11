@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators;
+package net.sf.xmlunit.diff.comparators.commands;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,6 +22,7 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.comparators.ListingComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -31,7 +32,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-public class DoctypeComparatorTest {
+public class CompareDoctypeCommandTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 
 	private static File rosesFile;
@@ -164,7 +165,7 @@ public class DoctypeComparatorTest {
 		NodeAndXpathCtx<DocumentType> control = new NodeAndXpathCtx<DocumentType>(controlType, new XPathContext());
 		NodeAndXpathCtx<DocumentType> test = new NodeAndXpathCtx<DocumentType>(testType, new XPathContext());
 
-		new DoctypeComparator(performer).compare(control, test);
+		new CompareDoctypeCommand(performer, control, test).execute();
 		return performer.getDifferences();
 	}
 }

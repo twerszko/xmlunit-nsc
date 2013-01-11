@@ -16,7 +16,7 @@ package net.sf.xmlunit.diff.internal;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
-public abstract class ComparisonPerformer {
+public class ComparisonPerformer {
 	public final ComparisonResult performComparison(Comparison comparison) {
 		Object controlValue = comparison.getControlDetails().getValue();
 		Object testValue = comparison.getTestDetails().getValue();

@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators;
+package net.sf.xmlunit.diff.comparators.commands;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.comparators.ListingComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -30,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ChildrenNumberComparatorTest {
+public class CompareNodeCommandTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 
@@ -92,11 +93,22 @@ public class ChildrenNumberComparatorTest {
 		List<Comparison> differences = findNodeChildrenDifferences(control, test);
 
 		// then
-		assertThat(differences).hasSize(1);
+		assertThat(differences).hasSize(3);
 		Comparison difference = differences.get(0);
+		Comparison attrListLengthDifference = differences.get(1);
+		Comparison attrLookupDifference = differences.get(2);
+
 		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
 		assertThat(difference.getControlDetails().getValue()).isEqualTo(false);
 		assertThat(difference.getTestDetails().getValue()).isEqualTo(true);
+
+		assertThat(attrListLengthDifference.getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
+		assertThat(attrListLengthDifference.getControlDetails().getValue()).isEqualTo(1);
+		assertThat(attrListLengthDifference.getTestDetails().getValue()).isEqualTo(0);
+
+		assertThat(attrLookupDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(attrLookupDifference.getControlDetails().getValue()).isEqualTo(true);
+		assertThat(attrLookupDifference.getTestDetails().getValue()).isEqualTo(false);
 	}
 
 	@Test
@@ -116,11 +128,22 @@ public class ChildrenNumberComparatorTest {
 		List<Comparison> differences = findNodeChildrenDifferences(control, test);
 
 		// then
-		assertThat(differences).hasSize(1);
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
-		assertThat(difference.getControlDetails().getValue()).isEqualTo(2);
-		assertThat(difference.getTestDetails().getValue()).isEqualTo(1);
+		assertThat(differences).hasSize(3);
+		Comparison nodeListLengthDifference = differences.get(0);
+		Comparison attrListLengthDifference = differences.get(1);
+		Comparison attrLookupDifference = differences.get(2);
+
+		assertThat(nodeListLengthDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(nodeListLengthDifference.getControlDetails().getValue()).isEqualTo(2);
+		assertThat(nodeListLengthDifference.getTestDetails().getValue()).isEqualTo(1);
+
+		assertThat(attrListLengthDifference.getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
+		assertThat(attrListLengthDifference.getControlDetails().getValue()).isEqualTo(0);
+		assertThat(attrListLengthDifference.getTestDetails().getValue()).isEqualTo(1);
+
+		assertThat(attrLookupDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(attrLookupDifference.getControlDetails().getValue()).isEqualTo(false);
+		assertThat(attrLookupDifference.getTestDetails().getValue()).isEqualTo(true);
 	}
 
 	@Test
@@ -151,7 +174,7 @@ public class ChildrenNumberComparatorTest {
 		NodeAndXpathCtx<Node> control = new NodeAndXpathCtx<Node>(controlNode, new XPathContext());
 		NodeAndXpathCtx<Node> test = new NodeAndXpathCtx<Node>(testNode, new XPathContext());
 
-		new ChildrenNumberComparator(performer).compare(control, test);
+		new CompareNodeCommand(performer, false, control, test).execute();
 		return performer.getDifferences();
 	}
 }

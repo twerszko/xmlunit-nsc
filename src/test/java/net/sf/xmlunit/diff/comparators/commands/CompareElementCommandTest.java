@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators;
+package net.sf.xmlunit.diff.comparators.commands;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -25,6 +25,8 @@ import net.sf.xmlunit.diff.DOMDifferenceEngine;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.OrderPreservingNamedNodeMap;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.comparators.ListingComparisonPerformer;
+import net.sf.xmlunit.diff.comparators.commands.CompareElementCommand;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
@@ -35,7 +37,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class ElementComparatorTest {
+public class CompareElementCommandTest {
 	@Test
 	public void should_ignore_different_attribute_sequence() throws Exception {
 		// given
@@ -88,10 +90,9 @@ public class ElementComparatorTest {
 			test.setAttributeNode(attrJ);
 			testMap.add(attrJ);
 		}
-		new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
+		new CompareElementCommand(performer, properties.getIgnoreAttributeOrder(),
 		        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-		        NodeAndXpathCtx.from(test, new XPathContext()), testMap)
-		        .executeComparison();
+		        NodeAndXpathCtx.from(test, new XPathContext()), testMap).execute();
 		return evaluator.getDifferences();
 	}
 
@@ -146,10 +147,9 @@ public class ElementComparatorTest {
 			testMap.add(attrJ);
 		}
 
-		new ElementComparator(performer, properties.getIgnoreAttributeOrder()).new CompareElementAttributesOperation(
+		new CompareElementCommand(performer, properties.getIgnoreAttributeOrder(),
 		        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-		        NodeAndXpathCtx.from(test, new XPathContext()), testMap)
-		        .executeComparison();
+		        NodeAndXpathCtx.from(test, new XPathContext()), testMap).execute();
 		return performer.getDifferences();
 	}
 }
