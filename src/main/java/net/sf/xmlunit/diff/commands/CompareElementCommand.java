@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators.commands;
+package net.sf.xmlunit.diff.commands;
 
 import java.util.LinkedList;
 import java.util.Queue;

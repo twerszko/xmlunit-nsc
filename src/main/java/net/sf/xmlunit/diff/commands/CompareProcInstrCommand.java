@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators.commands;
+package net.sf.xmlunit.diff.commands;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -21,41 +21,33 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
-import org.w3c.dom.DocumentType;
+import org.w3c.dom.ProcessingInstruction;
 
-public class CompareDoctypeCommand extends ComparisonCommandBase<DocumentType> {
+public class CompareProcInstrCommand extends ComparisonCommandBase<ProcessingInstruction> {
 
-	public CompareDoctypeCommand(
-	        ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
+	public CompareProcInstrCommand(ComparisonPerformer compPerformer,
+	        NodeAndXpathCtx<ProcessingInstruction> control, NodeAndXpathCtx<ProcessingInstruction> test) {
 		super(compPerformer, control, test);
 	}
 
 	@Override
 	public Queue<Comparison> provideComparisons() {
-		final DocumentType controlDt = getControl().getNode();
-		final DocumentType testDt = getTest().getNode();
+		ProcessingInstruction controlInstr = getControl().getNode();
+		ProcessingInstruction testInstr = getTest().getNode();
 
 		Queue<Comparison> comparisons = new LinkedList<Comparison>();
-		if (controlDt == null || testDt == null) {
-			return comparisons;
-		}
 
 		comparisons.add(new Comparison(
-		        ComparisonType.DOCTYPE_NAME,
-		        getControl(), controlDt.getName(),
-		        getTest(), testDt.getName()));
+		        ComparisonType.PROCESSING_INSTRUCTION_TARGET,
+		        getControl(), controlInstr.getTarget(),
+		        getTest(), testInstr.getTarget()));
 
 		comparisons.add(new Comparison(
-		        ComparisonType.DOCTYPE_PUBLIC_ID,
-		        getControl(), controlDt.getPublicId(),
-		        getTest(), testDt.getPublicId()));
-
-		comparisons.add(new Comparison(
-		        ComparisonType.DOCTYPE_SYSTEM_ID,
-		        getControl(), controlDt.getSystemId(),
-		        getTest(), testDt.getSystemId()));
+		        ComparisonType.PROCESSING_INSTRUCTION_DATA,
+		        getControl(), controlInstr.getData(),
+		        getTest(), testInstr.getData()));
 
 		return comparisons;
 	}
+
 }

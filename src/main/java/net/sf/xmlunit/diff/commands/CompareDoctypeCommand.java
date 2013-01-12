@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators.commands;
+package net.sf.xmlunit.diff.commands;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -21,30 +21,41 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
-import org.w3c.dom.Attr;
+import org.w3c.dom.DocumentType;
 
-public class CompareAttributeCommand extends ComparisonCommandBase<Attr> {
+public class CompareDoctypeCommand extends ComparisonCommandBase<DocumentType> {
 
-	public CompareAttributeCommand(ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
+	public CompareDoctypeCommand(
+	        ComparisonPerformer compPerformer,
+	        NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
 		super(compPerformer, control, test);
 	}
 
 	@Override
 	public Queue<Comparison> provideComparisons() {
-		final Attr controlAttr = getControl().getNode();
-		final Attr testAttr = getTest().getNode();
+		final DocumentType controlDt = getControl().getNode();
+		final DocumentType testDt = getTest().getNode();
 
 		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		if (controlDt == null || testDt == null) {
+			return comparisons;
+		}
 
-		comparisons.add(new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-		        getControl(), controlAttr.getSpecified(),
-		        getTest(), testAttr.getSpecified()));
-		comparisons.add(new Comparison(ComparisonType.ATTR_VALUE,
-		        getControl(), controlAttr.getValue(),
-		        getTest(), testAttr.getValue()));
+		comparisons.add(new Comparison(
+		        ComparisonType.DOCTYPE_NAME,
+		        getControl(), controlDt.getName(),
+		        getTest(), testDt.getName()));
+
+		comparisons.add(new Comparison(
+		        ComparisonType.DOCTYPE_PUBLIC_ID,
+		        getControl(), controlDt.getPublicId(),
+		        getTest(), testDt.getPublicId()));
+
+		comparisons.add(new Comparison(
+		        ComparisonType.DOCTYPE_SYSTEM_ID,
+		        getControl(), controlDt.getSystemId(),
+		        getTest(), testDt.getSystemId()));
 
 		return comparisons;
 	}
-
 }

@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators.commands;
+package net.sf.xmlunit.diff.commands;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -20,7 +20,7 @@ import java.util.List;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.comparators.ListingComparisonPerformer;
+import net.sf.xmlunit.diff.commands.CompareDocumentCommand;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 import net.sf.xmlunit.util.Convert;
 

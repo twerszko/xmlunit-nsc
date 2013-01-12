@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators.commands;
+package net.sf.xmlunit.diff.commands;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -22,6 +22,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.util.Predicate;
 
 import org.w3c.dom.Node;
 
@@ -89,4 +90,12 @@ public abstract class ComparisonCommandBase<U extends Node> implements Compariso
     public boolean isInterrupted() {
         return interrupted;
     }
+
+    protected static final Predicate<Node> INTERESTING_NODES =
+            new Predicate<Node>() {
+                @Override
+                public boolean matches(Node n) {
+                    return n.getNodeType() != Node.DOCUMENT_TYPE_NODE;
+                }
+            };
 }

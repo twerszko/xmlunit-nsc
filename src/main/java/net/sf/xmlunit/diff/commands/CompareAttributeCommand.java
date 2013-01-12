@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.comparators.commands;
+package net.sf.xmlunit.diff.commands;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -21,31 +21,28 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
 
-import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Attr;
 
-public class CompareProcInstrCommand extends ComparisonCommandBase<ProcessingInstruction> {
+public class CompareAttributeCommand extends ComparisonCommandBase<Attr> {
 
-	public CompareProcInstrCommand(ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<ProcessingInstruction> control, NodeAndXpathCtx<ProcessingInstruction> test) {
+	public CompareAttributeCommand(ComparisonPerformer compPerformer,
+	        NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
 		super(compPerformer, control, test);
 	}
 
 	@Override
 	public Queue<Comparison> provideComparisons() {
-		ProcessingInstruction controlInstr = getControl().getNode();
-		ProcessingInstruction testInstr = getTest().getNode();
+		final Attr controlAttr = getControl().getNode();
+		final Attr testAttr = getTest().getNode();
 
 		Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		comparisons.add(new Comparison(
-		        ComparisonType.PROCESSING_INSTRUCTION_TARGET,
-		        getControl(), controlInstr.getTarget(),
-		        getTest(), testInstr.getTarget()));
-
-		comparisons.add(new Comparison(
-		        ComparisonType.PROCESSING_INSTRUCTION_DATA,
-		        getControl(), controlInstr.getData(),
-		        getTest(), testInstr.getData()));
+		comparisons.add(new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+		        getControl(), controlAttr.getSpecified(),
+		        getTest(), testAttr.getSpecified()));
+		comparisons.add(new Comparison(ComparisonType.ATTR_VALUE,
+		        getControl(), controlAttr.getValue(),
+		        getTest(), testAttr.getValue()));
 
 		return comparisons;
 	}

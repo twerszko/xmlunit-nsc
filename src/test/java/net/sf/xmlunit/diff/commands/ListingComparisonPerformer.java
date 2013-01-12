@@ -1,4 +1,4 @@
-package net.sf.xmlunit.diff.comparators;
+package net.sf.xmlunit.diff.commands;
 
 import java.util.ArrayList;
 import java.util.List;
