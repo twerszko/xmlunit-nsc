@@ -27,47 +27,66 @@ import org.w3c.dom.Node;
 
 @NotThreadSafe
 public abstract class ComparisonCommandBase<U extends Node> implements ComparisonCommand {
-	protected final ComparisonPerformer compPerformer;
+    protected final ComparisonPerformer compPerformer;
 
-	private final NodeAndXpathCtx<U> control;
-	private final NodeAndXpathCtx<U> test;
+    private final NodeAndXpathCtx<U> control;
+    private final NodeAndXpathCtx<U> test;
 
-	private boolean interrupted = false;
+    private boolean interrupted = false;
 
-	public ComparisonCommandBase(ComparisonPerformer compPerformer, NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
-		this.compPerformer = compPerformer;
-		this.control = control;
-		this.test = test;
-	}
+    public ComparisonCommandBase(ComparisonPerformer compPerformer, NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
+        this.compPerformer = compPerformer;
+        this.control = control;
+        this.test = test;
+    }
 
-	public NodeAndXpathCtx<U> getControl() {
-		return control;
-	}
+    public NodeAndXpathCtx<U> getControl() {
+        return control;
+    }
 
-	public NodeAndXpathCtx<U> getTest() {
-		return test;
-	}
+    public NodeAndXpathCtx<U> getTest() {
+        return test;
+    }
 
-	public abstract Queue<Comparison> provideComparisons();
+    public abstract Queue<Comparison> provideComparisons();
 
-	@Override
-	public final void execute() {
-		interrupted = false;
-		Queue<Comparison> comparisons = provideComparisons();
-		if (comparisons == null) {
-			comparisons = new LinkedList<Comparison>();
-		}
-		for (Comparison comparison : comparisons) {
-			ComparisonResult result = compPerformer.performComparison(comparison);
-			if (result == ComparisonResult.CRITICAL) {
-				interrupted = true;
-				return;
-			}
-		}
-	}
+    @Override
+    public final void execute() {
+        interrupted = false;
+        executeInternal();
+    }
 
-	@Override
-	public boolean isInterrupted() {
-		return interrupted;
-	}
+    protected void executeInternal() {
+        Queue<Comparison> comparisons = provideComparisons();
+        if (comparisons == null) {
+            comparisons = new LinkedList<Comparison>();
+        }
+        executeComparisons(comparisons);
+    }
+
+    protected final void executeComparisons(Queue<Comparison> comparisons) {
+        for (Comparison comparison : comparisons) {
+            executeComparison(comparison);
+            if (isInterrupted()) {
+                return;
+            }
+        }
+    }
+
+    protected final void executeComparison(Comparison comparison) {
+        ComparisonResult result = compPerformer.performComparison(comparison);
+        if (result == ComparisonResult.CRITICAL) {
+            interrupted = true;
+            return;
+        }
+    }
+
+    protected void setInterrupted(boolean interrupted) {
+        this.interrupted = interrupted;
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return interrupted;
+    }
 }

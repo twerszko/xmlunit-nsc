@@ -29,107 +29,109 @@ import net.sf.xmlunit.util.Predicate;
 import org.w3c.dom.Node;
 
 public abstract class NodeComparator<T extends Node> {
-	protected ComparisonPerformer compPerformer = new ComparisonPerformer();
+    protected ComparisonPerformer compPerformer = new ComparisonPerformer();
 
-	public NodeComparator() {
-	}
+    public NodeComparator() {
+    }
 
-	public NodeComparator(ComparisonPerformer compPerformer) {
-		this.compPerformer = compPerformer;
-	}
+    public NodeComparator(ComparisonPerformer compPerformer) {
+        this.compPerformer = compPerformer;
+    }
 
-	public abstract ComparisonResult compare(NodeAndXpathCtx<T> control, NodeAndXpathCtx<T> test);
+    public abstract ComparisonResult compare(NodeAndXpathCtx<T> control, NodeAndXpathCtx<T> test);
 
-	@Nullable
-	// TODO remove
-	protected final ComparisonResult execute(Queue<ComparisonOperation> operations) {
-		ComparisonResult result = ComparisonResult.EQUAL;
-		for (ComparisonOperation operation : operations) {
-			result = operation.executeComparison();
-			if (result == ComparisonResult.CRITICAL) {
-				return result;
-			}
-		}
+    @Nullable
+    // TODO remove
+            protected final
+            ComparisonResult execute(Queue<ComparisonOperation> operations) {
+        ComparisonResult result = ComparisonResult.EQUAL;
+        for (ComparisonOperation operation : operations) {
+            result = operation.executeComparison();
+            if (result == ComparisonResult.CRITICAL) {
+                return result;
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	@Nullable
-	// TODO modify
-	protected final ComparisonResult executeCommands(Queue<ComparisonCommand> commands) {
-		for (ComparisonCommand command : commands) {
-			command.execute();
-			if (command.isInterrupted()) {
-				return ComparisonResult.CRITICAL;
-			}
-		}
+    @Nullable
+    // TODO modify
+            protected final
+            ComparisonResult executeCommands(Queue<ComparisonCommand> commands) {
+        for (ComparisonCommand command : commands) {
+            command.execute();
+            if (command.isInterrupted()) {
+                return ComparisonResult.CRITICAL;
+            }
+        }
 
-		return ComparisonResult.EQUAL;
-	}
+        return ComparisonResult.EQUAL;
+    }
 
-	protected interface ComparisonOperation {
-		public abstract ComparisonResult executeComparison();
-	}
+    protected interface ComparisonOperation {
+        public abstract ComparisonResult executeComparison();
+    }
 
-	protected abstract class AbstractComparisonOperation<U extends Node> implements ComparisonOperation {
-		private final NodeAndXpathCtx<U> control;
-		private final NodeAndXpathCtx<U> test;
+    protected abstract class AbstractComparisonOperation<U extends Node> implements ComparisonOperation {
+        private final NodeAndXpathCtx<U> control;
+        private final NodeAndXpathCtx<U> test;
 
-		public AbstractComparisonOperation(NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
-			this.control = control;
-			this.test = test;
-		}
+        public AbstractComparisonOperation(NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
+            this.control = control;
+            this.test = test;
+        }
 
-		public NodeAndXpathCtx<U> getControl() {
-			return control;
-		}
+        public NodeAndXpathCtx<U> getControl() {
+            return control;
+        }
 
-		public NodeAndXpathCtx<U> getTest() {
-			return test;
-		}
-	}
+        public NodeAndXpathCtx<U> getTest() {
+            return test;
+        }
+    }
 
-	// TODO remove
-	protected class CompareNamespaceOperation extends AbstractComparisonOperation<Node> {
+    // TODO remove
+    protected class CompareNamespaceOperation extends AbstractComparisonOperation<Node> {
 
-		public CompareNamespaceOperation(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-			super(control, test);
-		}
+        public CompareNamespaceOperation(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
+            super(control, test);
+        }
 
-		@Override
-		public ComparisonResult executeComparison() {
-			final Node controlNode = getControl().getNode();
-			final Node testNode = getTest().getNode();
+        @Override
+        public ComparisonResult executeComparison() {
+            final Node controlNode = getControl().getNode();
+            final Node testNode = getTest().getNode();
 
-			Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.NAMESPACE_URI,
-					                getControl(), controlNode.getNamespaceURI(),
-					                getTest(), testNode.getNamespaceURI()));
-				}
-			});
-			operations.add(new ComparisonOperation() {
-				@Override
-				public ComparisonResult executeComparison() {
-					return compPerformer.performComparison(
-					        new Comparison(ComparisonType.NAMESPACE_PREFIX,
-					                getControl(), controlNode.getPrefix(),
-					                getTest(), testNode.getPrefix()));
-				}
-			});
-			return execute(operations);
-		}
-	}
+            Queue<ComparisonOperation> operations = new LinkedList<ComparisonOperation>();
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.NAMESPACE_URI,
+                                    getControl(), controlNode.getNamespaceURI(),
+                                    getTest(), testNode.getNamespaceURI()));
+                }
+            });
+            operations.add(new ComparisonOperation() {
+                @Override
+                public ComparisonResult executeComparison() {
+                    return compPerformer.performComparison(
+                            new Comparison(ComparisonType.NAMESPACE_PREFIX,
+                                    getControl(), controlNode.getPrefix(),
+                                    getTest(), testNode.getPrefix()));
+                }
+            });
+            return execute(operations);
+        }
+    }
 
-	// TODO duplication in CompareNodeCommand.
-	protected static final Predicate<Node> INTERESTING_NODES =
-	        new Predicate<Node>() {
-		        @Override
-		        public boolean matches(Node n) {
-			        return n.getNodeType() != Node.DOCUMENT_TYPE_NODE;
-		        }
-	        };
+    // TODO duplication in CompareNodeCommand.
+    protected static final Predicate<Node> INTERESTING_NODES =
+            new Predicate<Node>() {
+                @Override
+                public boolean matches(Node n) {
+                    return n.getNodeType() != Node.DOCUMENT_TYPE_NODE;
+                }
+            };
 }
