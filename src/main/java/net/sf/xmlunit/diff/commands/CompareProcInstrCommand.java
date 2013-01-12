@@ -19,35 +19,35 @@ import java.util.Queue;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.ProcessingInstruction;
 
 public class CompareProcInstrCommand extends ComparisonCommandBase<ProcessingInstruction> {
 
-	public CompareProcInstrCommand(ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<ProcessingInstruction> control, NodeAndXpathCtx<ProcessingInstruction> test) {
-		super(compPerformer, control, test);
-	}
+    public CompareProcInstrCommand(ComparisonPerformer compPerformer,
+            NodeAndXpath<ProcessingInstruction> control, NodeAndXpath<ProcessingInstruction> test) {
+        super(compPerformer, control, test);
+    }
 
-	@Override
-	public Queue<Comparison> provideComparisons() {
-		ProcessingInstruction controlInstr = getControl().getNode();
-		ProcessingInstruction testInstr = getTest().getNode();
+    @Override
+    public Queue<Comparison> provideComparisons() {
+        ProcessingInstruction controlInstr = getControl().getNode();
+        ProcessingInstruction testInstr = getTest().getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		comparisons.add(new Comparison(
-		        ComparisonType.PROCESSING_INSTRUCTION_TARGET,
-		        getControl(), controlInstr.getTarget(),
-		        getTest(), testInstr.getTarget()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_TARGET)
+                        .between(getControl(), controlInstr.getTarget())
+                        .and(getTest(), testInstr.getTarget()));
 
-		comparisons.add(new Comparison(
-		        ComparisonType.PROCESSING_INSTRUCTION_DATA,
-		        getControl(), controlInstr.getData(),
-		        getTest(), testInstr.getData()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_DATA)
+                        .between(getControl(), controlInstr.getData())
+                        .and(getTest(), testInstr.getData()));
 
-		return comparisons;
-	}
+        return comparisons;
+    }
 
 }

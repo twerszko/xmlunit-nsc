@@ -27,9 +27,8 @@ import net.sf.xmlunit.diff.commands.CompareNodeCommand;
 import net.sf.xmlunit.diff.commands.ComparisonCommand;
 import net.sf.xmlunit.diff.commands.ComparisonCommandBase;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.util.Linqy;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -63,8 +62,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
         }
         try {
             compareNodes(
-                    NodeAndXpathCtx.from(Convert.toNode(control), new XPathContext()),
-                    NodeAndXpathCtx.from(Convert.toNode(test), new XPathContext()));
+                    NodeAndXpath.from(Convert.toNode(control)),
+                    NodeAndXpath.from(Convert.toNode(test)));
         } catch (Exception ex) {
             // TODO remove pokemon exception handling
             throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
@@ -72,7 +71,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
     }
 
     @VisibleForTesting
-    void compareNodes(NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
+    void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
         new CompareNodeAndChildrenCommand(getComparisonPerformer(), control, test).execute();
     }
 
@@ -96,8 +95,8 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
     private class CompareNodeAndChildrenCommand extends ComparisonCommandBase<Node> {
 
         public CompareNodeAndChildrenCommand(ComparisonPerformer compPerformer,
-                NodeAndXpathCtx<Node> control,
-                NodeAndXpathCtx<Node> test) {
+                NodeAndXpath<Node> control,
+                NodeAndXpath<Node> test) {
             super(compPerformer, control, test);
         }
 
@@ -141,18 +140,21 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 controlContext.navigateToChild(controlIndex);
                 testContext.navigateToChild(testIndex);
                 try {
-                    executeComparison(new Comparison(
-                            ComparisonType.CHILD_NODELIST_SEQUENCE,
-                            NodeAndXpathCtx.from(controlNode, controlContext), controlIndex,
-                            NodeAndXpathCtx.from(testNode, testContext), testIndex));
+                    executeComparison(Comparison.ofType(ComparisonType.CHILD_NODELIST_SEQUENCE)
+                            .between(
+                                    NodeAndXpath.from(controlNode, controlContext),
+                                    controlIndex)
+                            .and(
+                                    NodeAndXpath.from(testNode, testContext),
+                                    testIndex));
                     if (isInterrupted()) {
                         return;
                     }
 
                     // TODO
                     ComparisonCommand command = new CompareNodeAndChildrenCommand(compPerformer,
-                            NodeAndXpathCtx.from(controlNode, controlContext),
-                            NodeAndXpathCtx.from(testNode, testContext));
+                            NodeAndXpath.from(controlNode, controlContext),
+                            NodeAndXpath.from(testNode, testContext));
                     command.execute();
                     if (command.isInterrupted()) {
                         setInterrupted(true);
@@ -166,13 +168,17 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 
             final int controlSize = controlList.size();
             for (int i = 0; i < controlSize; i++) {
-                if (!seen.contains(controlList.get(i))) {
+                Node controlChild = controlList.get(i);
+                if (!seen.contains(controlChild)) {
                     controlContext.navigateToChild(i);
                     try {
-                        comparisons.add(new Comparison(
-                                ComparisonType.CHILD_LOOKUP,
-                                controlList.get(i), getXPath(controlContext), controlList.get(i).getNodeName(),
-                                null, null, null));
+                        comparisons.add(
+                                Comparison
+                                        .ofType(ComparisonType.CHILD_LOOKUP)
+                                        .between(
+                                                NodeAndXpath.from(controlChild, controlContext),
+                                                controlChild.getNodeName())
+                                        .and(null, null));
                     } finally {
                         controlContext.navigateToParent();
                     }
@@ -181,13 +187,17 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 
             final int testSize = testList.size();
             for (int i = 0; i < testSize; i++) {
-                if (!seen.contains(testList.get(i))) {
+                Node testChild = testList.get(i);
+                if (!seen.contains(testChild)) {
                     testContext.navigateToChild(i);
                     try {
-                        comparisons.add(new Comparison(
-                                ComparisonType.CHILD_LOOKUP,
-                                null, null, null,
-                                testList.get(i), getXPath(testContext), testList.get(i).getNodeName()));
+                        comparisons.add(
+                                Comparison
+                                        .ofType(ComparisonType.CHILD_LOOKUP)
+                                        .between(null, null)
+                                        .and(NodeAndXpath.from(
+                                                testChild, testContext),
+                                                testChild.getNodeName()));
                     } finally {
                         testContext.navigateToParent();
                     }
@@ -211,10 +221,6 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
             }
 
             executeChildrenComparison();
-        }
-
-        private Iterable<Node> getFilteredChildNodes(Node parentNode) {
-            return Linqy.filter(new IterableNodeList(parentNode.getChildNodes()), INTERESTING_NODES);
         }
 
         @Override

@@ -19,46 +19,46 @@ import java.util.Queue;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Node;
 
 public class CompareCharacterDataCommand extends ComparisonCommandBase<CharacterData> {
 
-	public CompareCharacterDataCommand(ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<CharacterData> control, NodeAndXpathCtx<CharacterData> test) {
-		super(compPerformer, control, test);
-	}
+    public CompareCharacterDataCommand(ComparisonPerformer compPerformer,
+            NodeAndXpath<CharacterData> control, NodeAndXpath<CharacterData> test) {
+        super(compPerformer, control, test);
+    }
 
-	@Override
-	public Queue<Comparison> provideComparisons() {
-		CharacterData controlNode = getControl().getNode();
-		CharacterData testNode = getTest().getNode();
+    @Override
+    public Queue<Comparison> provideComparisons() {
+        CharacterData controlNode = getControl().getNode();
+        CharacterData testNode = getTest().getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
-		if (controlNode.getNodeType() == testNode.getNodeType()) {
-			switch (controlNode.getNodeType()) {
-				case Node.CDATA_SECTION_NODE:
-					comparisonType = ComparisonType.CDATA_VALUE;
-					break;
-				case Node.COMMENT_NODE:
-					comparisonType = ComparisonType.COMMENT_VALUE;
-					break;
-				case Node.TEXT_NODE:
-				default:
-					comparisonType = ComparisonType.TEXT_VALUE;
-					break;
-			}
-		}
+        ComparisonType comparisonType = ComparisonType.TEXT_VALUE;
+        if (controlNode.getNodeType() == testNode.getNodeType()) {
+            switch (controlNode.getNodeType()) {
+                case Node.CDATA_SECTION_NODE:
+                    comparisonType = ComparisonType.CDATA_VALUE;
+                    break;
+                case Node.COMMENT_NODE:
+                    comparisonType = ComparisonType.COMMENT_VALUE;
+                    break;
+                case Node.TEXT_NODE:
+                default:
+                    comparisonType = ComparisonType.TEXT_VALUE;
+                    break;
+            }
+        }
 
-		comparisons.add(new Comparison(comparisonType,
-		        getControl(), controlNode.getData(),
-		        getTest(), testNode.getData()));
+        comparisons.add(
+                Comparison.ofType(comparisonType)
+                        .between(getControl(), controlNode.getData())
+                        .and(getTest(), testNode.getData()));
 
-		return comparisons;
-	}
-
+        return comparisons;
+    }
 }

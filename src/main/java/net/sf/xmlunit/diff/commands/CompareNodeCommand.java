@@ -7,8 +7,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
-import net.sf.xmlunit.util.IterableNodeList;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Linqy;
 
 import org.w3c.dom.Attr;
@@ -24,22 +23,22 @@ public class CompareNodeCommand extends ComparisonCommandBase<Node> {
     final boolean ignoreAttributeOrder;
 
     public CompareNodeCommand(ComparisonPerformer compPerformer, boolean ignoreAttributeOrder,
-            NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
+            NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
         super(compPerformer, control, test);
         this.ignoreAttributeOrder = ignoreAttributeOrder;
     }
 
     @Override
     public Queue<Comparison> provideComparisons() {
-        final Node controlNode = getControl().getNode();
-        final Node testNode = getTest().getNode();
+        Node controlNode = getControl().getNode();
+        Node testNode = getTest().getNode();
 
         Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-        comparisons.add(new Comparison(
-                ComparisonType.NODE_TYPE,
-                getControl(), controlNode.getNodeType(),
-                getTest(), testNode.getNodeType()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.NODE_TYPE)
+                        .between(getControl(), controlNode.getNodeType())
+                        .and(getTest(), testNode.getNodeType()));
 
         comparisons.addAll(new CompareNamespaceCommand(compPerformer,
                 getControl(), getTest()).provideComparisons());
@@ -57,22 +56,23 @@ public class CompareNodeCommand extends ComparisonCommandBase<Node> {
         Node controlNode = getControl().getNode();
         Node testNode = getTest().getNode();
 
-        Iterable<Node> controlChildren =
-                Linqy.filter(new IterableNodeList(controlNode.getChildNodes()), INTERESTING_NODES);
-        Iterable<Node> testChildren =
-                Linqy.filter(new IterableNodeList(testNode.getChildNodes()), INTERESTING_NODES);
+        Iterable<Node> controlChildren = getFilteredChildNodes(controlNode);
+        Iterable<Node> testChildren = getFilteredChildNodes(testNode);
 
         Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-        if (Linqy.count(controlChildren) > 0 && Linqy.count(testChildren) > 0) {
-            comparisons.add(new Comparison(
-                    ComparisonType.CHILD_NODELIST_LENGTH,
-                    getControl(), Linqy.count(controlChildren),
-                    getTest(), Linqy.count(testChildren)));
+        int controlChildrenCount = Linqy.count(controlChildren);
+        int testChildrenCount = Linqy.count(testChildren);
+        if (controlChildrenCount > 0 && testChildrenCount > 0) {
+            comparisons.add(
+                    Comparison.ofType(ComparisonType.CHILD_NODELIST_LENGTH)
+                            .between(getControl(), controlChildrenCount)
+                            .and(getTest(), testChildrenCount));
         } else {
-            comparisons.add(new Comparison(ComparisonType.HAS_CHILD_NODES,
-                    getControl(), Linqy.count(controlChildren) > 0,
-                    getTest(), Linqy.count(testChildren) > 0));
+            comparisons.add(
+                    Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+                            .between(getControl(), controlChildrenCount > 0)
+                            .and(getTest(), testChildrenCount > 0));
         }
         return comparisons;
     }
@@ -83,11 +83,11 @@ public class CompareNodeCommand extends ComparisonCommandBase<Node> {
      */
     private Queue<Comparison> provideNodeTypeSpecificComparison() {
 
-        final Node controlNode = getControl().getNode();
-        final Node testNode = getTest().getNode();
+        Node controlNode = getControl().getNode();
+        Node testNode = getTest().getNode();
 
-        final XPathContext controlContext = getControl().getXpathCtx();
-        final XPathContext testContext = getTest().getXpathCtx();
+        XPathContext controlContext = getControl().getXpathCtx();
+        XPathContext testContext = getTest().getXpathCtx();
 
         ComparisonCommandBase<? extends Node> command = null;
 
@@ -97,44 +97,44 @@ public class CompareNodeCommand extends ComparisonCommandBase<Node> {
             case Node.TEXT_NODE:
                 if (testNode instanceof CharacterData) {
                     command = new CompareCharacterDataCommand(compPerformer,
-                            NodeAndXpathCtx.from((CharacterData) controlNode, controlContext),
-                            NodeAndXpathCtx.from((CharacterData) testNode, testContext));
+                            NodeAndXpath.from((CharacterData) controlNode, controlContext),
+                            NodeAndXpath.from((CharacterData) testNode, testContext));
                 }
                 break;
             case Node.DOCUMENT_NODE:
                 if (testNode instanceof Document) {
                     command = new CompareDocumentCommand(compPerformer,
-                            NodeAndXpathCtx.from((Document) controlNode, controlContext),
-                            NodeAndXpathCtx.from((Document) testNode, testContext));
+                            NodeAndXpath.from((Document) controlNode, controlContext),
+                            NodeAndXpath.from((Document) testNode, testContext));
                 }
                 break;
             case Node.ELEMENT_NODE:
                 if (testNode instanceof Element) {
                     command = new CompareElementCommand(
                             compPerformer, ignoreAttributeOrder,
-                            NodeAndXpathCtx.from((Element) controlNode, controlContext),
-                            NodeAndXpathCtx.from((Element) testNode, testContext));
+                            NodeAndXpath.from((Element) controlNode, controlContext),
+                            NodeAndXpath.from((Element) testNode, testContext));
                 }
                 break;
             case Node.PROCESSING_INSTRUCTION_NODE:
                 if (testNode instanceof ProcessingInstruction) {
                     command = new CompareProcInstrCommand(compPerformer,
-                            NodeAndXpathCtx.from((ProcessingInstruction) controlNode, controlContext),
-                            NodeAndXpathCtx.from((ProcessingInstruction) testNode, testContext));
+                            NodeAndXpath.from((ProcessingInstruction) controlNode, controlContext),
+                            NodeAndXpath.from((ProcessingInstruction) testNode, testContext));
                 }
                 break;
             case Node.DOCUMENT_TYPE_NODE:
                 if (testNode instanceof DocumentType) {
                     command = new CompareDoctypeCommand(compPerformer,
-                            NodeAndXpathCtx.from((DocumentType) controlNode, controlContext),
-                            NodeAndXpathCtx.from((DocumentType) testNode, testContext));
+                            NodeAndXpath.from((DocumentType) controlNode, controlContext),
+                            NodeAndXpath.from((DocumentType) testNode, testContext));
                 }
                 break;
             case Node.ATTRIBUTE_NODE:
                 if (testNode instanceof Attr) {
                     command = new CompareAttributeCommand(compPerformer,
-                            NodeAndXpathCtx.from((Attr) controlNode, controlContext),
-                            NodeAndXpathCtx.from((Attr) testNode, testContext));
+                            NodeAndXpath.from((Attr) controlNode, controlContext),
+                            NodeAndXpath.from((Attr) testNode, testContext));
                 }
                 break;
         }

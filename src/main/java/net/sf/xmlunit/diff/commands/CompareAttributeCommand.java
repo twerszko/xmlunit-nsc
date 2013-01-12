@@ -19,32 +19,34 @@ import java.util.Queue;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Attr;
 
 public class CompareAttributeCommand extends ComparisonCommandBase<Attr> {
 
-	public CompareAttributeCommand(ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<Attr> control, NodeAndXpathCtx<Attr> test) {
-		super(compPerformer, control, test);
-	}
+    public CompareAttributeCommand(ComparisonPerformer compPerformer,
+            NodeAndXpath<Attr> control, NodeAndXpath<Attr> test) {
+        super(compPerformer, control, test);
+    }
 
-	@Override
-	public Queue<Comparison> provideComparisons() {
-		final Attr controlAttr = getControl().getNode();
-		final Attr testAttr = getTest().getNode();
+    @Override
+    public Queue<Comparison> provideComparisons() {
+        Attr controlAttr = getControl().getNode();
+        Attr testAttr = getTest().getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		comparisons.add(new Comparison(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-		        getControl(), controlAttr.getSpecified(),
-		        getTest(), testAttr.getSpecified()));
-		comparisons.add(new Comparison(ComparisonType.ATTR_VALUE,
-		        getControl(), controlAttr.getValue(),
-		        getTest(), testAttr.getValue()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED)
+                        .between(getControl(), controlAttr.getSpecified())
+                        .and(getTest(), testAttr.getSpecified()));
 
-		return comparisons;
-	}
+        comparisons.add(
+                Comparison.ofType(ComparisonType.ATTR_VALUE)
+                        .between(getControl(), controlAttr.getValue())
+                        .and(getTest(), testAttr.getValue()));
 
+        return comparisons;
+    }
 }

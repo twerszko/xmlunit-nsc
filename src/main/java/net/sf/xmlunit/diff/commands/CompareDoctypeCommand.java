@@ -19,43 +19,43 @@ import java.util.Queue;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.DocumentType;
 
 public class CompareDoctypeCommand extends ComparisonCommandBase<DocumentType> {
 
-	public CompareDoctypeCommand(
-	        ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<DocumentType> control, NodeAndXpathCtx<DocumentType> test) {
-		super(compPerformer, control, test);
-	}
+    public CompareDoctypeCommand(
+            ComparisonPerformer compPerformer,
+            NodeAndXpath<DocumentType> control, NodeAndXpath<DocumentType> test) {
+        super(compPerformer, control, test);
+    }
 
-	@Override
-	public Queue<Comparison> provideComparisons() {
-		final DocumentType controlDt = getControl().getNode();
-		final DocumentType testDt = getTest().getNode();
+    @Override
+    public Queue<Comparison> provideComparisons() {
+        DocumentType controlDt = getControl().getNode();
+        DocumentType testDt = getTest().getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
-		if (controlDt == null || testDt == null) {
-			return comparisons;
-		}
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        if (controlDt == null || testDt == null) {
+            return comparisons;
+        }
 
-		comparisons.add(new Comparison(
-		        ComparisonType.DOCTYPE_NAME,
-		        getControl(), controlDt.getName(),
-		        getTest(), testDt.getName()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.DOCTYPE_NAME)
+                        .between(getControl(), controlDt.getName())
+                        .and(getTest(), testDt.getName()));
 
-		comparisons.add(new Comparison(
-		        ComparisonType.DOCTYPE_PUBLIC_ID,
-		        getControl(), controlDt.getPublicId(),
-		        getTest(), testDt.getPublicId()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.DOCTYPE_PUBLIC_ID)
+                        .between(getControl(), controlDt.getPublicId())
+                        .and(getTest(), testDt.getPublicId()));
 
-		comparisons.add(new Comparison(
-		        ComparisonType.DOCTYPE_SYSTEM_ID,
-		        getControl(), controlDt.getSystemId(),
-		        getTest(), testDt.getSystemId()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.DOCTYPE_SYSTEM_ID)
+                        .between(getControl(), controlDt.getSystemId())
+                        .and(getTest(), testDt.getSystemId()));
 
-		return comparisons;
-	}
+        return comparisons;
+    }
 }

@@ -30,7 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Input;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -114,8 +114,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         // when
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(doc.createElement("x")),
-                NodeAndXpathCtx.<Node> from(doc.createComment("x")));
+                NodeAndXpath.<Node> from(doc.createElement("x")),
+                NodeAndXpath.<Node> from(doc.createComment("x")));
 
         // then
         assertThat(ex.invoked, is(equalTo(1)));
@@ -131,8 +131,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         // when
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(doc.createElement("x")),
-                NodeAndXpathCtx.<Node> from(doc.createElement("x")));
+                NodeAndXpath.<Node> from(doc.createElement("x")),
+                NodeAndXpath.<Node> from(doc.createElement("x")));
 
         // then
         assertThat(ex.invoked, is(equalTo(0)));
@@ -148,8 +148,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         // when
         diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(doc.createElementNS("x", "y")),
-                NodeAndXpathCtx.<Node> from(doc.createElementNS("z", "y")));
+                NodeAndXpath.<Node> from(doc.createElementNS("x", "y")),
+                NodeAndXpath.<Node> from(doc.createElementNS("z", "y")));
 
         // then
         assertThat(ex.invoked, is(equalTo(1)));
@@ -175,8 +175,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             }
         });
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(doc.createElementNS("x", "x:y")),
-                NodeAndXpathCtx.<Node> from(doc.createElementNS("x", "z:y")));
+                NodeAndXpath.<Node> from(doc.createElementNS("x", "x:y")),
+                NodeAndXpath.<Node> from(doc.createElementNS("x", "z:y")));
 
         // then
         assertThat(ex.invoked, is(equalTo(1)));
@@ -196,22 +196,22 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e2 = doc.createElement("x");
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertThat(ex.invoked, is(equalTo(0)));
 
         e1.appendChild(doc.createElement("x"));
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertThat(ex.invoked, is(equalTo(1)));
 
         e2.appendChild(doc.createElement("x"));
         ex = new DiffExpecter(ComparisonType.HAS_CHILD_NODES, 1);
         diffEngine.addDifferenceListener(ex);
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertThat(ex.invoked, is(equalTo(0)));
     }
 
@@ -229,21 +229,21 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e2 = doc.createElement("x");
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertThat(ex.invoked, is(equalTo(0)));
 
         e1.appendChild(doc.createElement("x"));
         e2.appendChild(doc.createElement("x"));
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertThat(ex.invoked, is(equalTo(0)));
 
         e2.appendChild(doc.createElement("x"));
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertThat(ex.invoked, is(equalTo(1)));
     }
 
@@ -276,13 +276,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
         // then
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooComment),
-                NodeAndXpathCtx.<Node> from(fooComment));
+                NodeAndXpath.<Node> from(fooComment),
+                NodeAndXpath.<Node> from(fooComment));
         assertThat(ex.invoked, is(equalTo(0)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooComment),
-                NodeAndXpathCtx.<Node> from(barComment));
+                NodeAndXpath.<Node> from(fooComment),
+                NodeAndXpath.<Node> from(barComment));
 
         assertThat(ex.invoked, is(equalTo(1)));
     }
@@ -316,13 +316,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
         // then
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooCDATASection),
-                NodeAndXpathCtx.<Node> from(fooCDATASection));
+                NodeAndXpath.<Node> from(fooCDATASection),
+                NodeAndXpath.<Node> from(fooCDATASection));
         assertThat(ex.invoked, is(equalTo(0)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooCDATASection),
-                NodeAndXpathCtx.<Node> from(barCDATASection));
+                NodeAndXpath.<Node> from(fooCDATASection),
+                NodeAndXpath.<Node> from(barCDATASection));
         assertThat(ex.invoked, is(equalTo(1)));
     }
 
@@ -360,73 +360,73 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
         // then
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooText),
-                NodeAndXpathCtx.<Node> from(fooText));
+                NodeAndXpath.<Node> from(fooText),
+                NodeAndXpath.<Node> from(fooText));
         assertThat(ex.invoked, is(equalTo(0)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooText),
-                NodeAndXpathCtx.<Node> from(barText));
+                NodeAndXpath.<Node> from(fooText),
+                NodeAndXpath.<Node> from(barText));
         assertThat(ex.invoked, is(equalTo(1)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooComment),
-                NodeAndXpathCtx.<Node> from(fooText));
+                NodeAndXpath.<Node> from(fooComment),
+                NodeAndXpath.<Node> from(fooText));
         assertThat(ex.invoked, is(equalTo(1)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooComment),
-                NodeAndXpathCtx.<Node> from(barText));
+                NodeAndXpath.<Node> from(fooComment),
+                NodeAndXpath.<Node> from(barText));
         assertThat(ex.invoked, is(equalTo(2)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooComment),
-                NodeAndXpathCtx.<Node> from(fooCDATASection));
+                NodeAndXpath.<Node> from(fooComment),
+                NodeAndXpath.<Node> from(fooCDATASection));
         assertThat(ex.invoked, is(equalTo(2)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooComment),
-                NodeAndXpathCtx.<Node> from(barCDATASection));
+                NodeAndXpath.<Node> from(fooComment),
+                NodeAndXpath.<Node> from(barCDATASection));
         assertThat(ex.invoked, is(equalTo(3)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooText),
-                NodeAndXpathCtx.<Node> from(fooComment));
+                NodeAndXpath.<Node> from(fooText),
+                NodeAndXpath.<Node> from(fooComment));
         assertThat(ex.invoked, is(equalTo(3)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooText),
-                NodeAndXpathCtx.<Node> from(barComment));
+                NodeAndXpath.<Node> from(fooText),
+                NodeAndXpath.<Node> from(barComment));
         assertThat(ex.invoked, is(equalTo(4)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooText),
-                NodeAndXpathCtx.<Node> from(fooCDATASection));
+                NodeAndXpath.<Node> from(fooText),
+                NodeAndXpath.<Node> from(fooCDATASection));
         assertThat(ex.invoked, is(equalTo(4)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooText),
-                NodeAndXpathCtx.<Node> from(barCDATASection));
+                NodeAndXpath.<Node> from(fooText),
+                NodeAndXpath.<Node> from(barCDATASection));
         assertThat(ex.invoked, is(equalTo(5)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooCDATASection),
-                NodeAndXpathCtx.<Node> from(fooText));
+                NodeAndXpath.<Node> from(fooCDATASection),
+                NodeAndXpath.<Node> from(fooText));
         assertThat(ex.invoked, is(equalTo(5)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooCDATASection),
-                NodeAndXpathCtx.<Node> from(barText));
+                NodeAndXpath.<Node> from(fooCDATASection),
+                NodeAndXpath.<Node> from(barText));
         assertThat(ex.invoked, is(equalTo(6)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooCDATASection),
-                NodeAndXpathCtx.<Node> from(fooComment));
+                NodeAndXpath.<Node> from(fooCDATASection),
+                NodeAndXpath.<Node> from(fooComment));
         assertThat(ex.invoked, is(equalTo(6)));
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(fooCDATASection),
-                NodeAndXpathCtx.<Node> from(barComment));
+                NodeAndXpath.<Node> from(fooCDATASection),
+                NodeAndXpath.<Node> from(barComment));
         assertThat(ex.invoked, is(equalTo(7)));
     }
 
@@ -445,13 +445,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ProcessingInstruction bar1 = doc.createProcessingInstruction("bar", "1");
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(foo1),
-                NodeAndXpathCtx.<Node> from(foo1));
+                NodeAndXpath.<Node> from(foo1),
+                NodeAndXpath.<Node> from(foo1));
         assertEquals(0, ex.invoked);
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(foo1),
-                NodeAndXpathCtx.<Node> from(bar1));
+                NodeAndXpath.<Node> from(foo1),
+                NodeAndXpath.<Node> from(bar1));
         assertEquals(1, ex.invoked);
 
         diffEngine = new DOMDifferenceEngine(null);
@@ -461,13 +461,13 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ProcessingInstruction foo2 = doc.createProcessingInstruction("foo", "2");
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(foo1),
-                NodeAndXpathCtx.<Node> from(foo1));
+                NodeAndXpath.<Node> from(foo1),
+                NodeAndXpath.<Node> from(foo1));
         assertEquals(0, ex.invoked);
 
         diffEngine.compareNodes(
-                NodeAndXpathCtx.<Node> from(foo1),
-                NodeAndXpathCtx.<Node> from(foo2));
+                NodeAndXpath.<Node> from(foo1),
+                NodeAndXpath.<Node> from(foo2));
         assertEquals(1, ex.invoked);
     }
 
@@ -494,8 +494,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 "<!DOCTYPE Book PUBLIC " + "\"XMLUNIT/TEST/PUB\" " + "\"" + TestResources.BOOK_DTD.getFile() + "\">"
                         + "<Book/>").build());
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(d1),
-                NodeAndXpathCtx.<Node> from(d2));
+                NodeAndXpath.<Node> from(d1),
+                NodeAndXpath.<Node> from(d2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -508,8 +508,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d2 = Convert
                 .toDocument(Input.fromMemory("<?xml version=\"1.1\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(d1),
-                NodeAndXpathCtx.<Node> from(d2));
+                NodeAndXpath.<Node> from(d1),
+                NodeAndXpath.<Node> from(d2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -521,8 +521,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"yes\"?>" + "<Book/>").build());
         d2 = Convert.toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"no\"?>" + "<Book/>").build());
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(d1),
-                NodeAndXpathCtx.<Node> from(d2));
+                NodeAndXpath.<Node> from(d1),
+                NodeAndXpath.<Node> from(d2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -545,8 +545,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d2 = Convert.toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-16\"?>" + "<Book/>")
                 .build());
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(d1),
-                NodeAndXpathCtx.<Node> from(d2));
+                NodeAndXpath.<Node> from(d1),
+                NodeAndXpath.<Node> from(d2));
         assertEquals(1, ex.invoked);
     }
 
@@ -604,8 +604,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         DocumentType dt1 = new DocType("name", "pub", "system");
         DocumentType dt2 = new DocType("name2", "pub", "system");
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(dt1),
-                NodeAndXpathCtx.<Node> from(dt2));
+                NodeAndXpath.<Node> from(dt1),
+                NodeAndXpath.<Node> from(dt2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -614,8 +614,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         dt2 = new DocType("name", "pub2", "system");
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(dt1),
-                NodeAndXpathCtx.<Node> from(dt2));
+                NodeAndXpath.<Node> from(dt1),
+                NodeAndXpath.<Node> from(dt2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -634,8 +634,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         });
         dt2 = new DocType("name", "pub", "system2");
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(dt1),
-                NodeAndXpathCtx.<Node> from(dt2));
+                NodeAndXpath.<Node> from(dt1),
+                NodeAndXpath.<Node> from(dt2));
         assertEquals(1, ex.invoked);
     }
 
@@ -650,12 +650,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e2 = doc.createElement("foo");
         Element e3 = doc.createElement("bar");
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(0, ex.invoked);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e3));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e3));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -665,8 +665,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
 
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -675,8 +675,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -696,8 +696,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
 
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(0, ex.invoked);
     }
 
@@ -726,12 +726,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         a2.setValue("foo");
         a3.setValue("bar");
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(a1),
-                NodeAndXpathCtx.<Node> from(a2));
+                NodeAndXpath.<Node> from(a1),
+                NodeAndXpath.<Node> from(a2));
         assertEquals(0, ex.invoked);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(a1),
-                NodeAndXpathCtx.<Node> from(a3));
+                NodeAndXpath.<Node> from(a1),
+                NodeAndXpath.<Node> from(a3));
         assertEquals(1, ex.invoked);
     }
 
@@ -756,8 +756,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         };
         d.setDifferenceEvaluator(ev);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
 
         // symmetric?
@@ -766,8 +766,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(ev);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e2),
-                NodeAndXpathCtx.<Node> from(e1));
+                NodeAndXpath.<Node> from(e2),
+                NodeAndXpath.<Node> from(e1));
         assertEquals(1, ex.invoked);
 
         Element c2 = doc.createElement("bar");
@@ -778,12 +778,12 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(ev);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(0, ex.invoked);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e2),
-                NodeAndXpathCtx.<Node> from(e1));
+                NodeAndXpath.<Node> from(e2),
+                NodeAndXpath.<Node> from(e1));
         assertEquals(0, ex.invoked);
     }
 
@@ -801,8 +801,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setDifferenceEvaluator(ev);
 
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         List<Comparison> differences = ev.getDifferences();
         Comparison difference = differences.get(0);
         assertThat(difference.getType()).isEqualTo(ComparisonType.NODE_TYPE);
@@ -811,8 +811,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         ev = new ListingDifferenceEvaluator();
         d.setDifferenceEvaluator(ev);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e2),
-                NodeAndXpathCtx.<Node> from(e1));
+                NodeAndXpath.<Node> from(e2),
+                NodeAndXpath.<Node> from(e1));
 
         differences = ev.getDifferences();
         assertThat(differences).hasSize(1);
@@ -834,8 +834,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
 
         d = new DOMDifferenceEngine(null);
@@ -844,8 +844,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.addDifferenceListener(ex);
         d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
     }
 
@@ -871,8 +871,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             }
         });
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
 
         e1 = doc.createElement("foo");
@@ -894,8 +894,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
             }
         });
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
     }
 
@@ -919,8 +919,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         Element e2 = doc.createElementNS("urn:xmlunit:test", "foo");
         e2.setPrefix("p2");
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(0, ex.invoked);
     }
 
@@ -931,9 +931,10 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
         engine.setDifferenceEvaluator(evaluator);
 
-        Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                null, null, "black",
-                null, null, "black");
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+                        .between(null, "black")
+                        .and(null, "black");
 
         // when
         ComparisonResult result = engine.compare(comparison);
@@ -950,9 +951,10 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
         engine.setDifferenceEvaluator(evaluator);
 
-        Comparison comparison = new Comparison(ComparisonType.ATTR_NAME_LOOKUP,
-                null, null, "black",
-                null, null, "white");
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+                        .between(null, "black")
+                        .and(null, "white");
 
         // when
         ComparisonResult result = engine.compare(comparison);
@@ -970,9 +972,10 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
         engine.setDifferenceEvaluator(evaluator);
 
-        Comparison comparison = new Comparison(ComparisonType.HAS_CHILD_NODES,
-                null, null, true,
-                null, null, true);
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+                        .between(null, true)
+                        .and(null, true);
 
         // when
         ComparisonResult result = engine.compare(comparison);
@@ -989,9 +992,10 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
         engine.setDifferenceEvaluator(evaluator);
 
-        Comparison comparison = new Comparison(ComparisonType.HAS_CHILD_NODES,
-                null, null, false,
-                null, null, true);
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+                        .between(null, false)
+                        .and(null, true);
 
         // when
         ComparisonResult result = engine.compare(comparison);
@@ -1056,8 +1060,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         engine.setDifferenceEvaluator(evaluator);
 
         engine.compareNodes(
-                NodeAndXpathCtx.<Node> from(control),
-                NodeAndXpathCtx.<Node> from(test));
+                NodeAndXpath.<Node> from(control),
+                NodeAndXpath.<Node> from(test));
         List<Comparison> differences = evaluator.getDifferences();
         return differences;
     }
@@ -1131,8 +1135,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         engine.setDifferenceEvaluator(evaluator);
 
         engine.compareNodes(
-                NodeAndXpathCtx.<Node> from(control),
-                NodeAndXpathCtx.<Node> from(test));
+                NodeAndXpath.<Node> from(control),
+                NodeAndXpath.<Node> from(test));
 
         return evaluator.getDifferences();
     }
@@ -1167,8 +1171,8 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
         d.setNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName));
 
         d.compareNodes(
-                NodeAndXpathCtx.<Node> from(e1),
-                NodeAndXpathCtx.<Node> from(e2));
+                NodeAndXpath.<Node> from(e1),
+                NodeAndXpath.<Node> from(e2));
         assertEquals(1, ex.invoked);
     }
 }

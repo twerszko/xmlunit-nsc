@@ -13,15 +13,19 @@
  */
 package net.sf.xmlunit.diff.internal;
 
+import net.sf.xmlunit.diff.XPathContext;
+
 import org.w3c.dom.Node;
 
 public class NodeAndXpath<T extends Node> {
     private final T node;
     private final String xpath;
+    private final XPathContext xpathCtx;
 
-    public NodeAndXpath(T node, String xpath) {
+    public NodeAndXpath(T node, XPathContext xpathCtx) {
         this.node = node;
-        this.xpath = xpath;
+        this.xpathCtx = xpathCtx;
+        this.xpath = getXPath(xpathCtx);
     }
 
     public T getNode() {
@@ -30,6 +34,22 @@ public class NodeAndXpath<T extends Node> {
 
     public String getXpath() {
         return xpath;
+    }
+
+    public XPathContext getXpathCtx() {
+        return xpathCtx;
+    }
+
+    protected static String getXPath(XPathContext ctx) {
+        return ctx == null ? null : ctx.getXPath();
+    }
+
+    public static <T extends Node> NodeAndXpath<T> from(T node, XPathContext xpathCtx) {
+        return new NodeAndXpath<T>(node, xpathCtx);
+    }
+
+    public static <T extends Node> NodeAndXpath<T> from(T node) {
+        return new NodeAndXpath<T>(node, new XPathContext());
     }
 
 }

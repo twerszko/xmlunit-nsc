@@ -21,7 +21,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
+import net.sf.xmlunit.util.IterableNodeList;
+import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Predicate;
 
 import org.w3c.dom.Node;
@@ -30,22 +32,22 @@ import org.w3c.dom.Node;
 public abstract class ComparisonCommandBase<U extends Node> implements ComparisonCommand {
     protected final ComparisonPerformer compPerformer;
 
-    private final NodeAndXpathCtx<U> control;
-    private final NodeAndXpathCtx<U> test;
+    private final NodeAndXpath<U> control;
+    private final NodeAndXpath<U> test;
 
     private boolean interrupted = false;
 
-    public ComparisonCommandBase(ComparisonPerformer compPerformer, NodeAndXpathCtx<U> control, NodeAndXpathCtx<U> test) {
+    public ComparisonCommandBase(ComparisonPerformer compPerformer, NodeAndXpath<U> control, NodeAndXpath<U> test) {
         this.compPerformer = compPerformer;
         this.control = control;
         this.test = test;
     }
 
-    public NodeAndXpathCtx<U> getControl() {
+    public NodeAndXpath<U> getControl() {
         return control;
     }
 
-    public NodeAndXpathCtx<U> getTest() {
+    public NodeAndXpath<U> getTest() {
         return test;
     }
 
@@ -91,7 +93,11 @@ public abstract class ComparisonCommandBase<U extends Node> implements Compariso
         return interrupted;
     }
 
-    protected static final Predicate<Node> INTERESTING_NODES =
+    protected Iterable<Node> getFilteredChildNodes(Node parentNode) {
+        return Linqy.filter(new IterableNodeList(parentNode.getChildNodes()), INTERESTING_NODES);
+    }
+
+    private static final Predicate<Node> INTERESTING_NODES =
             new Predicate<Node>() {
                 @Override
                 public boolean matches(Node n) {

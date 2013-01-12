@@ -23,7 +23,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareCharacterDataCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -83,8 +83,8 @@ public class CompareCharacterDataCommandTest {
 	private List<Comparison> findCharacterDataDifferences(CharacterData controlText, CharacterData testText) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		NodeAndXpathCtx<CharacterData> control = new NodeAndXpathCtx<CharacterData>(controlText, new XPathContext());
-		NodeAndXpathCtx<CharacterData> test = new NodeAndXpathCtx<CharacterData>(testText, new XPathContext());
+		NodeAndXpath<CharacterData> control = new NodeAndXpath<CharacterData>(controlText, new XPathContext());
+		NodeAndXpath<CharacterData> test = new NodeAndXpath<CharacterData>(testText, new XPathContext());
 
 		new CompareCharacterDataCommand(performer, control, test).execute();
 		return performer.getDifferences();

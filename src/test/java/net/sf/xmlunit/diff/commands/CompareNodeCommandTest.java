@@ -23,7 +23,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareNodeCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -171,8 +171,8 @@ public class CompareNodeCommandTest {
 	private List<Comparison> findNodeChildrenDifferences(Node controlNode, Node testNode) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		NodeAndXpathCtx<Node> control = new NodeAndXpathCtx<Node>(controlNode, new XPathContext());
-		NodeAndXpathCtx<Node> test = new NodeAndXpathCtx<Node>(testNode, new XPathContext());
+		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
+		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
 		new CompareNodeCommand(performer, false, control, test).execute();
 		return performer.getDifferences();

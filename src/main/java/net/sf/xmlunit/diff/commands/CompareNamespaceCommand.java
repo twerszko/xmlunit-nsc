@@ -19,36 +19,36 @@ import java.util.Queue;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Node;
 
 public class CompareNamespaceCommand extends ComparisonCommandBase<Node> {
 
-	public CompareNamespaceCommand(
-	        ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<Node> control, NodeAndXpathCtx<Node> test) {
-		super(compPerformer, control, test);
-	}
+    public CompareNamespaceCommand(
+            ComparisonPerformer compPerformer,
+            NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+        super(compPerformer, control, test);
+    }
 
-	@Override
-	public Queue<Comparison> provideComparisons() {
-		final Node controlNode = getControl().getNode();
-		final Node testNode = getTest().getNode();
+    @Override
+    public Queue<Comparison> provideComparisons() {
+        Node controlNode = getControl().getNode();
+        Node testNode = getTest().getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		comparisons.add(new Comparison(
-		        ComparisonType.NAMESPACE_URI,
-		        getControl(), controlNode.getNamespaceURI(),
-		        getTest(), testNode.getNamespaceURI()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.NAMESPACE_URI)
+                        .between(getControl(), controlNode.getNamespaceURI())
+                        .and(getTest(), testNode.getNamespaceURI()));
 
-		comparisons.add(new Comparison(
-		        ComparisonType.NAMESPACE_PREFIX,
-		        getControl(), controlNode.getPrefix(),
-		        getTest(), testNode.getPrefix()));
+        comparisons.add(
+                Comparison.ofType(ComparisonType.NAMESPACE_PREFIX)
+                        .between(getControl(), controlNode.getPrefix())
+                        .and(getTest(), testNode.getPrefix()));
 
-		return comparisons;
-	}
+        return comparisons;
+    }
 
 }

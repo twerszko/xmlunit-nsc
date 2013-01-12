@@ -18,8 +18,9 @@ import java.util.Queue;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -29,59 +30,65 @@ import org.w3c.dom.DocumentType;
  */
 public class CompareDocumentCommand extends ComparisonCommandBase<Document> {
 
-	public CompareDocumentCommand(ComparisonPerformer compPerformer,
-	        NodeAndXpathCtx<Document> control, NodeAndXpathCtx<Document> test) {
-		super(compPerformer, control, test);
-	}
+    public CompareDocumentCommand(ComparisonPerformer compPerformer,
+            NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
+        super(compPerformer, control, test);
+    }
 
-	@Override
-	public Queue<Comparison> provideComparisons() {
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
-		comparisons.addAll(provideHasDocTypeComparisons());
-		comparisons.addAll(new CompareDoctypeCommand(compPerformer,
-		        NodeAndXpathCtx.from(getControl().getNode().getDoctype(), getControl().getXpathCtx()),
-		        NodeAndXpathCtx.from(getTest().getNode().getDoctype(), getTest().getXpathCtx()))
-		        .provideComparisons());
-		comparisons.addAll(provideXmlDeclComparisons());
-		return comparisons;
-	}
+    @Override
+    public Queue<Comparison> provideComparisons() {
+        Document controlNode = getControl().getNode();
+        Document testNode = getTest().getNode();
 
-	private Queue<Comparison> provideHasDocTypeComparisons() {
-		DocumentType controlDt = getControl().getNode().getDoctype();
-		DocumentType testDt = getTest().getNode().getDoctype();
+        XPathContext controlContext = getControl().getXpathCtx();
+        XPathContext testContext = getTest().getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		comparisons.add(new Comparison(
-		        ComparisonType.HAS_DOCTYPE_DECLARATION,
-		        getControl(), controlDt != null,
-		        getTest(), testDt != null));
+        comparisons.addAll(provideHasDocTypeComparisons());
+        comparisons.addAll(new CompareDoctypeCommand(compPerformer,
+                NodeAndXpath.from(controlNode.getDoctype(), controlContext),
+                NodeAndXpath.from(testNode.getDoctype(), testContext))
+                .provideComparisons());
+        comparisons.addAll(provideXmlDeclComparisons());
+        return comparisons;
+    }
 
-		return comparisons;
-	}
+    private Queue<Comparison> provideHasDocTypeComparisons() {
+        DocumentType controlDt = getControl().getNode().getDoctype();
+        DocumentType testDt = getTest().getNode().getDoctype();
 
-	private Queue<Comparison> provideXmlDeclComparisons() {
-		final Document controlDoc = getControl().getNode();
-		final Document testDoc = getTest().getNode();
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+        comparisons.add(
+                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                        .between(getControl(), controlDt != null)
+                        .and(getTest(), testDt != null));
 
-		comparisons.add(new Comparison(
-		        ComparisonType.XML_VERSION,
-		        getControl(), controlDoc.getXmlVersion(),
-		        getTest(), testDoc.getXmlVersion()));
+        return comparisons;
+    }
 
-		comparisons.add(new Comparison(
-		        ComparisonType.XML_STANDALONE,
-		        getControl(), controlDoc.getXmlStandalone(),
-		        getTest(), testDoc.getXmlStandalone()));
+    private Queue<Comparison> provideXmlDeclComparisons() {
+        Document controlDoc = getControl().getNode();
+        Document testDoc = getTest().getNode();
 
-		comparisons.add(new Comparison(
-		        ComparisonType.XML_ENCODING,
-		        getControl(), controlDoc.getXmlEncoding(),
-		        getTest(), testDoc.getXmlEncoding()));
+        Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		return comparisons;
-	}
+        comparisons.add(
+                Comparison.ofType(ComparisonType.XML_VERSION)
+                        .between(getControl(), controlDoc.getXmlVersion())
+                        .and(getTest(), testDoc.getXmlVersion()));
 
+        comparisons.add(
+                Comparison.ofType(ComparisonType.XML_STANDALONE)
+                        .between(getControl(), controlDoc.getXmlStandalone())
+                        .and(getTest(), testDoc.getXmlStandalone()));
+
+        comparisons.add(
+                Comparison.ofType(ComparisonType.XML_ENCODING)
+                        .between(getControl(), controlDoc.getXmlEncoding())
+                        .and(getTest(), testDoc.getXmlEncoding()));
+
+        return comparisons;
+    }
 }

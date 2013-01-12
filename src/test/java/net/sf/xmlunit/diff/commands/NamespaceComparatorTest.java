@@ -23,7 +23,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareNamespaceCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -74,8 +74,8 @@ public class NamespaceComparatorTest {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
 		new CompareNamespaceCommand(performer,
-		        new NodeAndXpathCtx<Node>(control, new XPathContext()),
-		        new NodeAndXpathCtx<Node>(test, new XPathContext()))
+		        new NodeAndXpath<Node>(control, new XPathContext()),
+		        new NodeAndXpath<Node>(test, new XPathContext()))
 		        .execute();
 
 		return performer.getDifferences();

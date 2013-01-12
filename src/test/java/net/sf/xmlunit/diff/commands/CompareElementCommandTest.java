@@ -27,7 +27,7 @@ import net.sf.xmlunit.diff.OrderPreservingNamedNodeMap;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareElementCommand;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -90,8 +90,8 @@ public class CompareElementCommandTest {
 			testMap.add(attrJ);
 		}
 		new CompareElementCommand(performer, properties.getIgnoreAttributeOrder(),
-		        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-		        NodeAndXpathCtx.from(test, new XPathContext()), testMap).execute();
+		        NodeAndXpath.from(control, new XPathContext()), controlMap,
+		        NodeAndXpath.from(test, new XPathContext()), testMap).execute();
 		return evaluator.getDifferences();
 	}
 
@@ -147,8 +147,8 @@ public class CompareElementCommandTest {
 		}
 
 		new CompareElementCommand(performer, properties.getIgnoreAttributeOrder(),
-		        NodeAndXpathCtx.from(control, new XPathContext()), controlMap,
-		        NodeAndXpathCtx.from(test, new XPathContext()), testMap).execute();
+		        NodeAndXpath.from(control, new XPathContext()), controlMap,
+		        NodeAndXpath.from(test, new XPathContext()), testMap).execute();
 		return performer.getDifferences();
 	}
 }

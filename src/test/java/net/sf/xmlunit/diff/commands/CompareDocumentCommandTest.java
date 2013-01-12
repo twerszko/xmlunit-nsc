@@ -21,7 +21,7 @@ import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.commands.CompareDocumentCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
 
 import org.junit.Test;
@@ -87,7 +87,7 @@ public class CompareDocumentCommandTest {
 
 	private List<Comparison> findHeaderDifferences(Document control, Document test) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
-		new CompareDocumentCommand(performer, NodeAndXpathCtx.from(control), NodeAndXpathCtx.from(test)).execute();
+		new CompareDocumentCommand(performer, NodeAndXpath.from(control), NodeAndXpath.from(test)).execute();
 		return performer.getDifferences();
 	}
 }

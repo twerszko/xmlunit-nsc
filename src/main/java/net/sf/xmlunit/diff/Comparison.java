@@ -27,6 +27,7 @@ public class Comparison {
     private final Detail control, test;
     private final ComparisonType type;
 
+    // TODO: get rid of it
     public Comparison(ComparisonType type,
             Node controlTarget, String controlXPath, Object controlValue,
             Node testTarget, String testXPath, Object testValue) {
@@ -36,12 +37,10 @@ public class Comparison {
         recoverable = type.isRecoverable();
     }
 
-    public Comparison(ComparisonType type,
-            NodeAndXpath<? extends Node> controlTarget, Object controlValue,
-            NodeAndXpath<? extends Node> testTarget, Object testValue) {
-        this.type = type;
-        control = new Detail(controlTarget, controlValue);
-        test = new Detail(testTarget, testValue);
+    public Comparison(ComparisonBuilder builder) {
+        this.type = builder.type;
+        control = new Detail(builder.controlTarget, builder.controlValue);
+        test = new Detail(builder.testTarget, builder.testValue);
         recoverable = type.isRecoverable();
     }
 
@@ -61,8 +60,13 @@ public class Comparison {
         }
 
         public Detail(NodeAndXpath<? extends Node> node, Object value) {
-            this.target = node.getNode();
-            this.xpath = node.getXpath();
+            if (node == null) {
+                this.target = null;
+                this.xpath = null;
+            } else {
+                this.target = node.getNode();
+                this.xpath = node.getXpath();
+            }
             this.value = value;
         }
 
@@ -147,4 +151,35 @@ public class Comparison {
         return new DifferenceFormater(this).toString();
     }
 
+    public static ComparisonBuilder ofType(ComparisonType type) {
+        return new ComparisonBuilder(type);
+    }
+
+    public final static class ComparisonBuilder {
+        private final ComparisonType type;
+        private NodeAndXpath<? extends Node> controlTarget;
+        private NodeAndXpath<? extends Node> testTarget;
+
+        private Object controlValue;
+        private Object testValue;
+
+        public ComparisonBuilder(ComparisonType type) {
+            this.type = type;
+        }
+
+        public TestNodeComparisonBuider between(NodeAndXpath<? extends Node> controlTarget, Object controlValue) {
+            this.controlTarget = controlTarget;
+            this.controlValue = controlValue;
+            return new TestNodeComparisonBuider();
+        }
+
+        public final class TestNodeComparisonBuider {
+            public Comparison and(NodeAndXpath<? extends Node> testTarget, Object testValue) {
+                ComparisonBuilder.this.testTarget = testTarget;
+                ComparisonBuilder.this.testValue = testValue;
+                return new Comparison(ComparisonBuilder.this);
+            }
+        }
+
+    }
 }

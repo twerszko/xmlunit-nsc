@@ -23,7 +23,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareDoctypeCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.AfterClass;
@@ -162,8 +162,8 @@ public class CompareDoctypeCommandTest {
 	private List<Comparison> findDoctypeDifferences(DocumentType controlType, DocumentType testType) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		NodeAndXpathCtx<DocumentType> control = new NodeAndXpathCtx<DocumentType>(controlType, new XPathContext());
-		NodeAndXpathCtx<DocumentType> test = new NodeAndXpathCtx<DocumentType>(testType, new XPathContext());
+		NodeAndXpath<DocumentType> control = new NodeAndXpath<DocumentType>(controlType, new XPathContext());
+		NodeAndXpath<DocumentType> test = new NodeAndXpath<DocumentType>(testType, new XPathContext());
 
 		new CompareDoctypeCommand(performer, control, test).execute();
 		return performer.getDifferences();

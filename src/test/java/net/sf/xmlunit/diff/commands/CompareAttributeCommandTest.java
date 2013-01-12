@@ -23,7 +23,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareAttributeCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -85,8 +85,8 @@ public class CompareAttributeCommandTest {
     private List<Comparison> findAttrDifferences(Attr controlAttr, Attr testAttr) {
         ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-        NodeAndXpathCtx<Attr> control = new NodeAndXpathCtx<Attr>(controlAttr, new XPathContext());
-        NodeAndXpathCtx<Attr> test = new NodeAndXpathCtx<Attr>(testAttr, new XPathContext());
+        NodeAndXpath<Attr> control = new NodeAndXpath<Attr>(controlAttr, new XPathContext());
+        NodeAndXpath<Attr> test = new NodeAndXpath<Attr>(testAttr, new XPathContext());
 
         new CompareAttributeCommand(performer, test, control).execute();
         return performer.getDifferences();

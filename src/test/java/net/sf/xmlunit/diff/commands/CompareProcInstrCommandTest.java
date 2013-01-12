@@ -23,7 +23,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.commands.CompareProcInstrCommand;
-import net.sf.xmlunit.diff.internal.NodeAndXpathCtx;
+import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -85,8 +85,8 @@ public class CompareProcInstrCommandTest {
 
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		NodeAndXpathCtx<ProcessingInstruction> control = NodeAndXpathCtx.from(controlInstr, new XPathContext());
-		NodeAndXpathCtx<ProcessingInstruction> test = NodeAndXpathCtx.from(testInstr, new XPathContext());
+		NodeAndXpath<ProcessingInstruction> control = NodeAndXpath.from(controlInstr, new XPathContext());
+		NodeAndXpath<ProcessingInstruction> test = NodeAndXpath.from(testInstr, new XPathContext());
 
 		new CompareProcInstrCommand(performer, control, test).execute();
 		return performer.getDifferences();
