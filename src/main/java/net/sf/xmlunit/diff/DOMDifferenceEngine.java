@@ -128,36 +128,30 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 
             List<Node> controlList = Linqy.asList(controlChildren);
             List<Node> testList = Linqy.asList(testChildren);
-            Set<Node> seen = new HashSet<Node>();
+            Set<Node> seenNodes = new HashSet<Node>();
             for (Map.Entry<Node, Node> pair : matches) {
                 Node controlNode = pair.getKey();
                 Node testNode = pair.getValue();
-                seen.add(controlNode);
-                seen.add(testNode);
+                seenNodes.add(controlNode);
+                seenNodes.add(testNode);
                 int controlIndex = controlList.indexOf(controlNode);
                 int testIndex = testList.indexOf(testNode);
 
                 controlContext.navigateToChild(controlIndex);
                 testContext.navigateToChild(testIndex);
                 try {
+                    NodeAndXpath<Node> controlChild = NodeAndXpath.from(controlNode, controlContext);
+                    NodeAndXpath<Node> testChild = NodeAndXpath.from(testNode, testContext);
+
                     executeComparison(Comparison.ofType(ComparisonType.CHILD_NODELIST_SEQUENCE)
-                            .between(
-                                    NodeAndXpath.from(controlNode, controlContext),
-                                    controlIndex)
-                            .and(
-                                    NodeAndXpath.from(testNode, testContext),
-                                    testIndex));
+                            .between(controlChild, controlIndex)
+                            .and(testChild, testIndex));
                     if (isInterrupted()) {
                         return;
                     }
 
-                    // TODO
-                    ComparisonCommand command = new CompareNodeAndChildrenCommand(compPerformer,
-                            NodeAndXpath.from(controlNode, controlContext),
-                            NodeAndXpath.from(testNode, testContext));
-                    command.execute();
-                    if (command.isInterrupted()) {
-                        setInterrupted(true);
+                    executeRecursion(controlChild, testChild);
+                    if (isInterrupted()) {
                         return;
                     }
                 } finally {
@@ -166,44 +160,63 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
                 }
             }
 
-            final int controlSize = controlList.size();
-            for (int i = 0; i < controlSize; i++) {
+            comparisons.addAll(
+                    provideUnseenControlChildrenComparisons(controlList, controlContext, seenNodes));
+            comparisons.addAll(
+                    provideUnseenTestChildrenComparisons(testList, testContext, seenNodes));
+            executeComparisons(comparisons);
+        }
+
+        private void executeRecursion(NodeAndXpath<Node> controlChild, NodeAndXpath<Node> testChild) {
+            ComparisonCommand command = new CompareNodeAndChildrenCommand(compPerformer,
+                    controlChild, testChild);
+            command.execute();
+            setInterrupted(command.isInterrupted());
+        }
+
+        private Queue<Comparison> provideUnseenControlChildrenComparisons(
+                List<Node> controlList, XPathContext controlContext, Set<Node> seenNodes) {
+
+            Queue<Comparison> comparisons = new LinkedList<Comparison>();
+            for (int i = 0; i < controlList.size(); i++) {
                 Node controlChild = controlList.get(i);
-                if (!seen.contains(controlChild)) {
-                    controlContext.navigateToChild(i);
-                    try {
-                        comparisons.add(
-                                Comparison
-                                        .ofType(ComparisonType.CHILD_LOOKUP)
-                                        .between(
-                                                NodeAndXpath.from(controlChild, controlContext),
-                                                controlChild.getNodeName())
-                                        .and(null, null));
-                    } finally {
-                        controlContext.navigateToParent();
-                    }
+                if (seenNodes.contains(controlChild)) {
+                    continue;
                 }
+
+                controlContext.navigateToChild(i);
+                comparisons.add(
+                        Comparison.ofType(ComparisonType.CHILD_LOOKUP)
+                                .between(
+                                        NodeAndXpath.from(controlChild, controlContext),
+                                        controlChild.getNodeName())
+                                .and(null, null));
+                controlContext.navigateToParent();
+            }
+            return comparisons;
+        }
+
+        private Queue<Comparison> provideUnseenTestChildrenComparisons(
+                List<Node> testList, XPathContext testContext, Set<Node> seenNodes) {
+
+            Queue<Comparison> comparisons = new LinkedList<Comparison>();
+            for (int i = 0; i < testList.size(); i++) {
+                Node testChild = testList.get(i);
+                if (seenNodes.contains(testChild)) {
+                    continue;
+                }
+
+                testContext.navigateToChild(i);
+                comparisons.add(
+                        Comparison.ofType(ComparisonType.CHILD_LOOKUP)
+                                .between(null, null)
+                                .and(NodeAndXpath.from(
+                                        testChild, testContext),
+                                        testChild.getNodeName()));
+                testContext.navigateToParent();
             }
 
-            final int testSize = testList.size();
-            for (int i = 0; i < testSize; i++) {
-                Node testChild = testList.get(i);
-                if (!seen.contains(testChild)) {
-                    testContext.navigateToChild(i);
-                    try {
-                        comparisons.add(
-                                Comparison
-                                        .ofType(ComparisonType.CHILD_LOOKUP)
-                                        .between(null, null)
-                                        .and(NodeAndXpath.from(
-                                                testChild, testContext),
-                                                testChild.getNodeName()));
-                    } finally {
-                        testContext.navigateToParent();
-                    }
-                }
-            }
-            executeComparisons(comparisons);
+            return comparisons;
         }
 
         @Override

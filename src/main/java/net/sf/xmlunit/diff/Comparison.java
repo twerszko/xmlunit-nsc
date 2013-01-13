@@ -27,13 +27,10 @@ public class Comparison {
     private final Detail control, test;
     private final ComparisonType type;
 
-    // TODO: get rid of it
-    public Comparison(ComparisonType type,
-            Node controlTarget, String controlXPath, Object controlValue,
-            Node testTarget, String testXPath, Object testValue) {
+    public Comparison(ComparisonType type, Detail controlDetail, Detail testDetail) {
         this.type = type;
-        control = new Detail(controlTarget, controlXPath, controlValue);
-        test = new Detail(testTarget, testXPath, testValue);
+        control = controlDetail;
+        test = testDetail;
         recoverable = type.isRecoverable();
     }
 

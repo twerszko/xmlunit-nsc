@@ -106,19 +106,13 @@ public class ComparisonTest {
         Document document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
         Node controlNode = document.createComment("control");
         Detail controlNodeDetail = new Detail(
-                controlNode,
-                "/testToString/comment()",
-                controlNode.getNodeValue());
+                controlNode, "/testToString/comment()", controlNode.getNodeValue());
         Node testNode = document.createComment("test");
         Detail testNodeDetail = new Detail(
-                testNode,
-                "/testToString/comment()",
-                testNode.getNodeValue());
+                testNode, "/testToString/comment()", testNode.getNodeValue());
 
         Comparison difference = new Comparison(
-                ComparisonType.COMMENT_VALUE,
-                controlNode, "/testToString/comment()", controlNode.getNodeValue(),
-                testNode, "/testToString/comment()", testNode.getNodeValue());
+                ComparisonType.COMMENT_VALUE, controlNodeDetail, testNodeDetail);
 
         StringBuilder buf = new StringBuilder("Expected ")
                 .append(ComparisonType.COMMENT_VALUE.getDescription())

@@ -14,6 +14,7 @@
 package net.sf.xmlunit.diff;
 
 import java.util.Map;
+
 import org.w3c.dom.Node;
 
 /**
@@ -25,6 +26,5 @@ public interface NodeMatcher {
      * Matches control and test nodes against each other, returns the matching
      * pairs.
      */
-    Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes,
-            Iterable<Node> testNodes);
+    Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes);
 }
