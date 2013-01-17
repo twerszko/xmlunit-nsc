@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,8 +22,8 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.commands.CompareNamespaceCommand;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
+import net.sf.xmlunit.diff.strategies.CompareNamespaceStrategy;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -73,10 +73,10 @@ public class NamespaceComparatorTest {
 	private List<Comparison> findNamespaceDifferences(Node control, Node test) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		new CompareNamespaceCommand(performer,
-		        new NodeAndXpath<Node>(control, new XPathContext()),
-		        new NodeAndXpath<Node>(test, new XPathContext()))
-		        .execute();
+		new CompareNamespaceStrategy(performer)
+		        .compare(
+		                new NodeAndXpath<Node>(control, new XPathContext()),
+		                new NodeAndXpath<Node>(test, new XPathContext()));
 
 		return performer.getDifferences();
 	}

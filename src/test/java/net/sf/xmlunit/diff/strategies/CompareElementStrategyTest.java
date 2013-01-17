@@ -11,11 +11,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Queue;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -25,7 +26,6 @@ import net.sf.xmlunit.diff.DOMDifferenceEngine;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.OrderPreservingNamedNodeMap;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.commands.CompareElementCommand;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
@@ -36,7 +36,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class CompareElementCommandTest {
+public class CompareElementStrategyTest {
 	@Test
 	public void should_ignore_different_attribute_sequence() throws Exception {
 		// given
@@ -89,9 +89,12 @@ public class CompareElementCommandTest {
 			test.setAttributeNode(attrJ);
 			testMap.add(attrJ);
 		}
-		new CompareElementCommand(performer, properties.getIgnoreAttributeOrder(),
+
+		CompareElementStrategy strategy = new CompareElementStrategy(performer, properties.getIgnoreAttributeOrder());
+		Queue<Comparison> comparisons = strategy.provideComparisons(
 		        NodeAndXpath.from(control, new XPathContext()), controlMap,
-		        NodeAndXpath.from(test, new XPathContext()), testMap).execute();
+		        NodeAndXpath.from(test, new XPathContext()), testMap);
+		strategy.executeComparisons(comparisons);
 		return evaluator.getDifferences();
 	}
 
@@ -146,9 +149,11 @@ public class CompareElementCommandTest {
 			testMap.add(attrJ);
 		}
 
-		new CompareElementCommand(performer, properties.getIgnoreAttributeOrder(),
+		CompareElementStrategy strategy = new CompareElementStrategy(performer, properties.getIgnoreAttributeOrder());
+		Queue<Comparison> comparisons = strategy.provideComparisons(
 		        NodeAndXpath.from(control, new XPathContext()), controlMap,
-		        NodeAndXpath.from(test, new XPathContext()), testMap).execute();
+		        NodeAndXpath.from(test, new XPathContext()), testMap);
+		strategy.executeComparisons(comparisons);
 		return performer.getDifferences();
 	}
 }

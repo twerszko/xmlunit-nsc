@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -21,32 +21,31 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
 
-public class CompareNamespaceCommand extends ComparisonCommandBase<Node> {
+public class CompareProcInstrStrategy extends ComparisonStrategyBase<ProcessingInstruction> {
 
-    public CompareNamespaceCommand(
-            ComparisonPerformer compPerformer,
-            NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-        super(compPerformer, control, test);
+    public CompareProcInstrStrategy(ComparisonPerformer compPerformer) {
+        super(compPerformer);
     }
 
     @Override
-    public Queue<Comparison> provideComparisons() {
-        Node controlNode = getControl().getNode();
-        Node testNode = getTest().getNode();
+    public Queue<Comparison> provideComparisons(
+    		NodeAndXpath<ProcessingInstruction> control, NodeAndXpath<ProcessingInstruction> test) {
+        ProcessingInstruction controlInstr = control.getNode();
+        ProcessingInstruction testInstr = test.getNode();
 
         Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
         comparisons.add(
-                Comparison.ofType(ComparisonType.NAMESPACE_URI)
-                        .between(getControl(), controlNode.getNamespaceURI())
-                        .and(getTest(), testNode.getNamespaceURI()));
+                Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_TARGET)
+                        .between(control, controlInstr.getTarget())
+                        .and(test, testInstr.getTarget()));
 
         comparisons.add(
-                Comparison.ofType(ComparisonType.NAMESPACE_PREFIX)
-                        .between(getControl(), controlNode.getPrefix())
-                        .and(getTest(), testNode.getPrefix()));
+                Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_DATA)
+                        .between(control, controlInstr.getData())
+                        .and(test, testInstr.getData()));
 
         return comparisons;
     }

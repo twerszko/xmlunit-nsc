@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,7 +22,6 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.commands.CompareProcInstrCommand;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -30,7 +29,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
-public class CompareProcInstrCommandTest {
+public class CompareProcInstrStrategyTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 
 	@Test
@@ -88,7 +87,7 @@ public class CompareProcInstrCommandTest {
 		NodeAndXpath<ProcessingInstruction> control = NodeAndXpath.from(controlInstr, new XPathContext());
 		NodeAndXpath<ProcessingInstruction> test = NodeAndXpath.from(testInstr, new XPathContext());
 
-		new CompareProcInstrCommand(performer, control, test).execute();
+		new CompareProcInstrStrategy(performer).compare(control, test);
 		return performer.getDifferences();
 	}
 }

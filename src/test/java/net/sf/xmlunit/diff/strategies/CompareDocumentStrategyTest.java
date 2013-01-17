@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -20,14 +20,13 @@ import java.util.List;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.commands.CompareDocumentCommand;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-public class CompareDocumentCommandTest {
+public class CompareDocumentStrategyTest {
 	@Test
 	public void should_detect_different_xml_version() throws Exception {
 		// given
@@ -87,7 +86,7 @@ public class CompareDocumentCommandTest {
 
 	private List<Comparison> findHeaderDifferences(Document control, Document test) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
-		new CompareDocumentCommand(performer, NodeAndXpath.from(control), NodeAndXpath.from(test)).execute();
+		new CompareDocumentStrategy(performer).compare(NodeAndXpath.from(control), NodeAndXpath.from(test));
 		return performer.getDifferences();
 	}
 }

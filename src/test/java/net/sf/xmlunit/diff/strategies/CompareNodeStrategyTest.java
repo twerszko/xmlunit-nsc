@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -22,7 +22,6 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.commands.CompareNodeCommand;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -31,7 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class CompareNodeCommandTest {
+public class CompareNodeStrategyTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 
@@ -174,7 +173,7 @@ public class CompareNodeCommandTest {
 		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
 		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
-		new CompareNodeCommand(performer, false, control, test).execute();
+		new CompareNodeStrategy(performer, false).compare(control, test);
 		return performer.getDifferences();
 	}
 }

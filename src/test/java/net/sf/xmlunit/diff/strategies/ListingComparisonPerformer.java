@@ -1,4 +1,4 @@
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import java.util.ArrayList;
 import java.util.List;

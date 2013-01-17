@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-package net.sf.xmlunit.diff.commands;
+package net.sf.xmlunit.diff.strategies;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -24,17 +24,16 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Node;
 
-public class CompareCharacterDataCommand extends ComparisonCommandBase<CharacterData> {
+public class CompareCharacterDataStrategy extends ComparisonStrategyBase<CharacterData> {
 
-    public CompareCharacterDataCommand(ComparisonPerformer compPerformer,
-            NodeAndXpath<CharacterData> control, NodeAndXpath<CharacterData> test) {
-        super(compPerformer, control, test);
+    public CompareCharacterDataStrategy(ComparisonPerformer compPerformer) {
+        super(compPerformer);
     }
 
     @Override
-    public Queue<Comparison> provideComparisons() {
-        CharacterData controlNode = getControl().getNode();
-        CharacterData testNode = getTest().getNode();
+    public Queue<Comparison> provideComparisons(NodeAndXpath<CharacterData> control, NodeAndXpath<CharacterData> test) {
+        CharacterData controlNode = control.getNode();
+        CharacterData testNode = test.getNode();
 
         Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
@@ -56,8 +55,8 @@ public class CompareCharacterDataCommand extends ComparisonCommandBase<Character
 
         comparisons.add(
                 Comparison.ofType(comparisonType)
-                        .between(getControl(), controlNode.getData())
-                        .and(getTest(), testNode.getData()));
+                        .between(control, controlNode.getData())
+                        .and(test, testNode.getData()));
 
         return comparisons;
     }
