@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
@@ -30,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class CompareNodeStrategyTest {
+public class CompareNodeAndChildrenStrategyTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 
@@ -54,7 +55,7 @@ public class CompareNodeStrategyTest {
 	}
 
 	@Test
-	public void should_find_no_child_node_list_differences2() throws Exception {
+	public void should_find_different_children() throws Exception {
 		// given
 		Document document = documentBuilder.newDocument();
 
@@ -71,8 +72,11 @@ public class CompareNodeStrategyTest {
 		List<Comparison> differencesReverse = findNodeChildrenDifferences(control, test);
 
 		// then
-		assertThat(differences).hasSize(0);
-		assertThat(differencesReverse).hasSize(0);
+		assertThat(differences).hasSize(2);
+		assertThat(differencesReverse).hasSize(2);
+
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
 	}
 
 	@Test
@@ -92,10 +96,12 @@ public class CompareNodeStrategyTest {
 		List<Comparison> differences = findNodeChildrenDifferences(control, test);
 
 		// then
-		assertThat(differences).hasSize(3);
+		assertThat(differences).hasSize(5);
 		Comparison difference = differences.get(0);
 		Comparison attrListLengthDifference = differences.get(1);
 		Comparison attrLookupDifference = differences.get(2);
+		Comparison childLookupDifference = differences.get(3);
+		Comparison textLookupDifference = differences.get(4);
 
 		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
 		assertThat(difference.getControlDetails().getValue()).isEqualTo(false);
@@ -108,6 +114,14 @@ public class CompareNodeStrategyTest {
 		assertThat(attrLookupDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
 		assertThat(attrLookupDifference.getControlDetails().getValue()).isEqualTo(true);
 		assertThat(attrLookupDifference.getTestDetails().getValue()).isEqualTo(false);
+
+		assertThat(childLookupDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(childLookupDifference.getControlDetails().getValue()).isNull();
+		assertThat(childLookupDifference.getTestDetails().getValue()).isEqualTo("watching");
+
+		assertThat(textLookupDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(textLookupDifference.getControlDetails().getValue()).isNull();
+		assertThat(textLookupDifference.getTestDetails().getValue()).isEqualTo("#text");
 	}
 
 	@Test
@@ -127,10 +141,13 @@ public class CompareNodeStrategyTest {
 		List<Comparison> differences = findNodeChildrenDifferences(control, test);
 
 		// then
-		assertThat(differences).hasSize(3);
+		assertThat(differences).hasSize(6);
 		Comparison nodeListLengthDifference = differences.get(0);
 		Comparison attrListLengthDifference = differences.get(1);
 		Comparison attrLookupDifference = differences.get(2);
+		Comparison childSequenceDifference = differences.get(3);
+		Comparison textValueDifference = differences.get(4);
+		Comparison childLookupDifference = differences.get(5);
 
 		assertThat(nodeListLengthDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
 		assertThat(nodeListLengthDifference.getControlDetails().getValue()).isEqualTo(2);
@@ -143,10 +160,22 @@ public class CompareNodeStrategyTest {
 		assertThat(attrLookupDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
 		assertThat(attrLookupDifference.getControlDetails().getValue()).isEqualTo(false);
 		assertThat(attrLookupDifference.getTestDetails().getValue()).isEqualTo(true);
+
+		assertThat(childSequenceDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+		assertThat(childSequenceDifference.getControlDetails().getValue()).isEqualTo(1);
+		assertThat(childSequenceDifference.getTestDetails().getValue()).isEqualTo(0);
+
+		assertThat(textValueDifference.getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+		assertThat(textValueDifference.getControlDetails().getValue()).isEqualTo("you all");
+		assertThat(textValueDifference.getTestDetails().getValue()).isEqualTo("sinking");
+
+		assertThat(childLookupDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(childLookupDifference.getControlDetails().getValue()).isEqualTo("watching");
+		assertThat(childLookupDifference.getTestDetails().getValue()).isNull();
 	}
 
 	@Test
-	public void should_find_no_child_node_list_differences_when_mixed_content() throws Exception {
+	public void should_find_child_node_sequence_differences_when_mixed_content() throws Exception {
 		// given
 		Document document = documentBuilder.newDocument();
 
@@ -163,8 +192,16 @@ public class CompareNodeStrategyTest {
 		List<Comparison> differencesReverse = findNodeChildrenDifferences(control, test);
 
 		// then
-		assertThat(differences).hasSize(0);
-		assertThat(differencesReverse).hasSize(0);
+		assertThat(differences).hasSize(2);
+		assertThat(differencesReverse).hasSize(2);
+
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo(0);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(1);
+
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+		assertThat(differences.get(1).getControlDetails().getValue()).isEqualTo(1);
+		assertThat(differences.get(1).getTestDetails().getValue()).isEqualTo(0);
 	}
 
 	private List<Comparison> findNodeChildrenDifferences(Node controlNode, Node testNode) {
@@ -173,7 +210,9 @@ public class CompareNodeStrategyTest {
 		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
 		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
-		new CompareNodeStrategy(performer, false).compare(control, test);
+		new CompareNodeAndChildrenStrategy(
+		        performer, new DefaultNodeMatcher(), false)
+		        .compare(control, test);
 		return performer.getDifferences();
 	}
 }
