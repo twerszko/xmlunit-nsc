@@ -64,7 +64,7 @@ public abstract class ComparisonStrategyBase<U extends Node> implements Comparis
 		return interrupted;
 	}
 
-	protected Iterable<Node> getFilteredChildNodes(Node parentNode) {
+	protected Iterable<Node> getFilteredChildren(Node parentNode) {
 		return Linqy.filter(new IterableNodeList(parentNode.getChildNodes()), INTERESTING_NODES);
 	}
 

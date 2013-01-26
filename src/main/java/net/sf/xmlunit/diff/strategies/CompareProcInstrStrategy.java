@@ -25,29 +25,29 @@ import org.w3c.dom.ProcessingInstruction;
 
 public class CompareProcInstrStrategy extends ComparisonStrategyBase<ProcessingInstruction> {
 
-    public CompareProcInstrStrategy(ComparisonPerformer compPerformer) {
-        super(compPerformer);
-    }
+	public CompareProcInstrStrategy(ComparisonPerformer compPerformer) {
+		super(compPerformer);
+	}
 
-    @Override
-    public Queue<Comparison> provideComparisons(
-    		NodeAndXpath<ProcessingInstruction> control, NodeAndXpath<ProcessingInstruction> test) {
-        ProcessingInstruction controlInstr = control.getNode();
-        ProcessingInstruction testInstr = test.getNode();
+	@Override
+	public Queue<Comparison> provideComparisons(
+	        NodeAndXpath<ProcessingInstruction> control, NodeAndXpath<ProcessingInstruction> test) {
+		ProcessingInstruction controlInstr = control.getNode();
+		ProcessingInstruction testInstr = test.getNode();
 
-        Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-        comparisons.add(
-                Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_TARGET)
-                        .between(control, controlInstr.getTarget())
-                        .and(test, testInstr.getTarget()));
+		comparisons.add(
+		        Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_TARGET)
+		                .between(control, controlInstr.getTarget())
+		                .and(test, testInstr.getTarget()));
 
-        comparisons.add(
-                Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_DATA)
-                        .between(control, controlInstr.getData())
-                        .and(test, testInstr.getData()));
+		comparisons.add(
+		        Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_DATA)
+		                .between(control, controlInstr.getData())
+		                .and(test, testInstr.getData()));
 
-        return comparisons;
-    }
+		return comparisons;
+	}
 
 }

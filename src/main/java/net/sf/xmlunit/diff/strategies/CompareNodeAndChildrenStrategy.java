@@ -44,8 +44,11 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 	private final NodeMatcher nodeMatcher;
 	private final boolean ignoreAttributeOrder;
 
-	public CompareNodeAndChildrenStrategy(ComparisonPerformer compPerformer, NodeMatcher nodeMatcher,
+	public CompareNodeAndChildrenStrategy(
+	        ComparisonPerformer compPerformer,
+	        NodeMatcher nodeMatcher,
 	        boolean ignoreAttributeOrder) {
+
 		super(compPerformer);
 		this.nodeMatcher = nodeMatcher;
 		this.ignoreAttributeOrder = ignoreAttributeOrder;
@@ -67,18 +70,19 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		final XPathContext controlContext = control.getXpathCtx();
 		final XPathContext testContext = test.getXpathCtx();
 
-		Iterable<Node> controlChildren = getFilteredChildNodes(control.getNode());
-		Iterable<Node> testChildren = getFilteredChildNodes(test.getNode());
+		Iterable<Node> controlChildren = getFilteredChildren(control.getNode());
+		Iterable<Node> testChildren = getFilteredChildren(test.getNode());
 
 		controlContext.setChildren(Linqy.map(controlChildren, TO_NODE_INFO));
 		testContext.setChildren(Linqy.map(testChildren, TO_NODE_INFO));
 
 		Queue<Comparison> comparisons = new LinkedList<Comparison>();
-		Iterable<Map.Entry<Node, Node>> matches =
-		        nodeMatcher.match(controlChildren, testChildren);
 
 		List<Node> controlList = Linqy.asList(controlChildren);
 		List<Node> testList = Linqy.asList(testChildren);
+
+		Iterable<Map.Entry<Node, Node>> matches = nodeMatcher.match(controlChildren, testChildren);
+
 		Set<Node> seenNodes = new HashSet<Node>();
 		for (Map.Entry<Node, Node> pair : matches) {
 			Node controlNode = pair.getKey();
@@ -90,84 +94,62 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 
 			controlContext.navigateToChild(controlIndex);
 			testContext.navigateToChild(testIndex);
-			try {
-				NodeAndXpath<Node> controlChild = NodeAndXpath.from(controlNode, controlContext);
-				NodeAndXpath<Node> testChild = NodeAndXpath.from(testNode, testContext);
 
-				executeComparison(Comparison.ofType(ComparisonType.CHILD_NODELIST_SEQUENCE)
-				        .between(controlChild, controlIndex)
-				        .and(testChild, testIndex));
-				if (isInterrupted()) {
-					return;
-				}
+			NodeAndXpath<Node> controlChild = NodeAndXpath.from(controlNode, controlContext);
+			NodeAndXpath<Node> testChild = NodeAndXpath.from(testNode, testContext);
 
-				executeRecursion(controlChild, testChild);
-				if (isInterrupted()) {
-					return;
-				}
-			} finally {
-				testContext.navigateToParent();
-				controlContext.navigateToParent();
+			// TODO
+			executeComparison(Comparison.ofType(ComparisonType.CHILD_NODELIST_SEQUENCE)
+			        .between(controlChild, controlIndex)
+			        .and(testChild, testIndex));
+			if (isInterrupted()) {
+				return;
 			}
+
+			executeRecursion(controlChild, testChild);
+			if (isInterrupted()) {
+				return;
+			}
+			testContext.navigateToParent();
+			controlContext.navigateToParent();
 		}
 
-		comparisons.addAll(
-		        provideUnseenControlChildrenComparisons(controlList, controlContext, seenNodes));
-		comparisons.addAll(
-		        provideUnseenTestChildrenComparisons(testList, testContext, seenNodes));
+		List<NodeAndXpath<Node>> unseenControlChildren = findUnseenNodes(controlList, controlContext, seenNodes);
+		for (NodeAndXpath<Node> controlChild : unseenControlChildren) {
+			comparisons.add(Comparison.ofType(ComparisonType.CHILD_LOOKUP)
+			        .between(controlChild, controlChild.getNode().getNodeName())
+			        .and(null, null));
+		}
+
+		List<NodeAndXpath<Node>> unseenTestChildren = findUnseenNodes(testList, testContext, seenNodes);
+		for (NodeAndXpath<Node> testChild : unseenTestChildren) {
+			comparisons.add(Comparison.ofType(ComparisonType.CHILD_LOOKUP)
+			        .between(null, null)
+			        .and(testChild, testChild.getNode().getNodeName()));
+		}
+
 		executeComparisons(comparisons);
 	}
 
 	private void executeRecursion(NodeAndXpath<Node> controlChild, NodeAndXpath<Node> testChild) {
-		ComparisonStrategy<Node> strategy = new CompareNodeAndChildrenStrategy(
-		        performer, nodeMatcher, ignoreAttributeOrder);
-		strategy.compare(controlChild, testChild);
-		setInterrupted(strategy.isInterrupted());
+		compare(controlChild, testChild);
 	}
 
-	private Queue<Comparison> provideUnseenControlChildrenComparisons(
-	        List<Node> controlList, XPathContext controlContext, Set<Node> seenNodes) {
+	private List<NodeAndXpath<Node>> findUnseenNodes(List<Node> nodeList, XPathContext context, Set<Node> seenNodes) {
+		List<NodeAndXpath<Node>> unseen = new LinkedList<NodeAndXpath<Node>>();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
-		for (int i = 0; i < controlList.size(); i++) {
-			Node controlChild = controlList.get(i);
-			if (seenNodes.contains(controlChild)) {
+		for (int i = 0; i < nodeList.size(); i++) {
+			Node node = nodeList.get(i);
+			if (seenNodes.contains(node)) {
 				continue;
 			}
 
-			controlContext.navigateToChild(i);
-			comparisons.add(
-			        Comparison.ofType(ComparisonType.CHILD_LOOKUP)
-			                .between(
-			                        NodeAndXpath.from(controlChild, controlContext),
-			                        controlChild.getNodeName())
-			                .and(null, null));
-			controlContext.navigateToParent();
-		}
-		return comparisons;
-	}
-
-	private Queue<Comparison> provideUnseenTestChildrenComparisons(
-	        List<Node> testList, XPathContext testContext, Set<Node> seenNodes) {
-
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
-		for (int i = 0; i < testList.size(); i++) {
-			Node testChild = testList.get(i);
-			if (seenNodes.contains(testChild)) {
-				continue;
-			}
-
-			testContext.navigateToChild(i);
-			comparisons.add(
-			        Comparison.ofType(ComparisonType.CHILD_LOOKUP)
-			                .between(null, null)
-			                .and(NodeAndXpath.from(
-			                        testChild, testContext),
-			                        testChild.getNodeName()));
-			testContext.navigateToParent();
+			context.navigateToChild(i);
+			unseen.add(NodeAndXpath.from(node, context));
+			context.navigateToParent();
 		}
 
-		return comparisons;
+		return unseen;
 	}
 
 	@Override
@@ -195,13 +177,11 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 
 		Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
-		comparisons.add(
-		        Comparison.ofType(ComparisonType.NODE_TYPE)
-		                .between(control, controlNode.getNodeType())
-		                .and(test, testNode.getNodeType()));
+		comparisons.add(Comparison.ofType(ComparisonType.NODE_TYPE)
+		        .between(control, controlNode.getNodeType())
+		        .and(test, testNode.getNodeType()));
 
-		comparisons.addAll(new CompareNamespaceStrategy(performer)
-		        .provideComparisons(control, test));
+		comparisons.addAll(new CompareNamespaceStrategy(performer).provideComparisons(control, test));
 
 		if (controlNode.getNodeType() != Node.ATTRIBUTE_NODE) {
 			comparisons.addAll(provideChildrenNumberComparisons(control, test));
@@ -216,23 +196,21 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		Node controlNode = control.getNode();
 		Node testNode = test.getNode();
 
-		Iterable<Node> controlChildren = getFilteredChildNodes(controlNode);
-		Iterable<Node> testChildren = getFilteredChildNodes(testNode);
+		Iterable<Node> controlChildren = getFilteredChildren(controlNode);
+		Iterable<Node> testChildren = getFilteredChildren(testNode);
 
 		Queue<Comparison> comparisons = new LinkedList<Comparison>();
 
 		int controlChildrenCount = Linqy.count(controlChildren);
 		int testChildrenCount = Linqy.count(testChildren);
 		if (controlChildrenCount > 0 && testChildrenCount > 0) {
-			comparisons.add(
-			        Comparison.ofType(ComparisonType.CHILD_NODELIST_LENGTH)
-			                .between(control, controlChildrenCount)
-			                .and(test, testChildrenCount));
+			comparisons.add(Comparison.ofType(ComparisonType.CHILD_NODELIST_LENGTH)
+			        .between(control, controlChildrenCount)
+			        .and(test, testChildrenCount));
 		} else {
-			comparisons.add(
-			        Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
-			                .between(control, controlChildrenCount > 0)
-			                .and(test, testChildrenCount > 0));
+			comparisons.add(Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+			        .between(control, controlChildrenCount > 0)
+			        .and(test, testChildrenCount > 0));
 		}
 		return comparisons;
 	}
