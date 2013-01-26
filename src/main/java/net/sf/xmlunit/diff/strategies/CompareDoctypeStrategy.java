@@ -13,9 +13,6 @@
  */
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
@@ -31,11 +28,11 @@ public class CompareDoctypeStrategy extends ComparisonStrategyBase<DocumentType>
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(NodeAndXpath<DocumentType> control, NodeAndXpath<DocumentType> test) {
+	public Comparisons provideComparisons(NodeAndXpath<DocumentType> control, NodeAndXpath<DocumentType> test) {
 		DocumentType controlDt = control.getNode();
 		DocumentType testDt = test.getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 		if (controlDt == null || testDt == null) {
 			return comparisons;
 		}

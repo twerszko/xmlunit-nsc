@@ -13,9 +13,6 @@
  */
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
@@ -30,11 +27,11 @@ public class CompareNamespaceStrategy extends ComparisonStrategyBase<Node> {
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+	public Comparisons provideComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 		Node controlNode = control.getNode();
 		Node testNode = test.getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.NAMESPACE_URI)

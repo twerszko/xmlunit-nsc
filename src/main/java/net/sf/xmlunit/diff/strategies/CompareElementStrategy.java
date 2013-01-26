@@ -13,9 +13,6 @@
  */
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 
@@ -49,13 +46,13 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(NodeAndXpath<Element> control, NodeAndXpath<Element> test) {
+	public Comparisons provideComparisons(NodeAndXpath<Element> control, NodeAndXpath<Element> test) {
 		NamedNodeMap controlAttrMap = control.getNode().getAttributes();
 		NamedNodeMap testAttrMap = test.getNode().getAttributes();
 		return provideComparisons(control, controlAttrMap, test, testAttrMap);
 	}
 
-	public Queue<Comparison> provideComparisons(
+	public Comparisons provideComparisons(
 	        NodeAndXpath<Element> control, NamedNodeMap controlAttrMap,
 	        NodeAndXpath<Element> test, NamedNodeMap testAttrMap) {
 		Element controlElement = control.getNode();
@@ -64,7 +61,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		Attributes controlAttributes = Attributes.from(controlAttrMap);
 		Attributes testAttributes = Attributes.from(testAttrMap);
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		String controlElementName = Nodes.getQName(controlElement).getLocalPart();
 		String testElementName = Nodes.getQName(testElement).getLocalPart();
@@ -72,14 +69,15 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		        Comparison.ofType(ComparisonType.ELEMENT_TAG_NAME)
 		                .between(control, controlElementName)
 		                .and(test, testElementName));
-		comparisons.addAll(provideAttrComparisons(control, controlAttributes, test, testAttributes));
+		comparisons.addAll(provideAttrComparisons(control, controlAttributes, test, testAttributes).getAll());
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideAttrComparisons(
+	private Comparisons provideAttrComparisons(
 	        NodeAndXpath<Element> control, Attributes controlAttributes,
 	        NodeAndXpath<Element> test, Attributes testAttributes) {
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+
+		Comparisons comparisons = new Comparisons();
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.ELEMENT_NUM_ATTRIBUTES)
 		                .between(control, controlAttributes.getRegularAttributes().size())
@@ -91,7 +89,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideAttrListComparisons(
+	private Comparisons provideAttrListComparisons(
 	        NodeAndXpath<Element> control, Attributes controlAttributes,
 	        NodeAndXpath<Element> test, Attributes testAttributes) {
 
@@ -100,7 +98,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		final XPathContext controlContext = control.getXpathCtx();
 		final XPathContext testContext = test.getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		controlContext.addAttributes(Linqy.map(controlAttributes.getRegularAttributes(),
 		        QNAME_MAPPER));
@@ -131,10 +129,11 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideSchemaComparisons(
+	private Comparisons provideSchemaComparisons(
 	        NodeAndXpath<Element> control, Attributes controlAttributes,
 	        NodeAndXpath<Element> test, Attributes testAttributes) {
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.SCHEMA_LOCATION)
@@ -148,7 +147,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideMatchedAttrComparisons(
+	private Comparisons provideMatchedAttrComparisons(
 	        NodeAndXpath<Attr> control, Attributes controlAttributes,
 	        NodeAndXpath<Attr> test, Attributes testAttributes) {
 
@@ -158,7 +157,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		XPathContext controlContext = control.getXpathCtx();
 		XPathContext testContext = test.getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		controlContext.navigateToAttribute(Nodes.getQName(controlAttr));
 		if (!ignoreAttributeOrder) {
@@ -182,7 +181,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideAttrSequenceNumberComparisons(
+	private Comparisons provideAttrSequenceNumberComparisons(
 	        NodeAndXpath<Attr> control, Attributes controlAttributes,
 	        NodeAndXpath<Attr> test, Attributes testAttributes) {
 		Attr controlAttr = control.getNode();
@@ -190,7 +189,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		XPathContext controlContext = control.getXpathCtx();
 		XPathContext testContext = test.getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		int controlAttrIndex = controlAttributes.getRegularAttributes().indexOf(controlAttr);
 		int testAttrIndex = testAttributes.getRegularAttributes().indexOf(testAttr);
@@ -213,7 +212,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideUnmatchedTestAttrComparisons(
+	private Comparisons provideUnmatchedTestAttrComparisons(
 	        NodeAndXpath<Element> control, Attributes controlAttributes,
 	        NodeAndXpath<Element> test, Attributes testAttributes) {
 
@@ -223,7 +222,7 @@ public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
 		final XPathContext controlContext = control.getXpathCtx();
 		final XPathContext testContext = test.getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		for (Attr testAttr : testAttributes.getRegularAttributes()) {
 			testContext.navigateToAttribute(Nodes.getQName(testAttr));

@@ -13,9 +13,6 @@
  */
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
@@ -30,12 +27,12 @@ public class CompareProcInstrStrategy extends ComparisonStrategyBase<ProcessingI
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(
+	public Comparisons provideComparisons(
 	        NodeAndXpath<ProcessingInstruction> control, NodeAndXpath<ProcessingInstruction> test) {
 		ProcessingInstruction controlInstr = control.getNode();
 		ProcessingInstruction testInstr = test.getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_TARGET)

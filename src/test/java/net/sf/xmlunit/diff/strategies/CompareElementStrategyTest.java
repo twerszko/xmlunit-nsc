@@ -16,7 +16,6 @@ package net.sf.xmlunit.diff.strategies;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Queue;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -91,7 +90,7 @@ public class CompareElementStrategyTest {
 		}
 
 		CompareElementStrategy strategy = new CompareElementStrategy(performer, properties.getIgnoreAttributeOrder());
-		Queue<Comparison> comparisons = strategy.provideComparisons(
+		Comparisons comparisons = strategy.provideComparisons(
 		        NodeAndXpath.from(control, new XPathContext()), controlMap,
 		        NodeAndXpath.from(test, new XPathContext()), testMap);
 		strategy.executeComparisons(comparisons);
@@ -150,7 +149,7 @@ public class CompareElementStrategyTest {
 		}
 
 		CompareElementStrategy strategy = new CompareElementStrategy(performer, properties.getIgnoreAttributeOrder());
-		Queue<Comparison> comparisons = strategy.provideComparisons(
+		Comparisons comparisons = strategy.provideComparisons(
 		        NodeAndXpath.from(control, new XPathContext()), controlMap,
 		        NodeAndXpath.from(test, new XPathContext()), testMap);
 		strategy.executeComparisons(comparisons);

@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import net.sf.xmlunit.diff.Comparison;
@@ -76,7 +75,7 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		controlContext.setChildren(Linqy.map(controlChildren, TO_NODE_INFO));
 		testContext.setChildren(Linqy.map(testChildren, TO_NODE_INFO));
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		List<Node> controlList = Linqy.asList(controlChildren);
 		List<Node> testList = Linqy.asList(testChildren);
@@ -155,7 +154,7 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 	@Override
 	protected void compareInternal(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 		// TODO
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 		comparisons.addAll(provideNodeComparisons(control, test));
 		executeComparisons(comparisons);
 		if (isInterrupted()) {
@@ -166,16 +165,16 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+	public Comparisons provideComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 		throw new UnsupportedOperationException(
 		        "This operation is unsupported for " + this.getClass().getSimpleName() + "!");
 	}
 
-	private Queue<Comparison> provideNodeComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+	private Comparisons provideNodeComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 		Node controlNode = control.getNode();
 		Node testNode = test.getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(Comparison.ofType(ComparisonType.NODE_TYPE)
 		        .between(control, controlNode.getNodeType())
@@ -192,14 +191,14 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideChildrenNumberComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+	private Comparisons provideChildrenNumberComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 		Node controlNode = control.getNode();
 		Node testNode = test.getNode();
 
 		Iterable<Node> controlChildren = getFilteredChildren(controlNode);
 		Iterable<Node> testChildren = getFilteredChildren(testNode);
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		int controlChildrenCount = Linqy.count(controlChildren);
 		int testChildrenCount = Linqy.count(testChildren);
@@ -219,7 +218,7 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 	 * Dispatches to the node type specific comparison if one is defined for the
 	 * given combination of nodes.
 	 */
-	private Queue<Comparison> provideNodeTypeSpecificComparison(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+	private Comparisons provideNodeTypeSpecificComparison(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 
 		Node controlNode = control.getNode();
 		Node testNode = test.getNode();
@@ -227,7 +226,7 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		XPathContext controlContext = control.getXpathCtx();
 		XPathContext testContext = test.getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		switch (controlNode.getNodeType()) {
 			case Node.CDATA_SECTION_NODE:

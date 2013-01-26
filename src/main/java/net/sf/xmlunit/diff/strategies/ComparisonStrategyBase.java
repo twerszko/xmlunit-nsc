@@ -1,8 +1,5 @@
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
@@ -22,7 +19,7 @@ public abstract class ComparisonStrategyBase<U extends Node> implements Comparis
 		this.performer = compPerformer;
 	}
 
-	public abstract Queue<Comparison> provideComparisons(NodeAndXpath<U> control, NodeAndXpath<U> test);
+	public abstract Comparisons provideComparisons(NodeAndXpath<U> control, NodeAndXpath<U> test);
 
 	@Override
 	public void compare(NodeAndXpath<U> control, NodeAndXpath<U> test) {
@@ -31,15 +28,15 @@ public abstract class ComparisonStrategyBase<U extends Node> implements Comparis
 	}
 
 	protected void compareInternal(NodeAndXpath<U> control, NodeAndXpath<U> test) {
-		Queue<Comparison> comparisons = provideComparisons(control, test);
+		Comparisons comparisons = provideComparisons(control, test);
 		if (comparisons == null) {
-			comparisons = new LinkedList<Comparison>();
+			comparisons = new Comparisons();
 		}
 		executeComparisons(comparisons);
 	}
 
-	protected final void executeComparisons(Queue<Comparison> comparisons) {
-		for (Comparison comparison : comparisons) {
+	protected final void executeComparisons(Comparisons comparisons) {
+		for (Comparison comparison : comparisons.getAll()) {
 			executeComparison(comparison);
 			if (isInterrupted()) {
 				return;

@@ -1,8 +1,5 @@
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
@@ -17,11 +14,11 @@ public class CompareAttributeStrategy extends ComparisonStrategyBase<Attr> {
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(NodeAndXpath<Attr> control, NodeAndXpath<Attr> test) {
+	public Comparisons provideComparisons(NodeAndXpath<Attr> control, NodeAndXpath<Attr> test) {
 		Attr controlAttr = control.getNode();
 		Attr testAttr = test.getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED)

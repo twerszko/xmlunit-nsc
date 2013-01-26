@@ -13,9 +13,6 @@
  */
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
@@ -35,14 +32,14 @@ public class CompareDocumentStrategy extends ComparisonStrategyBase<Document> {
 	}
 
 	@Override
-	public Queue<Comparison> provideComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
+	public Comparisons provideComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
 		Document controlNode = control.getNode();
 		Document testNode = test.getNode();
 
 		XPathContext controlContext = control.getXpathCtx();
 		XPathContext testContext = test.getXpathCtx();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.addAll(provideHasDocTypeComparisons(control, test));
 		comparisons.addAll(new CompareDoctypeStrategy(performer)
@@ -53,11 +50,11 @@ public class CompareDocumentStrategy extends ComparisonStrategyBase<Document> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideHasDocTypeComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
+	private Comparisons provideHasDocTypeComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
 		DocumentType controlDt = control.getNode().getDoctype();
 		DocumentType testDt = test.getNode().getDoctype();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
@@ -67,11 +64,11 @@ public class CompareDocumentStrategy extends ComparisonStrategyBase<Document> {
 		return comparisons;
 	}
 
-	private Queue<Comparison> provideXmlDeclComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
+	private Comparisons provideXmlDeclComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
 		Document controlDoc = control.getNode();
 		Document testDoc = test.getNode();
 
-		Queue<Comparison> comparisons = new LinkedList<Comparison>();
+		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
 		        Comparison.ofType(ComparisonType.XML_VERSION)
