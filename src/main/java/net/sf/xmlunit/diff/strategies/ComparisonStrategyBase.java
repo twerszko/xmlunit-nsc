@@ -1,5 +1,7 @@
 package net.sf.xmlunit.diff.strategies;
 
+import java.util.List;
+
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
@@ -61,8 +63,10 @@ public abstract class ComparisonStrategyBase<U extends Node> implements Comparis
 		return interrupted;
 	}
 
-	protected Iterable<Node> getFilteredChildren(Node parentNode) {
-		return Linqy.filter(new IterableNodeList(parentNode.getChildNodes()), INTERESTING_NODES);
+	protected List<Node> getFilteredChildren(Node parentNode) {
+		Iterable<Node> filteredChildren =
+		        Linqy.filter(new IterableNodeList(parentNode.getChildNodes()), INTERESTING_NODES);
+		return Linqy.asList(filteredChildren);
 	}
 
 	private static final Predicate<Node> INTERESTING_NODES =

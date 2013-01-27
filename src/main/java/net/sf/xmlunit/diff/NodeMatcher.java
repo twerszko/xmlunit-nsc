@@ -13,7 +13,7 @@
  */
 package net.sf.xmlunit.diff;
 
-import java.util.Map;
+import net.sf.xmlunit.util.Pair;
 
 import org.w3c.dom.Node;
 
@@ -22,9 +22,9 @@ import org.w3c.dom.Node;
  */
 public interface NodeMatcher {
 
-    /**
-     * Matches control and test nodes against each other, returns the matching
-     * pairs.
-     */
-    Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes);
+	/**
+	 * Matches control and test nodes against each other, returns the matching
+	 * pairs.
+	 */
+	Iterable<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes);
 }
