@@ -1,5 +1,9 @@
 package net.sf.xmlunit.util;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 public class Pair<T> {
 	private final T first;
 	private final T second;
@@ -9,12 +13,34 @@ public class Pair<T> {
 		this.second = second;
 	}
 
+	public static <T> Pair<T> of(T first, T second) {
+		return new Pair<T>(first, second);
+	}
+
 	public T getFirst() {
 		return first;
 	}
 
 	public T getSecond() {
 		return second;
+	}
+
+	public static <T> List<T> getFirstElements(Collection<Pair<T>> pairs) {
+		List<T> firstElements = new LinkedList<T>();
+		for (Pair<T> pair : pairs) {
+			firstElements.add(pair.getFirst());
+		}
+
+		return firstElements;
+	}
+
+	public static <T> List<T> getSecondElements(Collection<Pair<T>> pairs) {
+		List<T> secondElements = new LinkedList<T>();
+		for (Pair<T> pair : pairs) {
+			secondElements.add(pair.getSecond());
+		}
+
+		return secondElements;
 	}
 
 	@Override

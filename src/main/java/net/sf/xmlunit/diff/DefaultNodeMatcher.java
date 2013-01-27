@@ -44,7 +44,7 @@ public class DefaultNodeMatcher implements NodeMatcher {
 		nodeTypeMatcher = ntm;
 	}
 
-	public Iterable<Pair<Node>> match(Iterable<Node> controlNodes,
+	public List<Pair<Node>> match(Iterable<Node> controlNodes,
 	        Iterable<Node> testNodes) {
 
 		List<Pair<Node>> matches = new LinkedList<Pair<Node>>();

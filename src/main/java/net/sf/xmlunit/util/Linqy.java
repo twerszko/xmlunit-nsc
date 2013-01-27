@@ -15,169 +15,182 @@ package net.sf.xmlunit.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * A couple of (functional) sequence processing constructs.
  */
 public final class Linqy {
-    /**
-     * Turns the iterable into a list.
-     */
-    public static <E> List<E> asList(Iterable<E> i) {
-        ArrayList<E> a = new ArrayList<E>();
-        for (E e : i) {
-            a.add(e);
-        }
-        return a;
-    }
+	/**
+	 * Turns the iterable into a list.
+	 */
+	public static <E> List<E> asList(Iterable<E> i) {
+		ArrayList<E> a = new ArrayList<E>();
+		for (E e : i) {
+			a.add(e);
+		}
+		return a;
+	}
 
-    /**
-     * An iterable containing a single element.
-     */
-    public static <E> Iterable<E> singleton(final E single) {
-        return new Iterable<E>() {
-            @Override
-            public Iterator<E> iterator() {
-                return new OnceOnlyIterator<E>(single);
-            }
-        };
-    }
+	/**
+	 * Turns the iterable into a set.
+	 */
+	public static <E> Set<E> asSet(Iterable<E> i) {
+		Set<E> a = new LinkedHashSet<E>();
+		for (E e : i) {
+			a.add(e);
+		}
+		return a;
+	}
 
-    /**
-     * Create a new iterable by applying a mapper function to each element of a
-     * given sequence.
-     */
-    public static <F, T> Iterable<T> map(final Iterable<F> from, final Mapper<? super F, T> mapper) {
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return new MappingIterator<F, T>(from.iterator(), mapper);
-            }
-        };
-    }
+	/**
+	 * An iterable containing a single element.
+	 */
+	public static <E> Iterable<E> singleton(final E single) {
+		return new Iterable<E>() {
+			@Override
+			public Iterator<E> iterator() {
+				return new OnceOnlyIterator<E>(single);
+			}
+		};
+	}
 
-    /**
-     * A function mapping from one type to another.
-     */
-    public interface Mapper<F, T> {
-        T map(F from);
-    }
+	/**
+	 * Create a new iterable by applying a mapper function to each element of a
+	 * given sequence.
+	 */
+	public static <F, T> Iterable<T> map(final Iterable<F> from, final Mapper<? super F, T> mapper) {
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return new MappingIterator<F, T>(from.iterator(), mapper);
+			}
+		};
+	}
 
-    /**
-     * Exclude all elements from an iterable that don't match a given predicate.
-     */
-    public static <T> Iterable<T> filter(final Iterable<T> sequence, final Predicate<? super T> filter) {
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return new FilteringIterator<T>(sequence.iterator(), filter);
-            }
-        };
-    }
+	/**
+	 * A function mapping from one type to another.
+	 */
+	public interface Mapper<F, T> {
+		T map(F from);
+	}
 
-    /**
-     * Count the number of elements in a sequence.
-     */
-    public static <T> int count(Iterable<T> seq) {
-        int c = 0;
-        Iterator<T> it = seq.iterator();
-        while (it.hasNext()) {
-            c++;
-            it.next();
-        }
-        return c;
-    }
+	/**
+	 * Exclude all elements from an iterable that don't match a given predicate.
+	 */
+	public static <T> Iterable<T> filter(final Iterable<T> sequence, final Predicate<? super T> filter) {
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return new FilteringIterator<T>(sequence.iterator(), filter);
+			}
+		};
+	}
 
-    private static class OnceOnlyIterator<E> implements Iterator<E> {
-        private final E element;
-        private boolean iterated = false;
+	/**
+	 * Count the number of elements in a sequence.
+	 */
+	public static <T> int count(Iterable<T> seq) {
+		int c = 0;
+		Iterator<T> it = seq.iterator();
+		while (it.hasNext()) {
+			c++;
+			it.next();
+		}
+		return c;
+	}
 
-        private OnceOnlyIterator(E element) {
-            this.element = element;
-        }
+	private static class OnceOnlyIterator<E> implements Iterator<E> {
+		private final E element;
+		private boolean iterated = false;
 
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
+		private OnceOnlyIterator(E element) {
+			this.element = element;
+		}
 
-        @Override
-        public E next() {
-            if (iterated) {
-                throw new NoSuchElementException();
-            }
-            iterated = true;
-            return element;
-        }
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        public boolean hasNext() {
-            return !iterated;
-        }
-    }
+		@Override
+		public E next() {
+			if (iterated) {
+				throw new NoSuchElementException();
+			}
+			iterated = true;
+			return element;
+		}
 
-    private static class MappingIterator<F, T> implements Iterator<T> {
-        private final Iterator<F> i;
-        private final Mapper<? super F, T> mapper;
+		@Override
+		public boolean hasNext() {
+			return !iterated;
+		}
+	}
 
-        private MappingIterator(Iterator<F> i, Mapper<? super F, T> mapper) {
-            this.i = i;
-            this.mapper = mapper;
-        }
+	private static class MappingIterator<F, T> implements Iterator<T> {
+		private final Iterator<F> i;
+		private final Mapper<? super F, T> mapper;
 
-        @Override
-        public void remove() {
-            i.remove();
-        }
+		private MappingIterator(Iterator<F> i, Mapper<? super F, T> mapper) {
+			this.i = i;
+			this.mapper = mapper;
+		}
 
-        @Override
-        public T next() {
-            return mapper.map(i.next());
-        }
+		@Override
+		public void remove() {
+			i.remove();
+		}
 
-        @Override
-        public boolean hasNext() {
-            return i.hasNext();
-        }
-    }
+		@Override
+		public T next() {
+			return mapper.map(i.next());
+		}
 
-    private static class FilteringIterator<T> implements Iterator<T> {
-        private final Iterator<T> i;
-        private final Predicate<? super T> filter;
-        private T lookAhead = null;
+		@Override
+		public boolean hasNext() {
+			return i.hasNext();
+		}
+	}
 
-        private FilteringIterator(Iterator<T> i, Predicate<? super T> filter) {
-            this.i = i;
-            this.filter = filter;
-        }
+	private static class FilteringIterator<T> implements Iterator<T> {
+		private final Iterator<T> i;
+		private final Predicate<? super T> filter;
+		private T lookAhead = null;
 
-        @Override
-        public void remove() {
-            i.remove();
-        }
+		private FilteringIterator(Iterator<T> i, Predicate<? super T> filter) {
+			this.i = i;
+			this.filter = filter;
+		}
 
-        @Override
-        public T next() {
-            if (lookAhead == null) {
-                throw new NoSuchElementException();
-            }
-            T next = lookAhead;
-            lookAhead = null;
-            return next;
-        }
+		@Override
+		public void remove() {
+			i.remove();
+		}
 
-        @Override
-        public boolean hasNext() {
-            while (lookAhead == null && i.hasNext()) {
-                T next = i.next();
-                if (filter.matches(next)) {
-                    lookAhead = next;
-                }
-            }
-            return lookAhead != null;
-        }
-    }
+		@Override
+		public T next() {
+			if (lookAhead == null) {
+				throw new NoSuchElementException();
+			}
+			T next = lookAhead;
+			lookAhead = null;
+			return next;
+		}
+
+		@Override
+		public boolean hasNext() {
+			while (lookAhead == null && i.hasNext()) {
+				T next = i.next();
+				if (filter.matches(next)) {
+					lookAhead = next;
+				}
+			}
+			return lookAhead != null;
+		}
+	}
 
 }

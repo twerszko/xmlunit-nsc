@@ -1,6 +1,5 @@
 package net.sf.xmlunit.diff.strategies;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -110,14 +109,12 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 
 		Comparisons comparisons = new Comparisons();
 
-		Iterable<Pair<Node>> matches = nodeMatcher.match(controlChildren, testChildren);
+		List<Pair<Node>> matches = nodeMatcher.match(controlChildren, testChildren);
 
-		Set<Node> seenNodes = new HashSet<Node>();
 		for (Pair<Node> pair : matches) {
 			Node controlNode = pair.getFirst();
 			Node testNode = pair.getSecond();
-			seenNodes.add(controlNode);
-			seenNodes.add(testNode);
+
 			int controlIndex = controlChildren.indexOf(controlNode);
 			int testIndex = testChildren.indexOf(testNode);
 
@@ -143,14 +140,17 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 			controlContext.navigateToParent();
 		}
 
-		List<NodeAndXpath<Node>> unseenControlChildren = findUnseenNodes(controlChildren, controlContext, seenNodes);
+		Set<Node> seenControlChildren = Linqy.asSet(Pair.getFirstElements(matches));
+		List<NodeAndXpath<Node>> unseenControlChildren =
+		        findUnseenNodes(controlChildren, controlContext, seenControlChildren);
 		for (NodeAndXpath<Node> controlChild : unseenControlChildren) {
 			comparisons.add(Comparison.ofType(ComparisonType.CHILD_LOOKUP)
 			        .between(controlChild, controlChild.getNode().getNodeName())
 			        .and(null, null));
 		}
 
-		List<NodeAndXpath<Node>> unseenTestChildren = findUnseenNodes(testChildren, testContext, seenNodes);
+		Set<Node> seenTestChildren = Linqy.asSet(Pair.getSecondElements(matches));
+		List<NodeAndXpath<Node>> unseenTestChildren = findUnseenNodes(testChildren, testContext, seenTestChildren);
 		for (NodeAndXpath<Node> testChild : unseenTestChildren) {
 			comparisons.add(Comparison.ofType(ComparisonType.CHILD_LOOKUP)
 			        .between(null, null)

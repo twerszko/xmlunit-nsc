@@ -351,7 +351,7 @@ public class NewDifferenceEngine implements DifferenceEngineContract {
 			nestedMatcher = nested;
 		}
 
-		public Iterable<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+		public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
 			final Map<Node, Node> map = new HashMap<Node, Node>();
 			for (Pair<Node> e : nestedMatcher.match(controlNodes, testNodes)) {
 				map.put(e.getFirst(), e.getSecond());
