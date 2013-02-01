@@ -20,7 +20,7 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.ProcessingInstruction;
 
-public class CompareProcInstrStrategy extends ComparisonStrategyBase<ProcessingInstruction> {
+public class CompareProcInstrStrategy extends ComparisonStrategy<ProcessingInstruction> {
 
 	public CompareProcInstrStrategy(ComparisonPerformer compPerformer) {
 		super(compPerformer);

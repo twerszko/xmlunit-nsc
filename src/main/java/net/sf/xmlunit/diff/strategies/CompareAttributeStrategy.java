@@ -7,7 +7,7 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Attr;
 
-public class CompareAttributeStrategy extends ComparisonStrategyBase<Attr> {
+public class CompareAttributeStrategy extends ComparisonStrategy<Attr> {
 
 	public CompareAttributeStrategy(ComparisonPerformer compPerformer) {
 		super(compPerformer);

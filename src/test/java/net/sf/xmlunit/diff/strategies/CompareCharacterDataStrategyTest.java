@@ -85,7 +85,7 @@ public class CompareCharacterDataStrategyTest {
 		NodeAndXpath<CharacterData> control = new NodeAndXpath<CharacterData>(controlText, new XPathContext());
 		NodeAndXpath<CharacterData> test = new NodeAndXpath<CharacterData>(testText, new XPathContext());
 
-		new CompareCharacterDataStrategy(performer).compare(control, test);
+		new CompareCharacterDataStrategy(performer).execute(control, test);
 		return performer.getDifferences();
 	}
 }

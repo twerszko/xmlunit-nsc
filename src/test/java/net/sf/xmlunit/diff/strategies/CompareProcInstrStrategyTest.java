@@ -87,7 +87,7 @@ public class CompareProcInstrStrategyTest {
 		NodeAndXpath<ProcessingInstruction> control = NodeAndXpath.from(controlInstr, new XPathContext());
 		NodeAndXpath<ProcessingInstruction> test = NodeAndXpath.from(testInstr, new XPathContext());
 
-		new CompareProcInstrStrategy(performer).compare(control, test);
+		new CompareProcInstrStrategy(performer).execute(control, test);
 		return performer.getDifferences();
 	}
 }

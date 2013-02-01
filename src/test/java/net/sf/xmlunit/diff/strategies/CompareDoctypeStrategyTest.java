@@ -164,7 +164,7 @@ public class CompareDoctypeStrategyTest {
 		NodeAndXpath<DocumentType> control = new NodeAndXpath<DocumentType>(controlType, new XPathContext());
 		NodeAndXpath<DocumentType> test = new NodeAndXpath<DocumentType>(testType, new XPathContext());
 
-		new CompareDoctypeStrategy(performer).compare(control, test);
+		new CompareDoctypeStrategy(performer).execute(control, test);
 		return performer.getDifferences();
 	}
 }

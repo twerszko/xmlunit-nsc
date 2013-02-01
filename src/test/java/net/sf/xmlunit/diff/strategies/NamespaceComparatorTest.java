@@ -74,7 +74,7 @@ public class NamespaceComparatorTest {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
 		new CompareNamespaceStrategy(performer)
-		        .compare(
+		        .execute(
 		                new NodeAndXpath<Node>(control, new XPathContext()),
 		                new NodeAndXpath<Node>(test, new XPathContext()));
 

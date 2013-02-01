@@ -25,7 +25,7 @@ import org.w3c.dom.DocumentType;
 /**
  * Compares document node, doctype and XML declaration properties
  */
-public class CompareDocumentStrategy extends ComparisonStrategyBase<Document> {
+public class CompareDocumentStrategy extends ComparisonStrategy<Document> {
 
 	public CompareDocumentStrategy(ComparisonPerformer compPerformer) {
 		super(compPerformer);

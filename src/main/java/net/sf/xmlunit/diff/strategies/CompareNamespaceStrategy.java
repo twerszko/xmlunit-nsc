@@ -20,7 +20,7 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Node;
 
-public class CompareNamespaceStrategy extends ComparisonStrategyBase<Node> {
+public class CompareNamespaceStrategy extends ComparisonStrategy<Node> {
 
 	public CompareNamespaceStrategy(ComparisonPerformer compPerformer) {
 		super(compPerformer);

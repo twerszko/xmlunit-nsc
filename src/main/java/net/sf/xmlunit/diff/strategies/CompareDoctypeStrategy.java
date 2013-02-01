@@ -20,7 +20,7 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.DocumentType;
 
-public class CompareDoctypeStrategy extends ComparisonStrategyBase<DocumentType> {
+public class CompareDoctypeStrategy extends ComparisonStrategy<DocumentType> {
 
 	public CompareDoctypeStrategy(
 	        ComparisonPerformer compPerformer) {

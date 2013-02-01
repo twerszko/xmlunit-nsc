@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-public class CompareElementStrategy extends ComparisonStrategyBase<Element> {
+public class CompareElementStrategy extends ComparisonStrategy<Element> {
 
 	final boolean ignoreAttributeOrder;
 

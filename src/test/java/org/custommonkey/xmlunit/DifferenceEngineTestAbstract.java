@@ -2,6 +2,7 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -123,11 +124,19 @@ public abstract class DifferenceEngineTestAbstract {
 		Comment testComment = document.createComment("baz");
 		test.appendChild(testComment);
 
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+
 		// when
 		engine.compare(control, test, evaluator, null);
+		ArrayList<Comparison> differences = evaluator.getDifferences();
 
 		// then
-		assertThat(evaluator.different).isTrue();
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/comment()[1]");
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/comment()[1]");
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("baz");
 	}
 
 	@Test
@@ -144,11 +153,13 @@ public abstract class DifferenceEngineTestAbstract {
 		Comment testComment = document.createComment("baz");
 		test.appendChild(testComment);
 
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+
 		// when
 		engine.compare(control, test, evaluator, null);
 
 		// then
-		assertThat(evaluator.different).isFalse();
+		assertThat(evaluator.getDifferences()).isEmpty();
 	}
 
 	@Test

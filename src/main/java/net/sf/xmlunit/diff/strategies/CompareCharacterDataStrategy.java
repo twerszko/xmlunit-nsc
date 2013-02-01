@@ -21,7 +21,7 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Node;
 
-public class CompareCharacterDataStrategy extends ComparisonStrategyBase<CharacterData> {
+public class CompareCharacterDataStrategy extends ComparisonStrategy<CharacterData> {
 
 	public CompareCharacterDataStrategy(ComparisonPerformer compPerformer) {
 		super(compPerformer);

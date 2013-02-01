@@ -1,12 +1,24 @@
 package net.sf.xmlunit.diff.strategies;
 
+import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Node;
 
-public interface ComparisonStrategy<U extends Node> {
+public abstract class ComparisonStrategy<U extends Node> extends Comparator {
 
-	boolean isInterrupted();
+	public ComparisonStrategy(ComparisonPerformer compPerformer) {
+		super(compPerformer);
+	}
 
-	void compare(NodeAndXpath<U> control, NodeAndXpath<U> test);
+	public abstract Comparisons provideComparisons(NodeAndXpath<U> control, NodeAndXpath<U> test);
+
+	public void execute(NodeAndXpath<U> control, NodeAndXpath<U> test) {
+		setInterrupted(false);
+		Comparisons comparisons = provideComparisons(control, test);
+		if (comparisons == null) {
+			comparisons = new Comparisons();
+		}
+		executeComparisons(comparisons);
+	}
 }

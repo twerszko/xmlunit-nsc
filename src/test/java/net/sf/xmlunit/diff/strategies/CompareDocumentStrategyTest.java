@@ -86,7 +86,7 @@ public class CompareDocumentStrategyTest {
 
 	private List<Comparison> findHeaderDifferences(Document control, Document test) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
-		new CompareDocumentStrategy(performer).compare(NodeAndXpath.from(control), NodeAndXpath.from(test));
+		new CompareDocumentStrategy(performer).execute(NodeAndXpath.from(control), NodeAndXpath.from(test));
 		return performer.getDifferences();
 	}
 }

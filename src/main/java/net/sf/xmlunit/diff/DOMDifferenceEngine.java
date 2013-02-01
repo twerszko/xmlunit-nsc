@@ -17,7 +17,7 @@ package net.sf.xmlunit.diff;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
-import net.sf.xmlunit.diff.strategies.CompareNodeAndChildrenStrategy;
+import net.sf.xmlunit.diff.strategies.DOMComparator;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -61,7 +61,7 @@ public final class DOMDifferenceEngine extends AbstractDifferenceEngine {
 
 	@VisibleForTesting
 	void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		new CompareNodeAndChildrenStrategy(
+		new DOMComparator(
 		        getComparisonPerformer(), getNodeMatcher(), properties.getIgnoreAttributeOrder())
 		        .compare(control, test);
 	}

@@ -10,8 +10,10 @@ import net.sf.xmlunit.diff.NodeMatcher;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
+import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Pair;
+import net.sf.xmlunit.util.Predicate;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
@@ -37,12 +39,12 @@ import org.w3c.dom.ProcessingInstruction;
  * package private to support tests.
  * </p>
  */
-public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node> {
+public class DOMComparator extends Comparator {
 
 	private final NodeMatcher nodeMatcher;
 	private final boolean ignoreAttributeOrder;
 
-	public CompareNodeAndChildrenStrategy(
+	public DOMComparator(
 	        ComparisonPerformer compPerformer,
 	        NodeMatcher nodeMatcher,
 	        boolean ignoreAttributeOrder) {
@@ -52,8 +54,8 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		this.ignoreAttributeOrder = ignoreAttributeOrder;
 	}
 
-	@Override
-	protected void compareInternal(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+	public void compare(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+		setInterrupted(false);
 		Comparisons comparisons = new Comparisons();
 		comparisons.addAll(provideNodeComparisons(control, test));
 		executeComparisons(comparisons);
@@ -181,12 +183,6 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		return unseen;
 	}
 
-	@Override
-	public Comparisons provideComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		throw new UnsupportedOperationException(
-		        "This operation is unsupported for " + this.getClass().getSimpleName() + "!");
-	}
-
 	private Comparisons provideChildrenNumberComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
 		Node controlNode = control.getNode();
 		Node testNode = test.getNode();
@@ -288,6 +284,20 @@ public class CompareNodeAndChildrenStrategy extends ComparisonStrategyBase<Node>
 		        @Override
 		        public XPathContext.NodeInfo map(Node n) {
 			        return new XPathContext.DOMNodeInfo(n);
+		        }
+	        };
+
+	private List<Node> getFilteredChildren(Node parentNode) {
+		Iterable<Node> filteredChildren =
+		        Linqy.filter(new IterableNodeList(parentNode.getChildNodes()), INTERESTING_NODES);
+		return Linqy.asList(filteredChildren);
+	}
+
+	private static final Predicate<Node> INTERESTING_NODES =
+	        new Predicate<Node>() {
+		        @Override
+		        public boolean matches(Node n) {
+			        return n.getNodeType() != Node.DOCUMENT_TYPE_NODE;
 		        }
 	        };
 }

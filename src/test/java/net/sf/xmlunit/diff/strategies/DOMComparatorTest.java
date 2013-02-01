@@ -31,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class CompareNodeAndChildrenStrategyTest {
+public class DOMComparatorTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 
@@ -210,7 +210,7 @@ public class CompareNodeAndChildrenStrategyTest {
 		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
 		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
-		new CompareNodeAndChildrenStrategy(
+		new DOMComparator(
 		        performer, new DefaultNodeMatcher(), false)
 		        .compare(control, test);
 		return performer.getDifferences();

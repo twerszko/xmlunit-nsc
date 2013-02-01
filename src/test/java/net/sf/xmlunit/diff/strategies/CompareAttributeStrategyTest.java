@@ -87,7 +87,7 @@ public class CompareAttributeStrategyTest {
 		NodeAndXpath<Attr> control = new NodeAndXpath<Attr>(controlAttr, new XPathContext());
 		NodeAndXpath<Attr> test = new NodeAndXpath<Attr>(testAttr, new XPathContext());
 
-		new CompareAttributeStrategy(performer).compare(control, test);
+		new CompareAttributeStrategy(performer).execute(control, test);
 		return performer.getDifferences();
 	}
 }
