@@ -23,7 +23,6 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
-import net.sf.xmlunit.diff.strategies.CompareNamespaceStrategy;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class NamespaceComparatorTest {
 	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
 
 	@Test
-	public void should_compare_nodes_different_NS() {
+	public void should_detect_different_namespace_uri() {
 		// given
 		Document document = documentBuilder.newDocument();
 		Element control = document.createElementNS("x", "y");
@@ -53,7 +52,7 @@ public class NamespaceComparatorTest {
 	}
 
 	@Test
-	public void should_compare_nodes_with_different_prefix() {
+	public void should_detect_different_namespace_prefix() {
 		// given
 		Document document = documentBuilder.newDocument();
 		Element control = document.createElementNS("x", "x:y");
@@ -68,6 +67,47 @@ public class NamespaceComparatorTest {
 		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_PREFIX);
 		assertThat(difference.getControlDetails().getValue()).isEqualTo("x");
 		assertThat(difference.getTestDetails().getValue()).isEqualTo("z");
+	}
+
+	@Test
+	public void should_detect_different_namespace_prefix_2() throws Exception {
+		// given
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		String namespaceA = "http://example.org/StoneRoses";
+		String prefixA = "music";
+		String prefixB = "cd";
+		String elemName = "nowPlaying";
+
+		Element control = document.createElementNS(namespaceA, prefixA + ':' + elemName);
+		Element test = document.createElementNS(namespaceA, prefixB + ':' + elemName);
+
+		// when
+		List<Comparison> differences = findNamespaceDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NAMESPACE_PREFIX);
+	}
+
+	@Test
+	public void should_not_detect_differences_in_namespace() throws Exception {
+		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+		Document document = documentBuilder.newDocument();
+
+		String namespace = "http://example.org/StoneRoses";
+		String prefix = "music";
+		String elemName = "nowPlaying";
+
+		Element control = document.createElementNS(namespace, prefix + ':' + elemName);
+
+		// when
+		List<Comparison> differences = findNamespaceDifferences(control, control);
+
+		// then
+		assertThat(differences).hasSize(0);
 	}
 
 	private List<Comparison> findNamespaceDifferences(Node control, Node test) {

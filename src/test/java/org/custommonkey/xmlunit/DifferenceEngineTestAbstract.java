@@ -2,7 +2,6 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -128,7 +127,7 @@ public abstract class DifferenceEngineTestAbstract {
 
 		// when
 		engine.compare(control, test, evaluator, null);
-		ArrayList<Comparison> differences = evaluator.getDifferences();
+		List<Comparison> differences = evaluator.getDifferences();
 
 		// then
 		assertThat(differences).hasSize(1);
