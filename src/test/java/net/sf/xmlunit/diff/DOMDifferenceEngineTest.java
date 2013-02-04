@@ -703,6 +703,7 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
 	@Test
 	public void compareAttributes() {
+		// TODO split
 		Attr a1 = doc.createAttribute("foo");
 		Attr a2 = doc.createAttribute("foo");
 
@@ -821,82 +822,112 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
-	public void recursionUsesElementSelector() {
-		// TODO split
-		Element e1 = doc.createElement("foo");
-		Element e2 = doc.createElement("foo");
-		Element e3 = doc.createElement("bar");
-		e1.appendChild(e3);
-		Element e4 = doc.createElement("baz");
-		e2.appendChild(e4);
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.ELEMENT_TAG_NAME, "/bar[1]", "/baz[1]");
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
+	public void should_detect_different_tag_name_with_byName_selector() {
+		// given
+		Element control = doc.createElement("foo");
+		Element controlChild = doc.createElement("bar");
+		control.appendChild(controlChild);
 
-		d = new DOMDifferenceEngine(null);
-		d.setNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName));
-		ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP, "/bar[1]", null);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
+		Element test = doc.createElement("foo");
+		Element testChild = doc.createElement("baz");
+		test.appendChild(testChild);
+
+		// when
+		List<Comparison> differences = findDifferencesWithMatcher(
+		        control, test, new DefaultNodeMatcher(ElementSelectors.byName));
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(firstDifference.getControlDetails().getTarget()).isEqualTo(controlChild);
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/bar[1]");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(null);
+		assertThat(firstDifference.getTestDetails().getTarget()).isEqualTo(null);
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo(null);
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo(null);
+		assertThat(secondDifference.getControlDetails().getTarget()).isEqualTo(null);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo(null);
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo("baz");
+		assertThat(secondDifference.getTestDetails().getTarget()).isEqualTo(testChild);
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/baz[1]");
 	}
 
 	@Test
-	public void schemaLocationDifferences() {
-		Element e1 = doc.createElement("foo");
-		Element e2 = doc.createElement("foo");
-		e1.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "somewhere");
-		e2.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "somewhere else");
+	public void should_detect_different_tag_name() {
+		// given
+		Element control = doc.createElement("foo");
+		Element controlChild = doc.createElement("bar");
+		control.appendChild(controlChild);
 
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.SCHEMA_LOCATION);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.SCHEMA_LOCATION) {
-					assertEquals(ComparisonResult.DIFFERENT, outcome);
-					return ComparisonResult.CRITICAL;
-				}
-				assertEquals(ComparisonResult.EQUAL, outcome);
-				return ComparisonResult.EQUAL;
-			}
-		});
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
+		Element test = doc.createElement("foo");
+		Element testChild = doc.createElement("baz");
+		test.appendChild(testChild);
 
-		e1 = doc.createElement("foo");
-		e2 = doc.createElement("foo");
-		e1.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "noNamespaceSchemaLocation", "somewhere");
-		e2.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "noNamespaceSchemaLocation", "somewhere else");
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION) {
-					assertEquals(ComparisonResult.DIFFERENT, outcome);
-					return ComparisonResult.CRITICAL;
-				}
-				assertEquals(ComparisonResult.EQUAL, outcome);
-				return ComparisonResult.EQUAL;
-			}
-		});
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(difference.getControlDetails().getTarget()).isEqualTo(controlChild);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/bar[1]");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("baz");
+		assertThat(difference.getTestDetails().getTarget()).isEqualTo(testChild);
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/baz[1]");
+	}
+
+	@Test
+	public void should_detect_different_schema_location() {
+		// given
+		Element control = doc.createElement("foo");
+		Element test = doc.createElement("foo");
+		control.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "somewhere");
+		test.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "somewhere else");
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.SCHEMA_LOCATION);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("somewhere");
+		assertThat(difference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("somewhere else");
+		assertThat(difference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_no_namespace_schema_location() {
+		// given
+		Element control = doc.createElement("foo");
+		Element test = doc.createElement("foo");
+		control.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "noNamespaceSchemaLocation", "somewhere");
+		test.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "noNamespaceSchemaLocation", "somewhere else");
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("somewhere");
+		assertThat(difference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("somewhere else");
+		assertThat(difference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	@Test
@@ -906,10 +937,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
 		engine.setDifferenceEvaluator(evaluator);
 
-		Comparison comparison =
-		        Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
-		                .between(null, "black")
-		                .and(null, "black");
+		Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+		        .between(null, "black")
+		        .and(null, "black");
 
 		// when
 		ComparisonResult result = engine.compare(comparison);
@@ -926,10 +956,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
 		engine.setDifferenceEvaluator(evaluator);
 
-		Comparison comparison =
-		        Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
-		                .between(null, "black")
-		                .and(null, "white");
+		Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+		        .between(null, "black")
+		        .and(null, "white");
 
 		// when
 		ComparisonResult result = engine.compare(comparison);
@@ -947,10 +976,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
 		engine.setDifferenceEvaluator(evaluator);
 
-		Comparison comparison =
-		        Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
-		                .between(null, true)
-		                .and(null, true);
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+		        .between(null, true)
+		        .and(null, true);
 
 		// when
 		ComparisonResult result = engine.compare(comparison);
@@ -967,10 +995,9 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
 		engine.setDifferenceEvaluator(evaluator);
 
-		Comparison comparison =
-		        Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
-		                .between(null, false)
-		                .and(null, true);
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+		        .between(null, false)
+		        .and(null, true);
 
 		// when
 		ComparisonResult result = engine.compare(comparison);
@@ -1071,18 +1098,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		assertThat(difference.getTestDetails().getValue()).isEqualTo("p2");
 	}
 
-	private List<Comparison> findDifferences(Node control, Node test) {
-		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-		engine.setDifferenceEvaluator(evaluator);
-
-		engine.compareNodes(
-		        NodeAndXpath.<Node> from(control),
-		        NodeAndXpath.<Node> from(test));
-
-		return evaluator.getDifferences();
-	}
-
 	@Test
 	public void should_detect_different_children_sequence() {
 		// given
@@ -1098,20 +1113,11 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		test.appendChild(secondTestChild);
 		test.appendChild(firstTestChild);
 
-		DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(ElementSelectors.byName);
-		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-
-		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
-		engine.setDifferenceEvaluator(evaluator);
-		engine.setNodeMatcher(nodeMatcher);
-
 		// when
-		engine.compareNodes(
-		        NodeAndXpath.<Node> from(control),
-		        NodeAndXpath.<Node> from(test));
+		DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(ElementSelectors.byName);
+		List<Comparison> differences = findDifferencesWithMatcher(control, test, nodeMatcher);
 
 		// then
-		List<Comparison> differences = evaluator.getDifferences();
 		assertThat(differences).hasSize(2);
 
 		Comparison firstDifference = differences.get(0);
@@ -1123,5 +1129,30 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
 		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/baz[1]");
 		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/baz[1]");
+	}
+
+	private List<Comparison> findDifferences(Node control, Node test) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+
+		engine.compareNodes(
+		        NodeAndXpath.<Node> from(control),
+		        NodeAndXpath.<Node> from(test));
+
+		return evaluator.getDifferences();
+	}
+
+	private List<Comparison> findDifferencesWithMatcher(Node control, Node test, NodeMatcher nodeMatcher) {
+		DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		engine.setDifferenceEvaluator(evaluator);
+		engine.setNodeMatcher(nodeMatcher);
+
+		engine.compareNodes(
+		        NodeAndXpath.<Node> from(control),
+		        NodeAndXpath.<Node> from(test));
+
+		return evaluator.getDifferences();
 	}
 }
