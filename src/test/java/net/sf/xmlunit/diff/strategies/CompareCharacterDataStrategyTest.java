@@ -37,6 +37,7 @@ public class CompareCharacterDataStrategyTest {
 
 	@Test
 	public void should_detect_different_cdata() throws Exception {
+		// given
 		Document document = documentBuilder.newDocument();
 
 		String expected = "I'm standing alone, you're weighing the gold";
@@ -45,13 +46,17 @@ public class CompareCharacterDataStrategyTest {
 		CDATASection control = document.createCDATASection(expected);
 		CDATASection test = document.createCDATASection(actual);
 
+		// when
 		List<Comparison> differences = findCharacterDataDifferences(control, test);
+
+		// then
 		assertThat(differences).hasSize(1);
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CDATA_VALUE);
 	}
 
 	@Test
 	public void should_detect_different_text_nodes() throws Exception {
+		// given
 		Document document = documentBuilder.newDocument();
 
 		String expected = "the pack on my back is aching";
@@ -59,13 +64,17 @@ public class CompareCharacterDataStrategyTest {
 		Text control = document.createTextNode(expected);
 		Text test = document.createTextNode(actual);
 
+		// when
 		List<Comparison> differences = findCharacterDataDifferences(control, test);
+
+		// then
 		assertThat(differences).hasSize(1);
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
 	}
 
 	@Test
-	public void testCompareComment() throws Exception {
+	public void should_detect_different_comments() throws Exception {
+		// given
 		Document document = documentBuilder.newDocument();
 
 		String expected = "Im no clown I wont back down";
@@ -74,7 +83,10 @@ public class CompareCharacterDataStrategyTest {
 		Comment control = document.createComment(expected);
 		Comment test = document.createComment(actual);
 
+		// when
 		List<Comparison> differences = findCharacterDataDifferences(control, test);
+
+		// then
 		assertThat(differences).hasSize(1);
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
 	}

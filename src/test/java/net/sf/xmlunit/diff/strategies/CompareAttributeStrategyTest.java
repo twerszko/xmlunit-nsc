@@ -21,7 +21,6 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -31,6 +30,7 @@ import org.w3c.dom.Document;
 
 public class CompareAttributeStrategyTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
+	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 
 	@Test
 	public void should_detect_different_attribute_value() throws Exception {
@@ -38,7 +38,6 @@ public class CompareAttributeStrategyTest {
 		String expected = "These boots were made for walking";
 		String actual = "The marquis de sade never wore no boots like these";
 
-		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 		Document document = documentBuilder.newDocument();
 
 		Attr control = document.createAttribute("testAttr");
@@ -81,11 +80,29 @@ public class CompareAttributeStrategyTest {
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
 	}
 
+	@Test
+	public void should_detect_no_attribute_differences() {
+		// given
+		Document doc = documentBuilder.newDocument();
+
+		Attr control = doc.createAttribute("foo");
+		control.setValue("foo");
+
+		Attr test = doc.createAttribute("foo");
+		test.setValue("foo");
+
+		// when
+		List<Comparison> differences = findAttrDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
 	private List<Comparison> findAttrDifferences(Attr controlAttr, Attr testAttr) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
 
-		NodeAndXpath<Attr> control = new NodeAndXpath<Attr>(controlAttr, new XPathContext());
-		NodeAndXpath<Attr> test = new NodeAndXpath<Attr>(testAttr, new XPathContext());
+		NodeAndXpath<Attr> control = NodeAndXpath.from(controlAttr);
+		NodeAndXpath<Attr> test = NodeAndXpath.from(testAttr);
 
 		new CompareAttributeStrategy(performer).execute(control, test);
 		return performer.getDifferences();

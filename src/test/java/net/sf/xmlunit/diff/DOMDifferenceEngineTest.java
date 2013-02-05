@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -597,6 +596,7 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
 	@Test
 	public void compareDocTypes() {
+		// TODO split
 		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
 		DiffExpecter ex = new DiffExpecter(ComparisonType.DOCTYPE_NAME);
 		d.addDifferenceListener(ex);
@@ -640,185 +640,75 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
-	public void compareElements() {
-		// TODO split
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.ELEMENT_TAG_NAME);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		Element e1 = doc.createElement("foo");
-		Element e2 = doc.createElement("foo");
-		Element e3 = doc.createElement("bar");
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(0, ex.invoked);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e3));
-		assertEquals(1, ex.invoked);
+	public void should_detect_element_differences() {
+		// given
+		Element control = doc.createElement("foo");
+		control.setAttribute("attr1", "value1");
 
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
-		e1.setAttribute("attr1", "value1");
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
+		Element test = doc.createElement("bar");
+		test.setAttributeNS(null, "attr1", "value1");
+		test.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
 
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
+		// when
+		List<Comparison> differences = findDifferences(control, test);
 
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.ATTR_NAME_LOOKUP, "/@attr1", "/");
-		e2.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
+		// then
+		assertThat(differences).hasSize(3);
 
-		d = new DOMDifferenceEngine(null);
-		d.addDifferenceListener(new ComparisonListener() {
-			@Override
-			public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-				fail("unexpected Comparison of type " + comparison.getType() + " with outcome " + outcome
-				        + " and values '" + comparison.getControlDetails().getValue() + "' and '"
-				        + comparison.getTestDetails().getValue() + "'");
-			}
-		});
-		e1.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
-		e2.setAttributeNS(null, "attr1", "value1");
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+		Comparison thirdDifference = differences.get(2);
 
-		ex = new DiffExpecter(ComparisonType.ELEMENT_TAG_NAME);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(0, ex.invoked);
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
+		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
 	}
 
 	@Test
-	public void compareAttributes() {
-		// TODO split
-		Attr a1 = doc.createAttribute("foo");
-		Attr a2 = doc.createAttribute("foo");
+	public void should_detect_different_attribute_values() {
+		// given
+		Attr control = doc.createAttribute("foo");
+		control.setValue("foo");
 
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED);
-		/*
-		 * Can't reset "explicitly set" state for Documents created via API
-		 * d.addDifferenceListener(ex);
-		 * d.setDifferenceEvaluator(DifferenceEvaluators.Accept);
-		 * a2.setValue(""); assertEquals(ComparisonResult.CRITICAL,
-		 * d.compareNodes(a1, new XPathContext(), a2, new XPathContext()));
-		 * assertEquals(1, ex.invoked);
-		 * 
-		 * d = new DOMDifferenceEngine();
-		 */
-		ex = new DiffExpecter(ComparisonType.ATTR_VALUE);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		Attr a3 = doc.createAttribute("foo");
-		a1.setValue("foo");
-		a2.setValue("foo");
-		a3.setValue("bar");
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(a1),
-		        NodeAndXpath.<Node> from(a2));
-		assertEquals(0, ex.invoked);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(a1),
-		        NodeAndXpath.<Node> from(a3));
-		assertEquals(1, ex.invoked);
+		Attr test = doc.createAttribute("foo");
+		test.setValue("bar");
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ATTR_VALUE);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("foo");
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	@Test
-	public void naiveRecursion() {
-		// TODO split
-		Element e1 = doc.createElement("foo");
-		Element e2 = doc.createElement("foo");
-		Element c1 = doc.createElement("bar");
-		e1.appendChild(c1);
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP, "/bar[1]", null);
-		d.addDifferenceListener(ex);
-		DifferenceEvaluator ev = new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.HAS_CHILD_NODES) {
-					return ComparisonResult.EQUAL;
-				}
-				return DifferenceEvaluators.DefaultStopWhenDifferent.evaluate(comparison, outcome);
-			}
-		};
-		d.setDifferenceEvaluator(ev);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(1, ex.invoked);
-
-		// symmetric?
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP, null, "/bar[1]");
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(ev);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e2),
-		        NodeAndXpath.<Node> from(e1));
-		assertEquals(1, ex.invoked);
-
-		Element c2 = doc.createElement("bar");
-		e2.appendChild(c2);
-
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.CHILD_LOOKUP);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(ev);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertEquals(0, ex.invoked);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e2),
-		        NodeAndXpath.<Node> from(e1));
-		assertEquals(0, ex.invoked);
-	}
-
-	@Test
-	public void textAndCDataMatchRecursively() {
-		// TODO split
-		Element e1 = doc.createElement("foo");
-		Element e2 = doc.createElement("foo");
+	public void should_detect_difference_between_text_and_cdata() {
+		// given
+		Element control = doc.createElement("foo");
 		Text fooText = doc.createTextNode("foo");
-		e1.appendChild(fooText);
+		control.appendChild(fooText);
+		Element test = doc.createElement("foo");
 		CDATASection fooCDATASection = doc.createCDATASection("foo");
-		e2.appendChild(fooCDATASection);
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		ListingDifferenceEvaluator ev = new ListingDifferenceEvaluator();
-		d.setDifferenceEvaluator(ev);
+		test.appendChild(fooCDATASection);
 
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		List<Comparison> differences = ev.getDifferences();
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.NODE_TYPE);
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
 		assertThat(differences).hasSize(1);
-
-		ev = new ListingDifferenceEvaluator();
-		d.setDifferenceEvaluator(ev);
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(e2),
-		        NodeAndXpath.<Node> from(e1));
-
-		differences = ev.getDifferences();
-		assertThat(differences).hasSize(1);
-		difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.NODE_TYPE);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.NODE_TYPE);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo(Node.TEXT_NODE);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(fooText);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/text()[1]");
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(Node.CDATA_SECTION_NODE);
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(fooCDATASection);
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/text()[1]");
 	}
 
 	@Test

@@ -36,6 +36,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class CompareElementStrategyTest {
+	private final DocumentUtils documentUtils = new DocumentUtils();
+	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+
 	@Test
 	public void should_ignore_different_attribute_sequence() throws Exception {
 		// given
@@ -125,6 +128,147 @@ public class CompareElementStrategyTest {
 		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);
 	}
 
+	@Test
+	public void should_detect_no_tag_name_differences() {
+		// given
+		Document doc = documentBuilder.newDocument();
+
+		Element control = doc.createElement("foo");
+		Element test = doc.createElement("foo");
+
+		// when
+		List<Comparison> differences = findElementDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_tag_name() {
+		// given
+		Document doc = documentBuilder.newDocument();
+
+		Element control = doc.createElement("foo");
+		Element test = doc.createElement("bar");
+
+		// when
+		List<Comparison> differences = findElementDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("foo");
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_number_of_attributes() {
+		// given
+		Document doc = documentBuilder.newDocument();
+
+		Element control = doc.createElement("foo");
+		control.setAttribute("attr1", "value1");
+		Element test = doc.createElement("foo");
+
+		// when
+		List<Comparison> differences = findElementDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo(1);
+		assertThat(firstDifference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(0);
+		assertThat(firstDifference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/");
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo(true);
+		assertThat(secondDifference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/@attr1");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo(false);
+		assertThat(secondDifference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_attributes() {
+		// given
+		Document doc = documentBuilder.newDocument();
+
+		Element control = doc.createElement("foo");
+		control.setAttribute("attr1", "value1");
+		Element test = doc.createElement("foo");
+		test.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
+
+		// when
+		List<Comparison> differences = findElementDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo(true);
+		assertThat(firstDifference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/@attr1");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(false);
+		assertThat(firstDifference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/");
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo(false);
+		assertThat(secondDifference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo(true);
+		assertThat(secondDifference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/@attr1");
+	}
+
+	@Test
+	public void should_detect_different_attributes_when_namespace_different() {
+		// given
+		Document doc = documentBuilder.newDocument();
+
+		Element control = doc.createElement("foo");
+		control.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
+		Element test = doc.createElement("foo");
+		test.setAttributeNS(null, "attr1", "value1");
+
+		// when
+		List<Comparison> differences = findElementDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo(true);
+		assertThat(firstDifference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/@attr1");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(false);
+		assertThat(firstDifference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/");
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.ATTR_NAME_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo(false);
+		assertThat(secondDifference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo(true);
+		assertThat(secondDifference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/@attr1");
+	}
+
 	private List<Comparison> testAttributeSequenceNS(XmlUnitProperties properties) throws Exception {
 		DocumentBuilder documentBuilder = new DocumentUtils(properties).newControlDocumentBuilder();
 		Document document = documentBuilder.newDocument();
@@ -153,6 +297,17 @@ public class CompareElementStrategyTest {
 		        NodeAndXpath.from(control, new XPathContext()), controlMap,
 		        NodeAndXpath.from(test, new XPathContext()), testMap);
 		strategy.executeComparisons(comparisons);
+		return performer.getDifferences();
+	}
+
+	private List<Comparison> findElementDifferences(Element controlNode, Element testNode) {
+		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+
+		NodeAndXpath<Element> control = NodeAndXpath.from(controlNode);
+		NodeAndXpath<Element> test = NodeAndXpath.from(testNode);
+
+		new CompareElementStrategy(performer, false)
+		        .execute(control, test);
 		return performer.getDifferences();
 	}
 }

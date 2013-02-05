@@ -36,7 +36,84 @@ public class DOMComparatorTest {
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 
 	@Test
-	public void should_find_no_child_node_list_differences() throws Exception {
+	public void should_detect_child_lookup_difference() {
+		// given
+		Document doc = documentBuilder.newDocument();
+		Element control = doc.createElement("foo");
+		Element child = doc.createElement("bar");
+		control.appendChild(child);
+
+		Element test = doc.createElement("foo");
+
+		// when
+		List<Comparison> differences = findNodeChildrenDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(secondDifference.getControlDetails().getTarget()).isEqualTo(child);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/bar[1]");
+		assertThat(secondDifference.getTestDetails().getValue()).isNull();
+		assertThat(secondDifference.getTestDetails().getTarget()).isNull();
+		assertThat(secondDifference.getTestDetails().getXpath()).isNull();
+	}
+
+	@Test
+	public void should_detect_child_lookup_difference2() {
+		// given
+		Document doc = documentBuilder.newDocument();
+		Element control = doc.createElement("foo");
+
+		Element test = doc.createElement("foo");
+		Element child = doc.createElement("bar");
+		test.appendChild(child);
+
+		// when
+		List<Comparison> differences = findNodeChildrenDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo("bar");
+		assertThat(secondDifference.getTestDetails().getTarget()).isEqualTo(child);
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/bar[1]");
+		assertThat(secondDifference.getControlDetails().getValue()).isNull();
+		assertThat(secondDifference.getControlDetails().getTarget()).isNull();
+		assertThat(secondDifference.getControlDetails().getXpath()).isNull();
+	}
+
+	@Test
+	public void should_detect_no_child_lookup_difference() {
+		// given
+		Document doc = documentBuilder.newDocument();
+		Element control = doc.createElement("foo");
+		Element controlComment = doc.createElement("bar");
+		control.appendChild(controlComment);
+
+		Element test = doc.createElement("foo");
+		Element testComment = doc.createElement("bar");
+		test.appendChild(testComment);
+
+		// when
+		List<Comparison> differences = findNodeChildrenDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_no_child_node_list_differences() throws Exception {
 		// given
 		Document document = documentBuilder.newDocument();
 
