@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
-import org.w3c.dom.CharacterData;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -137,50 +136,6 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
-	public void should_compare_nodes_different_NS() {
-		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.NAMESPACE_URI);
-		diffEngine.addDifferenceListener(ex);
-
-		// when
-		diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(doc.createElementNS("x", "y")),
-		        NodeAndXpath.<Node> from(doc.createElementNS("z", "y")));
-
-		// then
-		assertThat(ex.invoked, is(equalTo(1)));
-	}
-
-	@Test
-	public void should_compare_nodes_with_different_prefix() {
-		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.NAMESPACE_PREFIX);
-		diffEngine.addDifferenceListener(ex);
-
-		// when
-		diffEngine.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.NAMESPACE_PREFIX) {
-					assertThat(outcome, is(equalTo(ComparisonResult.DIFFERENT)));
-					return ComparisonResult.CRITICAL;
-				}
-				assertThat(outcome, is(equalTo(ComparisonResult.EQUAL)));
-				return ComparisonResult.EQUAL;
-			}
-		});
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(doc.createElementNS("x", "x:y")),
-		        NodeAndXpath.<Node> from(doc.createElementNS("x", "z:y")));
-
-		// then
-		assertThat(ex.invoked, is(equalTo(1)));
-	}
-
-	@Test
 	public void should_compare_nodes_one_with_children_the_other_without() {
 		// TODO split 3 cases
 		// given
@@ -214,115 +169,71 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
-	public void should_compare_nodes_different_number_of_children() {
-		// TODO split
+	public void should_detect_different_number_of_children() {
 		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.CHILD_NODELIST_LENGTH, 2);
-		diffEngine.addDifferenceListener(ex);
+		Element control = doc.createElement("x");
+		control.appendChild(doc.createElement("y"));
+
+		Element test = doc.createElement("x");
+		test.appendChild(doc.createElement("y"));
+		test.appendChild(doc.createElement("y"));
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		Element e1 = doc.createElement("x");
-		Element e2 = doc.createElement("x");
+		assertThat(differences).hasSize(2);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
 
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertThat(ex.invoked, is(equalTo(0)));
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo(1);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(2);
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 
-		e1.appendChild(doc.createElement("x"));
-		e2.appendChild(doc.createElement("x"));
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertThat(ex.invoked, is(equalTo(0)));
-
-		e2.appendChild(doc.createElement("x"));
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(e1),
-		        NodeAndXpath.<Node> from(e2));
-		assertThat(ex.invoked, is(equalTo(1)));
 	}
 
 	@Test
-	public void should_compare_character_data_comment() {
+	public void should_detect_different_comment_value() {
 		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.COMMENT_VALUE, 1);
-		diffEngine.addDifferenceListener(ex);
-
-		Comment fooComment = doc.createComment("foo");
-		Comment barComment = doc.createComment("bar");
+		Comment control = doc.createComment("foo");
+		Comment test = doc.createComment("bar");
 
 		// when
-		diffEngine.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.NODE_TYPE) {
-					Object controlTarget = comparison.getControlDetails().getTarget();
-					Object testTarget = comparison.getTestDetails().getTarget();
-
-					if (outcome == ComparisonResult.EQUAL
-					        || (controlTarget instanceof CharacterData && testTarget instanceof CharacterData)) {
-						return ComparisonResult.EQUAL;
-					}
-				}
-				return DifferenceEvaluators.DefaultStopWhenDifferent.evaluate(comparison, outcome);
-			}
-		});
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooComment),
-		        NodeAndXpath.<Node> from(fooComment));
-		assertThat(ex.invoked, is(equalTo(0)));
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("foo");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooComment),
-		        NodeAndXpath.<Node> from(barComment));
-
-		assertThat(ex.invoked, is(equalTo(1)));
 	}
 
 	@Test
-	public void should_compare_character_data_cdata() {
-		// TODO move
+	public void should_detect_different_cdata_value() {
 		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.CDATA_VALUE, 1);
-		diffEngine.addDifferenceListener(ex);
-
-		CDATASection fooCDATASection = doc.createCDATASection("foo");
-		CDATASection barCDATASection = doc.createCDATASection("bar");
+		CDATASection control = doc.createCDATASection("bar");
+		CDATASection test = doc.createCDATASection("foo");
 
 		// when
-		diffEngine.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.NODE_TYPE) {
-					Object controlTarget = comparison.getControlDetails().getTarget();
-					Object testTarget = comparison.getTestDetails().getTarget();
-
-					if (outcome == ComparisonResult.EQUAL
-					        || (controlTarget instanceof CharacterData && testTarget instanceof CharacterData)) {
-						return ComparisonResult.EQUAL;
-					}
-				}
-				return DifferenceEvaluators.DefaultStopWhenDifferent.evaluate(comparison, outcome);
-			}
-		});
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooCDATASection),
-		        NodeAndXpath.<Node> from(fooCDATASection));
-		assertThat(ex.invoked, is(equalTo(0)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooCDATASection),
-		        NodeAndXpath.<Node> from(barCDATASection));
-		assertThat(ex.invoked, is(equalTo(1)));
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CDATA_VALUE);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("foo");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	@Test

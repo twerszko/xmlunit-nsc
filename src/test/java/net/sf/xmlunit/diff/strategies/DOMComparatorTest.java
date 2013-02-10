@@ -34,16 +34,16 @@ import org.w3c.dom.Node;
 public class DOMComparatorTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+	private final Document document = documentBuilder.newDocument();
 
 	@Test
 	public void should_detect_child_lookup_difference() {
 		// given
-		Document doc = documentBuilder.newDocument();
-		Element control = doc.createElement("foo");
-		Element child = doc.createElement("bar");
+		Element control = document.createElement("foo");
+		Element child = document.createElement("bar");
 		control.appendChild(child);
 
-		Element test = doc.createElement("foo");
+		Element test = document.createElement("foo");
 
 		// when
 		List<Comparison> differences = findNodeChildrenDifferences(control, test);
@@ -67,11 +67,10 @@ public class DOMComparatorTest {
 	@Test
 	public void should_detect_child_lookup_difference2() {
 		// given
-		Document doc = documentBuilder.newDocument();
-		Element control = doc.createElement("foo");
+		Element control = document.createElement("foo");
 
-		Element test = doc.createElement("foo");
-		Element child = doc.createElement("bar");
+		Element test = document.createElement("foo");
+		Element child = document.createElement("bar");
 		test.appendChild(child);
 
 		// when
@@ -96,13 +95,12 @@ public class DOMComparatorTest {
 	@Test
 	public void should_detect_no_child_lookup_difference() {
 		// given
-		Document doc = documentBuilder.newDocument();
-		Element control = doc.createElement("foo");
-		Element controlComment = doc.createElement("bar");
+		Element control = document.createElement("foo");
+		Element controlComment = document.createElement("bar");
 		control.appendChild(controlComment);
 
-		Element test = doc.createElement("foo");
-		Element testComment = doc.createElement("bar");
+		Element test = document.createElement("foo");
+		Element testComment = document.createElement("bar");
 		test.appendChild(testComment);
 
 		// when
@@ -115,9 +113,7 @@ public class DOMComparatorTest {
 	@Test
 	public void should_detect_no_child_node_list_differences() throws Exception {
 		// given
-		Document document = documentBuilder.newDocument();
-
-		document = documentUtils.buildControlDocument(
+		Document document = documentUtils.buildControlDocument(
 		        "<down><im standing=\"alone\"/><im><watching/>you all</im>"
 		                + "<im watching=\"you\">sinking</im></down>");
 
@@ -134,8 +130,6 @@ public class DOMComparatorTest {
 	@Test
 	public void should_find_different_children() throws Exception {
 		// given
-		Document document = documentBuilder.newDocument();
-
 		Element control = document.createElement("root");
 		control.appendChild(document.createElement("leafElemA"));
 		control.appendChild(document.createElement("leafElemB"));
@@ -157,11 +151,44 @@ public class DOMComparatorTest {
 	}
 
 	@Test
-	public void should_detect_child_nodes_in_test() throws Exception {
+	public void should_detect_no_differences_when_the_same_child_nodes() {
 		// given
-		Document document = documentBuilder.newDocument();
+		Element control = document.createElement("x");
+		control.appendChild(document.createElement("y"));
+		Element test = document.createElement("x");
+		test.appendChild(document.createElement("y"));
 
-		document = documentUtils.buildControlDocument(
+		// when
+		List<Comparison> differences = findNodeChildrenDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_child_node_number() {
+		// given
+		Element control = document.createElement("x");
+		control.appendChild(document.createElement("z"));
+		Element test = document.createElement("x");
+		test.appendChild(document.createElement("z"));
+		test.appendChild(document.createElement("z"));
+
+		// when
+		List<Comparison> differences = findNodeChildrenDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo(1);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(2);
+
+	}
+
+	@Test
+	public void should_detect_different_child_nodes_in_test() throws Exception {
+		// given
+		Document document = documentUtils.buildControlDocument(
 		        "<down>" +
 		                "<im standing=\"alone\"/>" +
 		                "<im><watching/>you all</im></down>");
@@ -204,9 +231,7 @@ public class DOMComparatorTest {
 	@Test
 	public void should_detect_different_child_nodes_list_length() throws Exception {
 		// given
-		Document document = documentBuilder.newDocument();
-
-		document = documentUtils.buildControlDocument(
+		Document document = documentUtils.buildControlDocument(
 		        "<down>" +
 		                "<im><watching/>you all</im>" +
 		                "<im watching=\"you\">sinking</im></down>");
@@ -254,8 +279,6 @@ public class DOMComparatorTest {
 	@Test
 	public void should_find_child_node_sequence_differences_when_mixed_content() throws Exception {
 		// given
-		Document document = documentBuilder.newDocument();
-
 		Element control = document.createElement("root");
 		control.appendChild(document.createTextNode("text leaf"));
 		control.appendChild(document.createElement("leafElem"));

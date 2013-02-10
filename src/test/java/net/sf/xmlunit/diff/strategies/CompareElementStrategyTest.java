@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
 public class CompareElementStrategyTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
+	private final Document document = documentBuilder.newDocument();
 
 	@Test
 	public void should_ignore_different_attribute_sequence() throws Exception {
@@ -131,10 +132,8 @@ public class CompareElementStrategyTest {
 	@Test
 	public void should_detect_no_tag_name_differences() {
 		// given
-		Document doc = documentBuilder.newDocument();
-
-		Element control = doc.createElement("foo");
-		Element test = doc.createElement("foo");
+		Element control = document.createElement("foo");
+		Element test = document.createElement("foo");
 
 		// when
 		List<Comparison> differences = findElementDifferences(control, test);
@@ -146,10 +145,8 @@ public class CompareElementStrategyTest {
 	@Test
 	public void should_detect_different_tag_name() {
 		// given
-		Document doc = documentBuilder.newDocument();
-
-		Element control = doc.createElement("foo");
-		Element test = doc.createElement("bar");
+		Element control = document.createElement("foo");
+		Element test = document.createElement("bar");
 
 		// when
 		List<Comparison> differences = findElementDifferences(control, test);
@@ -168,11 +165,9 @@ public class CompareElementStrategyTest {
 	@Test
 	public void should_detect_different_number_of_attributes() {
 		// given
-		Document doc = documentBuilder.newDocument();
-
-		Element control = doc.createElement("foo");
+		Element control = document.createElement("foo");
 		control.setAttribute("attr1", "value1");
-		Element test = doc.createElement("foo");
+		Element test = document.createElement("foo");
 
 		// when
 		List<Comparison> differences = findElementDifferences(control, test);
@@ -202,11 +197,9 @@ public class CompareElementStrategyTest {
 	@Test
 	public void should_detect_different_attributes() {
 		// given
-		Document doc = documentBuilder.newDocument();
-
-		Element control = doc.createElement("foo");
+		Element control = document.createElement("foo");
 		control.setAttribute("attr1", "value1");
-		Element test = doc.createElement("foo");
+		Element test = document.createElement("foo");
 		test.setAttributeNS("urn:xmlunit:test", "attr1", "value1");
 
 		// when

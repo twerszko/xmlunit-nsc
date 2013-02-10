@@ -32,11 +32,11 @@ import org.w3c.dom.Node;
 
 public class NamespaceComparatorTest {
 	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
+	private final Document document = documentBuilder.newDocument();
 
 	@Test
 	public void should_detect_different_namespace_uri() {
 		// given
-		Document document = documentBuilder.newDocument();
 		Element control = document.createElementNS("x", "y");
 		Element test = document.createElementNS("z", "y");
 
@@ -54,7 +54,6 @@ public class NamespaceComparatorTest {
 	@Test
 	public void should_detect_different_namespace_prefix() {
 		// given
-		Document document = documentBuilder.newDocument();
 		Element control = document.createElementNS("x", "x:y");
 		Element test = document.createElementNS("x", "z:y");
 
@@ -93,7 +92,7 @@ public class NamespaceComparatorTest {
 	}
 
 	@Test
-	public void should_not_detect_differences_in_namespace() throws Exception {
+	public void should_detect_no_differences_in_namespace() throws Exception {
 		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
 		Document document = documentBuilder.newDocument();
 
