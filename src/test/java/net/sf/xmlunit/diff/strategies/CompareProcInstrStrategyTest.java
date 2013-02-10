@@ -17,8 +17,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
@@ -31,13 +29,11 @@ import org.w3c.dom.ProcessingInstruction;
 
 public class CompareProcInstrStrategyTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
+	private final Document document = documentUtils.newControlDocumentBuilder().newDocument();
 
 	@Test
 	public void should_detect_different_target_of_processing_instructions() throws Exception {
 		// given
-		DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
-		Document document = documentBuilder.newDocument();
-
 		String expectedTarget = "down";
 		String expectedData = "down down";
 		String actualTarget = "dadada";
@@ -60,9 +56,6 @@ public class CompareProcInstrStrategyTest {
 	@Test
 	public void should_detect_different_target_of_processing_data() throws Exception {
 		// given
-		DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
-		Document document = documentBuilder.newDocument();
-
 		String target = "down";
 		String expectedData = "down down";
 		String actualData = "down";
@@ -77,6 +70,22 @@ public class CompareProcInstrStrategyTest {
 		assertThat(differences).hasSize(1);
 		Comparison first = differences.get(0);
 		assertThat(first.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+	}
+
+	@Test
+	public void should_detect_no_differences() throws Exception {
+		// given
+		String target = "down";
+		String data = "up";
+
+		// when
+		ProcessingInstruction controlInstr = document.createProcessingInstruction(target, data);
+		ProcessingInstruction testInstr = document.createProcessingInstruction(target, data);
+
+		List<Comparison> differences = findProcessingInstrDifferences(controlInstr, testInstr);
+
+		// then
+		assertThat(differences).hasSize(0);
 	}
 
 	private List<Comparison> findProcessingInstrDifferences(

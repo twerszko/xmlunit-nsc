@@ -13,6 +13,7 @@
  */
 package net.sf.xmlunit.diff;
 
+import static net.sf.xmlunit.TestResources.BOOK_DTD;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -20,14 +21,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.sf.xmlunit.NullNode;
-import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
@@ -288,6 +287,7 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 
 	@Test
 	public void should_compare_character_data_cdata() {
+		// TODO move
 		// given
 		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
 		DiffExpecter ex = new DiffExpecter(ComparisonType.CDATA_VALUE, 1);
@@ -326,231 +326,168 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
-	public void should_compare_character_data() {
-		// TODO split
+	public void should_detect_different_text_value() {
 		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.TEXT_VALUE, 7);
-		diffEngine.addDifferenceListener(ex);
-
-		Comment fooComment = doc.createComment("foo");
-		Comment barComment = doc.createComment("bar");
-		Text fooText = doc.createTextNode("foo");
-		Text barText = doc.createTextNode("bar");
-		CDATASection fooCDATASection = doc.createCDATASection("foo");
-		CDATASection barCDATASection = doc.createCDATASection("bar");
+		Comment control = doc.createComment("foo");
+		Text test = doc.createTextNode("bar");
 
 		// when
-		diffEngine.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.NODE_TYPE) {
-					Node controlTarget = comparison.getControlDetails().getTarget();
-					Node testTarget = comparison.getTestDetails().getTarget();
-
-					if (outcome == ComparisonResult.EQUAL
-					        || (controlTarget instanceof CharacterData && testTarget instanceof CharacterData)) {
-						return ComparisonResult.EQUAL;
-					}
-				}
-				return DifferenceEvaluators.DefaultStopWhenDifferent.evaluate(comparison, outcome);
-			}
-		});
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooText),
-		        NodeAndXpath.<Node> from(fooText));
-		assertThat(ex.invoked, is(equalTo(0)));
+		assertThat(differences).hasSize(2);
 
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooText),
-		        NodeAndXpath.<Node> from(barText));
-		assertThat(ex.invoked, is(equalTo(1)));
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.NODE_TYPE);
 
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooComment),
-		        NodeAndXpath.<Node> from(fooText));
-		assertThat(ex.invoked, is(equalTo(1)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooComment),
-		        NodeAndXpath.<Node> from(barText));
-		assertThat(ex.invoked, is(equalTo(2)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooComment),
-		        NodeAndXpath.<Node> from(fooCDATASection));
-		assertThat(ex.invoked, is(equalTo(2)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooComment),
-		        NodeAndXpath.<Node> from(barCDATASection));
-		assertThat(ex.invoked, is(equalTo(3)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooText),
-		        NodeAndXpath.<Node> from(fooComment));
-		assertThat(ex.invoked, is(equalTo(3)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooText),
-		        NodeAndXpath.<Node> from(barComment));
-		assertThat(ex.invoked, is(equalTo(4)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooText),
-		        NodeAndXpath.<Node> from(fooCDATASection));
-		assertThat(ex.invoked, is(equalTo(4)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooText),
-		        NodeAndXpath.<Node> from(barCDATASection));
-		assertThat(ex.invoked, is(equalTo(5)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooCDATASection),
-		        NodeAndXpath.<Node> from(fooText));
-		assertThat(ex.invoked, is(equalTo(5)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooCDATASection),
-		        NodeAndXpath.<Node> from(barText));
-		assertThat(ex.invoked, is(equalTo(6)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooCDATASection),
-		        NodeAndXpath.<Node> from(fooComment));
-		assertThat(ex.invoked, is(equalTo(6)));
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(fooCDATASection),
-		        NodeAndXpath.<Node> from(barComment));
-		assertThat(ex.invoked, is(equalTo(7)));
+		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+		assertThat(differences.get(1).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(1).getControlDetails().getValue()).isEqualTo("foo");
+		assertThat(differences.get(1).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(1).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(1).getTestDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(1).getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	@Test
-	public void should_compare_processing_instructions() {
-		// TODO split
+	public void should_detect_different_pi_target() {
 		// given
-		DOMDifferenceEngine diffEngine = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
-		diffEngine.addDifferenceListener(ex);
+		ProcessingInstruction control = doc.createProcessingInstruction("foo", "1");
+		ProcessingInstruction test = doc.createProcessingInstruction("bar", "1");
 
 		// when
-		diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
+		List<Comparison> differences = findDifferences(control, test);
 
-		ProcessingInstruction foo1 = doc.createProcessingInstruction("foo", "1");
-		ProcessingInstruction bar1 = doc.createProcessingInstruction("bar", "1");
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(foo1),
-		        NodeAndXpath.<Node> from(foo1));
-		assertEquals(0, ex.invoked);
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(foo1),
-		        NodeAndXpath.<Node> from(bar1));
-		assertEquals(1, ex.invoked);
-
-		diffEngine = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.PROCESSING_INSTRUCTION_DATA);
-		diffEngine.addDifferenceListener(ex);
-		diffEngine.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		ProcessingInstruction foo2 = doc.createProcessingInstruction("foo", "2");
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(foo1),
-		        NodeAndXpath.<Node> from(foo1));
-		assertEquals(0, ex.invoked);
-
-		diffEngine.compareNodes(
-		        NodeAndXpath.<Node> from(foo1),
-		        NodeAndXpath.<Node> from(foo2));
-		assertEquals(1, ex.invoked);
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("foo");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("bar");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	@Test
-	public void compareDocuments() throws IOException {
-		// TODO split
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.HAS_DOCTYPE_DECLARATION);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.HAS_DOCTYPE_DECLARATION) {
-					assertEquals(ComparisonResult.DIFFERENT, outcome);
-					return ComparisonResult.CRITICAL;
-				}
-				assertEquals("Expected EQUAL for " + comparison.getType() + " comparison.", ComparisonResult.EQUAL,
-				        outcome);
-				return ComparisonResult.EQUAL;
-			}
-		});
-		Document d1 = Convert.toDocument(Input.fromMemory("<Book/>").build());
-		Document d2 = Convert.toDocument(Input.fromMemory(
-		        "<!DOCTYPE Book PUBLIC " + "\"XMLUNIT/TEST/PUB\" " + "\"" + TestResources.BOOK_DTD.getFile() + "\">"
-		                + "<Book/>").build());
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(d1),
-		        NodeAndXpath.<Node> from(d2));
-		assertEquals(1, ex.invoked);
+	public void should_detect_different_pi_data() {
+		// given
+		ProcessingInstruction control = doc.createProcessingInstruction("foo", "1");
+		ProcessingInstruction test = doc.createProcessingInstruction("foo", "2");
 
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.XML_VERSION);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
+		// when
+		List<Comparison> differences = findDifferences(control, test);
 
-		d1 = Convert
-		        .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
-		d2 = Convert
-		        .toDocument(Input.fromMemory("<?xml version=\"1.1\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(d1),
-		        NodeAndXpath.<Node> from(d2));
-		assertEquals(1, ex.invoked);
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("1");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("2");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
 
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.XML_STANDALONE);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-
-		d1 = Convert
-		        .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"yes\"?>" + "<Book/>").build());
-		d2 = Convert.toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"no\"?>" + "<Book/>").build());
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(d1),
-		        NodeAndXpath.<Node> from(d2));
-		assertEquals(1, ex.invoked);
-
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.XML_ENCODING);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.XML_ENCODING) {
-					assertEquals(ComparisonResult.DIFFERENT, outcome);
-					return ComparisonResult.CRITICAL;
-				}
-				assertEquals(ComparisonResult.EQUAL, outcome);
-				return ComparisonResult.EQUAL;
-			}
-		});
-
-		d1 = Convert
-		        .toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
-		d2 = Convert.toDocument(Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-16\"?>" + "<Book/>")
+	@Test
+	public void should_detect_additional_doctype_declaration() throws Exception {
+		// given
+		Document control = Convert.toDocument(Input.fromMemory(
+		        "<Book/>")
 		        .build());
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(d1),
-		        NodeAndXpath.<Node> from(d2));
-		assertEquals(1, ex.invoked);
+		Document test = Convert.toDocument(Input.fromMemory(
+		        "<!DOCTYPE Book PUBLIC " + "\"XMLUNIT/TEST/PUB\" " + "\"" + BOOK_DTD.getFile() + "\">" + "<Book/>")
+		        .build());
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo(false);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(true);
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_xml_version() throws Exception {
+		// given
+		Document control = Convert.toDocument(Input.fromMemory(
+		        "<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>")
+		        .build());
+		Document test = Convert.toDocument(Input.fromMemory(
+		        "<?xml version=\"1.1\"" + " encoding=\"UTF-8\"?>" + "<Book/>")
+		        .build());
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.XML_VERSION);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("1.0");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("1.1");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_xml_standalone() throws Exception {
+		// given
+		Document control = Convert.toDocument(Input.fromMemory(
+		        "<?xml version=\"1.0\"" + " standalone=\"yes\"?>" + "<Book/>")
+		        .build());
+		Document test = Convert.toDocument(Input.fromMemory(
+		        "<?xml version=\"1.0\"" + " standalone=\"no\"?>" + "<Book/>")
+		        .build());
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.XML_STANDALONE);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo(true);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(false);
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_xml_encoding() throws Exception {
+		// given
+		Document control = Convert.toDocument(Input.fromMemory(
+		        "<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>")
+		        .build());
+		Document test = Convert.toDocument(Input.fromMemory(
+		        "<?xml version=\"1.0\"" + " encoding=\"UTF-16\"?>" + "<Book/>")
+		        .build());
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.XML_ENCODING);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("UTF-8");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("UTF-16");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	private static class DocType extends NullNode implements DocumentType {
-		private final String name, publicId, systemId;
+		private final String name;
+		private final String publicId;
+		private final String systemId;
 
 		private DocType(String name, String publicId, String systemId) {
 			this.name = name;
@@ -595,48 +532,63 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
 	}
 
 	@Test
-	public void compareDocTypes() {
-		// TODO split
-		DOMDifferenceEngine d = new DOMDifferenceEngine(null);
-		DiffExpecter ex = new DiffExpecter(ComparisonType.DOCTYPE_NAME);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		DocumentType dt1 = new DocType("name", "pub", "system");
-		DocumentType dt2 = new DocType("name2", "pub", "system");
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(dt1),
-		        NodeAndXpath.<Node> from(dt2));
-		assertEquals(1, ex.invoked);
+	public void should_detect_different_doctype_name() {
+		// given
+		DocumentType control = new DocType("name", "pub", "system");
+		DocumentType test = new DocType("name2", "pub", "system");
 
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.DOCTYPE_PUBLIC_ID);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(DifferenceEvaluators.DefaultStopWhenDifferent);
-		dt2 = new DocType("name", "pub2", "system");
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(dt1),
-		        NodeAndXpath.<Node> from(dt2));
-		assertEquals(1, ex.invoked);
+		// when
+		List<Comparison> differences = findDifferences(control, test);
 
-		d = new DOMDifferenceEngine(null);
-		ex = new DiffExpecter(ComparisonType.DOCTYPE_SYSTEM_ID);
-		d.addDifferenceListener(ex);
-		d.setDifferenceEvaluator(new DifferenceEvaluator() {
-			@Override
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				if (comparison.getType() == ComparisonType.DOCTYPE_SYSTEM_ID) {
-					assertEquals(ComparisonResult.DIFFERENT, outcome);
-					return ComparisonResult.CRITICAL;
-				}
-				assertEquals(ComparisonResult.EQUAL, outcome);
-				return ComparisonResult.EQUAL;
-			}
-		});
-		dt2 = new DocType("name", "pub", "system2");
-		d.compareNodes(
-		        NodeAndXpath.<Node> from(dt1),
-		        NodeAndXpath.<Node> from(dt2));
-		assertEquals(1, ex.invoked);
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_NAME);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("name");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("name2");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_doctype_public_id() {
+		// given
+		DocumentType control = new DocType("name", "pub", "system");
+		DocumentType test = new DocType("name", "pub2", "system");
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_PUBLIC_ID);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("pub");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("pub2");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_doctype_system_id() {
+		// given
+		DocumentType control = new DocType("name", "pub", "system");
+		DocumentType test = new DocType("name", "pub", "system2");
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.DOCTYPE_SYSTEM_ID);
+		assertThat(differences.get(0).getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(differences.get(0).getControlDetails().getValue()).isEqualTo("system");
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("system2");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
 	}
 
 	@Test
