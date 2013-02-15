@@ -38,6 +38,8 @@ package org.custommonkey.xmlunit;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.xmlunit.diff.ElementSelector;
+import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
@@ -47,65 +49,66 @@ import org.w3c.dom.Element;
  * JUnit testcase for ElementNameEqualifier
  */
 public class test_ElementNameQualifier extends TestCase {
-	private Document document;
-	private ElementNameSelector elementNameQualifier;
-	private static final String NAME_A = "nameA";
-	private static final String NAME_B = "nameB";
+    private Document document;
+    private ElementSelector elementNameQualifier;
+    private static final String NAME_A = "nameA";
+    private static final String NAME_B = "nameB";
 
-	public void testElementsNoNamespace() throws Exception {
-		Element control = document.createElement(NAME_A);
-		Element test = document.createElement(NAME_A);
-		assertTrue("nameA comparable to nameA", elementNameQualifier.canBeCompared(control, test));
+    public void testElementsNoNamespace() throws Exception {
+        Element control = document.createElement(NAME_A);
+        Element test = document.createElement(NAME_A);
+        assertTrue("nameA comparable to nameA", elementNameQualifier.canBeCompared(control, test));
 
-		test = document.createElement(NAME_B);
-		assertFalse("nameA not comparable to nameB", elementNameQualifier.canBeCompared(control, test));
-	}
+        test = document.createElement(NAME_B);
+        assertFalse("nameA not comparable to nameB", elementNameQualifier.canBeCompared(control, test));
+    }
 
-	public void testElementsWithNamespace() throws Exception {
-		String anURI = "gopher://example.com";
-		String qnameQualifierA = "qnq:";
+    public void testElementsWithNamespace() throws Exception {
+        String anURI = "gopher://example.com";
+        String qnameQualifierA = "qnq:";
 
-		Element control = document.createElementNS(anURI, qnameQualifierA + NAME_A);
-		Element test = document.createElementNS(anURI, qnameQualifierA + NAME_A);
-		assertTrue("qualified nameA comparable to nameA", elementNameQualifier.canBeCompared(control, test));
+        Element control = document.createElementNS(anURI, qnameQualifierA + NAME_A);
+        Element test = document.createElementNS(anURI, qnameQualifierA + NAME_A);
+        assertTrue("qualified nameA comparable to nameA", elementNameQualifier.canBeCompared(control, test));
 
-		test = document.createElementNS(anURI, qnameQualifierA + NAME_B);
-		assertFalse("qualified nameA not comparable to nameB", elementNameQualifier.canBeCompared(control, test));
+        test = document.createElementNS(anURI, qnameQualifierA + NAME_B);
+        assertFalse("qualified nameA not comparable to nameB", elementNameQualifier.canBeCompared(control, test));
 
-		String qnameQualifierB = "pgp:";
-		test = document.createElementNS(anURI, qnameQualifierB + NAME_A);
-		assertTrue("qualified nameA comparable to requalified nameA",
-		        elementNameQualifier.canBeCompared(control, test));
+        String qnameQualifierB = "pgp:";
+        test = document.createElementNS(anURI, qnameQualifierB + NAME_A);
+        assertTrue("qualified nameA comparable to requalified nameA",
+                elementNameQualifier.canBeCompared(control, test));
 
-		test = document.createElementNS(anURI, qnameQualifierB + NAME_B);
-		assertFalse("qualified nameA not comparable to requalifiednameB",
-		        elementNameQualifier.canBeCompared(control, test));
+        test = document.createElementNS(anURI, qnameQualifierB + NAME_B);
+        assertFalse("qualified nameA not comparable to requalifiednameB",
+                elementNameQualifier.canBeCompared(control, test));
 
-		String anotherURI = "ftp://example.com";
-		test = document.createElementNS(anotherURI, qnameQualifierA + NAME_A);
-		assertFalse("qualified nameA not comparable to anotherURI nameA",
-		        elementNameQualifier.canBeCompared(control, test));
+        String anotherURI = "ftp://example.com";
+        test = document.createElementNS(anotherURI, qnameQualifierA + NAME_A);
+        assertFalse("qualified nameA not comparable to anotherURI nameA",
+                elementNameQualifier.canBeCompared(control, test));
 
-		test = document.createElementNS(anotherURI, qnameQualifierB + NAME_A);
-		assertFalse("qualified nameA comparable to requalified-anotherURI nameA",
-		        elementNameQualifier.canBeCompared(control, test));
+        test = document.createElementNS(anotherURI, qnameQualifierB + NAME_A);
+        assertFalse("qualified nameA comparable to requalified-anotherURI nameA",
+                elementNameQualifier.canBeCompared(control, test));
 
-		test = document.createElementNS(anotherURI, qnameQualifierB + NAME_B);
-		assertFalse("qualified nameA not comparable to requalified-anotherURI nameB",
-		        elementNameQualifier.canBeCompared(control, test));
-	}
+        test = document.createElementNS(anotherURI, qnameQualifierB + NAME_B);
+        assertFalse("qualified nameA not comparable to requalified-anotherURI nameB",
+                elementNameQualifier.canBeCompared(control, test));
+    }
 
-	public void setUp() throws Exception {
-		document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
-		elementNameQualifier = new ElementNameSelector();
-	}
+    @Override
+    public void setUp() throws Exception {
+        document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
+        elementNameQualifier = ElementSelectors.byName;
+    }
 
-	public static TestSuite suite() {
-		return new TestSuite(test_ElementNameQualifier.class);
-	}
+    public static TestSuite suite() {
+        return new TestSuite(test_ElementNameQualifier.class);
+    }
 
-	public test_ElementNameQualifier(String name) {
-		super(name);
-	}
+    public test_ElementNameQualifier(String name) {
+        super(name);
+    }
 
 }

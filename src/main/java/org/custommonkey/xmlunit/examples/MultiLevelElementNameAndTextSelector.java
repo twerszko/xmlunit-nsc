@@ -39,7 +39,6 @@ package org.custommonkey.xmlunit.examples;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 
-import org.custommonkey.xmlunit.ElementNameSelector;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -66,8 +65,8 @@ public class MultiLevelElementNameAndTextSelector implements ElementSelector {
     private final int levels;
     private final boolean ignoreEmptyTexts;
 
-    private static final ElementNameSelector NAME_QUALIFIER =
-            new ElementNameSelector();
+    private static final ElementSelector NAME_QUALIFIER =
+            ElementSelectors.byName;
     private static final ElementSelector NAME_AND_TEXT_QUALIFIER =
             ElementSelectors.byNameAndText;
 
