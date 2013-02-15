@@ -80,11 +80,11 @@ public abstract class AbstractDifferenceEngine implements DifferenceEngine {
     }
 
     @Override
-    public void setDifferenceEvaluator(DifferenceEvaluator e) {
-        if (e == null) {
+    public void setDifferenceEvaluator(DifferenceEvaluator evaluator) {
+        if (evaluator == null) {
             throw new IllegalArgumentException("difference evaluator must" + " not be null");
         }
-        diffEvaluator = e;
+        diffEvaluator = evaluator;
     }
 
     public DifferenceEvaluator getDifferenceEvaluator() {
@@ -101,12 +101,7 @@ public abstract class AbstractDifferenceEngine implements DifferenceEngine {
      * evaluator evaluate the result, notifies all listeners and returns the
      * outcome.
      */
-    protected final ComparisonResult compare(Comparison comp) {
+    protected final ComparisonResult performComparison(Comparison comp) {
         return comparisonPerformer.performComparison(comp);
     }
-
-    protected static String getXPath(XPathContext ctx) {
-        return ctx == null ? null : ctx.getXPath();
-    }
-
 }

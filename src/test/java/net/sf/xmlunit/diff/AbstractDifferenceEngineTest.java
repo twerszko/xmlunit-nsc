@@ -44,7 +44,7 @@ public abstract class AbstractDifferenceEngineTest {
                         .and(null, null);
 
         // then
-        assertEquals(ComparisonResult.EQUAL, diffEngine.compare(comparison));
+        assertEquals(ComparisonResult.EQUAL, diffEngine.performComparison(comparison));
         assertEquals(ComparisonResult.EQUAL, grabber.outcome);
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractDifferenceEngineTest {
                         .and(null, "");
 
         // then
-        assertEquals(ComparisonResult.DIFFERENT, diffEngine.compare(comparison));
+        assertEquals(ComparisonResult.DIFFERENT, diffEngine.performComparison(comparison));
         assertEquals(ComparisonResult.DIFFERENT, grabber.outcome);
     }
 
@@ -76,7 +76,7 @@ public abstract class AbstractDifferenceEngineTest {
                         .and(null, null);
 
         // then
-        assertEquals(ComparisonResult.DIFFERENT, diffEngine.compare(comparison));
+        assertEquals(ComparisonResult.DIFFERENT, diffEngine.performComparison(comparison));
         assertEquals(ComparisonResult.DIFFERENT, grabber.outcome);
     }
 
@@ -86,7 +86,7 @@ public abstract class AbstractDifferenceEngineTest {
         AbstractDifferenceEngine d = getDifferenceEngine();
         d.setDifferenceEvaluator(g);
         assertEquals(ComparisonResult.DIFFERENT,
-                d.compare(
+                d.performComparison(
                         Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
                                 .between(null, new Short("1"))
                                 .and(null, new Short("2"))));
@@ -99,7 +99,7 @@ public abstract class AbstractDifferenceEngineTest {
         AbstractDifferenceEngine d = getDifferenceEngine();
         d.setDifferenceEvaluator(g);
         assertEquals(ComparisonResult.EQUAL,
-                d.compare(
+                d.performComparison(
                         Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
                                 .between(null, new Short("2"))
                                 .and(null, new Short("2"))));
@@ -113,7 +113,7 @@ public abstract class AbstractDifferenceEngineTest {
                 new ComparisonListenerSupportTest.Listener(ComparisonResult.EQUAL);
         d.addComparisonListener(l);
         assertEquals(ComparisonResult.EQUAL,
-                d.compare(
+                d.performComparison(
                         Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
                                 .between(null, new Short("2"))
                                 .and(null, new Short("2"))));
@@ -134,7 +134,7 @@ public abstract class AbstractDifferenceEngineTest {
             }
         });
         assertEquals(ComparisonResult.SIMILAR,
-                d.compare(
+                d.performComparison(
                         Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
                                 .between(null, new Short("2"))
                                 .and(null, new Short("2"))));
