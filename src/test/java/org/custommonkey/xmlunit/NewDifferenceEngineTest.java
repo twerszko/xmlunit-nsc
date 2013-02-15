@@ -51,107 +51,106 @@ import org.w3c.dom.Element;
 
 public class NewDifferenceEngineTest extends DifferenceEngineTestAbstract {
 
-	@Override
-	protected DifferenceEngineContract newDifferenceEngine() {
-		return new NewDifferenceEngine(properties);
-	}
+    @Override
+    protected DifferenceEngineContract newDifferenceEngine() {
+        return new DifferenceEngineImpl(properties);
+    }
 
-	@Override
-	protected DifferenceEngineContract newDifferenceEngine(XmlUnitProperties properties) {
-		return new NewDifferenceEngine(properties);
-	}
+    @Override
+    protected DifferenceEngineContract newDifferenceEngine(XmlUnitProperties properties) {
+        return new DifferenceEngineImpl(properties);
+    }
 
-	@Test
-	public void testIssue1027863() throws Exception {
-		// given
-		String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
-		String test = "<stuff><item id=\"2\"/></stuff>";
+    @Test
+    public void testIssue1027863() throws Exception {
+        // given
+        String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
+        String test = "<stuff><item id=\"2\"/></stuff>";
 
-		// when
-		List<Comparison> differences = checkDifferences(control, test);
+        // when
+        List<Comparison> differences = checkDifferences(control, test);
 
-		// then
-		assertThat(differences).hasSize(3);
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
-		assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
-		assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
-		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
-		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
-	}
+        // then
+        assertThat(differences).hasSize(3);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
+        assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
+        assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+        assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+    }
 
-	@Test
-	public void testMatchTrackerSetViaConstructor() throws Exception {
-		Element control = document.createElement("foo");
-		Element test = document.createElement("foo");
-		final int[] count = new int[1];
-		NewDifferenceEngine d =
-		        new NewDifferenceEngine(new XmlUnitProperties(),
-		                new ComparisonListener() {
-			                @Override
-			                public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-				                count[0]++;
-			                }
-		                });
-		d.compare(control, test, evaluator, null);
-		// NODE_TYPE(Element), NAMESPACE_URI(none),
-		// NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
-		// ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
-		// SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
-		assertEquals(8, count[0]);
-	}
+    @Test
+    public void testMatchTrackerSetViaConstructor() throws Exception {
+        Element control = document.createElement("foo");
+        Element test = document.createElement("foo");
+        final int[] count = new int[1];
+        DifferenceEngineImpl d =
+                new DifferenceEngineImpl(new XmlUnitProperties(),
+                        new ComparisonListener() {
+                            @Override
+                            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                                count[0]++;
+                            }
+                        });
+        d.compare(control, test, evaluator, null);
+        // NODE_TYPE(Element), NAMESPACE_URI(none),
+        // NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
+        // ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
+        // SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
+        assertEquals(8, count[0]);
+    }
 
-	@Test
-	public void testMatchTrackerSetViaSetter() throws Exception {
-		Element control = document.createElement("foo");
-		Element test = document.createElement("foo");
-		final int[] count = new int[1];
-		engine.setMatchListener(new ComparisonListener() {
-			@Override
-			public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-				count[0]++;
-			}
-		});
-		engine.compare(control, test, evaluator, null);
-		// NODE_TYPE(Element), NAMESPACE_URI(none),
-		// NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
-		// ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
-		// SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
-		assertEquals(8, count[0]);
-	}
+    @Test
+    public void testMatchTrackerSetViaSetter() throws Exception {
+        Element control = document.createElement("foo");
+        Element test = document.createElement("foo");
+        final int[] count = new int[1];
+        engine.setMatchListener(new ComparisonListener() {
+            @Override
+            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                count[0]++;
+            }
+        });
+        engine.compare(control, test, evaluator, null);
+        // NODE_TYPE(Element), NAMESPACE_URI(none),
+        // NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
+        // ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
+        // SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
+        assertEquals(8, count[0]);
+    }
 
-	@Override
-	@Test
-	public void should_obtain_xpath_of_extra_node() throws Exception {
-		// TODO Investigate difference
-		// given
-		String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
-		String test = "<stuff><item id=\"1\"/></stuff>";
+    @Override
+    @Test
+    public void should_obtain_xpath_of_extra_node() throws Exception {
+        // TODO Investigate difference
+        // given
+        String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
+        String test = "<stuff><item id=\"1\"/></stuff>";
 
-		// when
-		listenToAllDifferences(control, test);
+        // when
+        listenToAllDifferences(control, test);
 
-		// then
-		assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[2]");
-		// this is different from DifferenceEngine - the test node is null
-		// if there is no match
-		assertThat(evaluator.testXpath).isNull();
-	}
+        // then
+        assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[2]");
+        // this is different from DifferenceEngine - the test node is null
+        // if there is no match
+        assertThat(evaluator.testXpath).isNull();
+    }
 
-	@Test
-	@Override
-	public void should_obtain_xpath_of_attribute() throws Exception {
-		// TODO Investigate difference
-		// given
-		String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
-		String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
+    @Test
+    @Override
+    public void should_obtain_xpath_of_attribute() throws Exception {
+        // given
+        String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
+        String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
 
-		// when
-		listenToAllDifferences(control, test);
+        // when
+        listenToAllDifferences(control, test);
 
-		// then
-		assertThat(evaluator.comparingWhat).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
-		assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[1]");
-		assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[1]");
-	}
+        // then
+        assertThat(evaluator.comparingWhat).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+        assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[1]");
+        assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[1]");
+    }
 }

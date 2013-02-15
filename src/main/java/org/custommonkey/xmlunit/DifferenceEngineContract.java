@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import net.sf.xmlunit.diff.ComparisonListener;
+import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 
@@ -47,31 +48,31 @@ import org.w3c.dom.Node;
  * 
  * <p>
  * This interface allows Diff to switch between {@link DifferenceEngine} and
- * {@link NewDifferenceEngine} at will.
+ * {@link DifferenceEngineImpl} at will.
  * </p>
  */
 public interface DifferenceEngineContract {
-	/**
-	 * @param matchTracker
-	 *            the instance that is notified on each successful match. May be
-	 *            null.
-	 */
-	void setMatchListener(ComparisonListener matchTracker);
+    /**
+     * @param matchTracker
+     *            the instance that is notified on each successful match. May be
+     *            null.
+     */
+    void setMatchListener(ComparisonListener l);
 
-	/**
-	 * Entry point for Node comparison testing.
-	 * 
-	 * @param control
-	 *            Control XML to compare
-	 * @param test
-	 *            Test XML to compare
-	 * @param evaluator
-	 *            Notified of any {@link Difference differences} detected during
-	 *            node comparison testing
-	 * @param elementSelector
-	 *            Used to determine which elements qualify for comparison e.g.
-	 *            when a node has repeated child elements that may occur in any
-	 *            sequence and that sequence is not considered important.
-	 */
-	void compare(Node control, Node test, DifferenceEvaluator evaluator, ElementSelector elementSelector);
+    /**
+     * Entry point for Node comparison testing.
+     * 
+     * @param control
+     *            Control XML to compare
+     * @param test
+     *            Test XML to compare
+     * @param evaluator
+     *            Notified of any {@link Difference differences} detected during
+     *            node comparison testing
+     * @param elementSelector
+     *            Used to determine which elements qualify for comparison e.g.
+     *            when a node has repeated child elements that may occur in any
+     *            sequence and that sequence is not considered important.
+     */
+    void compare(Node control, Node test, DifferenceEvaluator evaluator, ElementSelector elementSelector);
 }

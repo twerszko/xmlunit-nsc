@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import net.sf.xmlunit.diff.ElementSelector;
+import net.sf.xmlunit.diff.ElementSelectors;
 
-import org.custommonkey.xmlunit.ElementNameAndTextSelector;
 import org.custommonkey.xmlunit.ElementNameSelector;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -63,88 +63,89 @@ import org.w3c.dom.Node;
  */
 public class MultiLevelElementNameAndTextSelector implements ElementSelector {
 
-	private final int levels;
-	private final boolean ignoreEmptyTexts;
+    private final int levels;
+    private final boolean ignoreEmptyTexts;
 
-	private static final ElementNameSelector NAME_QUALIFIER =
-	        new ElementNameSelector();
-	private static final ElementNameAndTextSelector NAME_AND_TEXT_QUALIFIER =
-	        new ElementNameAndTextSelector();
+    private static final ElementNameSelector NAME_QUALIFIER =
+            new ElementNameSelector();
+    private static final ElementSelector NAME_AND_TEXT_QUALIFIER =
+            ElementSelectors.byNameAndText;
 
-	/**
-	 * Uses element names and the text nested <code>levels</code> child elements
-	 * deeper into the element to compare elements.
-	 * 
-	 * <p>
-	 * Does not ignore empty text nodes.
-	 */
-	public MultiLevelElementNameAndTextSelector(int levels) {
-		this(levels, false);
-	}
+    /**
+     * Uses element names and the text nested <code>levels</code> child elements
+     * deeper into the element to compare elements.
+     * 
+     * <p>
+     * Does not ignore empty text nodes.
+     */
+    public MultiLevelElementNameAndTextSelector(int levels) {
+        this(levels, false);
+    }
 
-	/**
-	 * Uses element names and the text nested <code>levels</code> child elements
-	 * deeper into the element to compare elements.
-	 * 
-	 * @param ignoreEmptyTexts
-	 *            whether whitespace-only textnodes should be ignored.
-	 */
-	public MultiLevelElementNameAndTextSelector(int levels,
-	        boolean ignoreEmptyTexts) {
-		if (levels < 1) {
-			throw new IllegalArgumentException("levels must be equal or"
-			        + " greater than one");
-		}
-		this.levels = levels;
-		this.ignoreEmptyTexts = ignoreEmptyTexts;
-	}
+    /**
+     * Uses element names and the text nested <code>levels</code> child elements
+     * deeper into the element to compare elements.
+     * 
+     * @param ignoreEmptyTexts
+     *            whether whitespace-only textnodes should be ignored.
+     */
+    public MultiLevelElementNameAndTextSelector(int levels,
+            boolean ignoreEmptyTexts) {
+        if (levels < 1) {
+            throw new IllegalArgumentException("levels must be equal or"
+                    + " greater than one");
+        }
+        this.levels = levels;
+        this.ignoreEmptyTexts = ignoreEmptyTexts;
+    }
 
-	public boolean canBeCompared(Element control, Element test) {
-		boolean stillSimilar = true;
-		Element currentControl = control;
-		Element currentTest = test;
+    @Override
+    public boolean canBeCompared(Element control, Element test) {
+        boolean stillSimilar = true;
+        Element currentControl = control;
+        Element currentTest = test;
 
-		// match on element names only for leading levels
-		for (int currentLevel = 0; stillSimilar && currentLevel <= levels - 2; currentLevel++) {
-			stillSimilar = NAME_QUALIFIER.canBeCompared(currentControl, currentTest);
+        // match on element names only for leading levels
+        for (int currentLevel = 0; stillSimilar && currentLevel <= levels - 2; currentLevel++) {
+            stillSimilar = NAME_QUALIFIER.canBeCompared(currentControl, currentTest);
 
-			if (stillSimilar) {
-				if (currentControl.hasChildNodes()
-				        && currentTest.hasChildNodes()) {
-					Node n1 = getFirstEligibleChild(currentControl);
-					Node n2 = getFirstEligibleChild(currentTest);
-					if (n1.getNodeType() == Node.ELEMENT_NODE
-					        && n2.getNodeType() == Node.ELEMENT_NODE) {
-						currentControl = (Element) n1;
-						currentTest = (Element) n2;
-					} else {
-						stillSimilar = false;
-					}
-				} else {
-					stillSimilar = false;
-				}
-			}
-		}
+            if (stillSimilar) {
+                if (currentControl.hasChildNodes()
+                        && currentTest.hasChildNodes()) {
+                    Node n1 = getFirstEligibleChild(currentControl);
+                    Node n2 = getFirstEligibleChild(currentTest);
+                    if (n1.getNodeType() == Node.ELEMENT_NODE
+                            && n2.getNodeType() == Node.ELEMENT_NODE) {
+                        currentControl = (Element) n1;
+                        currentTest = (Element) n2;
+                    } else {
+                        stillSimilar = false;
+                    }
+                } else {
+                    stillSimilar = false;
+                }
+            }
+        }
 
-		// finally compare the level containing the text child node
-		if (stillSimilar) {
-			stillSimilar = NAME_AND_TEXT_QUALIFIER.canBeCompared(currentControl, currentTest);
-		}
+        // finally compare the level containing the text child node
+        if (stillSimilar) {
+            stillSimilar = NAME_AND_TEXT_QUALIFIER.canBeCompared(currentControl, currentTest);
+        }
 
-		return stillSimilar;
-	}
+        return stillSimilar;
+    }
 
-	private Node getFirstEligibleChild(Node parent) {
-		Node n1 = parent.getFirstChild();
-		if (ignoreEmptyTexts) {
-			while (n1.getNodeType() == Node.TEXT_NODE
-			        && n1.getNodeValue().trim().length() == 0) {
-				Node n2 = n1.getNextSibling();
-				if (n2 == null)
-					break;
-				n1 = n2;
-			}
-		}
-		return n1;
-	}
+    private Node getFirstEligibleChild(Node parent) {
+        Node n1 = parent.getFirstChild();
+        if (ignoreEmptyTexts) {
+            while (n1.getNodeType() == Node.TEXT_NODE
+                    && n1.getNodeValue().trim().length() == 0) {
+                Node n2 = n1.getNextSibling();
+                if (n2 == null)
+                    break;
+                n1 = n2;
+            }
+        }
+        return n1;
+    }
 }

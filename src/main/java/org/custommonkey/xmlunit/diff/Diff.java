@@ -53,7 +53,7 @@ import net.sf.xmlunit.diff.ElementSelector;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.DifferenceEngineContract;
 import org.custommonkey.xmlunit.ElementNameSelector;
-import org.custommonkey.xmlunit.NewDifferenceEngine;
+import org.custommonkey.xmlunit.DifferenceEngineImpl;
 import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.builder.Builder;
@@ -359,7 +359,7 @@ public class Diff implements DifferenceEvaluator {
 			return differenceEngine;
 		}
 
-		return new NewDifferenceEngine(properties, matchTracker);
+		return new DifferenceEngineImpl(properties, matchTracker);
 	}
 
 	public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {

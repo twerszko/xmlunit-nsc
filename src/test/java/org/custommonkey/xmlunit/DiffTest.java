@@ -64,6 +64,7 @@ import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
@@ -824,7 +825,7 @@ public class DiffTest {
 
         // when
         Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndTextSelector());
+        diff.overrideElementSelector(ElementSelectors.byNameAndText);
         diff.overrideDifferenceEvaluator(delegate);
 
         // then
@@ -1212,7 +1213,7 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new NewDifferenceEngine(properties, mockedListener);
+        DifferenceEngineContract engine = new DifferenceEngineImpl(properties, mockedListener);
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
@@ -1228,7 +1229,7 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new NewDifferenceEngine(properties);
+        DifferenceEngineContract engine = new DifferenceEngineImpl(properties);
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
@@ -1246,7 +1247,7 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new NewDifferenceEngine(properties, mockedListener);
+        DifferenceEngineContract engine = new DifferenceEngineImpl(properties, mockedListener);
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
 
         // then
@@ -1261,7 +1262,7 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new NewDifferenceEngine(properties);
+        DifferenceEngineContract engine = new DifferenceEngineImpl(properties);
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);

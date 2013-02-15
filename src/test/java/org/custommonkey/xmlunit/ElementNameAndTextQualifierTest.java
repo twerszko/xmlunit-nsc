@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import net.sf.xmlunit.diff.ElementSelector;
+import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -45,59 +47,59 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ElementNameAndTextQualifierTest {
-	private static final String TAG_NAME = "tagYoureIt";
-	private static final String TEXT_A = "textA";
-	private static final String TEXT_B = "textB";
-	private Document document;
-	private ElementNameAndTextSelector elementNameAndTextQualifier;
+    private static final String TAG_NAME = "tagYoureIt";
+    private static final String TEXT_A = "textA";
+    private static final String TEXT_B = "textB";
+    private Document document;
+    private ElementSelector elementNameAndTextQualifier;
 
-	@Before
-	public void setUp() throws Exception {
-		document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
-		elementNameAndTextQualifier = new ElementNameAndTextSelector();
-	}
+    @Before
+    public void setUp() throws Exception {
+        document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
+        elementNameAndTextQualifier = ElementSelectors.byNameAndText;
+    }
 
-	@Test
-	public void should_check_single_text_value() {
-		// given
-		Element control = document.createElement(TAG_NAME);
-		control.appendChild(document.createTextNode(TEXT_A));
-		Element test = document.createElement(TAG_NAME);
+    @Test
+    public void should_check_single_text_value() {
+        // given
+        Element control = document.createElement(TAG_NAME);
+        control.appendChild(document.createTextNode(TEXT_A));
+        Element test = document.createElement(TAG_NAME);
 
-		// when
-		boolean qualifiedForComparison1 = elementNameAndTextQualifier
-		        .canBeCompared(control, test);
+        // when
+        boolean qualifiedForComparison1 = elementNameAndTextQualifier
+                .canBeCompared(control, test);
 
-		test.appendChild(document.createTextNode(TEXT_A));
-		boolean qualifiedForComparison2 = elementNameAndTextQualifier
-		        .canBeCompared(control, test);
+        test.appendChild(document.createTextNode(TEXT_A));
+        boolean qualifiedForComparison2 = elementNameAndTextQualifier
+                .canBeCompared(control, test);
 
-		test = document.createElement(TAG_NAME);
-		test.appendChild(document.createTextNode(TEXT_B));
-		boolean qualifiedForComparison3 = elementNameAndTextQualifier
-		        .canBeCompared(control, test);
+        test = document.createElement(TAG_NAME);
+        test.appendChild(document.createTextNode(TEXT_B));
+        boolean qualifiedForComparison3 = elementNameAndTextQualifier
+                .canBeCompared(control, test);
 
-		// then
-		assertThat(qualifiedForComparison1).isFalse();
-		assertThat(qualifiedForComparison2).isTrue();
-		assertThat(qualifiedForComparison3).isFalse();
-	}
+        // then
+        assertThat(qualifiedForComparison1).isFalse();
+        assertThat(qualifiedForComparison2).isTrue();
+        assertThat(qualifiedForComparison3).isFalse();
+    }
 
-	@Test
-	public void should_check_multiple_text_values() {
-		// given
-		Element control = document.createElement(TAG_NAME);
-		control.appendChild(document.createTextNode(TEXT_A));
-		control.appendChild(document.createTextNode(TEXT_B));
+    @Test
+    public void should_check_multiple_text_values() {
+        // given
+        Element control = document.createElement(TAG_NAME);
+        control.appendChild(document.createTextNode(TEXT_A));
+        control.appendChild(document.createTextNode(TEXT_B));
 
-		Element test = document.createElement(TAG_NAME);
-		test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
+        Element test = document.createElement(TAG_NAME);
+        test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
 
-		// when
-		boolean qualifiedForComparison = elementNameAndTextQualifier.canBeCompared(control, test);
+        // when
+        boolean qualifiedForComparison = elementNameAndTextQualifier.canBeCompared(control, test);
 
-		// then
-		assertThat(qualifiedForComparison).isTrue();
-	}
+        // then
+        assertThat(qualifiedForComparison).isTrue();
+    }
 
 }
