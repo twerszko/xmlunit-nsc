@@ -48,7 +48,7 @@ public class DOMDifferenceEngineTest {
 
     @Before
     public void createDoc() throws Exception {
-        engine = new DOMDifferenceEngine(null);
+        engine = new DOMDifferenceEngine();
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
@@ -616,7 +616,7 @@ public class DOMDifferenceEngineTest {
     public void should_detect_equal_string_values() throws Exception {
         // given
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        DOMDifferenceEngine engine = new DOMDifferenceEngine();
         engine.setDifferenceEvaluator(evaluator);
 
         Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
@@ -635,7 +635,7 @@ public class DOMDifferenceEngineTest {
     public void should_detect_different_string_values() throws Exception {
         // given
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        DOMDifferenceEngine engine = new DOMDifferenceEngine();
         engine.setDifferenceEvaluator(evaluator);
 
         Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
@@ -655,7 +655,7 @@ public class DOMDifferenceEngineTest {
     public void should_detect_equal_boolean_values() throws Exception {
         // given
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        DOMDifferenceEngine engine = new DOMDifferenceEngine();
         engine.setDifferenceEvaluator(evaluator);
 
         Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
@@ -674,7 +674,7 @@ public class DOMDifferenceEngineTest {
     public void should_detect_different_boolean_values() throws Exception {
         // given
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        DOMDifferenceEngine engine = new DOMDifferenceEngine();
         engine.setDifferenceEvaluator(evaluator);
 
         Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
@@ -814,7 +814,7 @@ public class DOMDifferenceEngineTest {
     }
 
     private List<Comparison> findDifferences(Node control, Node test) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        DOMDifferenceEngine engine = new DOMDifferenceEngine();
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
         engine.setDifferenceEvaluator(evaluator);
 
@@ -826,7 +826,7 @@ public class DOMDifferenceEngineTest {
     }
 
     private List<Comparison> findDifferencesWithMatcher(Node control, Node test, NodeMatcher nodeMatcher) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine(null);
+        DOMDifferenceEngine engine = new DOMDifferenceEngine();
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
         engine.setDifferenceEvaluator(evaluator);
         engine.setNodeMatcher(nodeMatcher);

@@ -21,7 +21,6 @@ import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.diff.strategies.DOMComparator;
 import net.sf.xmlunit.util.Convert;
 
-import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Node;
 
@@ -30,16 +29,20 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * Difference engine based on DOM.
  */
-public final class DOMDifferenceEngine implements DifferenceEngine {
+public class DOMDifferenceEngine implements DifferenceEngine {
 
-    private final XmlUnitProperties properties;
+    private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
+    private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
+    private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
 
-    public DOMDifferenceEngine(XmlUnitProperties properties) {
-        if (properties == null) {
-            this.properties = new XmlUnitProperties();
-        } else {
-            this.properties = properties.clone();
-        }
+    private boolean ignoreAttributeOrder = true;
+
+    public boolean isIgnoreAttributeOrder() {
+        return ignoreAttributeOrder;
+    }
+
+    public void setIgnoreAttributeOrder(boolean ignoreAttributeOrder) {
+        this.ignoreAttributeOrder = ignoreAttributeOrder;
     }
 
     @Override
@@ -63,13 +66,9 @@ public final class DOMDifferenceEngine implements DifferenceEngine {
     @VisibleForTesting
     void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
         new DOMComparator(
-                getComparisonPerformer(), getNodeMatcher(), properties.getIgnoreAttributeOrder())
+                getComparisonPerformer(), getNodeMatcher(), ignoreAttributeOrder)
                 .compare(control, test);
     }
-
-    private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
-    private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
-    private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
 
     protected final ComparisonPerformer comparisonPerformer = new ComparisonPerformer() {
         @Override
@@ -131,6 +130,7 @@ public final class DOMDifferenceEngine implements DifferenceEngine {
         diffEvaluator = evaluator;
     }
 
+    // TODO protected?
     public DifferenceEvaluator getDifferenceEvaluator() {
         return diffEvaluator;
     }

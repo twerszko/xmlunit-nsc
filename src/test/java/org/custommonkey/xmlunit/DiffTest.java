@@ -63,6 +63,8 @@ import net.sf.xmlunit.diff.Comparison.Detail;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultDifferenceEngine;
+import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelectors;
 
@@ -111,13 +113,13 @@ public class DiffTest {
     }
 
     protected Diff prepareDiff(XmlUnitProperties properties, String control, String test,
-            DifferenceEngineContract engine)
+            DifferenceEngine engine)
             throws Exception {
 
         return Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingDifferenceEngineContract(engine)
+                .usingDifferenceEngine(engine)
                 .build();
     }
 
@@ -1179,7 +1181,7 @@ public class DiffTest {
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>");
-        diff.getDifferenceEngineContract().setMatchListener(mockedTracker);
+        diff.getDifferenceEngine().addMatchListener(mockedTracker);
 
         // then
         assertThat(diff.identical()).isTrue();
@@ -1192,7 +1194,8 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new DifferenceEngineImpl(properties, mockedListener);
+        DifferenceEngine engine = new DefaultDifferenceEngine(properties);
+        engine.addMatchListener(mockedListener);
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
@@ -1208,11 +1211,11 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new DifferenceEngineImpl(properties);
+        DifferenceEngine engine = new DefaultDifferenceEngine(properties);
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
-        diff.getDifferenceEngineContract().setMatchListener(mockedListener);
+        diff.getDifferenceEngine().addMatchListener(mockedListener);
 
         // then
         assertThat(diff.identical()).isTrue();
@@ -1226,7 +1229,8 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new DifferenceEngineImpl(properties, mockedListener);
+        DifferenceEngine engine = new DefaultDifferenceEngine(properties);
+        engine.addMatchListener(mockedListener);
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
 
         // then
@@ -1241,11 +1245,11 @@ public class DiffTest {
         ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineContract engine = new DifferenceEngineImpl(properties);
+        DifferenceEngine engine = new DefaultDifferenceEngine(properties);
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
-        diff.getDifferenceEngineContract().setMatchListener(mockedListener);
+        diff.getDifferenceEngine().addMatchListener(mockedListener);
 
         // then
         assertThat(diff.identical()).isTrue();

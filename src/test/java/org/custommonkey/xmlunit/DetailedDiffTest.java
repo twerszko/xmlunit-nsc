@@ -50,6 +50,7 @@ import javax.xml.transform.dom.DOMSource;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DifferenceEngine;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
@@ -90,7 +91,7 @@ public class DetailedDiffTest extends DiffTest {
             XmlUnitProperties properties,
             String control,
             String test,
-            DifferenceEngineContract engine) throws Exception {
+            DifferenceEngine engine) throws Exception {
 
         return new DetailedDiff(super.prepareDiff(properties, control, test, engine));
     }

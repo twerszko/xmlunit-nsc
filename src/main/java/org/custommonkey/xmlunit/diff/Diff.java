@@ -37,15 +37,18 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.diff;
 
 import javax.annotation.Nullable;
+import javax.xml.transform.Source;
 
+import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DefaultDifferenceEngine;
+import net.sf.xmlunit.diff.DefaultNodeMatcher;
+import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.DetailedDiff;
-import org.custommonkey.xmlunit.DifferenceEngineContract;
-import org.custommonkey.xmlunit.DifferenceEngineImpl;
 import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.XsltUtils;
@@ -84,7 +87,7 @@ public class Diff implements DifferenceEvaluator {
     private boolean compared = false;
     private boolean haltComparison = false;
     private final StringBuffer messages;
-    private final DifferenceEngineContract differenceEngine;
+    private final DifferenceEngine differenceEngine;
     private DifferenceEvaluator differenceEvaluator;
     private ElementSelector elementSelector;
 
@@ -97,10 +100,10 @@ public class Diff implements DifferenceEvaluator {
         this.controlDoc = getManipulatedDocument(builder.controlDocument);
         this.testDoc = getManipulatedDocument(builder.testDocument);
         this.elementSelector = builder.elementSelector;
-        if (builder.differenceEngineContract == null) {
-            this.differenceEngine = new DifferenceEngineImpl(properties, null);
+        if (builder.differenceEngine == null) {
+            this.differenceEngine = new DefaultDifferenceEngine(properties);
         } else {
-            this.differenceEngine = builder.differenceEngineContract;
+            this.differenceEngine = builder.differenceEngine;
         }
         this.messages = new StringBuffer();
     }
@@ -192,7 +195,11 @@ public class Diff implements DifferenceEvaluator {
         if (compared) {
             return;
         }
-        differenceEngine.compare(controlDoc, testDoc, this, elementSelector);
+        differenceEngine.setNodeMatcher(new DefaultNodeMatcher(elementSelector));
+        differenceEngine.setDifferenceEvaluator(this);
+        Source ctrlSource = Input.fromNode(controlDoc).build();
+        Source testSource = Input.fromNode(testDoc).build();
+        differenceEngine.compare(ctrlSource, testSource);
         compared = true;
     }
 
@@ -326,7 +333,7 @@ public class Diff implements DifferenceEvaluator {
         this.elementSelector = selector;
     }
 
-    public DifferenceEngineContract getDifferenceEngineContract() {
+    public DifferenceEngine getDifferenceEngine() {
         return differenceEngine;
     }
 

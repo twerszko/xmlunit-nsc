@@ -1,19 +1,61 @@
-package org.custommonkey.xmlunit;
+/*
+ ******************************************************************
+Copyright (c) 2001-2008,2010 Jeff Martin, Tim Bacon
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+ * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+ * Neither the name of the xmlunit.sourceforge.net nor the names
+      of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written
+      permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+ ******************************************************************
+ */
+
+package net.sf.xmlunit.diff;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultDifferenceEngine;
+import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
-import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
-import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
+import net.sf.xmlunit.diff.NodeMatcher;
 
+import org.custommonkey.xmlunit.CollectingDifferenceEvaluator;
+import org.custommonkey.xmlunit.XMLConstants;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +64,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public abstract class DifferenceEngineTestAbstract {
+public class DefaultDifferenceEngineTest {
+    // TODO consider extracting common part with DOMDifferenceEngineTests
+
     public final static String TEXT_A = "the pack on my back is aching";
     public final static String TEXT_B = "the straps seem to cut me like a knife";
     public final static String COMMENT_A = "Im no clown I wont back down";
@@ -35,52 +79,58 @@ public abstract class DifferenceEngineTestAbstract {
     public final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
     protected CollectingDifferenceEvaluator evaluator;
-    protected final static ElementSelector DEFAULT_ELEMENT_QUALIFIER = ElementSelectors.byName;
-    protected DifferenceEngineContract engine;
+    protected final static NodeMatcher DEFAULT_MATCHER = new DefaultNodeMatcher(ElementSelectors.byName);
+    protected DefaultDifferenceEngine engine;
     protected Document document;
 
     protected XmlUnitProperties properties;
     protected DocumentUtils documentUtils;
 
-    protected abstract DifferenceEngineContract newDifferenceEngine();
-
-    protected abstract DifferenceEngineContract newDifferenceEngine(XmlUnitProperties properties);
-
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
         documentUtils = new DocumentUtils(properties);
-
-        resetEvaluator();
-        engine = newDifferenceEngine();
         DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
         document = documentBuilder.newDocument();
+
+        resetEvaluator();
+        engine = new DefaultDifferenceEngine(properties);
+        engine.setNodeMatcher(DEFAULT_MATCHER);
+        engine.setDifferenceEvaluator(evaluator);
     }
 
-    protected void resetEvaluator() {
+    private void resetEvaluator() {
         evaluator = new CollectingDifferenceEvaluator();
     }
 
     protected void listenToDifferences(String control, String test) throws Exception {
         Document controlDoc = documentUtils.buildControlDocument(control);
         Document testDoc = documentUtils.buildTestDocument(test);
+
         DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
-        engine.compare(controlDoc, testDoc, evaluator, DEFAULT_ELEMENT_QUALIFIER);
+        engine.setDifferenceEvaluator(evaluator);
+
+        engine.compare(controlDoc, testDoc);
     }
 
-    protected List<Comparison> checkDifferences(String control, String test) throws Exception {
+    protected List<Comparison> findDifferences(String control, String test) throws Exception {
         Document controlDoc = documentUtils.buildControlDocument(control);
         Document testDoc = documentUtils.buildTestDocument(test);
+
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.compare(controlDoc, testDoc, evaluator, DEFAULT_ELEMENT_QUALIFIER);
+        engine.setDifferenceEvaluator(evaluator);
+
+        engine.compare(controlDoc, testDoc);
         return evaluator.getDifferences();
     }
 
     protected void listenToAllDifferences(String control, String test) throws Exception {
         Document controlDoc = documentUtils.buildControlDocument(control);
         Document testDoc = documentUtils.buildTestDocument(test);
+
         DifferenceEvaluator evaluator = new NeverStoppingDifferenceEvaluator(this.evaluator);
-        engine.compare(controlDoc, testDoc, evaluator, DEFAULT_ELEMENT_QUALIFIER);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.compare(controlDoc, testDoc);
     }
 
     @Test
@@ -99,13 +149,15 @@ public abstract class DifferenceEngineTestAbstract {
         Node control = controlDocument.getDocumentElement().getFirstChild();
         Node test = testDocument.getDocumentElement().getFirstChild();
         while (control != null) {
-            engine.compare(control, test, evaluator, null);
+            engine.setDifferenceEvaluator(evaluator);
+            engine.compare(control, test);
 
             assertThat(evaluator.comparingWhat).isNotNull();
             assertThat(evaluator.nodesSkipped).isFalse();
 
             resetEvaluator();
-            engine.compare(control, control, evaluator, null);
+            engine.setDifferenceEvaluator(evaluator);
+            engine.compare(control, control);
             assertThat(evaluator.comparingWhat).isNull();
 
             control = control.getNextSibling();
@@ -125,9 +177,10 @@ public abstract class DifferenceEngineTestAbstract {
         test.appendChild(testComment);
 
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engine.setDifferenceEvaluator(evaluator);
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
         List<Comparison> differences = evaluator.getDifferences();
 
         // then
@@ -143,7 +196,11 @@ public abstract class DifferenceEngineTestAbstract {
     public void should_ignore_different_comments() {
         // given
         properties.setIgnoreComments(true);
-        engine = newDifferenceEngine(properties);
+        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+
+        engine = new DefaultDifferenceEngine(properties);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.setNodeMatcher(DEFAULT_MATCHER);
 
         Element control = document.createElement("foo");
         Comment controlComment = document.createComment("bar");
@@ -153,10 +210,8 @@ public abstract class DifferenceEngineTestAbstract {
         Comment testComment = document.createComment("baz");
         test.appendChild(testComment);
 
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.getDifferences()).isEmpty();
@@ -177,7 +232,8 @@ public abstract class DifferenceEngineTestAbstract {
 
         // when
         DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
-        engine.compare(control, test, evaluator, null);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.compare(control, test);
 
         // then
         assertThat(this.evaluator.different).isTrue();
@@ -198,7 +254,8 @@ public abstract class DifferenceEngineTestAbstract {
 
         // when
         DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
-        engine.compare(control, test, evaluator, null);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.compare(control, test);
 
         // then
         assertThat(this.evaluator.different).isTrue();
@@ -208,7 +265,10 @@ public abstract class DifferenceEngineTestAbstract {
     public void should_ignore_extra_comment() {
         // given
         properties.setIgnoreComments(true);
-        engine = newDifferenceEngine(properties);
+        engine = new DefaultDifferenceEngine(properties);
+        DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.setNodeMatcher(DEFAULT_MATCHER);
 
         Element control = document.createElement("foo");
         Comment controlComment = document.createComment("bar");
@@ -221,8 +281,7 @@ public abstract class DifferenceEngineTestAbstract {
         test.appendChild(testChild);
 
         // when
-        DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.evaluator);
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(this.evaluator.different).isFalse();
@@ -238,7 +297,7 @@ public abstract class DifferenceEngineTestAbstract {
         test.setAttribute("baz", "bar");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isTrue();
@@ -258,7 +317,7 @@ public abstract class DifferenceEngineTestAbstract {
         test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isFalse();
@@ -278,7 +337,7 @@ public abstract class DifferenceEngineTestAbstract {
         test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isFalse();
@@ -296,7 +355,7 @@ public abstract class DifferenceEngineTestAbstract {
         Element test = document.createElement("foo");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isFalse();
@@ -314,7 +373,7 @@ public abstract class DifferenceEngineTestAbstract {
         test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isFalse();
@@ -332,7 +391,7 @@ public abstract class DifferenceEngineTestAbstract {
         Element test = document.createElement("foo");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isFalse();
@@ -350,7 +409,7 @@ public abstract class DifferenceEngineTestAbstract {
         test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
 
         // when
-        engine.compare(control, test, evaluator, null);
+        engine.compare(control, test);
 
         // then
         assertThat(evaluator.different).isFalse();
@@ -641,20 +700,6 @@ public abstract class DifferenceEngineTestAbstract {
     }
 
     @Test
-    public void should_obtain_xpath_of_extra_node() throws Exception {
-        // given
-        String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
-        String test = "<stuff><item id=\"1\"/></stuff>";
-
-        // when
-        listenToAllDifferences(control, test);
-
-        // then
-        assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[2]");
-        assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[1]");
-    }
-
-    @Test
     public void should_obtain_xpath_of_last_difference() throws Exception {
         // given
         String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
@@ -671,27 +716,13 @@ public abstract class DifferenceEngineTestAbstract {
     }
 
     @Test
-    public void should_obtain_xpath_of_attribute() throws Exception {
-        // given
-        String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
-        String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
-
-        // when
-        listenToAllDifferences(control, test);
-
-        // then
-        assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[1]/@id");
-        assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[2]/@id");
-    }
-
-    @Test
     public void should_detect_different_text() throws Exception {
         // given
         String control = "<stuff>string</stuff>";
         String test = "<stuff>  string  </stuff>";
 
         // when
-        List<Comparison> differences = checkDifferences(control, test);
+        List<Comparison> differences = findDifferences(control, test);
 
         // then
         assertThat(differences).hasSize(1);
@@ -708,10 +739,12 @@ public abstract class DifferenceEngineTestAbstract {
         String test = "<stuff>  string  </stuff>";
 
         properties.setNormalizeWhitespace(true);
-        engine = newDifferenceEngine(properties);
+        engine = new DefaultDifferenceEngine(properties);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.setNodeMatcher(DEFAULT_MATCHER);
 
         // when
-        List<Comparison> differences = checkDifferences(control, test);
+        List<Comparison> differences = findDifferences(control, test);
 
         // then
         assertThat(differences).hasSize(0);
@@ -724,10 +757,12 @@ public abstract class DifferenceEngineTestAbstract {
         String test = "<stuff>  string  </stuff>";
 
         properties.setIgnoreWhitespace(true);
-        engine = newDifferenceEngine(properties);
+        engine = new DefaultDifferenceEngine(properties);
+        engine.setDifferenceEvaluator(evaluator);
+        engine.setNodeMatcher(DEFAULT_MATCHER);
 
         // when
-        List<Comparison> differences = checkDifferences(control, test);
+        List<Comparison> differences = findDifferences(control, test);
 
         // then
         assertThat(differences).hasSize(0);
@@ -766,5 +801,101 @@ public abstract class DifferenceEngineTestAbstract {
             }
             return result;
         }
+    }
+
+    @Test
+    public void testIssue1027863() throws Exception {
+        // given
+        String control = "<stuff><item id=\"1\"><thing/></item></stuff>";
+        String test = "<stuff><item id=\"2\"/></stuff>";
+
+        // when
+        List<Comparison> differences = findDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(3);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
+        assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
+        assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+        assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+    }
+
+    @Test
+    public void testMatchTrackerSetViaConstructor() throws Exception {
+        // TODO duplicated test - maybe should check 2 different listeners?
+        Element control = document.createElement("foo");
+        Element test = document.createElement("foo");
+
+        final int[] count = new int[1];
+        DefaultDifferenceEngine d = new DefaultDifferenceEngine(properties);
+        d.setNodeMatcher(DEFAULT_MATCHER);
+        d.addMatchListener(
+                new ComparisonListener() {
+                    @Override
+                    public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                        count[0]++;
+                    }
+                });
+        d.setDifferenceEvaluator(evaluator);
+        d.compare(control, test);
+        // NODE_TYPE(Element), NAMESPACE_URI(none),
+        // NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
+        // ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
+        // SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
+        assertEquals(8, count[0]);
+    }
+
+    @Test
+    public void testMatchTrackerSetViaSetter() throws Exception {
+        Element control = document.createElement("foo");
+        Element test = document.createElement("foo");
+        final int[] count = new int[1];
+        engine.setDifferenceEvaluator(evaluator);
+        engine.addMatchListener(new ComparisonListener() {
+            @Override
+            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                count[0]++;
+            }
+        });
+        engine.compare(control, test);
+        // NODE_TYPE(Element), NAMESPACE_URI(none),
+        // NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
+        // ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
+        // SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
+        assertEquals(8, count[0]);
+    }
+
+    @Test
+    public void should_obtain_xpath_of_extra_node() throws Exception {
+        // TODO Investigate difference
+        // given
+        String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
+        String test = "<stuff><item id=\"1\"/></stuff>";
+
+        // when
+        listenToAllDifferences(control, test);
+
+        // then
+        assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[2]");
+        // this is different from DifferenceEngine - the test node is null
+        // if there is no match
+        assertThat(evaluator.testXpath).isNull();
+    }
+
+    @Test
+    public void should_obtain_xpath_of_attribute() throws Exception {
+        // given
+        String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
+        String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
+
+        // when
+        listenToAllDifferences(control, test);
+
+        // then
+        assertThat(evaluator.comparingWhat).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+        assertThat(evaluator.controlXpath).isEqualTo("/stuff[1]/item[1]");
+        assertThat(evaluator.testXpath).isEqualTo("/stuff[1]/item[1]");
     }
 }
