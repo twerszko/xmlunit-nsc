@@ -71,7 +71,7 @@ import org.xml.sax.SAXException;
 public class DetailedDiffTest extends DiffTest {
 
     @Override
-    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) {
+    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {
         return new DetailedDiff(super.prepareDiff(properties, control, test));
     }
 

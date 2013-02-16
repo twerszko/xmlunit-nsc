@@ -15,6 +15,7 @@ package net.sf.xmlunit.diff;
 
 import static net.sf.xmlunit.TestResources.BOOK_DTD;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -40,17 +41,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
+public class DOMDifferenceEngineTest {
 
-    @Override
-    protected AbstractDifferenceEngine getDifferenceEngine() {
-        return new DOMDifferenceEngine(null);
-    }
-
+    private DOMDifferenceEngine engine;
     private Document doc;
 
     @Before
     public void createDoc() throws Exception {
+        engine = new DOMDifferenceEngine(null);
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
@@ -838,5 +836,120 @@ public class DOMDifferenceEngineTest extends AbstractDifferenceEngineTest {
                 NodeAndXpath.from(test));
 
         return evaluator.getDifferences();
+    }
+
+    // TODO Refactor tests below
+
+    private static class ResultGrabber implements DifferenceEvaluator {
+        private ComparisonResult outcome = ComparisonResult.CRITICAL;
+
+        @Override
+        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+            this.outcome = outcome;
+            return outcome;
+        }
+    }
+
+    @Test
+    public void should_compare_two_nulls() {
+        // given
+        ResultGrabber grabber = new ResultGrabber();
+        engine.setDifferenceEvaluator(grabber);
+
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                        .between(null, null)
+                        .and(null, null);
+
+        // then
+        assertEquals(ComparisonResult.EQUAL, engine.performComparison(comparison));
+        assertEquals(ComparisonResult.EQUAL, grabber.outcome);
+    }
+
+    @Test
+    public void should_compare_control_null_and_test_non_null() {
+        // given
+        ResultGrabber grabber = new ResultGrabber();
+        engine.setDifferenceEvaluator(grabber);
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                        .between(null, null)
+                        .and(null, "");
+
+        // then
+        assertEquals(ComparisonResult.DIFFERENT, engine.performComparison(comparison));
+        assertEquals(ComparisonResult.DIFFERENT, grabber.outcome);
+    }
+
+    @Test
+    public void should_compare_control_non_null_and_test_null() {
+        // given
+        ResultGrabber grabber = new ResultGrabber();
+        engine.setDifferenceEvaluator(grabber);
+        Comparison comparison =
+                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                        .between(null, "")
+                        .and(null, null);
+
+        // then
+        assertEquals(ComparisonResult.DIFFERENT, engine.performComparison(comparison));
+        assertEquals(ComparisonResult.DIFFERENT, grabber.outcome);
+    }
+
+    @Test
+    public void compareTwoDifferentNonNulls() {
+        ResultGrabber g = new ResultGrabber();
+        engine.setDifferenceEvaluator(g);
+        assertEquals(ComparisonResult.DIFFERENT,
+                engine.performComparison(
+                        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                                .between(null, new Short("1"))
+                                .and(null, new Short("2"))));
+        assertEquals(ComparisonResult.DIFFERENT, g.outcome);
+    }
+
+    @Test
+    public void compareTwoEqualNonNulls() {
+        ResultGrabber g = new ResultGrabber();
+        engine.setDifferenceEvaluator(g);
+        assertEquals(ComparisonResult.EQUAL,
+                engine.performComparison(
+                        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                                .between(null, new Short("2"))
+                                .and(null, new Short("2"))));
+        assertEquals(ComparisonResult.EQUAL, g.outcome);
+    }
+
+    @Test
+    public void compareNotifiesListener() {
+        ComparisonListenerSupportTest.Listener l =
+                new ComparisonListenerSupportTest.Listener(ComparisonResult.EQUAL);
+        engine.addComparisonListener(l);
+        assertEquals(ComparisonResult.EQUAL,
+                engine.performComparison(
+                        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                                .between(null, new Short("2"))
+                                .and(null, new Short("2"))));
+        assertEquals(1, l.getInvocations());
+    }
+
+    @Test
+    public void compareUsesResultOfEvaluator() {
+        ComparisonListenerSupportTest.Listener l =
+                new ComparisonListenerSupportTest.Listener(ComparisonResult.SIMILAR);
+        engine.addComparisonListener(l);
+        engine.setDifferenceEvaluator(new DifferenceEvaluator() {
+            @Override
+            public ComparisonResult evaluate(Comparison comparison,
+                    ComparisonResult outcome) {
+                return ComparisonResult.SIMILAR;
+            }
+        });
+        assertEquals(ComparisonResult.SIMILAR,
+                engine.performComparison(
+                        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                                .between(null, new Short("2"))
+                                .and(null, new Short("2"))));
+        assertEquals(1, l.getInvocations());
     }
 }

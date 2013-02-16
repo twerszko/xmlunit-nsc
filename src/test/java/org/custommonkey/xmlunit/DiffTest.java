@@ -66,7 +66,6 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelectors;
 
-import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -90,60 +89,40 @@ public class DiffTest {
         aDocument = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
     }
 
-    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) {
-        try {
-            return Diff.newDiff(properties)
-                    .betweenControlDocument(control)
-                    .andTestDocument(test)
-                    .build();
-        } catch (BuilderException e) {
-            // TODO handle exceptions better
-            throw new IllegalArgumentException(e);
-        }
+    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {
+        return Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
     }
 
     protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws Exception {
-        try {
-            return Diff.newDiff(properties)
-                    .betweenControlDocument(control)
-                    .andTestDocument(test)
-                    .build();
-        } catch (BuilderException e) {
-            // TODO handle exceptions better
-            throw new IOException(e);
-        }
+        return Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
     }
 
     protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws Exception {
-        try {
-            return Diff.newDiff(properties)
-                    .betweenControlDocument(control)
-                    .andTestDocument(test)
-                    .build();
-        } catch (BuilderException e) {
-            // TODO handle exceptions better
-            throw new IOException(e);
-        }
+        return Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
     }
 
     protected Diff prepareDiff(XmlUnitProperties properties, String control, String test,
             DifferenceEngineContract engine)
             throws Exception {
 
-        try {
-            return Diff.newDiff(properties)
-                    .betweenControlDocument(control)
-                    .andTestDocument(test)
-                    .usingDifferenceEngineContract(engine)
-                    .build();
-        } catch (BuilderException e) {
-            // TODO handle exceptions better
-            throw new IOException(e);
-        }
+        return Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .usingDifferenceEngineContract(engine)
+                .build();
     }
 
     @Test
-    public void should_create_valid_toString() {
+    public void should_create_valid_toString() throws Exception {
         // given
         Diff diff = prepareDiff(properties, aDocument, aDocument);
 
@@ -169,7 +148,7 @@ public class DiffTest {
         assertThat(toStringResult).isEqualTo(expectedToString);
     }
 
-    public void should_create_valid_toString_2() {
+    public void should_create_valid_toString_2() throws Exception {
         // given
         Diff diff = prepareDiff(properties, aDocument, aDocument);
 
@@ -997,7 +976,7 @@ public class DiffTest {
     }
 
     @Test
-    public void should_check_normalization() {
+    public void should_check_normalization() throws Exception {
         // given
         Document control = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
         Element root = control.createElement("root");
@@ -1035,7 +1014,7 @@ public class DiffTest {
     // fails with Java 5 and later
     @Test
     @Ignore
-    public void should_make_sure_ignoring_whitespace_doesnt_affect_normalization() {
+    public void should_make_sure_ignoring_whitespace_doesnt_affect_normalization() throws Exception {
         properties.setIgnoreWhitespace(true);
         should_check_normalization();
     }
@@ -1043,7 +1022,7 @@ public class DiffTest {
     // fails with Java 5 and later
     @Test
     @Ignore
-    public void should_make_sure_ignoring_comments_doesnt_affect_normalization() {
+    public void should_make_sure_ignoring_comments_doesnt_affect_normalization() throws Exception {
         properties.setIgnoreComments(true);
         should_check_normalization();
     }
@@ -1200,7 +1179,7 @@ public class DiffTest {
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>");
-        diff.overrideMatchTracker(mockedTracker);
+        diff.getDifferenceEngineContract().setMatchListener(mockedTracker);
 
         // then
         assertThat(diff.identical()).isTrue();
@@ -1233,7 +1212,7 @@ public class DiffTest {
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
-        diff.overrideMatchTracker(mockedListener);
+        diff.getDifferenceEngineContract().setMatchListener(mockedListener);
 
         // then
         assertThat(diff.identical()).isTrue();
@@ -1266,7 +1245,7 @@ public class DiffTest {
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", engine);
-        diff.overrideMatchTracker(mockedListener);
+        diff.getDifferenceEngineContract().setMatchListener(mockedListener);
 
         // then
         assertThat(diff.identical()).isTrue();

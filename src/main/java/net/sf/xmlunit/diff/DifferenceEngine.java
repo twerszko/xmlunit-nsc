@@ -13,7 +13,6 @@
  */
 package net.sf.xmlunit.diff;
 
-import java.util.Map;
 import javax.xml.transform.Source;
 
 /**
@@ -49,21 +48,8 @@ public interface DifferenceEngine {
     void setDifferenceEvaluator(DifferenceEvaluator e);
 
     /**
-     * Establish a namespace context that will be used in
-     * {@link Comparison.Detail#getXPath Comparison.Detail#getXPath}.
-     * 
-     * <p>
-     * Without a namespace context (or with an empty context) the XPath
-     * expressions will only use local names for elements and attributes.
-     * </p>
-     * 
-     * @param uri2Prefix
-     *            maps from namespace URI to prefix.
-     */
-    void setNamespaceContext(Map<String, String> uri2Prefix);
-
-    /**
      * Compares two pieces of XML and invokes the registered listeners.
      */
     void compare(Source control, Source test);
+
 }
