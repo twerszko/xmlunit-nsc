@@ -36,14 +36,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
-import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.builder.Input;
@@ -179,10 +177,10 @@ public class DifferenceEngineImpl implements DifferenceEngineContract {
         if (elementSelector != null) {
             m = new DefaultNodeMatcher(elementSelector);
         }
-        if (!properties.getCompareUnmatched()) {
-            engine.setNodeMatcher(m);
-        } else {
+        if (properties.getCompareUnmatched()) {
             engine.setNodeMatcher(new CompareUnmatchedNodeMatcher(m));
+        } else {
+            engine.setNodeMatcher(m);
         }
 
         Input.Builder ctrlBuilder = Input.fromNode(control);
@@ -206,7 +204,7 @@ public class DifferenceEngineImpl implements DifferenceEngineContract {
     }
 
     @Nullable
-    public static Comparison filter(Comparison comp) {
+    private static Comparison filter(Comparison comp) {
         switch (comp.getType()) {
             case XML_ENCODING:
             case XML_STANDALONE:
@@ -217,23 +215,12 @@ public class DifferenceEngineImpl implements DifferenceEngineContract {
         }
     }
 
-    public static Comparison.Detail adaptNodeDetail(Comparison.Detail detail) {
-        String value = String.valueOf(detail.getValue());
-        if (detail.getValue() instanceof QName) {
-            value = ((QName) detail.getValue()).getLocalPart();
-        } else if (detail.getValue() instanceof Node) {
-            value = ((Node) detail.getValue()).getNodeName();
-        }
-        return new Comparison.Detail(detail.getTarget(), detail.getXpath(), value);
-    }
-
-    private static final Short TEXT_TYPE = Short.valueOf(Node.TEXT_NODE);
-    private static final Short CDATA_TYPE = Short.valueOf(Node.CDATA_SECTION_NODE);
+    private static final Short TEXT_TYPE = Node.TEXT_NODE;
+    private static final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
 
     private boolean swallowComparison(Comparison comparison,
             ComparisonResult outcome,
-            IsBetweenDocumentNodeAndRootElement
-            checkPrelude) {
+            IsBetweenDocumentNodeAndRootElement checkPrelude) {
         if (outcome == ComparisonResult.EQUAL) {
             return true;
         }
@@ -308,8 +295,7 @@ public class DifferenceEngineImpl implements DifferenceEngineContract {
      * </ul>
      * </p>
      */
-    private static class IsBetweenDocumentNodeAndRootElement
-            implements ComparisonListener {
+    private static class IsBetweenDocumentNodeAndRootElement implements ComparisonListener {
 
         private boolean haveSeenXmlEncoding = false;
         private boolean haveSeenElementNodeComparison = false;
@@ -333,41 +319,50 @@ public class DifferenceEngineImpl implements DifferenceEngineContract {
     }
 
     private static class CompareUnmatchedNodeMatcher implements NodeMatcher {
-        private final NodeMatcher nestedMatcher;
+        private final NodeMatcher matcher;
 
         private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
-            nestedMatcher = nested;
+            this.matcher = nested;
         }
 
         @Override
         public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
-            final Map<Node, Node> map = new HashMap<Node, Node>();
-            for (Pair<Node> e : nestedMatcher.match(controlNodes, testNodes)) {
-                map.put(e.getFirst(), e.getSecond());
-            }
 
+            final Map<Node, Node> matches = findMatches(controlNodes, testNodes);
             final List<Pair<Node>> result = new LinkedList<Pair<Node>>();
 
-            for (Node n : controlNodes) {
-                if (map.containsKey(n)) {
-                    result.add(new Pair<Node>(n, map.get(n)));
+            for (Node node : controlNodes) {
+                if (matches.containsKey(node)) {
+                    result.add(Pair.of(node, matches.get(node)));
                 } else {
                     Iterable<Node> unmatchedTestElements =
-                            Linqy.filter(testNodes, new Predicate<Node>() {
-                                @Override
-                                public boolean matches(Node t) {
-                                    return !map.containsValue(t);
-                                }
-                            });
-                    Iterator<Node> it = unmatchedTestElements.iterator();
-                    if (it.hasNext()) {
-                        Node t = it.next();
-                        map.put(n, t);
-                        result.add(new Pair<Node>(n, t));
+                            finUnmatchedTestNodes(testNodes, matches);
+
+                    for (Node unmatchedTestEl : unmatchedTestElements) {
+                        matches.put(node, unmatchedTestEl);
+                        result.add(Pair.of(node, unmatchedTestEl));
                     }
                 }
             }
             return result;
+        }
+
+        private Iterable<Node> finUnmatchedTestNodes(Iterable<Node> testNodes, final Map<Node, Node> matches) {
+            return Linqy.filter(testNodes, new Predicate<Node>() {
+                @Override
+                public boolean matches(Node t) {
+                    return !matches.containsValue(t);
+                }
+            });
+        }
+
+        private Map<Node, Node> findMatches(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+            Map<Node, Node> map = new LinkedHashMap<Node, Node>();
+            List<Pair<Node>> matches = this.matcher.match(controlNodes, testNodes);
+            for (Pair<Node> match : matches) {
+                map.put(match.getFirst(), match.getSecond());
+            }
+            return map;
         }
     }
 

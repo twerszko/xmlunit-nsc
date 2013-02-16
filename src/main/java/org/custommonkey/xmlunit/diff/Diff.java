@@ -112,7 +112,11 @@ public class Diff implements DifferenceEvaluator {
         this.controlDoc = getManipulatedDocument(builder.controlDocument);
         this.testDoc = getManipulatedDocument(builder.testDocument);
         this.elementSelector = builder.elementSelector;
-        this.differenceEngine = builder.differenceEngineContract;
+        if (builder.differenceEngineContract == null) {
+            this.differenceEngine = new DifferenceEngineImpl(properties, matchTracker);
+        } else {
+            this.differenceEngine = builder.differenceEngineContract;
+        }
         this.messages = new StringBuffer();
     }
 
@@ -203,7 +207,7 @@ public class Diff implements DifferenceEvaluator {
         if (compared) {
             return;
         }
-        getDifferenceEngine().compare(controlDoc, testDoc, this, elementSelector);
+        differenceEngine.compare(controlDoc, testDoc, this, elementSelector);
         compared = true;
     }
 
@@ -349,18 +353,6 @@ public class Diff implements DifferenceEvaluator {
         if (differenceEngine != null) {
             differenceEngine.setMatchListener(tracker);
         }
-    }
-
-    /**
-     * Lazily initializes the difference engine if it hasn't been set via a
-     * constructor.
-     */
-    private DifferenceEngineContract getDifferenceEngine() {
-        if (differenceEngine != null) {
-            return differenceEngine;
-        }
-
-        return new DifferenceEngineImpl(properties, matchTracker);
     }
 
     public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
