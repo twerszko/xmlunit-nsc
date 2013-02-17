@@ -20,15 +20,12 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.builder.Input;
-import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -41,15 +38,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-public class DOMDifferenceEngineTest {
+public class DOMDifferenceEngineTest extends DOMDifferenceEngineTestAbstract {
 
-    private DOMDifferenceEngine engine;
-    private Document doc;
-
-    @Before
-    public void createDoc() throws Exception {
-        engine = new DOMDifferenceEngine();
-        doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    @Override
+    protected DOMDifferenceEngine createEngine() {
+        return new DOMDifferenceEngine();
     }
 
     @Test
@@ -613,84 +606,6 @@ public class DOMDifferenceEngineTest {
     }
 
     @Test
-    public void should_detect_equal_string_values() throws Exception {
-        // given
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
-        engine.setDifferenceEvaluator(evaluator);
-
-        Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
-                .between(null, "black")
-                .and(null, "black");
-
-        // when
-        ComparisonResult result = engine.performComparison(comparison);
-
-        // then
-        assertThat(result).isEqualTo(ComparisonResult.EQUAL);
-        assertThat(evaluator.getDifferences()).hasSize(0);
-    }
-
-    @Test
-    public void should_detect_different_string_values() throws Exception {
-        // given
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
-        engine.setDifferenceEvaluator(evaluator);
-
-        Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
-                .between(null, "black")
-                .and(null, "white");
-
-        // when
-        ComparisonResult result = engine.performComparison(comparison);
-
-        // then
-        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(evaluator.getDifferences()).hasSize(1);
-        assertThat(evaluator.getDifferences()).contains(comparison);
-    }
-
-    @Test
-    public void should_detect_equal_boolean_values() throws Exception {
-        // given
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
-        engine.setDifferenceEvaluator(evaluator);
-
-        Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
-                .between(null, true)
-                .and(null, true);
-
-        // when
-        ComparisonResult result = engine.performComparison(comparison);
-
-        // then
-        assertThat(result).isEqualTo(ComparisonResult.EQUAL);
-        assertThat(evaluator.getDifferences()).hasSize(0);
-    }
-
-    @Test
-    public void should_detect_different_boolean_values() throws Exception {
-        // given
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
-        engine.setDifferenceEvaluator(evaluator);
-
-        Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
-                .between(null, false)
-                .and(null, true);
-
-        // when
-        ComparisonResult result = engine.performComparison(comparison);
-
-        // then
-        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
-        assertThat(evaluator.getDifferences()).hasSize(1);
-        assertThat(evaluator.getDifferences()).contains(comparison);
-    }
-
-    @Test
     public void should_detect_different_tags_in_child_node_list() throws Exception {
         // given
         Document document = new DocumentUtils().buildControlDocument(
@@ -813,112 +728,164 @@ public class DOMDifferenceEngineTest {
         assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/baz[1]");
     }
 
-    private List<Comparison> findDifferences(Node control, Node test) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
+    @Test
+    public void should_detect_equal_string_values() throws Exception {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+                .between(null, "black")
+                .and(null, "black");
 
-        engine.compareNodes(
-                NodeAndXpath.from(control),
-                NodeAndXpath.from(test));
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
 
-        return evaluator.getDifferences();
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+        assertThat(evaluator.getDifferences()).hasSize(0);
     }
 
-    private List<Comparison> findDifferencesWithMatcher(Node control, Node test, NodeMatcher nodeMatcher) {
-        DOMDifferenceEngine engine = new DOMDifferenceEngine();
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        engine.setDifferenceEvaluator(evaluator);
-        engine.setNodeMatcher(nodeMatcher);
+    @Test
+    public void should_detect_different_string_values() throws Exception {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+                .between(null, "black")
+                .and(null, "white");
 
-        engine.compareNodes(
-                NodeAndXpath.from(control),
-                NodeAndXpath.from(test));
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
 
-        return evaluator.getDifferences();
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+        assertThat(evaluator.getDifferences()).hasSize(1);
+        assertThat(evaluator.getDifferences()).contains(comparison);
+    }
+
+    @Test
+    public void should_detect_equal_boolean_values() throws Exception {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+                .between(null, true)
+                .and(null, true);
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+        assertThat(evaluator.getDifferences()).hasSize(0);
+    }
+
+    @Test
+    public void should_detect_different_boolean_values() throws Exception {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+                .between(null, false)
+                .and(null, true);
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+        assertThat(evaluator.getDifferences()).hasSize(1);
+        assertThat(evaluator.getDifferences()).contains(comparison);
+    }
+
+    @Test
+    public void should_detect_no_differences_when_two_nulls() {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                .between(null, null)
+                .and(null, null);
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+        List<Comparison> differences = evaluator.getDifferences();
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+        assertThat(differences).hasSize(0);
+    }
+
+    @Test
+    public void should_detect_difference_when_control_is_null_and_test_is_non_null() {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                .between(null, null)
+                .and(null, "");
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+        List<Comparison> differences = evaluator.getDifferences();
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+        assertThat(differences).hasSize(1);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+        assertThat(difference.getControlDetails().getValue()).isNull();
+        assertThat(difference.getTestDetails().getValue()).isEqualTo("");
+    }
+
+    @Test
+    public void should_detect_difference_when_control_is_non_null_and_test_is_null() {
+        // given
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                .between(null, "")
+                .and(null, null);
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+        List<Comparison> differences = evaluator.getDifferences();
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+        assertThat(differences).hasSize(1);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo("");
+        assertThat(difference.getTestDetails().getValue()).isNull();
+    }
+
+    @Test
+    public void should_detect_difference_when_two_different_values() {
+        // given
+        short expectedControlVal = 1;
+        short expectedTestVal = 2;
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                .between(null, expectedControlVal)
+                .and(null, expectedTestVal);
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+        List<Comparison> differences = evaluator.getDifferences();
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+        assertThat(differences).hasSize(1);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo(expectedControlVal);
+        assertThat(difference.getTestDetails().getValue()).isEqualTo(expectedTestVal);
+    }
+
+    @Test
+    public void should_detect_no_differences_when_two_equal_values() {
+        // given
+        short expectedVal = 2;
+        Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+                .between(null, expectedVal)
+                .and(null, expectedVal);
+
+        // when
+        ComparisonResult result = engine.performComparison(comparison);
+        List<Comparison> differences = evaluator.getDifferences();
+
+        // then
+        assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+        assertThat(differences).hasSize(0);
     }
 
     // TODO Refactor tests below
-
-    private static class ResultGrabber implements DifferenceEvaluator {
-        private ComparisonResult outcome = ComparisonResult.CRITICAL;
-
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            this.outcome = outcome;
-            return outcome;
-        }
-    }
-
-    @Test
-    public void should_compare_two_nulls() {
-        // given
-        ResultGrabber grabber = new ResultGrabber();
-        engine.setDifferenceEvaluator(grabber);
-
-        Comparison comparison =
-                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
-                        .between(null, null)
-                        .and(null, null);
-
-        // then
-        assertEquals(ComparisonResult.EQUAL, engine.performComparison(comparison));
-        assertEquals(ComparisonResult.EQUAL, grabber.outcome);
-    }
-
-    @Test
-    public void should_compare_control_null_and_test_non_null() {
-        // given
-        ResultGrabber grabber = new ResultGrabber();
-        engine.setDifferenceEvaluator(grabber);
-        Comparison comparison =
-                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
-                        .between(null, null)
-                        .and(null, "");
-
-        // then
-        assertEquals(ComparisonResult.DIFFERENT, engine.performComparison(comparison));
-        assertEquals(ComparisonResult.DIFFERENT, grabber.outcome);
-    }
-
-    @Test
-    public void should_compare_control_non_null_and_test_null() {
-        // given
-        ResultGrabber grabber = new ResultGrabber();
-        engine.setDifferenceEvaluator(grabber);
-        Comparison comparison =
-                Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
-                        .between(null, "")
-                        .and(null, null);
-
-        // then
-        assertEquals(ComparisonResult.DIFFERENT, engine.performComparison(comparison));
-        assertEquals(ComparisonResult.DIFFERENT, grabber.outcome);
-    }
-
-    @Test
-    public void compareTwoDifferentNonNulls() {
-        ResultGrabber g = new ResultGrabber();
-        engine.setDifferenceEvaluator(g);
-        assertEquals(ComparisonResult.DIFFERENT,
-                engine.performComparison(
-                        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
-                                .between(null, new Short("1"))
-                                .and(null, new Short("2"))));
-        assertEquals(ComparisonResult.DIFFERENT, g.outcome);
-    }
-
-    @Test
-    public void compareTwoEqualNonNulls() {
-        ResultGrabber g = new ResultGrabber();
-        engine.setDifferenceEvaluator(g);
-        assertEquals(ComparisonResult.EQUAL,
-                engine.performComparison(
-                        Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
-                                .between(null, new Short("2"))
-                                .and(null, new Short("2"))));
-        assertEquals(ComparisonResult.EQUAL, g.outcome);
-    }
 
     @Test
     public void compareNotifiesListener() {
