@@ -24,123 +24,120 @@ import net.sf.xmlunit.util.Convert;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Node;
 
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * Difference engine based on DOM.
  */
 public class DOMDifferenceEngine implements DifferenceEngine {
 
-    private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
-    private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
-    private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
+	private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
+	private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
+	private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
 
-    private boolean ignoreAttributeOrder = true;
+	private boolean ignoreAttributeOrder = true;
 
-    public boolean isIgnoreAttributeOrder() {
-        return ignoreAttributeOrder;
-    }
+	public boolean isIgnoreAttributeOrder() {
+		return ignoreAttributeOrder;
+	}
 
-    public void setIgnoreAttributeOrder(boolean ignoreAttributeOrder) {
-        this.ignoreAttributeOrder = ignoreAttributeOrder;
-    }
+	public void setIgnoreAttributeOrder(boolean ignoreAttributeOrder) {
+		this.ignoreAttributeOrder = ignoreAttributeOrder;
+	}
 
-    @Override
-    public void compare(Source control, Source test) {
-        if (control == null) {
-            throw new IllegalArgumentException("control must not be null");
-        }
-        if (test == null) {
-            throw new IllegalArgumentException("test must not be null");
-        }
-        try {
-            compareNodes(
-                    NodeAndXpath.from(Convert.toNode(control)),
-                    NodeAndXpath.from(Convert.toNode(test)));
-        } catch (Exception ex) {
-            // TODO remove pokemon exception handling
-            throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
-        }
-    }
+	@Override
+	public void compare(Source control, Source test) {
+		if (control == null) {
+			throw new IllegalArgumentException("control must not be null");
+		}
+		if (test == null) {
+			throw new IllegalArgumentException("test must not be null");
+		}
+		try {
+			compareNodes(
+			        NodeAndXpath.from(Convert.toNode(control)),
+			        NodeAndXpath.from(Convert.toNode(test)));
+		} catch (Exception ex) {
+			// TODO remove pokemon exception handling
+			throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
+		}
+	}
 
-    @VisibleForTesting
-    void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-        new DOMComparator(
-                getComparisonPerformer(), getNodeMatcher(), ignoreAttributeOrder)
-                .compare(control, test);
-    }
+	private void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+		new DOMComparator(
+		        getComparisonPerformer(), getNodeMatcher(), ignoreAttributeOrder)
+		        .compare(control, test);
+	}
 
-    protected final ComparisonPerformer comparisonPerformer = new ComparisonPerformer() {
-        @Override
-        protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
-            return getDifferenceEvaluator().evaluate(comparison, result);
-        };
+	protected final ComparisonPerformer comparisonPerformer = new ComparisonPerformer() {
+		@Override
+		protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
+			return getDifferenceEvaluator().evaluate(comparison, result);
+		};
 
-        @Override
-        protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
-            listeners.fireComparisonPerformed(comparison, result);
-        }
-    };
+		@Override
+		protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+			listeners.fireComparisonPerformed(comparison, result);
+		}
+	};
 
-    public ComparisonPerformer getComparisonPerformer() {
-        return comparisonPerformer;
-    }
+	public ComparisonPerformer getComparisonPerformer() {
+		return comparisonPerformer;
+	}
 
-    @Override
-    public void addComparisonListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
-        listeners.addComparisonListener(l);
-    }
+	@Override
+	public void addComparisonListener(ComparisonListener l) {
+		if (l == null) {
+			throw new IllegalArgumentException("listener must not be null");
+		}
+		listeners.addComparisonListener(l);
+	}
 
-    @Override
-    public void addMatchListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
-        listeners.addMatchListener(l);
-    }
+	@Override
+	public void addMatchListener(ComparisonListener l) {
+		if (l == null) {
+			throw new IllegalArgumentException("listener must not be null");
+		}
+		listeners.addMatchListener(l);
+	}
 
-    @Override
-    public void addDifferenceListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
-        listeners.addDifferenceListener(l);
-    }
+	@Override
+	public void addDifferenceListener(ComparisonListener l) {
+		if (l == null) {
+			throw new IllegalArgumentException("listener must not be null");
+		}
+		listeners.addDifferenceListener(l);
+	}
 
-    @Override
-    public void setNodeMatcher(NodeMatcher n) {
-        if (n == null) {
-            throw new IllegalArgumentException("node matcher must not be null");
-        }
-        nodeMatcher = n;
-    }
+	@Override
+	public void setNodeMatcher(NodeMatcher n) {
+		if (n == null) {
+			throw new IllegalArgumentException("node matcher must not be null");
+		}
+		nodeMatcher = n;
+	}
 
-    public NodeMatcher getNodeMatcher() {
-        return nodeMatcher;
-    }
+	public NodeMatcher getNodeMatcher() {
+		return nodeMatcher;
+	}
 
-    @Override
-    public void setDifferenceEvaluator(DifferenceEvaluator evaluator) {
-        if (evaluator == null) {
-            throw new IllegalArgumentException("difference evaluator must" + " not be null");
-        }
-        diffEvaluator = evaluator;
-    }
+	@Override
+	public void setDifferenceEvaluator(DifferenceEvaluator evaluator) {
+		if (evaluator == null) {
+			throw new IllegalArgumentException("difference evaluator must" + " not be null");
+		}
+		diffEvaluator = evaluator;
+	}
 
-    // TODO protected?
-    public DifferenceEvaluator getDifferenceEvaluator() {
-        return diffEvaluator;
-    }
+	// TODO protected?
+	public DifferenceEvaluator getDifferenceEvaluator() {
+		return diffEvaluator;
+	}
 
-    /**
-     * Compares the detail values for object equality, lets the difference
-     * evaluator evaluate the result, notifies all listeners and returns the
-     * outcome.
-     */
-    protected final ComparisonResult performComparison(Comparison comp) {
-        return comparisonPerformer.performComparison(comp);
-    }
+	/**
+	 * Compares the detail values for object equality, lets the difference
+	 * evaluator evaluate the result, notifies all listeners and returns the
+	 * outcome.
+	 */
+	protected final ComparisonResult performComparison(Comparison comp) {
+		return comparisonPerformer.performComparison(comp);
+	}
 }
