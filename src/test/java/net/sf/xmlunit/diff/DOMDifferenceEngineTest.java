@@ -386,4 +386,45 @@ public class DOMDifferenceEngineTest extends DOMDifferenceEngineTestAbstract {
 		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
 		assertThat(differences).hasSize(0);
 	}
+
+	@Test
+	public void should_detect_multiple_differences() throws Exception {
+		// given
+		String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
+		String test = "<stuff><?item data?></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(4);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+		Comparison thirdDifference = differences.get(2);
+		Comparison fourthDifference = differences.get(3);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]");
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo(2);
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(1);
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("item");
+		assertThat(secondDifference.getTestDetails().getXpath()).isNull();
+		assertThat(secondDifference.getTestDetails().getValue()).isNull();
+
+		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(thirdDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[2]");
+		assertThat(thirdDifference.getControlDetails().getValue()).isEqualTo("item");
+		assertThat(thirdDifference.getTestDetails().getXpath()).isNull();
+		assertThat(thirdDifference.getTestDetails().getValue()).isNull();
+
+		assertThat(fourthDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(fourthDifference.getControlDetails().getXpath()).isNull();
+		assertThat(fourthDifference.getControlDetails().getValue()).isNull();
+		assertThat(fourthDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
+		assertThat(fourthDifference.getTestDetails().getValue()).isEqualTo("item");
+	}
 }

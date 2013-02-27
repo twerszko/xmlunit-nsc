@@ -456,24 +456,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	@Test
-	public void should_obtain_xpath_of_first_child() throws Exception {
-		// given
-		String start = "<a>", end = "</a>";
-		String control = "<dvorak><keyboard/><composer/></dvorak>";
-		String test = "<qwerty><keyboard/></qwerty>";
-
-		String contrlXml = start + control + end;
-		String testXml = start + test + end;
-
-		// when
-		listenToDifferences(contrlXml, testXml);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/a[1]/dvorak[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/a[1]/qwerty[1]");
-	}
-
-	@Test
 	public void should_obtain_xpath_of_first_child_attribute() throws Exception {
 		// given
 		String control = "<stuff><wood type=\"rough\"/></stuff>";
@@ -499,20 +481,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		// then
 		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/glass[2]/@colour");
 		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/glass[2]/@colour");
-	}
-
-	@Test
-	public void should_obtain_xpath_of_second_child_text() throws Exception {
-		// given
-		String control = "<stuff><wood>maple</wood><wood>oak</wood></stuff>";
-		String test = "<stuff><wood>maple</wood><wood>ash</wood></stuff>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/wood[2]/text()[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/wood[2]/text()[1]");
 	}
 
 	@Test
@@ -571,22 +539,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.NODE_TYPE);
 		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/stuff[1]/list[1]/item[1]");
 		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/stuff[1]/list[1]/text()[1]");
-	}
-
-	@Test
-	public void should_obtain_xpath_of_last_difference() throws Exception {
-		// given
-		String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
-		String test = "<stuff><?item data?></stuff>";
-
-		// when
-		listenToAllDifferences(control, test);
-
-		// then
-		// mutiple Differences, we only see the last one, missing second element
-		assertThat(collectingEvaluator.comparingWhat).isEqualTo(ComparisonType.CHILD_LOOKUP);
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/item[2]");
-		assertThat(collectingEvaluator.testXpath).isNull();
 	}
 
 	@Test

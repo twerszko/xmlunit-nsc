@@ -73,16 +73,29 @@ public abstract class DOMDifferenceEngineTestAbstract {
 		return evaluator.getDifferences();
 	}
 
+	protected List<Comparison> findDifferencesWithMatcher(String control, String test, NodeMatcher nodeMatcher)
+	        throws Exception {
+		Document controlDoc = documentUtils.buildControlDocument(control);
+		Document testDoc = documentUtils.buildTestDocument(test);
+
+		Source controlSource = Input.fromDocument(controlDoc).build();
+		Source testSource = Input.fromDocument(testDoc).build();
+
+		return findDifferencesWithMatcher(controlSource, testSource, nodeMatcher);
+	}
+
 	protected List<Comparison> findDifferencesWithMatcher(Node control, Node test, NodeMatcher nodeMatcher) {
-		DOMDifferenceEngine engine = new DOMDifferenceEngine();
+		Source controlSource = Input.fromNode(control).build();
+		Source testSource = Input.fromNode(test).build();
+		return findDifferencesWithMatcher(controlSource, testSource, nodeMatcher);
+	}
+
+	protected List<Comparison> findDifferencesWithMatcher(
+	        Source controlSource, Source testSource, NodeMatcher nodeMatcher) {
 		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
 		engine.setDifferenceEvaluator(evaluator);
 		engine.setNodeMatcher(nodeMatcher);
-
-		Source controlSource = Input.fromNode(control).build();
-		Source testSource = Input.fromNode(test).build();
 		engine.compare(controlSource, testSource);
-
 		return evaluator.getDifferences();
 	}
 
@@ -263,6 +276,29 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	}
 
 	@Test
+	public void should_detect_missing_child_node_2() throws Exception {
+		// given
+		String start = "<a>", end = "</a>";
+		String control = "<dvorak><keyboard/><composer/></dvorak>";
+		String test = "<dvorak><keyboard/></dvorak>";
+
+		String contrlXml = start + control + end;
+		String testXml = start + test + end;
+
+		// when
+		List<Comparison> differences = findDifferences(contrlXml, testXml);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/a[1]/dvorak[1]/composer[1]");
+		assertThat(secondDifference.getTestDetails().getXpath()).isNull();
+	}
+
+	@Test
 	public void should_detect_different_number_of_children() {
 		// given
 		Element control = doc.createElement("x");
@@ -349,6 +385,9 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	@Test
 	public void should_detect_different_tag_name_with_byName_selector() {
 		// given
+		properties.setCompareUnmatched(false);
+		engine = createEngine();
+
 		Element control = doc.createElement("foo");
 		Element controlChild = doc.createElement("bar");
 		control.appendChild(controlChild);
@@ -619,6 +658,22 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	}
 
 	@Test
+	public void should_detect_different_text_2() throws Exception {
+		// given
+		String control = "<stuff><wood>maple</wood><wood>oak</wood></stuff>";
+		String test = "<stuff><wood>maple</wood><wood>ash</wood></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.TEXT_VALUE);
+		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/stuff[1]/wood[2]/text()[1]");
+		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/stuff[1]/wood[2]/text()[1]");
+	}
+
+	@Test
 	public void should_detect_different_text_and_type() {
 		// given
 		Comment control = doc.createComment("foo");
@@ -762,5 +817,49 @@ public abstract class DOMDifferenceEngineTestAbstract {
 		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo(Node.CDATA_SECTION_NODE);
 		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(fooCDATASection);
 		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/text()[1]");
+	}
+
+	@Test
+	public void should_detect_multiple_differences() throws Exception {
+		// given
+		properties.setCompareUnmatched(false);
+		engine = createEngine();
+
+		String control = "<stuff><item id=\"1\"/><item id=\"2\"/></stuff>";
+		String test = "<stuff><?item data?></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferencesWithMatcher(control, test, new DefaultNodeMatcher());
+
+		// then
+		assertThat(differences).hasSize(4);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+		Comparison thirdDifference = differences.get(2);
+		Comparison fourthDifference = differences.get(3);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]");
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo(2);
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(1);
+
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("item");
+		assertThat(secondDifference.getTestDetails().getXpath()).isNull();
+		assertThat(secondDifference.getTestDetails().getValue()).isNull();
+
+		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(thirdDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[2]");
+		assertThat(thirdDifference.getControlDetails().getValue()).isEqualTo("item");
+		assertThat(thirdDifference.getTestDetails().getXpath()).isNull();
+		assertThat(thirdDifference.getTestDetails().getValue()).isNull();
+
+		assertThat(fourthDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+		assertThat(fourthDifference.getControlDetails().getXpath()).isNull();
+		assertThat(fourthDifference.getControlDetails().getValue()).isNull();
+		assertThat(fourthDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
+		assertThat(fourthDifference.getTestDetails().getValue()).isEqualTo("item");
 	}
 }
