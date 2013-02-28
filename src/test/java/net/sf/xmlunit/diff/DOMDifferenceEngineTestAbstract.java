@@ -423,57 +423,6 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	}
 
 	@Test
-	public void should_detect_different_tag_name() {
-		// given
-		Element control = doc.createElement("foo");
-		Element controlChild = doc.createElement("bar");
-		control.appendChild(controlChild);
-
-		Element test = doc.createElement("foo");
-		Element testChild = doc.createElement("baz");
-		test.appendChild(testChild);
-
-		// when
-		List<Comparison> differences = findDifferences(control, test);
-
-		// then
-		assertThat(differences).hasSize(1);
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
-		assertThat(difference.getControlDetails().getValue()).isEqualTo("bar");
-		assertThat(difference.getControlDetails().getTarget()).isEqualTo(controlChild);
-		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/bar[1]");
-		assertThat(difference.getTestDetails().getValue()).isEqualTo("baz");
-		assertThat(difference.getTestDetails().getTarget()).isEqualTo(testChild);
-		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/baz[1]");
-	}
-
-	@Test
-	public void should_detect_different_tags_in_child_node_list() throws Exception {
-		// given
-		Document document = new DocumentUtils().buildControlDocument(
-		        "<down>" +
-		                "<im><standing/>alone</im>" +
-		                "<im><watching/>you all</im>" +
-		                "</down>");
-
-		Node control = document.getDocumentElement().getFirstChild();
-		Node test = control.getNextSibling();
-
-		// when
-		List<Comparison> differences = findDifferences(control, test);
-
-		// then
-		assertThat(differences).hasSize(2);
-		Comparison tagDifference = differences.get(0);
-		Comparison textDifference = differences.get(1);
-		assertThat(tagDifference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
-		assertThat(tagDifference.getControlDetails().getValue()).isEqualTo("standing");
-		assertThat(tagDifference.getTestDetails().getValue()).isEqualTo("watching");
-		assertThat(textDifference.getType()).isEqualTo(ComparisonType.TEXT_VALUE);
-	}
-
-	@Test
 	public void should_detect_additional_doctype_declaration() throws Exception {
 		// given
 		Document control = Convert.toDocument(Input.fromMemory(
@@ -822,6 +771,7 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	@Test
 	public void should_detect_multiple_differences() throws Exception {
 		// given
+		// TODO
 		properties.setCompareUnmatched(false);
 		engine = createEngine();
 

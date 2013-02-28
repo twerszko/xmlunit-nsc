@@ -442,20 +442,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	@Test
-	public void should_obtain_xpath_of_first() throws Exception {
-		// given
-		String control = "<dvorak><keyboard/><composer/></dvorak>";
-		String test = "<qwerty><keyboard/></qwerty>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/dvorak[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/qwerty[1]");
-	}
-
-	@Test
 	public void should_obtain_xpath_of_first_child_attribute() throws Exception {
 		// given
 		String control = "<stuff><wood type=\"rough\"/></stuff>";
@@ -498,20 +484,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	@Test
-	public void should_obtain_xpath_of_first_child_of_child() throws Exception {
-		// given
-		String control = "<stuff><list><wood/></list></stuff>";
-		String test = "<stuff><list><glass/></list></stuff>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/list[1]/wood[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/list[1]/glass[1]");
-	}
-
-	@Test
 	public void should_obtain_xpath_of_processing_instruction() throws Exception {
 		// given
 		String control = "<stuff><list/><?wood rough?><list/></stuff>";
@@ -523,22 +495,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		// then
 		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/processing-instruction()[1]");
 		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/processing-instruction()[1]");
-	}
-
-	@Test
-	public void should_detect_different_node_types_2() throws Exception {
-		// given
-		String control = "<stuff><list><item/></list></stuff>";
-		String test = "<stuff><list>item text</list></stuff>";
-
-		// when
-		List<Comparison> differences = findDifferences(control, test);
-
-		// then
-		assertThat(differences).hasSize(1);
-		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.NODE_TYPE);
-		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/stuff[1]/list[1]/item[1]");
-		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/stuff[1]/list[1]/text()[1]");
 	}
 
 	@Test
@@ -678,18 +634,4 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		assertThat(collectingEvaluator.testXpath).isNull();
 	}
 
-	@Test
-	public void should_obtain_xpath_of_attribute() throws Exception {
-		// given
-		String control = "<stuff><thing id=\"1\"/><item id=\"2\"/></stuff>";
-		String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
-
-		// when
-		listenToAllDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.comparingWhat).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/item[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/item[1]");
-	}
 }
