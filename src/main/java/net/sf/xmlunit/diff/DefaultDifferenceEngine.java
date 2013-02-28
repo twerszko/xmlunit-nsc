@@ -14,12 +14,20 @@
 
 package net.sf.xmlunit.diff;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.input.CommentLessSource;
 import net.sf.xmlunit.input.WhitespaceNormalizedSource;
 import net.sf.xmlunit.input.WhitespaceStrippedSource;
+import net.sf.xmlunit.util.Linqy;
+import net.sf.xmlunit.util.Pair;
+import net.sf.xmlunit.util.Predicate;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.w3c.dom.Document;
@@ -99,6 +107,9 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 	public void compare(Source ctrlSource, Source testSource) {
 		// TODO properties can be removed
 		checkPrelude.reset();
+		if (properties.getCompareUnmatched()) {
+			setNodeMatcher(new CompareUnmatchedNodeMatcher(getNodeMatcher()));
+		}
 
 		if (properties.getIgnoreComments()) {
 			ctrlSource = new CommentLessSource(ctrlSource);
@@ -214,6 +225,54 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 		public void reset() {
 			haveSeenXmlEncoding = false;
 			haveSeenElementNodeComparison = false;
+		}
+	}
+
+	private static class CompareUnmatchedNodeMatcher implements NodeMatcher {
+		private final NodeMatcher matcher;
+
+		private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
+			this.matcher = nested;
+		}
+
+		@Override
+		public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+
+			final Map<Node, Node> matches = findMatches(controlNodes, testNodes);
+			final List<Pair<Node>> result = new LinkedList<Pair<Node>>();
+
+			for (Node node : controlNodes) {
+				if (matches.containsKey(node)) {
+					result.add(Pair.of(node, matches.get(node)));
+				} else {
+					Iterable<Node> unmatchedTestElements =
+					        finUnmatchedTestNodes(testNodes, matches);
+
+					for (Node unmatchedTestEl : unmatchedTestElements) {
+						matches.put(node, unmatchedTestEl);
+						result.add(Pair.of(node, unmatchedTestEl));
+					}
+				}
+			}
+			return result;
+		}
+
+		private Iterable<Node> finUnmatchedTestNodes(Iterable<Node> testNodes, final Map<Node, Node> matches) {
+			return Linqy.filter(testNodes, new Predicate<Node>() {
+				@Override
+				public boolean matches(Node t) {
+					return !matches.containsValue(t);
+				}
+			});
+		}
+
+		private Map<Node, Node> findMatches(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+			Map<Node, Node> map = new LinkedHashMap<Node, Node>();
+			List<Pair<Node>> matches = this.matcher.match(controlNodes, testNodes);
+			for (Pair<Node> match : matches) {
+				map.put(match.getFirst(), match.getSecond());
+			}
+			return map;
 		}
 	}
 }
