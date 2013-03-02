@@ -22,9 +22,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.input.CommentLessSource;
-import net.sf.xmlunit.input.WhitespaceNormalizedSource;
-import net.sf.xmlunit.input.WhitespaceStrippedSource;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Pair;
 import net.sf.xmlunit.util.Predicate;
@@ -111,17 +108,6 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 			setNodeMatcher(new CompareUnmatchedNodeMatcher(getNodeMatcher()));
 		}
 
-		if (properties.getIgnoreComments()) {
-			ctrlSource = new CommentLessSource(ctrlSource);
-			testSource = new CommentLessSource(testSource);
-		}
-		if (properties.getNormalizeWhitespace()) {
-			ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
-			testSource = new WhitespaceNormalizedSource(testSource);
-		} else if (properties.getIgnoreWhitespace()) {
-			ctrlSource = new WhitespaceStrippedSource(ctrlSource);
-			testSource = new WhitespaceStrippedSource(testSource);
-		}
 		super.compare(ctrlSource, testSource);
 	}
 

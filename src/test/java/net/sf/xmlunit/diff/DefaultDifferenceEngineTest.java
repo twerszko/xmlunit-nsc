@@ -30,7 +30,6 @@ import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -135,61 +134,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 			control = control.getNextSibling();
 			test = test.getNextSibling();
 		}
-	}
-
-	@Test
-	public void should_ignore_different_comments() {
-		// given
-		properties.setIgnoreComments(true);
-		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-
-		engine = new DefaultDifferenceEngine(properties);
-		engine.setDifferenceEvaluator(evaluator);
-		engine.setNodeMatcher(DEFAULT_MATCHER);
-
-		Element control = doc.createElement("foo");
-		Comment controlComment = doc.createComment("bar");
-		control.appendChild(controlComment);
-
-		Element test = doc.createElement("foo");
-		Comment testComment = doc.createComment("baz");
-		test.appendChild(testComment);
-
-		// when
-		Source controlSource = Input.fromNode(control).build();
-		Source testSource = Input.fromNode(test).build();
-		engine.compare(controlSource, testSource);
-
-		// then
-		assertThat(evaluator.getDifferences()).isEmpty();
-	}
-
-	@Test
-	public void should_ignore_extra_comment() {
-		// given
-		properties.setIgnoreComments(true);
-		engine = new DefaultDifferenceEngine(properties);
-		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.collectingEvaluator);
-		engine.setDifferenceEvaluator(evaluator);
-		engine.setNodeMatcher(DEFAULT_MATCHER);
-
-		Element control = doc.createElement("foo");
-		Comment controlComment = doc.createComment("bar");
-		control.appendChild(controlComment);
-		Element controlChild = doc.createElement("baz");
-		control.appendChild(controlChild);
-
-		Element test = doc.createElement("foo");
-		Element testChild = doc.createElement("baz");
-		test.appendChild(testChild);
-
-		// when
-		Source controlSource = Input.fromNode(control).build();
-		Source testSource = Input.fromNode(test).build();
-		engine.compare(controlSource, testSource);
-
-		// then
-		assertThat(this.collectingEvaluator.different).isFalse();
 	}
 
 	@Test
@@ -539,42 +483,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.NODE_TYPE);
 		assertThat(differences.get(0).getControlDetails().getXpath()).isEqualTo("/stuff[1]/list[1]/item[1]");
 		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/stuff[1]/list[1]/text()[1]");
-	}
-
-	@Test
-	public void should_ignore_different_text_when_whitespace_normalized() throws Exception {
-		// given
-		String control = "<stuff>string</stuff>";
-		String test = "<stuff>  string  </stuff>";
-
-		properties.setNormalizeWhitespace(true);
-		engine = new DefaultDifferenceEngine(properties);
-		engine.setDifferenceEvaluator(collectingEvaluator);
-		engine.setNodeMatcher(DEFAULT_MATCHER);
-
-		// when
-		List<Comparison> differences = findDifferences(control, test);
-
-		// then
-		assertThat(differences).hasSize(0);
-	}
-
-	@Test
-	public void should_ignore_different_text_when_whitespace_ignored() throws Exception {
-		// given
-		String control = "<stuff>string</stuff>";
-		String test = "<stuff>  string  </stuff>";
-
-		properties.setIgnoreWhitespace(true);
-		engine = new DefaultDifferenceEngine(properties);
-		engine.setDifferenceEvaluator(collectingEvaluator);
-		engine.setNodeMatcher(DEFAULT_MATCHER);
-
-		// when
-		List<Comparison> differences = findDifferences(control, test);
-
-		// then
-		assertThat(differences).hasSize(0);
 	}
 
 	protected class StoppingOnFirstNotRecoverableDifferenceEvaluator implements DifferenceEvaluator {
