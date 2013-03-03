@@ -33,25 +33,12 @@ import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract {
 	// TODO consider extracting common part with DOMDifferenceEngineTests
 
 	// TODO refactor this mess
-
-	public final static String TEXT_A = "the pack on my back is aching";
-	public final static String TEXT_B = "the straps seem to cut me like a knife";
-	public final static String COMMENT_A = "Im no clown I wont back down";
-	public final static String COMMENT_B = "dont need you to tell me whats going down";
-	public final static String[] PROC_A = { "down", "down down" };
-	public final static String[] PROC_B = { "dadada", "down" };
-	public final static String CDATA_A = "I'm standing alone, you're weighing the gold";
-	public final static String CDATA_B = "I'm watching you sinking... Fools Gold";
-	public final static String ATTR_A = "These boots were made for walking";
-	public final static String ATTR_B = "The marquis de sade never wore no boots like these";
 
 	protected CollectingDifferenceEvaluator collectingEvaluator;
 	protected final static NodeMatcher DEFAULT_MATCHER = new DefaultNodeMatcher(ElementSelectors.byName);
@@ -79,63 +66,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 
 	private void resetEvaluator() {
 		collectingEvaluator = new CollectingDifferenceEvaluator();
-	}
-
-	@Test
-	public void should_compare_nodes() throws Exception {
-		// given
-		Document controlDocument = documentUtils.buildControlDocument("<root>"
-		        + "<!-- " + COMMENT_A + " -->"
-		        + "<?" + PROC_A[0] + " " + PROC_A[1] + " ?>"
-		        + "<elem attr=\"" + ATTR_A + "\">" + TEXT_A + "</elem></root>");
-		Document testDocument = documentUtils.buildTestDocument("<root>"
-		        + "<!-- " + COMMENT_B + " -->"
-		        + "<?" + PROC_B[0] + " " + PROC_B[1] + " ?>"
-		        + "<elem attr=\"" + ATTR_B + "\">" + TEXT_B + "</elem></root>");
-
-		// when - then
-		Node control = controlDocument.getDocumentElement().getFirstChild();
-		Node test = testDocument.getDocumentElement().getFirstChild();
-		while (control != null) {
-			engine.setDifferenceEvaluator(collectingEvaluator);
-			Source controlSource = Input.fromNode(control).build();
-			Source testSource = Input.fromNode(test).build();
-			engine.compare(controlSource, testSource);
-
-			assertThat(collectingEvaluator.comparingWhat).isNotNull();
-			assertThat(collectingEvaluator.nodesSkipped).isFalse();
-
-			resetEvaluator();
-			engine.setDifferenceEvaluator(collectingEvaluator);
-			controlSource = Input.fromNode(control).build();
-			engine.compare(controlSource, controlSource);
-			assertThat(collectingEvaluator.comparingWhat).isNull();
-
-			control = control.getNextSibling();
-			test = test.getNextSibling();
-		}
-	}
-
-	@Test
-	public void should_ignore_different_schema_location() {
-		// given
-		ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
-		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
-
-		Element control = doc.createElement("foo");
-		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
-
-		Element test = doc.createElement("foo");
-		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
-
-		// when
-		Source controlSource = Input.fromNode(control).build();
-		Source testSource = Input.fromNode(test).build();
-		engine.compare(controlSource, testSource);
-
-		// then
-		assertThat(collectingEvaluator.different).isFalse();
-		assertThat(collectingEvaluator.comparingWhat).isEqualTo(expectedComparisonType);
 	}
 
 	@Test
@@ -307,7 +237,7 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	@Test
-	public void should_verufy_number_of_calls_on_match_liteners() throws Exception {
+	public void should_verify_number_of_calls_on_match_liteners() throws Exception {
 		// given
 		Element control = doc.createElement("foo");
 		Element test = doc.createElement("foo");

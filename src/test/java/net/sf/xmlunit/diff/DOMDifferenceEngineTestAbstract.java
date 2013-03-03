@@ -12,6 +12,7 @@ import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.util.Convert;
 
+import org.custommonkey.xmlunit.XMLConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
@@ -204,6 +205,33 @@ public abstract class DOMDifferenceEngineTestAbstract {
 		assertThat(differences.get(0).getTestDetails().getTarget()).isEqualTo(test);
 		assertThat(differences.get(0).getTestDetails().getValue()).isEqualTo("system2");
 		assertThat(differences.get(0).getTestDetails().getXpath()).isEqualTo("/");
+	}
+
+	@Test
+	public void should_detect_different_schema_location() {
+		// given
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
+
+		Element control = doc.createElement("foo");
+		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+
+		Element test = doc.createElement("foo");
+		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+
+		assertThat(difference.getType()).isEqualTo(ComparisonType.SCHEMA_LOCATION);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/");
+		assertThat(difference.getControlDetails().getTarget()).isEqualTo(control);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/");
+		assertThat(difference.getTestDetails().getTarget()).isEqualTo(test);
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("baz");
 	}
 
 	@Test
