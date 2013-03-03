@@ -36,6 +36,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.diff;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.xml.transform.Source;
 
@@ -47,15 +52,20 @@ import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
+import net.sf.xmlunit.diff.NodeMatcher;
 import net.sf.xmlunit.input.CommentLessSource;
 import net.sf.xmlunit.input.WhitespaceNormalizedSource;
 import net.sf.xmlunit.input.WhitespaceStrippedSource;
+import net.sf.xmlunit.util.Linqy;
+import net.sf.xmlunit.util.Pair;
+import net.sf.xmlunit.util.Predicate;
 
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Compares and describes any difference between XML documents. Two documents
@@ -198,7 +208,13 @@ public class Diff implements DifferenceEvaluator {
 		if (compared) {
 			return;
 		}
-		differenceEngine.setNodeMatcher(new DefaultNodeMatcher(elementSelector));
+		DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(elementSelector);
+		// DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher();
+		if (properties.getCompareUnmatched()) {
+			differenceEngine.setNodeMatcher(new CompareUnmatchedNodeMatcher(nodeMatcher));
+		} else {
+			differenceEngine.setNodeMatcher(nodeMatcher);
+		}
 		differenceEngine.setDifferenceEvaluator(this);
 		Source ctrlSource = Input.fromNode(controlDoc).build();
 		Source testSource = Input.fromNode(testDoc).build();
@@ -354,5 +370,51 @@ public class Diff implements DifferenceEvaluator {
 
 	public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
 		return new DiffBuilder(properties);
+	}
+
+	private static class CompareUnmatchedNodeMatcher implements NodeMatcher {
+		private final NodeMatcher matcher;
+
+		private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
+			this.matcher = nested;
+		}
+
+		@Override
+		public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+
+			final Map<Node, Node> matches = findMatches(controlNodes, testNodes);
+			Iterable<Node> unmatchedTestNodes = findUnmatchedTestNodes(testNodes, matches);
+			final List<Pair<Node>> result = new LinkedList<Pair<Node>>();
+
+			for (Node controlNode : controlNodes) {
+				if (matches.containsKey(controlNode)) {
+					result.add(Pair.of(controlNode, matches.get(controlNode)));
+				} else {
+					for (Node unmatchedTestNode : unmatchedTestNodes) {
+						matches.put(controlNode, unmatchedTestNode);
+						result.add(Pair.of(controlNode, unmatchedTestNode));
+					}
+				}
+			}
+			return result;
+		}
+
+		private Iterable<Node> findUnmatchedTestNodes(Iterable<Node> testNodes, final Map<Node, Node> matches) {
+			return Linqy.filter(testNodes, new Predicate<Node>() {
+				@Override
+				public boolean matches(Node testNode) {
+					return !matches.containsValue(testNode);
+				}
+			});
+		}
+
+		private Map<Node, Node> findMatches(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+			Map<Node, Node> map = new LinkedHashMap<Node, Node>();
+			List<Pair<Node>> matches = matcher.match(controlNodes, testNodes);
+			for (Pair<Node> match : matches) {
+				map.put(match.getFirst(), match.getSecond());
+			}
+			return map;
+		}
 	}
 }

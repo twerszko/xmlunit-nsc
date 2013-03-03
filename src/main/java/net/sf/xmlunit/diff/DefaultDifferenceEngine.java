@@ -14,17 +14,8 @@
 
 package net.sf.xmlunit.diff;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Nullable;
 import javax.xml.transform.Source;
-
-import net.sf.xmlunit.util.Linqy;
-import net.sf.xmlunit.util.Pair;
-import net.sf.xmlunit.util.Predicate;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.w3c.dom.Document;
@@ -104,9 +95,9 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 	public void compare(Source ctrlSource, Source testSource) {
 		// TODO properties can be removed
 		checkPrelude.reset();
-		if (properties.getCompareUnmatched()) {
-			setNodeMatcher(new CompareUnmatchedNodeMatcher(getNodeMatcher()));
-		}
+		// if (properties.getCompareUnmatched()) {
+		// setNodeMatcher(new CompareUnmatchedNodeMatcher(getNodeMatcher()));
+		// }
 
 		super.compare(ctrlSource, testSource);
 	}
@@ -132,32 +123,42 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 		if (outcome == ComparisonResult.EQUAL) {
 			return true;
 		}
-		if ((comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
-		        && comparison.getControlDetails().getTarget() instanceof Document)
+		if (checkPrelude.shouldSkip()) {
+			return true;
+		}
+
+		Node controlTarget = comparison.getControlDetails().getTarget();
+		if ((comparesChildrenListLength(comparison) && isDocument(controlTarget))
 		        ||
-		        (
-		        comparison.getType() == ComparisonType.CHILD_LOOKUP
+		        (comparison.getType() == ComparisonType.CHILD_LOOKUP
 		        &&
 		        (isNonElementDocumentChild(comparison.getControlDetails())
 		        || isNonElementDocumentChild(comparison.getTestDetails()))
-		        )
-		        || checkPrelude.shouldSkip()) {
+		        )) {
 			return true;
 		}
-		if (properties.getIgnoreDiffBetweenTextAndCDATA()
-		        && comparison.getType() == ComparisonType.NODE_TYPE) {
-			return (
-			        TEXT_TYPE.equals(comparison.getControlDetails().getValue())
-			        ||
-			        CDATA_TYPE.equals(comparison.getControlDetails().getValue())
-			        )
-			        && (
-			        TEXT_TYPE.equals(comparison.getTestDetails().getValue())
-			        ||
-			        CDATA_TYPE.equals(comparison.getTestDetails().getValue())
-			        );
+		if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeType(comparison)) {
+			int controlValue = (Integer) comparison.getControlDetails().getValue();
+			int testValue = (Integer) comparison.getTestDetails().getValue();
+			return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
 		}
 		return false;
+	}
+
+	private boolean isTextOrCdataNode(int nodeType) {
+		return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
+	}
+
+	private boolean comparesNodeType(Comparison comparison) {
+		return comparison.getType() == ComparisonType.NODE_TYPE;
+	}
+
+	private boolean comparesChildrenListLength(Comparison comparison) {
+		return comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH;
+	}
+
+	private boolean isDocument(Node controlTarget) {
+		return controlTarget instanceof Document;
 	}
 
 	private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
@@ -211,54 +212,6 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 		public void reset() {
 			haveSeenXmlEncoding = false;
 			haveSeenElementNodeComparison = false;
-		}
-	}
-
-	private static class CompareUnmatchedNodeMatcher implements NodeMatcher {
-		private final NodeMatcher matcher;
-
-		private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
-			this.matcher = nested;
-		}
-
-		@Override
-		public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
-
-			final Map<Node, Node> matches = findMatches(controlNodes, testNodes);
-			final List<Pair<Node>> result = new LinkedList<Pair<Node>>();
-
-			for (Node node : controlNodes) {
-				if (matches.containsKey(node)) {
-					result.add(Pair.of(node, matches.get(node)));
-				} else {
-					Iterable<Node> unmatchedTestElements =
-					        finUnmatchedTestNodes(testNodes, matches);
-
-					for (Node unmatchedTestEl : unmatchedTestElements) {
-						matches.put(node, unmatchedTestEl);
-						result.add(Pair.of(node, unmatchedTestEl));
-					}
-				}
-			}
-			return result;
-		}
-
-		private Iterable<Node> finUnmatchedTestNodes(Iterable<Node> testNodes, final Map<Node, Node> matches) {
-			return Linqy.filter(testNodes, new Predicate<Node>() {
-				@Override
-				public boolean matches(Node t) {
-					return !matches.containsValue(t);
-				}
-			});
-		}
-
-		private Map<Node, Node> findMatches(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
-			Map<Node, Node> map = new LinkedHashMap<Node, Node>();
-			List<Pair<Node>> matches = this.matcher.match(controlNodes, testNodes);
-			for (Pair<Node> match : matches) {
-				map.put(match.getFirst(), match.getSecond());
-			}
-			return map;
 		}
 	}
 }

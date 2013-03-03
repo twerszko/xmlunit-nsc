@@ -425,6 +425,8 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	@Test
 	public void should_detect_different_tag_name() {
 		// given
+		// TODO node matcher
+		engine.setNodeMatcher(new DefaultNodeMatcher());
 		Element control = doc.createElement("foo");
 		Element controlChild = doc.createElement("bar");
 		control.appendChild(controlChild);
@@ -451,6 +453,8 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	@Test
 	public void should_detect_different_tags_in_child_node_list() throws Exception {
 		// given
+		// TODO node matcher
+		engine.setNodeMatcher(new DefaultNodeMatcher());
 		Document document = new DocumentUtils().buildControlDocument(
 		        "<down>" +
 		                "<im><standing/>alone</im>" +
@@ -861,5 +865,31 @@ public abstract class DOMDifferenceEngineTestAbstract {
 		assertThat(fourthDifference.getControlDetails().getValue()).isNull();
 		assertThat(fourthDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
 		assertThat(fourthDifference.getTestDetails().getValue()).isEqualTo("item");
+	}
+
+	@Test
+	public void should_detect_multiple_differences_2() throws Exception {
+		// given
+		String control = "<dvorak><keyboard/><composer/></dvorak>";
+		String test = "<qwerty><keyboard/></qwerty>";
+
+		// when
+		List<Comparison> differences = findDifferencesWithMatcher(control, test, new DefaultNodeMatcher());
+
+		// then
+		assertThat(differences).hasSize(3);
+
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+		Comparison thirdDifference = differences.get(2);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
+		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/dvorak[1]");
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("dvorak");
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/qwerty[1]");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo("qwerty");
 	}
 }
