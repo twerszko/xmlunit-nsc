@@ -2,7 +2,6 @@ package net.sf.xmlunit.diff.strategies;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Attr;

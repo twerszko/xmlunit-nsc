@@ -20,7 +20,6 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.Attributes;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Nodes;

@@ -16,8 +16,16 @@ package net.sf.xmlunit.diff;
 
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
+import net.sf.xmlunit.diff.strategies.CompareAttributeStrategy;
+import net.sf.xmlunit.diff.strategies.CompareCharacterDataStrategy;
+import net.sf.xmlunit.diff.strategies.CompareDoctypeStrategy;
+import net.sf.xmlunit.diff.strategies.CompareDocumentStrategy;
+import net.sf.xmlunit.diff.strategies.CompareElementStrategy;
+import net.sf.xmlunit.diff.strategies.CompareNamespaceStrategy;
+import net.sf.xmlunit.diff.strategies.CompareProcInstrStrategy;
+import net.sf.xmlunit.diff.strategies.ComparisonPerformer;
+import net.sf.xmlunit.diff.strategies.ComparisonStrategyProvider;
 import net.sf.xmlunit.diff.strategies.DOMComparator;
 import net.sf.xmlunit.util.Convert;
 
@@ -62,9 +70,20 @@ public class DOMDifferenceEngine implements DifferenceEngine {
 	}
 
 	private void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		new DOMComparator(
-		        getComparisonPerformer(), getNodeMatcher(), ignoreAttributeOrder)
-		        .compare(control, test);
+		ComparisonStrategyProvider provider = createStrategyProvider(getComparisonPerformer());
+		new DOMComparator(getComparisonPerformer(), getNodeMatcher(), provider).compare(control, test);
+	}
+
+	ComparisonStrategyProvider createStrategyProvider(ComparisonPerformer performer) {
+		DOMComparisonStrategyProvider provider = new DOMComparisonStrategyProvider();
+		provider.setAttributeComparisonStrategy(new CompareAttributeStrategy(performer));
+		provider.setCharacterDataComparisonStrategy(new CompareCharacterDataStrategy(performer));
+		provider.setDoctypeComparisonStrategy(new CompareDoctypeStrategy(performer));
+		provider.setDocumentComparisonStrategyStrategy(new CompareDocumentStrategy(performer));
+		provider.setElementComparisonStrategy(new CompareElementStrategy(performer, getIgnoreAttributeOrder()));
+		provider.setNamespaceComparisonStrategy(new CompareNamespaceStrategy(performer));
+		provider.setProcInstrComparisonStrategy(new CompareProcInstrStrategy(performer));
+		return provider;
 	}
 
 	protected final ComparisonPerformer comparisonPerformer = new ComparisonPerformer() {

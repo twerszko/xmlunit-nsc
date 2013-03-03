@@ -8,7 +8,6 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.NodeMatcher;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.util.Linqy;
@@ -42,16 +41,13 @@ import org.w3c.dom.ProcessingInstruction;
 public class DOMComparator extends Comparator {
 
 	private final NodeMatcher nodeMatcher;
-	private final boolean ignoreAttributeOrder;
+	private final ComparisonStrategyProvider strategyProvider;
 
 	public DOMComparator(
-	        ComparisonPerformer compPerformer,
-	        NodeMatcher nodeMatcher,
-	        boolean ignoreAttributeOrder) {
-
+	        ComparisonPerformer compPerformer, NodeMatcher nodeMatcher, ComparisonStrategyProvider provider) {
 		super(compPerformer);
 		this.nodeMatcher = nodeMatcher;
-		this.ignoreAttributeOrder = ignoreAttributeOrder;
+		this.strategyProvider = provider;
 	}
 
 	public void compare(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
@@ -76,7 +72,7 @@ public class DOMComparator extends Comparator {
 		        .between(control, controlNode.getNodeType())
 		        .and(test, testNode.getNodeType()));
 
-		comparisons.addAll(new CompareNamespaceStrategy(performer).provideComparisons(control, test));
+		comparisons.addAll(strategyProvider.getNamespaceComparisonStrategy().provideComparisons(control, test));
 
 		if (controlNode.getNodeType() != Node.ATTRIBUTE_NODE) {
 			comparisons.addAll(provideChildrenNumberComparisons(control, test));
@@ -225,7 +221,7 @@ public class DOMComparator extends Comparator {
 			case Node.COMMENT_NODE:
 			case Node.TEXT_NODE:
 				if (testNode instanceof CharacterData) {
-					comparisons.addAll(new CompareCharacterDataStrategy(performer)
+					comparisons.addAll(strategyProvider.getCharacterDataComparisonStrategy()
 					        .provideComparisons(
 					                NodeAndXpath.from((CharacterData) controlNode, controlContext),
 					                NodeAndXpath.from((CharacterData) testNode, testContext)));
@@ -233,7 +229,7 @@ public class DOMComparator extends Comparator {
 				break;
 			case Node.DOCUMENT_NODE:
 				if (testNode instanceof Document) {
-					comparisons.addAll(new CompareDocumentStrategy(performer)
+					comparisons.addAll(strategyProvider.getDocumentComparisonStrategy()
 					        .provideComparisons(
 					                NodeAndXpath.from((Document) controlNode, controlContext),
 					                NodeAndXpath.from((Document) testNode, testContext)));
@@ -241,7 +237,7 @@ public class DOMComparator extends Comparator {
 				break;
 			case Node.ELEMENT_NODE:
 				if (testNode instanceof Element) {
-					comparisons.addAll(new CompareElementStrategy(performer, ignoreAttributeOrder)
+					comparisons.addAll(strategyProvider.getElementComparisonStrategy()
 					        .provideComparisons(
 					                NodeAndXpath.from((Element) controlNode, controlContext),
 					                NodeAndXpath.from((Element) testNode, testContext)));
@@ -249,7 +245,7 @@ public class DOMComparator extends Comparator {
 				break;
 			case Node.PROCESSING_INSTRUCTION_NODE:
 				if (testNode instanceof ProcessingInstruction) {
-					comparisons.addAll(new CompareProcInstrStrategy(performer)
+					comparisons.addAll(strategyProvider.getProcInstrComparisonStrategy()
 					        .provideComparisons(
 					                NodeAndXpath.from((ProcessingInstruction) controlNode, controlContext),
 					                NodeAndXpath.from((ProcessingInstruction) testNode, testContext)));
@@ -257,7 +253,7 @@ public class DOMComparator extends Comparator {
 				break;
 			case Node.DOCUMENT_TYPE_NODE:
 				if (testNode instanceof DocumentType) {
-					comparisons.addAll(new CompareDoctypeStrategy(performer)
+					comparisons.addAll(strategyProvider.getDoctypeComparisonStrategy()
 					        .provideComparisons(
 					                NodeAndXpath.from((DocumentType) controlNode, controlContext),
 					                NodeAndXpath.from((DocumentType) testNode, testContext)));
@@ -265,8 +261,8 @@ public class DOMComparator extends Comparator {
 				break;
 			case Node.ATTRIBUTE_NODE:
 				if (testNode instanceof Attr) {
-					comparisons.addAll(new CompareAttributeStrategy(performer).
-					        provideComparisons(
+					comparisons.addAll(strategyProvider.getAttributeComparisonStrategy()
+					        .provideComparisons(
 					                NodeAndXpath.from((Attr) controlNode, controlContext),
 					                NodeAndXpath.from((Attr) testNode, testContext)));
 				}

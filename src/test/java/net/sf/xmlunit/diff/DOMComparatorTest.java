@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -19,11 +19,10 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import net.sf.xmlunit.diff.Comparison;
-import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DefaultNodeMatcher;
-import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
+import net.sf.xmlunit.diff.strategies.ComparisonStrategyProvider;
+import net.sf.xmlunit.diff.strategies.DOMComparator;
+import net.sf.xmlunit.diff.strategies.ListingComparisonPerformer;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -306,13 +305,14 @@ public class DOMComparatorTest {
 
 	private List<Comparison> findNodeChildrenDifferences(Node controlNode, Node testNode) {
 		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		DOMDifferenceEngine engine = new DOMDifferenceEngine();
+		engine.setIgnoreAttributeOrder(false);
+		ComparisonStrategyProvider strategyProvider = engine.createStrategyProvider(performer);
 
 		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
 		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
-		new DOMComparator(
-		        performer, new DefaultNodeMatcher(), false)
-		        .compare(control, test);
+		new DOMComparator(performer, new DefaultNodeMatcher(), strategyProvider).compare(control, test);
 		return performer.getDifferences();
 	}
 }
