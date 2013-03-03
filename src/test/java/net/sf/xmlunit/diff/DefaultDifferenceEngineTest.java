@@ -17,6 +17,8 @@ package net.sf.xmlunit.diff;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.Source;
 
@@ -83,17 +85,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.collectingEvaluator);
 		engine.setDifferenceEvaluator(evaluator);
 
-		Source controlSource = Input.fromDocument(controlDoc).build();
-		Source testSource = Input.fromDocument(testDoc).build();
-		engine.compare(controlSource, testSource);
-	}
-
-	protected void listenToAllDifferences(String control, String test) throws Exception {
-		Document controlDoc = documentUtils.buildControlDocument(control);
-		Document testDoc = documentUtils.buildTestDocument(test);
-
-		DifferenceEvaluator evaluator = new NeverStoppingDifferenceEvaluator(this.collectingEvaluator);
-		engine.setDifferenceEvaluator(evaluator);
 		Source controlSource = Input.fromDocument(controlDoc).build();
 		Source testSource = Input.fromDocument(testDoc).build();
 		engine.compare(controlSource, testSource);
@@ -338,10 +329,10 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		String test = "<bar/>";
 
 		// when
-		listenToDifferences(control, test);
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		assertThat(collectingEvaluator.different).isFalse();
+		assertThat(differences).isEmpty();
 
 	}
 
@@ -357,10 +348,10 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		String control = "<bar/>";
 
 		// when
-		listenToDifferences(control, test);
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		assertThat(collectingEvaluator.different).isFalse();
+		assertThat(differences).isEmpty();
 	}
 
 	@Test
@@ -377,10 +368,10 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		        + "<bar/>";
 
 		// when
-		listenToDifferences(control, test);
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		assertThat(collectingEvaluator.different).isFalse();
+		assertThat(differences).isEmpty();
 	}
 
 	@Test
@@ -457,23 +448,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		}
 	}
 
-	protected class NeverStoppingDifferenceEvaluator implements DifferenceEvaluator {
-		private final DifferenceEvaluator delegation;
-
-		public NeverStoppingDifferenceEvaluator(DifferenceEvaluator delegation) {
-			this.delegation = delegation;
-		}
-
-		@Override
-		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-			ComparisonResult result = delegation.evaluate(comparison, outcome);
-			if (result == ComparisonResult.CRITICAL) {
-				result = ComparisonResult.DIFFERENT;
-			}
-			return result;
-		}
-	}
-
 	@Test
 	public void testMatchTrackerSetViaConstructor() throws Exception {
 		// TODO duplicated test - maybe should check 2 different listeners?
@@ -531,12 +505,19 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 		String test = "<stuff><item id=\"1\"/></stuff>";
 
 		// when
-		listenToAllDifferences(control, test);
+		List<Comparison> differences = findDifferences(control, test);
 
 		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/item[2]");
-		// this is different from DifferenceEngine - the test node is null
-		// if there is no match
-		assertThat(collectingEvaluator.testXpath).isNull();
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_LENGTH);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[2]");
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("item");
+		assertThat(secondDifference.getTestDetails().getXpath()).isNull();
+		assertThat(secondDifference.getTestDetails().getValue()).isNull();
 	}
 }

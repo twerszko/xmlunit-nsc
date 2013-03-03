@@ -179,7 +179,6 @@ public class DetailedDiffTest extends DiffTest {
 
 		// then
 		assertThat(differences).hasSize(6);
-		System.out.println(differences);
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
 		assertThat(differences.get(1).getType()).isEqualTo(ComparisonType.ELEMENT_NUM_ATTRIBUTES);
 		assertThat(differences.get(2).getType()).isEqualTo(ComparisonType.ATTR_SEQUENCE);

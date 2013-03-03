@@ -93,12 +93,7 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 
 	@Override
 	public void compare(Source ctrlSource, Source testSource) {
-		// TODO properties can be removed
 		checkPrelude.reset();
-		// if (properties.getCompareUnmatched()) {
-		// setNodeMatcher(new CompareUnmatchedNodeMatcher(getNodeMatcher()));
-		// }
-
 		super.compare(ctrlSource, testSource);
 	}
 
@@ -137,7 +132,7 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 		        )) {
 			return true;
 		}
-		if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeType(comparison)) {
+		if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
 			int controlValue = (Integer) comparison.getControlDetails().getValue();
 			int testValue = (Integer) comparison.getTestDetails().getValue();
 			return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
@@ -149,7 +144,7 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
 		return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
 	}
 
-	private boolean comparesNodeType(Comparison comparison) {
+	private boolean comparesNodeTypes(Comparison comparison) {
 		return comparison.getType() == ComparisonType.NODE_TYPE;
 	}
 
