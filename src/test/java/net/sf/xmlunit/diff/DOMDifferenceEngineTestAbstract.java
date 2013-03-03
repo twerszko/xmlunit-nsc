@@ -542,6 +542,34 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	}
 
 	@Test
+	public void should_detect_different_processing_instructions() throws Exception {
+		// given
+		String control = "<stuff><list/><?wood rough?><list/></stuff>";
+		String test = "<stuff><list/><?glass clear?><list/></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_TARGET);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+
+		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
+		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo("wood");
+		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
+		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo("glass");
+
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("rough");
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/processing-instruction()[1]");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo("clear");
+	}
+
+	@Test
 	public void should_detect_missing_attribute() throws Exception {
 		// given
 		Element control = doc.createElement("foo");
@@ -589,6 +617,44 @@ public abstract class DOMDifferenceEngineTestAbstract {
 	}
 
 	@Test
+	public void should_detect_different_attribute_values_2() throws Exception {
+		// given
+		String control = "<stuff><wood type=\"rough\"/></stuff>";
+		String test = "<stuff><wood type=\"smooth\"/></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.ATTR_VALUE);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/wood[1]/@type");
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("rough");
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/wood[1]/@type");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("smooth");
+	}
+
+	@Test
+	public void should_detect_different_attribute_values_3() throws Exception {
+		// given
+		String control = "<stuff><glass colour=\"clear\"/><glass colour=\"green\"/></stuff>";
+		String test = "<stuff><glass colour=\"clear\"/><glass colour=\"blue\"/></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.ATTR_VALUE);
+		assertThat(difference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/glass[2]/@colour");
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("green");
+		assertThat(difference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/glass[2]/@colour");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("blue");
+	}
+
+	@Test
 	public void should_detect_extra_comment_in_test() {
 		// given
 		Element control = doc.createElement("foo");
@@ -614,6 +680,29 @@ public abstract class DOMDifferenceEngineTestAbstract {
 		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
 		assertThat(thirdDifference.getControlDetails().getTarget()).isNull();
 		assertThat(thirdDifference.getTestDetails().getTarget()).isEqualTo(testComment);
+	}
+
+	@Test
+	public void should_detect_extra_text_node() throws Exception {
+		// given
+		String control = "<stuff><list><wood/><glass/></list><item/></stuff>";
+		String test = "<stuff><list><wood/><glass/></list><item>description</item></stuff>";
+
+		// when
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(2);
+		Comparison firstDifference = differences.get(0);
+		Comparison secondDifference = differences.get(1);
+
+		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.HAS_CHILD_NODES);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_LOOKUP);
+
+		assertThat(secondDifference.getControlDetails().getXpath()).isNull();
+		assertThat(secondDifference.getControlDetails().getValue()).isNull();
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]/text()[1]");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo("#text");
 	}
 
 	@Test

@@ -35,7 +35,7 @@ public class DOMDifferenceEngine implements DifferenceEngine {
 
 	private boolean ignoreAttributeOrder = true;
 
-	public boolean isIgnoreAttributeOrder() {
+	public boolean getIgnoreAttributeOrder() {
 		return ignoreAttributeOrder;
 	}
 

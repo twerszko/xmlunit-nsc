@@ -15,7 +15,10 @@
 package net.sf.xmlunit.diff;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
@@ -76,18 +79,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 
 	private void resetEvaluator() {
 		collectingEvaluator = new CollectingDifferenceEvaluator();
-	}
-
-	protected void listenToDifferences(String control, String test) throws Exception {
-		Document controlDoc = documentUtils.buildControlDocument(control);
-		Document testDoc = documentUtils.buildTestDocument(test);
-
-		DifferenceEvaluator evaluator = new StoppingOnFirstNotRecoverableDifferenceEvaluator(this.collectingEvaluator);
-		engine.setDifferenceEvaluator(evaluator);
-
-		Source controlSource = Input.fromDocument(controlDoc).build();
-		Source testSource = Input.fromDocument(testDoc).build();
-		engine.compare(controlSource, testSource);
 	}
 
 	@Test
@@ -250,65 +241,6 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	/**
-	 * @see http 
-	 *      ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
-	 */
-	@Test
-	public void should_ignore_namespace_attribute_differences() throws Exception {
-		// given
-		String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-		        + "<ns0:Message xmlns:ns0 = \"http://mynamespace\">"
-		        + "<ns0:EventHeader>"
-		        + "<ns0:EventID>9999</ns0:EventID>"
-		        + "<ns0:MessageID>1243409665297</ns0:MessageID>"
-		        + "<ns0:MessageVersionID>1.0</ns0:MessageVersionID>"
-		        + "<ns0:EventName>TEST-EVENT</ns0:EventName>"
-		        + "<ns0:BWDomain>TEST</ns0:BWDomain>"
-		        + "<ns0:DateTimeStamp>2009-01-01T12:00:00</ns0:DateTimeStamp>"
-		        + "<ns0:SchemaPayloadRef>anything</ns0:SchemaPayloadRef>"
-		        + "<ns0:MessageURI>anything</ns0:MessageURI>"
-		        + "<ns0:ResendFlag>F</ns0:ResendFlag>"
-		        + "</ns0:EventHeader>"
-		        + "<ns0:EventBody>"
-		        + "<ns0:XMLContent>"
-		        + "<xyz:root xmlns:xyz=\"http://test.com/xyz\">"
-		        + "<xyz:test1>A</xyz:test1>"
-		        + "<xyz:test2>B</xyz:test2>"
-		        + "</xyz:root>"
-		        + "</ns0:XMLContent>"
-		        + "</ns0:EventBody>"
-		        + "</ns0:Message>";
-
-		String test = "<abc:Message xmlns:abc=\"http://mynamespace\" xmlns:xyz=\"http://test.com/xyz\">"
-		        + "<abc:EventHeader>"
-		        + "<abc:EventID>9999</abc:EventID>"
-		        + "<abc:MessageID>1243409665297</abc:MessageID>"
-		        + "<abc:MessageVersionID>1.0</abc:MessageVersionID>"
-		        + "<abc:EventName>TEST-EVENT</abc:EventName>"
-		        + "<abc:BWDomain>TEST</abc:BWDomain>"
-		        + "<abc:DateTimeStamp>2009-01-01T12:00:00</abc:DateTimeStamp>"
-		        + "<abc:SchemaPayloadRef>anything</abc:SchemaPayloadRef>"
-		        + "<abc:MessageURI>anything</abc:MessageURI>"
-		        + "<abc:ResendFlag>F</abc:ResendFlag>"
-		        + "</abc:EventHeader>"
-		        + "<abc:EventBody>"
-		        + "<abc:XMLContent>"
-		        + "<xyz:root>"
-		        + "<xyz:test1>A</xyz:test1>"
-		        + "<xyz:test2>B</xyz:test2>"
-		        + "</xyz:root>"
-		        + "</abc:XMLContent>"
-		        + "</abc:EventBody>"
-		        + "</abc:Message>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.different).isFalse();
-	}
-
-	/**
 	 * XMLUnit 1.3 jumps from the document node straight to the root element,
 	 * ignoring any other children the document might have. Some people consider
 	 * this a bug (Issue 2770386) others rely on it.
@@ -355,7 +287,7 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	@Test
-	public void hould_ignore_different_elements_between_doc_and_root() throws Exception {
+	public void should_ignore_different_elements_between_doc_and_root() throws Exception {
 		// given
 		String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
 		        + "<!-- some comment -->"
@@ -375,126 +307,27 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 	}
 
 	@Test
-	public void should_obtain_xpath_of_first_child_attribute() throws Exception {
+	public void should_verufy_number_of_calls_on_match_liteners() throws Exception {
 		// given
-		String control = "<stuff><wood type=\"rough\"/></stuff>";
-		String test = "<stuff><wood type=\"smooth\"/></stuff>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/wood[1]/@type");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/wood[1]/@type");
-	}
-
-	@Test
-	public void should_obtain_xpath_of_second_child_attribute() throws Exception {
-		// given
-		String control = "<stuff><glass colour=\"clear\"/><glass colour=\"green\"/></stuff>";
-		String test = "<stuff><glass colour=\"clear\"/><glass colour=\"blue\"/></stuff>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/glass[2]/@colour");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/glass[2]/@colour");
-	}
-
-	@Test
-	public void should_obtain_xpath_of_empty_node() throws Exception {
-		// given
-		String control = "<stuff><list><wood/><glass/></list><item/></stuff>";
-		String test = "<stuff><list><wood/><glass/></list><item>description</item></stuff>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/item[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/item[1]");
-	}
-
-	@Test
-	public void should_obtain_xpath_of_processing_instruction() throws Exception {
-		// given
-		String control = "<stuff><list/><?wood rough?><list/></stuff>";
-		String test = "<stuff><list/><?glass clear?><list/></stuff>";
-
-		// when
-		listenToDifferences(control, test);
-
-		// then
-		assertThat(collectingEvaluator.controlXpath).isEqualTo("/stuff[1]/processing-instruction()[1]");
-		assertThat(collectingEvaluator.testXpath).isEqualTo("/stuff[1]/processing-instruction()[1]");
-	}
-
-	protected class StoppingOnFirstNotRecoverableDifferenceEvaluator implements DifferenceEvaluator {
-
-		private final DifferenceEvaluator delegation;
-
-		public StoppingOnFirstNotRecoverableDifferenceEvaluator(DifferenceEvaluator delegation) {
-			this.delegation = delegation;
-		}
-
-		@Override
-		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-			ComparisonResult result = delegation.evaluate(comparison, outcome);
-			if (!comparison.isRecoverable()) {
-				result = ComparisonResult.CRITICAL;
-			}
-			return result;
-		}
-	}
-
-	@Test
-	public void testMatchTrackerSetViaConstructor() throws Exception {
-		// TODO duplicated test - maybe should check 2 different listeners?
 		Element control = doc.createElement("foo");
 		Element test = doc.createElement("foo");
 
-		final int[] count = new int[1];
-		DefaultDifferenceEngine d = new DefaultDifferenceEngine(properties);
-		d.setNodeMatcher(DEFAULT_MATCHER);
-		d.addMatchListener(
-		        new ComparisonListener() {
-			        @Override
-			        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-				        count[0]++;
-			        }
-		        });
-		d.setDifferenceEvaluator(collectingEvaluator);
-		Source controlSource = Input.fromNode(control).build();
-		Source testSource = Input.fromNode(test).build();
-		d.compare(controlSource, testSource);
+		ComparisonListener mockListener1 = mock(ComparisonListener.class);
+		ComparisonListener mockListener2 = mock(ComparisonListener.class);
+
+		// when
+		engine.addMatchListener(mockListener1);
+		engine.addMatchListener(mockListener2);
+		List<Comparison> differences = findDifferences(control, test);
+
+		// then
+		assertThat(differences).hasSize(0);
 		// NODE_TYPE(Element), NAMESPACE_URI(none),
 		// NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
 		// ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
 		// SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
-		assertEquals(8, count[0]);
-	}
-
-	@Test
-	public void testMatchTrackerSetViaSetter() throws Exception {
-		Element control = doc.createElement("foo");
-		Element test = doc.createElement("foo");
-		final int[] count = new int[1];
-		engine.setDifferenceEvaluator(collectingEvaluator);
-		engine.addMatchListener(new ComparisonListener() {
-			@Override
-			public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-				count[0]++;
-			}
-		});
-		Source controlSource = Input.fromNode(control).build();
-		Source testSource = Input.fromNode(test).build();
-		engine.compare(controlSource, testSource);
-		// NODE_TYPE(Element), NAMESPACE_URI(none),
-		// NAMESPACE_PREFIX(none), HAS_CHILD_NODES(false),
-		// ELEMENT_TAG_NAME(foo), ELEMENT_NUM_ATTRIBUTE(none),
-		// SCHEMA_LOCATION(none), NO_NAMESPACE_SCHEMA_LOCATION(none)
-		assertEquals(8, count[0]);
+		verify(mockListener1, times(8)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+		verify(mockListener2, times(8)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 	}
 
 	@Test
