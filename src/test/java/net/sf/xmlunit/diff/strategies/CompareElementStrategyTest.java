@@ -25,6 +25,7 @@ import net.sf.xmlunit.diff.DOMDifferenceEngine;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 import net.sf.xmlunit.diff.OrderPreservingNamedNodeMap;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;

@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.internal;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;

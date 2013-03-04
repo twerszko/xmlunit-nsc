@@ -2,6 +2,7 @@ package net.sf.xmlunit.diff.strategies;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 
 public abstract class Comparator {
 	protected final ComparisonPerformer performer;
