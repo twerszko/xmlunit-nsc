@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -217,12 +218,13 @@ public class CompareCharacterDataStrategyTest {
 	}
 
 	private List<Comparison> findCharacterDataDifferences(CharacterData controlText, CharacterData testText) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		ListingComparator comparator = new ListingComparator();
 
 		NodeAndXpath<CharacterData> control = new NodeAndXpath<CharacterData>(controlText, new XPathContext());
 		NodeAndXpath<CharacterData> test = new NodeAndXpath<CharacterData>(testText, new XPathContext());
 
-		new CompareCharacterDataStrategy(performer).execute(control, test);
-		return performer.getDifferences();
+		Comparisons comparisons = new CharacterDataComparisonProvider().provideComparisons(control, test);
+		comparator.executeComparisons(comparisons);
+		return comparator.getDifferences();
 	}
 }

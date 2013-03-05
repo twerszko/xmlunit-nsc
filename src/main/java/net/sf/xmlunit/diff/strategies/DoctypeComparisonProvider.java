@@ -15,17 +15,12 @@ package net.sf.xmlunit.diff.strategies;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.DocumentType;
 
-public class CompareDoctypeStrategy extends ComparisonStrategy<DocumentType> {
-
-	public CompareDoctypeStrategy(
-	        ComparisonPerformer compPerformer) {
-		super(compPerformer);
-	}
+public class DoctypeComparisonProvider extends ComparisonProvider<DocumentType> {
 
 	@Override
 	public Comparisons provideComparisons(NodeAndXpath<DocumentType> control, NodeAndXpath<DocumentType> test) {

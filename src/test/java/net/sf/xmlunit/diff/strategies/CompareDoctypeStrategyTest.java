@@ -22,6 +22,7 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -159,12 +160,13 @@ public class CompareDoctypeStrategyTest {
 	}
 
 	private List<Comparison> findDoctypeDifferences(DocumentType controlType, DocumentType testType) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		ListingComparator comparator = new ListingComparator();
 
 		NodeAndXpath<DocumentType> control = new NodeAndXpath<DocumentType>(controlType, new XPathContext());
 		NodeAndXpath<DocumentType> test = new NodeAndXpath<DocumentType>(testType, new XPathContext());
 
-		new CompareDoctypeStrategy(performer).execute(control, test);
-		return performer.getDifferences();
+		Comparisons comparisons = new DoctypeComparisonProvider().provideComparisons(control, test);
+		comparator.executeComparisons(comparisons);
+		return comparator.getDifferences();
 	}
 }

@@ -16,7 +16,6 @@ package net.sf.xmlunit.diff;
 
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.diff.strategies.DOMComparator;
 import net.sf.xmlunit.util.Convert;
@@ -60,25 +59,22 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 	}
 
 	private void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		new DOMComparator(
-		        getComparisonPerformer(), getNodeMatcher(), ignoreAttributeOrder)
-		        .compare(control, test);
+		DOMComparator comparator = createComparator();
+		comparator.compare(control, test);
 	}
 
-	protected final ComparisonPerformer comparisonPerformer = new ComparisonPerformer() {
-		@Override
-		protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
-			return getDifferenceEvaluator().evaluate(comparison, result);
+	private DOMComparator createComparator() {
+		DOMComparator comparator = new DOMComparator(getNodeMatcher(), ignoreAttributeOrder) {
+			protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
+				return getDifferenceEvaluator().evaluate(comparison, result);
+			};
+
+			@Override
+			protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+				getListeners().fireComparisonPerformed(comparison, result);
+			}
 		};
-
-		@Override
-		protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
-			getListeners().fireComparisonPerformed(comparison, result);
-		}
-	};
-
-	public ComparisonPerformer getComparisonPerformer() {
-		return comparisonPerformer;
+		return comparator;
 	}
 
 	@Override
@@ -98,7 +94,7 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 	 * evaluator evaluate the result, notifies all listeners and returns the
 	 * outcome.
 	 */
-	protected final ComparisonResult performComparison(Comparison comp) {
-		return comparisonPerformer.performComparison(comp);
+	protected final ComparisonResult performComparison(Comparison comparison) {
+		return createComparator().executeComparison(comparison);
 	}
 }

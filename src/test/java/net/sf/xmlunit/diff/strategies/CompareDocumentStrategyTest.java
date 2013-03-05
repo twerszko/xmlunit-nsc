@@ -20,6 +20,7 @@ import java.util.List;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
 
@@ -84,9 +85,14 @@ public class CompareDocumentStrategyTest {
 		assertThat(difference.getTestDetails().getValue()).isEqualTo("UTF-16");
 	}
 
-	private List<Comparison> findHeaderDifferences(Document control, Document test) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
-		new CompareDocumentStrategy(performer).execute(NodeAndXpath.from(control), NodeAndXpath.from(test));
-		return performer.getDifferences();
+	private List<Comparison> findHeaderDifferences(Document controlDoc, Document testDoc) {
+		ListingComparator comparator = new ListingComparator();
+
+		NodeAndXpath<Document> control = NodeAndXpath.from(controlDoc);
+		NodeAndXpath<Document> test = NodeAndXpath.from(testDoc);
+		Comparisons comparisons = new DocumentComparisonProvider().provideComparisons(control, test);
+		comparator.executeComparisons(comparisons);
+
+		return comparator.getDifferences();
 	}
 }

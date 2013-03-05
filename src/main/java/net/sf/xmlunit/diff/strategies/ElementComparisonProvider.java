@@ -20,7 +20,7 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.Attributes;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Nodes;
@@ -30,18 +30,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-public class CompareElementStrategy extends ComparisonStrategy<Element> {
+public class ElementComparisonProvider extends ComparisonProvider<Element> {
 
 	final boolean ignoreAttributeOrder;
 
-	CompareElementStrategy(ComparisonPerformer compPerformer, boolean ignoreAttributeOrder,
-	        NodeAndXpath<Element> control, NodeAndXpath<Element> test) {
-		super(compPerformer);
+	ElementComparisonProvider(boolean ignoreAttributeOrder, NodeAndXpath<Element> control, NodeAndXpath<Element> test) {
 		this.ignoreAttributeOrder = ignoreAttributeOrder;
 	}
 
-	public CompareElementStrategy(ComparisonPerformer compPerformer, boolean ignoreAttributeOrder) {
-		super(compPerformer);
+	public ElementComparisonProvider(boolean ignoreAttributeOrder) {
 		this.ignoreAttributeOrder = ignoreAttributeOrder;
 	}
 
@@ -166,11 +163,11 @@ public class CompareElementStrategy extends ComparisonStrategy<Element> {
 
 		testContext.navigateToAttribute(Nodes.getQName(testAttr));
 
-		comparisons.addAll(new CompareNamespaceStrategy(performer)
+		comparisons.addAll(new NamespaceComparisonProvider()
 		        .provideComparisons(
 		                NodeAndXpath.<Node> from(controlAttr, controlContext),
 		                NodeAndXpath.<Node> from(testAttr, testContext)));
-		comparisons.addAll(new CompareAttributeStrategy(performer)
+		comparisons.addAll(new AttributeComparisonProvider()
 		        .provideComparisons(
 		                NodeAndXpath.from(controlAttr, controlContext),
 		                NodeAndXpath.from(testAttr, testContext)));

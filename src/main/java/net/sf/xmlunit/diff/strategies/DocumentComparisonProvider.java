@@ -16,7 +16,7 @@ package net.sf.xmlunit.diff.strategies;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.w3c.dom.Document;
@@ -25,11 +25,7 @@ import org.w3c.dom.DocumentType;
 /**
  * Compares document node, doctype and XML declaration properties
  */
-public class CompareDocumentStrategy extends ComparisonStrategy<Document> {
-
-	public CompareDocumentStrategy(ComparisonPerformer compPerformer) {
-		super(compPerformer);
-	}
+public class DocumentComparisonProvider extends ComparisonProvider<Document> {
 
 	@Override
 	public Comparisons provideComparisons(NodeAndXpath<Document> control, NodeAndXpath<Document> test) {
@@ -42,7 +38,7 @@ public class CompareDocumentStrategy extends ComparisonStrategy<Document> {
 		Comparisons comparisons = new Comparisons();
 
 		comparisons.addAll(provideHasDocTypeComparisons(control, test));
-		comparisons.addAll(new CompareDoctypeStrategy(performer)
+		comparisons.addAll(new DoctypeComparisonProvider()
 		        .provideComparisons(
 		                NodeAndXpath.from(controlNode.getDoctype(), controlContext),
 		                NodeAndXpath.from(testNode.getDoctype(), testContext)));

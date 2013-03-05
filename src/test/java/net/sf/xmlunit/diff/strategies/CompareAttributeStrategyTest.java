@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -99,12 +100,13 @@ public class CompareAttributeStrategyTest {
 	}
 
 	private List<Comparison> findAttrDifferences(Attr controlAttr, Attr testAttr) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		ListingComparator comparator = new ListingComparator();
 
 		NodeAndXpath<Attr> control = NodeAndXpath.from(controlAttr);
 		NodeAndXpath<Attr> test = NodeAndXpath.from(testAttr);
 
-		new CompareAttributeStrategy(performer).execute(control, test);
-		return performer.getDifferences();
+		Comparisons comparisons = new AttributeComparisonProvider().provideComparisons(control, test);
+		comparator.executeComparisons(comparisons);
+		return comparator.getDifferences();
 	}
 }

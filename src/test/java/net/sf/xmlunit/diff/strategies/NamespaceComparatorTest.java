@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -110,13 +111,12 @@ public class NamespaceComparatorTest {
 	}
 
 	private List<Comparison> findNamespaceDifferences(Node control, Node test) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		ListingComparator comparator = new ListingComparator();
+		Comparisons comparisons = new NamespaceComparisonProvider().provideComparisons(
+		        new NodeAndXpath<Node>(control, new XPathContext()),
+		        new NodeAndXpath<Node>(test, new XPathContext()));
+		comparator.executeComparisons(comparisons);
 
-		new CompareNamespaceStrategy(performer)
-		        .execute(
-		                new NodeAndXpath<Node>(control, new XPathContext()),
-		                new NodeAndXpath<Node>(test, new XPathContext()));
-
-		return performer.getDifferences();
+		return comparator.getDifferences();
 	}
 }

@@ -15,33 +15,30 @@ package net.sf.xmlunit.diff.strategies;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
 
-public class CompareNamespaceStrategy extends ComparisonStrategy<Node> {
-
-	public CompareNamespaceStrategy(ComparisonPerformer compPerformer) {
-		super(compPerformer);
-	}
+public class ProcInstrComparisonProvider extends ComparisonProvider<ProcessingInstruction> {
 
 	@Override
-	public Comparisons provideComparisons(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		Node controlNode = control.getNode();
-		Node testNode = test.getNode();
+	public Comparisons provideComparisons(
+	        NodeAndXpath<ProcessingInstruction> control, NodeAndXpath<ProcessingInstruction> test) {
+		ProcessingInstruction controlInstr = control.getNode();
+		ProcessingInstruction testInstr = test.getNode();
 
 		Comparisons comparisons = new Comparisons();
 
 		comparisons.add(
-		        Comparison.ofType(ComparisonType.NAMESPACE_URI)
-		                .between(control, controlNode.getNamespaceURI())
-		                .and(test, testNode.getNamespaceURI()));
+		        Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_TARGET)
+		                .between(control, controlInstr.getTarget())
+		                .and(test, testInstr.getTarget()));
 
 		comparisons.add(
-		        Comparison.ofType(ComparisonType.NAMESPACE_PREFIX)
-		                .between(control, controlNode.getPrefix())
-		                .and(test, testNode.getPrefix()));
+		        Comparison.ofType(ComparisonType.PROCESSING_INSTRUCTION_DATA)
+		                .between(control, controlInstr.getData())
+		                .and(test, testInstr.getData()));
 
 		return comparisons;
 	}

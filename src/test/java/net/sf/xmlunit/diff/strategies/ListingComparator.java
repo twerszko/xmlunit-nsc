@@ -5,10 +5,8 @@ import java.util.List;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
 
-public class ListingComparisonPerformer extends ComparisonPerformer {
-
+public class ListingComparator extends Comparator {
 	private final List<Comparison> differences = new ArrayList<Comparison>();
 
 	@Override

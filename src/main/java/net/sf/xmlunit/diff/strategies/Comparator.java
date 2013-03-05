@@ -2,25 +2,20 @@ package net.sf.xmlunit.diff.strategies;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.internal.ComparisonPerformer;
+import net.sf.xmlunit.diff.internal.Comparisons;
 
 public abstract class Comparator {
-	protected final ComparisonPerformer performer;
 	private boolean interrupted;
 
-	public Comparator(ComparisonPerformer compPerformer) {
-		this.performer = compPerformer;
-	}
-
-	protected void setInterrupted(boolean interrupted) {
+	protected final void setInterrupted(boolean interrupted) {
 		this.interrupted = interrupted;
 	}
 
-	public boolean isInterrupted() {
+	public final boolean isInterrupted() {
 		return interrupted;
 	}
 
-	protected final void executeComparisons(Comparisons comparisons) {
+	public final void executeComparisons(Comparisons comparisons) {
 		for (Comparison comparison : comparisons.getAll()) {
 			executeComparison(comparison);
 			if (isInterrupted()) {
@@ -29,12 +24,28 @@ public abstract class Comparator {
 		}
 	}
 
-	protected final void executeComparison(Comparison comparison) {
-		ComparisonResult result = performer.performComparison(comparison);
-		if (result == ComparisonResult.CRITICAL) {
+	public final ComparisonResult executeComparison(Comparison comparison) {
+		Object controlValue = comparison.getControlDetails().getValue();
+		Object testValue = comparison.getTestDetails().getValue();
+		boolean equal = controlValue == null ? testValue == null : controlValue.equals(testValue);
+		ComparisonResult initialResult = equal ? ComparisonResult.EQUAL : ComparisonResult.DIFFERENT;
+		ComparisonResult finalResult = evaluateResult(comparison, initialResult);
+
+		comparisonPerformed(comparison, finalResult);
+
+		if (finalResult == ComparisonResult.CRITICAL) {
 			interrupted = true;
-			return;
 		}
+
+		return finalResult;
+	}
+
+	protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
+		return result;
+	}
+
+	protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+
 	}
 
 }

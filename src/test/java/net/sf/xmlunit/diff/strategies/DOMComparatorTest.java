@@ -15,11 +15,13 @@ package net.sf.xmlunit.diff.strategies;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.XPathContext;
@@ -305,14 +307,20 @@ public class DOMComparatorTest {
 	}
 
 	private List<Comparison> findNodeChildrenDifferences(Node controlNode, Node testNode) {
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		final List<Comparison> differences = new LinkedList<Comparison>();
 
 		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
 		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
-		new DOMComparator(
-		        performer, new DefaultNodeMatcher(), false)
-		        .compare(control, test);
-		return performer.getDifferences();
+		DOMComparator comparator = new DOMComparator(new DefaultNodeMatcher(), false) {
+			@Override
+			protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+				if (result == ComparisonResult.DIFFERENT) {
+					differences.add(comparison);
+				}
+			}
+		};
+		comparator.compare(control, test);
+		return differences;
 	}
 }

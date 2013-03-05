@@ -1,4 +1,4 @@
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.internal;
 
 import java.util.Collection;
 import java.util.Collections;

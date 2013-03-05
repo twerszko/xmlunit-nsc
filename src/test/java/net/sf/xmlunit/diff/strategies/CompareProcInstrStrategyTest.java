@@ -20,6 +20,7 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -91,12 +92,13 @@ public class CompareProcInstrStrategyTest {
 	private List<Comparison> findProcessingInstrDifferences(
 	        ProcessingInstruction controlInstr, ProcessingInstruction testInstr) {
 
-		ListingComparisonPerformer performer = new ListingComparisonPerformer();
+		ListingComparator comparator = new ListingComparator();
 
 		NodeAndXpath<ProcessingInstruction> control = NodeAndXpath.from(controlInstr, new XPathContext());
 		NodeAndXpath<ProcessingInstruction> test = NodeAndXpath.from(testInstr, new XPathContext());
 
-		new CompareProcInstrStrategy(performer).execute(control, test);
-		return performer.getDifferences();
+		Comparisons comparisons = new ProcInstrComparisonProvider().provideComparisons(control, test);
+		comparator.executeComparisons(comparisons);
+		return comparator.getDifferences();
 	}
 }
