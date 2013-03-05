@@ -112,6 +112,7 @@ public class DOMComparator extends Comparator {
 		Comparisons comparisons = new Comparisons();
 
 		List<Pair<Node>> matches = nodeMatcher.match(controlChildren, testChildren);
+		Comparisons sequenceComparisons = new Comparisons();
 
 		for (Pair<Node> pair : matches) {
 			Node controlNode = pair.getFirst();
@@ -126,13 +127,28 @@ public class DOMComparator extends Comparator {
 			NodeAndXpath<Node> controlChild = NodeAndXpath.from(controlNode, controlContext);
 			NodeAndXpath<Node> testChild = NodeAndXpath.from(testNode, testContext);
 
-			// TODO
-			executeComparison(Comparison.ofType(ComparisonType.CHILD_NODELIST_SEQUENCE)
+			sequenceComparisons.add(Comparison.ofType(ComparisonType.CHILD_NODELIST_SEQUENCE)
 			        .between(controlChild, controlIndex)
 			        .and(testChild, testIndex));
-			if (isInterrupted()) {
-				return;
-			}
+
+			testContext.navigateToParent();
+			controlContext.navigateToParent();
+		}
+
+		executeComparisons(sequenceComparisons);
+
+		for (Pair<Node> pair : matches) {
+			Node controlNode = pair.getFirst();
+			Node testNode = pair.getSecond();
+
+			int controlIndex = controlChildren.indexOf(controlNode);
+			int testIndex = testChildren.indexOf(testNode);
+
+			controlContext.navigateToChild(controlIndex);
+			testContext.navigateToChild(testIndex);
+
+			NodeAndXpath<Node> controlChild = NodeAndXpath.from(controlNode, controlContext);
+			NodeAndXpath<Node> testChild = NodeAndXpath.from(testNode, testContext);
 
 			executeRecursion(controlChild, testChild);
 			if (isInterrupted()) {

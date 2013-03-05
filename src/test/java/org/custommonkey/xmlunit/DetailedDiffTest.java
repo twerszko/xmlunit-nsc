@@ -674,23 +674,23 @@ public class DetailedDiffTest extends DiffTest {
 		Comparison thirdDifference = differences.get(2);
 
 		assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
-		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
-		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+		assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+		assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.ELEMENT_TAG_NAME);
 
 		assertThat(firstDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/thing[1]");
 		assertThat(firstDifference.getControlDetails().getValue()).isEqualTo(0);
 		assertThat(firstDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[2]");
 		assertThat(firstDifference.getTestDetails().getValue()).isEqualTo(1);
 
-		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/thing[1]");
-		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo("thing");
-		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[2]");
-		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo("item");
+		assertThat(secondDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+		assertThat(secondDifference.getControlDetails().getValue()).isEqualTo(1);
+		assertThat(secondDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
+		assertThat(secondDifference.getTestDetails().getValue()).isEqualTo(0);
 
-		assertThat(thirdDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
-		assertThat(thirdDifference.getControlDetails().getValue()).isEqualTo(1);
-		assertThat(thirdDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[1]");
-		assertThat(thirdDifference.getTestDetails().getValue()).isEqualTo(0);
+		assertThat(thirdDifference.getControlDetails().getXpath()).isEqualTo("/stuff[1]/thing[1]");
+		assertThat(thirdDifference.getControlDetails().getValue()).isEqualTo("thing");
+		assertThat(thirdDifference.getTestDetails().getXpath()).isEqualTo("/stuff[1]/item[2]");
+		assertThat(thirdDifference.getTestDetails().getValue()).isEqualTo("item");
 	}
 
 	@Test

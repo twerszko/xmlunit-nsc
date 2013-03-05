@@ -27,11 +27,9 @@ import org.w3c.dom.Node;
 /**
  * Difference engine based on DOM.
  */
-public class DOMDifferenceEngine implements DifferenceEngine {
+public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
-	private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
 	private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
-	private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
 
 	private boolean ignoreAttributeOrder = true;
 
@@ -75,36 +73,12 @@ public class DOMDifferenceEngine implements DifferenceEngine {
 
 		@Override
 		protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
-			listeners.fireComparisonPerformed(comparison, result);
+			getListeners().fireComparisonPerformed(comparison, result);
 		}
 	};
 
 	public ComparisonPerformer getComparisonPerformer() {
 		return comparisonPerformer;
-	}
-
-	@Override
-	public void addComparisonListener(ComparisonListener l) {
-		if (l == null) {
-			throw new IllegalArgumentException("listener must not be null");
-		}
-		listeners.addComparisonListener(l);
-	}
-
-	@Override
-	public void addMatchListener(ComparisonListener l) {
-		if (l == null) {
-			throw new IllegalArgumentException("listener must not be null");
-		}
-		listeners.addMatchListener(l);
-	}
-
-	@Override
-	public void addDifferenceListener(ComparisonListener l) {
-		if (l == null) {
-			throw new IllegalArgumentException("listener must not be null");
-		}
-		listeners.addDifferenceListener(l);
 	}
 
 	@Override
@@ -117,19 +91,6 @@ public class DOMDifferenceEngine implements DifferenceEngine {
 
 	public NodeMatcher getNodeMatcher() {
 		return nodeMatcher;
-	}
-
-	@Override
-	public void setDifferenceEvaluator(DifferenceEvaluator evaluator) {
-		if (evaluator == null) {
-			throw new IllegalArgumentException("difference evaluator must" + " not be null");
-		}
-		diffEvaluator = evaluator;
-	}
-
-	// TODO protected?
-	public DifferenceEvaluator getDifferenceEvaluator() {
-		return diffEvaluator;
 	}
 
 	/**

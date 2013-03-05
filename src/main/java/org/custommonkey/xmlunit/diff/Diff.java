@@ -98,7 +98,6 @@ public class Diff implements DifferenceEvaluator {
 	private boolean similar = true;
 	private boolean identical = true;
 	private boolean compared = false;
-	private boolean haltComparison = false;
 	private final StringBuffer messages;
 	private final DifferenceEngine differenceEngine;
 	private DifferenceEvaluator differenceEvaluator;
@@ -276,42 +275,53 @@ public class Diff implements DifferenceEvaluator {
 			evaluatedOutcome = differenceEvaluator.evaluate(comparison, outcome);
 		}
 
-		switch (evaluatedOutcome) {
-			case EQUAL:
-				return evaluatedOutcome;
-			case SIMILAR:
-				identical = false;
-				haltComparison = false;
-				break;
-			case DIFFERENT:
-				identical = false;
-				if (comparison.getType().isRecoverable()) {
-					haltComparison = false;
-				} else {
-					similar = false;
-					haltComparison = true;
-				}
-				break;
-			case CRITICAL:
-				identical = similar = false;
-				haltComparison = true;
-				break;
-			default:
-				throw new IllegalArgumentException(evaluatedOutcome + " is not supported");
-		}
-		if (haltComparison) {
+		setVardict(comparison, evaluatedOutcome);
+
+		boolean critical = isCritical(comparison, evaluatedOutcome);
+		// TODO get rid of this
+		if (critical) {
 			messages.append("\n[different]");
 		} else {
 			messages.append("\n[not identical]");
 		}
-
 		appendComparison(messages, comparison);
 
-		// TODO extremely ugly
-		if (haltComparison) {
+		if (critical) {
 			return ComparisonResult.CRITICAL;
 		}
 		return evaluatedOutcome;
+	}
+
+	private boolean isCritical(Comparison comparison, ComparisonResult outcome) {
+		if (outcome == ComparisonResult.CRITICAL) {
+			return true;
+		}
+		boolean isNotRecoverable = !comparison.getType().isRecoverable();
+		if (outcome == ComparisonResult.DIFFERENT && isNotRecoverable) {
+			return true;
+		}
+		return false;
+	}
+
+	private void setVardict(Comparison comparison, ComparisonResult outcome) {
+		boolean isRecoverable = comparison.getType().isRecoverable();
+		switch (outcome) {
+			case SIMILAR:
+				identical = false;
+				break;
+			case DIFFERENT:
+				identical = false;
+				if (!isRecoverable) {
+					similar = false;
+				}
+				break;
+			case CRITICAL:
+				identical = false;
+				similar = false;
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**
@@ -321,7 +331,7 @@ public class Diff implements DifferenceEvaluator {
 	 * @param toAppendTo
 	 * @return specified StringBuffer with message appended
 	 */
-	public StringBuilder appendMessage(StringBuilder toAppendTo) {
+	private StringBuilder appendMessage(StringBuilder toAppendTo) {
 		compare();
 		if (messages.length() == 0) {
 			messages.append("[identical]");
