@@ -1,4 +1,4 @@
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.comparators;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,11 +42,11 @@ import org.w3c.dom.ProcessingInstruction;
 public class DOMComparator extends Comparator {
 
 	private final NodeMatcher nodeMatcher;
-	private final boolean ignoreAttributeOrder;
+	private final ComparisonProviders providers;
 
-	public DOMComparator(NodeMatcher nodeMatcher, boolean ignoreAttributeOrder) {
+	public DOMComparator(NodeMatcher nodeMatcher, ComparisonProviders providers) {
 		this.nodeMatcher = nodeMatcher;
-		this.ignoreAttributeOrder = ignoreAttributeOrder;
+		this.providers = providers;
 	}
 
 	public void compare(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
@@ -71,7 +71,7 @@ public class DOMComparator extends Comparator {
 		        .between(control, controlNode.getNodeType())
 		        .and(test, testNode.getNodeType()));
 
-		comparisons.addAll(new NamespaceComparisonProvider().provideComparisons(control, test));
+		comparisons.addAll(providers.getNamespaceComparisonProvider().provideComparisons(control, test));
 
 		if (controlNode.getNodeType() != Node.ATTRIBUTE_NODE) {
 			comparisons.addAll(provideChildrenNumberComparisons(control, test));
@@ -236,50 +236,44 @@ public class DOMComparator extends Comparator {
 			case Node.COMMENT_NODE:
 			case Node.TEXT_NODE:
 				if (testNode instanceof CharacterData) {
-					comparisons.addAll(new CharacterDataComparisonProvider()
-					        .provideComparisons(
-					                NodeAndXpath.from((CharacterData) controlNode, controlContext),
-					                NodeAndXpath.from((CharacterData) testNode, testContext)));
+					comparisons.addAll(providers.getCharDataComarisonProvider().provideComparisons(
+					        NodeAndXpath.from((CharacterData) controlNode, controlContext),
+					        NodeAndXpath.from((CharacterData) testNode, testContext)));
 				}
 				break;
 			case Node.DOCUMENT_NODE:
 				if (testNode instanceof Document) {
-					comparisons.addAll(new DocumentComparisonProvider()
-					        .provideComparisons(
-					                NodeAndXpath.from((Document) controlNode, controlContext),
-					                NodeAndXpath.from((Document) testNode, testContext)));
+					comparisons.addAll(providers.getDocumentComparisonProvider().provideComparisons(
+					        NodeAndXpath.from((Document) controlNode, controlContext),
+					        NodeAndXpath.from((Document) testNode, testContext)));
 				}
 				break;
 			case Node.ELEMENT_NODE:
 				if (testNode instanceof Element) {
-					comparisons.addAll(new ElementComparisonProvider(ignoreAttributeOrder)
-					        .provideComparisons(
-					                NodeAndXpath.from((Element) controlNode, controlContext),
-					                NodeAndXpath.from((Element) testNode, testContext)));
+					comparisons.addAll(providers.getElementComparisonProvider().provideComparisons(
+					        NodeAndXpath.from((Element) controlNode, controlContext),
+					        NodeAndXpath.from((Element) testNode, testContext)));
 				}
 				break;
 			case Node.PROCESSING_INSTRUCTION_NODE:
 				if (testNode instanceof ProcessingInstruction) {
-					comparisons.addAll(new ProcInstrComparisonProvider()
-					        .provideComparisons(
-					                NodeAndXpath.from((ProcessingInstruction) controlNode, controlContext),
-					                NodeAndXpath.from((ProcessingInstruction) testNode, testContext)));
+					comparisons.addAll(providers.getProcInstrComparisonProvider().provideComparisons(
+					        NodeAndXpath.from((ProcessingInstruction) controlNode, controlContext),
+					        NodeAndXpath.from((ProcessingInstruction) testNode, testContext)));
 				}
 				break;
 			case Node.DOCUMENT_TYPE_NODE:
 				if (testNode instanceof DocumentType) {
-					comparisons.addAll(new DoctypeComparisonProvider()
-					        .provideComparisons(
-					                NodeAndXpath.from((DocumentType) controlNode, controlContext),
-					                NodeAndXpath.from((DocumentType) testNode, testContext)));
+					comparisons.addAll(providers.getDoctypeComparisonProvider().provideComparisons(
+					        NodeAndXpath.from((DocumentType) controlNode, controlContext),
+					        NodeAndXpath.from((DocumentType) testNode, testContext)));
 				}
 				break;
 			case Node.ATTRIBUTE_NODE:
 				if (testNode instanceof Attr) {
-					comparisons.addAll(new AttributeComparisonProvider().
-					        provideComparisons(
-					                NodeAndXpath.from((Attr) controlNode, controlContext),
-					                NodeAndXpath.from((Attr) testNode, testContext)));
+					comparisons.addAll(providers.getAttributeComparisonProvider().provideComparisons(
+					        NodeAndXpath.from((Attr) controlNode, controlContext),
+					        NodeAndXpath.from((Attr) testNode, testContext)));
 				}
 				break;
 		}

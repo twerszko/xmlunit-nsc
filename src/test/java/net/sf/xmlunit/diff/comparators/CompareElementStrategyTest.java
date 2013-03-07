@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.comparators;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -24,6 +24,7 @@ import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DOMDifferenceEngine;
 import net.sf.xmlunit.diff.OrderPreservingNamedNodeMap;
 import net.sf.xmlunit.diff.XPathContext;
+import net.sf.xmlunit.diff.comparators.ElementComparisonProvider;
 import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 

@@ -1,4 +1,4 @@
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.comparators;
 
 import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;

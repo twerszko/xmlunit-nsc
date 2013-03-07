@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.comparators;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -312,7 +312,7 @@ public class DOMComparatorTest {
 		NodeAndXpath<Node> control = new NodeAndXpath<Node>(controlNode, new XPathContext());
 		NodeAndXpath<Node> test = new NodeAndXpath<Node>(testNode, new XPathContext());
 
-		DOMComparator comparator = new DOMComparator(new DefaultNodeMatcher(), false) {
+		DOMComparator comparator = new DOMComparator(new DefaultNodeMatcher(), new ComparisonProviders()) {
 			@Override
 			protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
 				if (result == ComparisonResult.DIFFERENT) {
@@ -322,5 +322,199 @@ public class DOMComparatorTest {
 		};
 		comparator.compare(control, test);
 		return differences;
+	}
+
+	@Test
+	public void should_detect_equal_string_values() throws Exception {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+		        .between(null, "black")
+		        .and(null, "black");
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_string_values() throws Exception {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.ATTR_NAME_LOOKUP)
+		        .between(null, "black")
+		        .and(null, "white");
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(differences).hasSize(1);
+		assertThat(differences).contains(comparison);
+	}
+
+	@Test
+	public void should_detect_equal_boolean_values() throws Exception {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+		        .between(null, true)
+		        .and(null, true);
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_different_boolean_values() throws Exception {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_CHILD_NODES)
+		        .between(null, false)
+		        .and(null, true);
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(differences).hasSize(1);
+		assertThat(differences).contains(comparison);
+	}
+
+	@Test
+	public void should_detect_no_differences_when_two_nulls() {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+		        .between(null, null)
+		        .and(null, null);
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(differences).hasSize(0);
+	}
+
+	@Test
+	public void should_detect_difference_when_control_is_null_and_test_is_non_null() {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+		        .between(null, null)
+		        .and(null, "");
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+		assertThat(difference.getControlDetails().getValue()).isNull();
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("");
+	}
+
+	@Test
+	public void should_detect_difference_when_control_is_non_null_and_test_is_null() {
+		// given
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+		        .between(null, "")
+		        .and(null, null);
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("");
+		assertThat(difference.getTestDetails().getValue()).isNull();
+	}
+
+	@Test
+	public void should_detect_difference_when_two_different_values() {
+		// given
+		short expectedControlVal = 1;
+		short expectedTestVal = 2;
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+		        .between(null, expectedControlVal)
+		        .and(null, expectedTestVal);
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.DIFFERENT);
+		assertThat(differences).hasSize(1);
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.HAS_DOCTYPE_DECLARATION);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo(expectedControlVal);
+		assertThat(difference.getTestDetails().getValue()).isEqualTo(expectedTestVal);
+	}
+
+	@Test
+	public void should_detect_no_differences_when_two_equal_values() {
+		// given
+		short expectedVal = 2;
+		Comparison comparison = Comparison.ofType(ComparisonType.HAS_DOCTYPE_DECLARATION)
+		        .between(null, expectedVal)
+		        .and(null, expectedVal);
+
+		// when
+		DifferenceLister lister = new DifferenceLister();
+		ComparisonResult result = performComparison(comparison, lister);
+		List<Comparison> differences = lister.getDifferences();
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(differences).hasSize(0);
+	}
+
+	private ComparisonResult performComparison(Comparison comparison, final DifferenceLister lister) {
+		DOMComparator comparator = new DOMComparator(new DefaultNodeMatcher(), new ComparisonProviders()) {
+			protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+				lister.comparisonPerformed(comparison, result);
+			};
+		};
+		return comparator.executeComparison(comparison);
+	}
+
+	private static class DifferenceLister {
+		private final List<Comparison> differences = new LinkedList<Comparison>();
+
+		public List<Comparison> getDifferences() {
+			return differences;
+		}
+
+		public void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+			if (result == ComparisonResult.DIFFERENT || result == ComparisonResult.CRITICAL) {
+				differences.add(comparison);
+			}
+		}
+
 	}
 }

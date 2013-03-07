@@ -1,10 +1,11 @@
-package net.sf.xmlunit.diff.strategies;
+package net.sf.xmlunit.diff.comparators;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.comparators.Comparator;
 
 public class ListingComparator extends Comparator {
 	private final List<Comparison> differences = new ArrayList<Comparison>();

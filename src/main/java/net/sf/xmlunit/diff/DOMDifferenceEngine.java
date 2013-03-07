@@ -16,8 +16,10 @@ package net.sf.xmlunit.diff;
 
 import javax.xml.transform.Source;
 
+import net.sf.xmlunit.diff.comparators.ComparisonProviders;
+import net.sf.xmlunit.diff.comparators.DOMComparator;
+import net.sf.xmlunit.diff.comparators.ElementComparisonProvider;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
-import net.sf.xmlunit.diff.strategies.DOMComparator;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
@@ -63,8 +65,9 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 		comparator.compare(control, test);
 	}
 
-	private DOMComparator createComparator() {
-		DOMComparator comparator = new DOMComparator(getNodeMatcher(), ignoreAttributeOrder) {
+	DOMComparator createComparator() {
+		ComparisonProviders providers = createProviders();
+		DOMComparator comparator = new DOMComparator(getNodeMatcher(), providers) {
 			protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
 				return getDifferenceEvaluator().evaluate(comparison, result);
 			};
@@ -77,6 +80,12 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 		return comparator;
 	}
 
+	private ComparisonProviders createProviders() {
+		ComparisonProviders providers = new ComparisonProviders();
+		providers.setElementComparisonProvider(new ElementComparisonProvider(getIgnoreAttributeOrder()));
+		return providers;
+	}
+
 	@Override
 	public void setNodeMatcher(NodeMatcher n) {
 		if (n == null) {
@@ -87,14 +96,5 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
 	public NodeMatcher getNodeMatcher() {
 		return nodeMatcher;
-	}
-
-	/**
-	 * Compares the detail values for object equality, lets the difference
-	 * evaluator evaluate the result, notifies all listeners and returns the
-	 * outcome.
-	 */
-	protected final ComparisonResult performComparison(Comparison comparison) {
-		return createComparator().executeComparison(comparison);
 	}
 }
