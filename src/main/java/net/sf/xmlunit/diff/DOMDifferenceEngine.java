@@ -67,7 +67,7 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
 	DOMComparator createComparator() {
 		ComparisonProviders providers = createProviders();
-		DOMComparator comparator = new DOMComparator(getNodeMatcher(), providers) {
+		DOMComparator comparator = new DOMComparator(nodeMatcher, providers) {
 			protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
 				return getDifferenceEvaluator().evaluate(comparison, result);
 			};
@@ -92,9 +92,5 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 			throw new IllegalArgumentException("node matcher must not be null");
 		}
 		nodeMatcher = n;
-	}
-
-	public NodeMatcher getNodeMatcher() {
-		return nodeMatcher;
 	}
 }
