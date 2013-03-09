@@ -21,6 +21,7 @@ import net.sf.xmlunit.diff.comparators.DOMComparator;
 import net.sf.xmlunit.diff.comparators.ElementComparisonProvider;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 import net.sf.xmlunit.util.Convert;
+import net.sf.xmlunit.util.Preconditions;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Node;
@@ -40,18 +41,15 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
         return ignoreAttributeOrder;
     }
 
+    @Override
     public void setIgnoreAttributeOrder(boolean ignoreAttributeOrder) {
         this.ignoreAttributeOrder = ignoreAttributeOrder;
     }
 
     @Override
     public void compare(Source control, Source test) {
-        if (control == null) {
-            throw new IllegalArgumentException("control must not be null");
-        }
-        if (test == null) {
-            throw new IllegalArgumentException("test must not be null");
-        }
+        Preconditions.checkArgument(control != null, "control must not be null");
+        Preconditions.checkArgument(test != null, "test must not be null");
         try {
             compareNodes(
                     NodeAndXpath.from(Convert.toNode(control)),
@@ -85,9 +83,7 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
     @Override
     public void setDifferenceEvaluator(DifferenceEvaluator evaluator) {
-        if (evaluator == null) {
-            throw new IllegalArgumentException("difference evaluator must" + " not be null");
-        }
+        Preconditions.checkArgument(evaluator != null, "difference evaluator must not be null");
         diffEvaluator = evaluator;
     }
 
@@ -97,9 +93,7 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
     @Override
     public void setNodeMatcher(NodeMatcher n) {
-        if (n == null) {
-            throw new IllegalArgumentException("node matcher must not be null");
-        }
+        Preconditions.checkArgument(n != null, "node matcher must not be null");
         nodeMatcher = n;
     }
 

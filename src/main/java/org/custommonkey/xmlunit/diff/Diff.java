@@ -197,43 +197,6 @@ public class Diff implements DifferenceEvaluator {
         return d;
     }
 
-    // TODO replace it with something more suitable
-    private class IgnorantDifferenceEvaluator implements DifferenceEvaluator {
-        private final DifferenceEvaluator delegate;
-
-        public IgnorantDifferenceEvaluator(DifferenceEvaluator delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (swallowComparison(comparison)) {
-                return outcome;
-            }
-            return delegate.evaluate(comparison, outcome);
-        }
-
-        private boolean swallowComparison(Comparison comparison) {
-            if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
-                int controlValue = (Integer) comparison.getControlDetails().getValue();
-                int testValue = (Integer) comparison.getTestDetails().getValue();
-                return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
-            }
-            return false;
-        }
-
-        private final Short TEXT_TYPE = Node.TEXT_NODE;
-        private final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
-
-        private boolean isTextOrCdataNode(int nodeType) {
-            return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
-        }
-
-        private boolean comparesNodeTypes(Comparison comparison) {
-            return comparison.getType() == ComparisonType.NODE_TYPE;
-        }
-    }
-
     /**
      * Top of the recursive comparison execution tree
      */
@@ -412,6 +375,43 @@ public class Diff implements DifferenceEvaluator {
                 map.put(match.getFirst(), match.getSecond());
             }
             return map;
+        }
+    }
+
+    // TODO replace it with something more suitable
+    private class IgnorantDifferenceEvaluator implements DifferenceEvaluator {
+        private final DifferenceEvaluator delegate;
+
+        public IgnorantDifferenceEvaluator(DifferenceEvaluator delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+            if (swallowComparison(comparison, outcome)) {
+                return outcome;
+            }
+            return delegate.evaluate(comparison, outcome);
+        }
+
+        private boolean swallowComparison(Comparison comparison, ComparisonResult outcome) {
+            if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
+                int controlValue = (Short) comparison.getControlDetails().getValue();
+                int testValue = (Short) comparison.getTestDetails().getValue();
+                return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
+            }
+            return false;
+        }
+
+        private final Short TEXT_TYPE = Node.TEXT_NODE;
+        private final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
+
+        private boolean isTextOrCdataNode(int nodeType) {
+            return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
+        }
+
+        private boolean comparesNodeTypes(Comparison comparison) {
+            return comparison.getType() == ComparisonType.NODE_TYPE;
         }
     }
 }

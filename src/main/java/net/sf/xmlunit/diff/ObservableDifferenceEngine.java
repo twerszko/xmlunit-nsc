@@ -13,6 +13,8 @@
  */
 package net.sf.xmlunit.diff;
 
+import net.sf.xmlunit.util.Preconditions;
+
 public abstract class ObservableDifferenceEngine implements DifferenceEngine {
     private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();
 
@@ -22,25 +24,19 @@ public abstract class ObservableDifferenceEngine implements DifferenceEngine {
 
     @Override
     public void addComparisonListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
+        Preconditions.checkArgument(l != null, "listener must not be null");
         listeners.addComparisonListener(l);
     }
 
     @Override
     public void addMatchListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
+        Preconditions.checkArgument(l != null, "listener must not be null");
         listeners.addMatchListener(l);
     }
 
     @Override
     public void addDifferenceListener(ComparisonListener l) {
-        if (l == null) {
-            throw new IllegalArgumentException("listener must not be null");
-        }
+        Preconditions.checkArgument(l != null, "listener must not be null");
         listeners.addDifferenceListener(l);
     }
 }

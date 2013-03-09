@@ -13,11 +13,14 @@
  */
 package net.sf.xmlunit.input;
 
+import java.io.StringReader;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xmlunit.transform.Transformation;
+import net.sf.xmlunit.util.Preconditions;
 
 /**
  * A source that is obtained from a different source by stripping all comments.
@@ -25,10 +28,7 @@ import net.sf.xmlunit.transform.Transformation;
 public final class CommentLessSource extends DOMSource {
 
     public CommentLessSource(Source originalSource) {
-        super();
-        if (originalSource == null) {
-            throw new IllegalArgumentException("source must not be null");
-        }
+        Preconditions.checkArgument(originalSource != null, "source must not be null");
         Transformation t = new Transformation(originalSource);
         t.setStylesheet(getStylesheet());
         setNode(t.transformToDocument());
@@ -42,6 +42,6 @@ public final class CommentLessSource extends DOMSource {
                     + "</stylesheet>";
 
     private static Source getStylesheet() {
-        return new StreamSource(new java.io.StringReader(STYLE));
+        return new StreamSource(new StringReader(STYLE));
     }
 }

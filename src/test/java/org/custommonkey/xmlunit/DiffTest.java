@@ -1308,8 +1308,11 @@ public class DiffTest {
         Diff reverseDiff = prepareDiff(properties, testDoc, controlDoc);
 
         // then
-        assertThat(diff.identical()).isTrue();
-        assertThat(reverseDiff.identical()).isTrue();
+        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).isTrue();
+
+        assertThat(reverseDiff.identical()).isFalse();
+        assertThat(reverseDiff.similar()).isTrue();
     }
 
     @Test

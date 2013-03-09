@@ -13,8 +13,7 @@
  */
 package net.sf.xmlunit.input;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.StringReader;
 
@@ -25,22 +24,29 @@ import net.sf.xmlunit.util.Convert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class CommentLessSourceTest {
 
     @Test
-    public void stripCommentsAtDifferentLevels() {
+    public void should_strip_comments_at_different_levels() {
+        // given
         StreamSource s =
                 new StreamSource(new StringReader("<?xml version='1.0'?>"
                         + "<!-- comment 1 -->"
                         + "<foo>"
                         + "<!-- comment 2 -->"
                         + "</foo>"));
+
+        // when
         CommentLessSource cls = new CommentLessSource(s);
         Document doc = Convert.toDocument(cls);
-        assertEquals(1, doc.getChildNodes().getLength());
-        assertTrue(doc.getChildNodes().item(0) instanceof Element);
-        assertEquals(0, doc.getChildNodes().item(0).getChildNodes().getLength());
+
+        // then
+        assertThat(doc.getChildNodes().getLength()).isEqualTo(1);
+        Node child = doc.getChildNodes().item(0);
+        assertThat(child).isInstanceOf(Element.class);
+        assertThat(child.getChildNodes().getLength()).isEqualTo(0);
     }
 
 }

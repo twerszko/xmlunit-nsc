@@ -34,57 +34,53 @@ import org.w3c.dom.Node;
  * @see DifferenceListener#differenceFound(Difference)
  */
 public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
-
-    private final IsBetweenDocumentNodeAndRootElement checkPrelude = new IsBetweenDocumentNodeAndRootElement();
-
     public DefaultDifferenceEngine() {
-        addComparisonListener(checkPrelude);
         DifferenceEvaluator defaultEvaluator = super.getDifferenceEvaluator();
         setDifferenceEvaluator(defaultEvaluator);
     }
 
     @Override
     public void addMatchListener(final ComparisonListener listener) {
-        if (listener != null) {
-            super.addMatchListener(new ComparisonListener() {
-                @Override
-                public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-                    comparison = filter(comparison);
-                    if (comparison != null) {
-                        listener.comparisonPerformed(comparison, outcome);
-                    }
-                }
-            });
-        } else {
+        if (listener == null) {
             super.addMatchListener(listener);
+            return;
         }
+        super.addMatchListener(new ComparisonListener() {
+            @Override
+            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                comparison = filter(comparison);
+                if (comparison != null) {
+                    listener.comparisonPerformed(comparison, outcome);
+                }
+            }
+        });
     }
 
     @Override
     public void setDifferenceEvaluator(final DifferenceEvaluator evaluator) {
-        if (evaluator != null) {
-            super.setDifferenceEvaluator(new DifferenceEvaluator() {
-                @Override
-                public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-                    if (swallowComparison(comparison, outcome, checkPrelude)) {
-                        return outcome;
-                    }
+        if (evaluator == null) {
+            super.setDifferenceEvaluator(evaluator);
+            return;
+        }
 
-                    comparison = filter(comparison);
-                    if (comparison != null) {
-                        return evaluator.evaluate(comparison, outcome);
-                    }
+        super.setDifferenceEvaluator(new DifferenceEvaluator() {
+            @Override
+            public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+                if (swallowComparison(comparison, outcome)) {
                     return outcome;
                 }
-            });
-        } else {
-            super.setDifferenceEvaluator(evaluator);
-        }
+
+                comparison = filter(comparison);
+                if (comparison != null) {
+                    return evaluator.evaluate(comparison, outcome);
+                }
+                return outcome;
+            }
+        });
     }
 
     @Override
     public void compare(Source ctrlSource, Source testSource) {
-        checkPrelude.reset();
         super.compare(ctrlSource, testSource);
     }
 
@@ -100,13 +96,8 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
         }
     }
 
-    private boolean swallowComparison(Comparison comparison,
-            ComparisonResult outcome,
-            IsBetweenDocumentNodeAndRootElement checkPrelude) {
+    private boolean swallowComparison(Comparison comparison, ComparisonResult outcome) {
         if (outcome == ComparisonResult.EQUAL) {
-            return true;
-        }
-        if (checkPrelude.shouldSkip()) {
             return true;
         }
 
@@ -135,53 +126,5 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
         return detail != null && detail.getTarget() instanceof Node
                 && !(detail.getTarget() instanceof Element)
                 && detail.getTarget().getParentNode() instanceof Document;
-    }
-
-    /**
-     * Tests whether the DifferenceEngine is currently processing comparisons of
-     * "things" between the document node and the document's root element
-     * (comments or PIs, mostly) since these must be ignored for backwards
-     * compatibility reasons.
-     * 
-     * <p>
-     * Relies on the following assumptions:
-     * <ul>
-     * 
-     * <li>the last comparison DOMDifferenceEngine performs on the document node
-     * is an XML_ENCODING comparison.</li>
-     * <li>the first comparison DOMDifferenceEngine performs on matching root
-     * elements is a NODE_TYPE comparison. The control Node is an Element Node.</li>
-     * <li>the first comparison DOMDifferenceEngine performs if the root
-     * elements don't match is a CHILD_LOOKUP comparison. The control Node is an
-     * Element Node.</li>
-     * </ul>
-     * </p>
-     */
-    private static class IsBetweenDocumentNodeAndRootElement implements ComparisonListener {
-
-        private boolean haveSeenXmlEncoding = false;
-        private boolean haveSeenElementNodeComparison = false;
-
-        @Override
-        public void comparisonPerformed(Comparison comparison,
-                ComparisonResult outcome) {
-            if (comparison.getType() == ComparisonType.XML_ENCODING) {
-                haveSeenXmlEncoding = true;
-            } else if (comparison.getControlDetails().getTarget()
-                    instanceof Element
-                    && (comparison.getType() == ComparisonType.NODE_TYPE
-                    || comparison.getType() == ComparisonType.CHILD_LOOKUP)) {
-                haveSeenElementNodeComparison = true;
-            }
-        }
-
-        private boolean shouldSkip() {
-            return haveSeenXmlEncoding && !haveSeenElementNodeComparison;
-        }
-
-        public void reset() {
-            haveSeenXmlEncoding = false;
-            haveSeenElementNodeComparison = false;
-        }
     }
 }

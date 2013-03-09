@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class DOMDifferenceEngineTest extends DOMDifferenceEngineTestAbstract {
+public class DOMDifferenceEngineTest extends DifferenceEngineTestAbstract {
 
 	@Override
 	protected DOMDifferenceEngine createEngine() {

@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
-public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract {
+public class DefaultDifferenceEngineTest extends DifferenceEngineTestAbstract {
     // TODO consider extracting common part with DOMDifferenceEngineTests
 
     // TODO refactor this mess
@@ -92,6 +92,7 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 
     @Test
     public void should_ignore_missing_schema_location_in_test() {
+        // TODO
         // given
         ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
         String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
@@ -112,6 +113,7 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
 
     @Test
     public void should_ignore_missing_schema_location_in_control() {
+        // TODO
         // given
         ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
         String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
@@ -181,7 +183,8 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
      * </p>
      */
     @Test
-    public void should_ignore_missing_elements_between_doc_and_root_element_in_test() throws Exception {
+    public void should_detect_missing_elements_between_doc_and_root_element_in_test() throws Exception {
+        // TODO
         // given
         String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
                 + "<!-- some comment -->"
@@ -194,30 +197,31 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
         List<Comparison> differences = findDifferences(control, test);
 
         // then
-        assertThat(differences).isEmpty();
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
 
     }
 
     @Test
-    public void should_ignore_missing_elements_between_doc_and_root_element_in_control() throws Exception {
+    public void should_detect_missing_elements_between_doc_and_root_element_in_control() throws Exception {
+        // TODO
         // given
-        String test =
-                "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-                        + "<!-- some comment -->"
-                        + "<?foo some PI ?>"
-                        + "<bar/>";
-
         String control = "<bar/>";
+        String test = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+                + "<!-- some comment -->"
+                + "<?foo some PI ?>"
+                + "<bar/>";
 
         // when
         List<Comparison> differences = findDifferences(control, test);
 
         // then
-        assertThat(differences).isEmpty();
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
     }
 
     @Test
-    public void should_ignore_different_elements_between_doc_and_root() throws Exception {
+    public void should_detect_different_elements_between_doc_and_root() throws Exception {
         // given
         String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
                 + "<!-- some comment -->"
@@ -233,7 +237,16 @@ public class DefaultDifferenceEngineTest extends DOMDifferenceEngineTestAbstract
         List<Comparison> differences = findDifferences(control, test);
 
         // then
-        assertThat(differences).isEmpty();
+        assertThat(differences).hasSize(4);
+        Comparison firstDifference = differences.get(0);
+        Comparison secondDifference = differences.get(1);
+        Comparison thirdDifference = differences.get(2);
+        Comparison fourthDifference = differences.get(3);
+        assertThat(firstDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+        assertThat(secondDifference.getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+        assertThat(thirdDifference.getType()).isEqualTo(ComparisonType.COMMENT_VALUE);
+        assertThat(fourthDifference.getType()).isEqualTo(ComparisonType.PROCESSING_INSTRUCTION_DATA);
+
     }
 
     @Test
