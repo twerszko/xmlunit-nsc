@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 
-public class CompareAttributeStrategyTest {
+public class AttributeCOmparisonProviderTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 

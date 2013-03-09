@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class NamespaceComparatorTest {
+public class NamespaceComparisonProviderTest {
 	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
 	private final Document document = documentBuilder.newDocument();
 

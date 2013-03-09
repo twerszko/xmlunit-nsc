@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
-public class CompareProcInstrStrategyTest {
+public class ProcInstrComparisonProviderTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final Document document = documentUtils.newControlDocumentBuilder().newDocument();
 

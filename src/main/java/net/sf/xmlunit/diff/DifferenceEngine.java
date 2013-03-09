@@ -52,4 +52,6 @@ public interface DifferenceEngine {
      */
     void compare(Source control, Source test);
 
+    void setIgnoreAttributeOrder(boolean ignore);
+
 }

@@ -47,6 +47,7 @@ import javax.xml.transform.Source;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DefaultDifferenceEngine;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEngine;
@@ -112,7 +113,7 @@ public class Diff implements DifferenceEvaluator {
         this.testDoc = getManipulatedDocument(builder.testDocument);
         this.elementSelector = builder.elementSelector;
         if (builder.differenceEngine == null) {
-            this.differenceEngine = new DefaultDifferenceEngine(properties);
+            this.differenceEngine = new DefaultDifferenceEngine();
         } else {
             this.differenceEngine = builder.differenceEngine;
         }
@@ -199,6 +200,43 @@ public class Diff implements DifferenceEvaluator {
         return d;
     }
 
+    // TODO replace it with something more suitable
+    private class IgnorantDifferenceEvaluator implements DifferenceEvaluator {
+        private final DifferenceEvaluator delegate;
+
+        public IgnorantDifferenceEvaluator(DifferenceEvaluator delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+            if (swallowComparison(comparison)) {
+                return outcome;
+            }
+            return delegate.evaluate(comparison, outcome);
+        }
+
+        private boolean swallowComparison(Comparison comparison) {
+            if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
+                int controlValue = (Integer) comparison.getControlDetails().getValue();
+                int testValue = (Integer) comparison.getTestDetails().getValue();
+                return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
+            }
+            return false;
+        }
+
+        private final Short TEXT_TYPE = Node.TEXT_NODE;
+        private final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
+
+        private boolean isTextOrCdataNode(int nodeType) {
+            return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
+        }
+
+        private boolean comparesNodeTypes(Comparison comparison) {
+            return comparison.getType() == ComparisonType.NODE_TYPE;
+        }
+    }
+
     /**
      * Top of the recursive comparison execution tree
      */
@@ -207,13 +245,17 @@ public class Diff implements DifferenceEvaluator {
             return;
         }
         DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(elementSelector);
-        // DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher();
         if (properties.getCompareUnmatched()) {
             differenceEngine.setNodeMatcher(new CompareUnmatchedNodeMatcher(nodeMatcher));
         } else {
             differenceEngine.setNodeMatcher(nodeMatcher);
         }
-        differenceEngine.setDifferenceEvaluator(this);
+
+        // TODO this must be set higher
+        differenceEngine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
+
+        DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(this);
+        differenceEngine.setDifferenceEvaluator(evaluator);
         Source ctrlSource = Input.fromNode(controlDoc).build();
         Source testSource = Input.fromNode(testDoc).build();
         if (properties.getIgnoreComments()) {

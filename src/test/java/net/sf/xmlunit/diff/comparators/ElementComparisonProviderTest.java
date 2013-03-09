@@ -35,7 +35,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class CompareElementStrategyTest {
+public class ElementComparisonProviderTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 	private final DocumentBuilder documentBuilder = documentUtils.newControlDocumentBuilder();
 	private final Document document = documentBuilder.newDocument();

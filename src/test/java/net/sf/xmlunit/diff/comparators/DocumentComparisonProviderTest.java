@@ -28,7 +28,7 @@ import net.sf.xmlunit.util.Convert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-public class CompareDocumentStrategyTest {
+public class DocumentComparisonProviderTest {
 	@Test
 	public void should_detect_different_xml_version() throws Exception {
 		// given

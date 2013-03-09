@@ -34,7 +34,7 @@ import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
-public class CompareCharacterDataStrategyTest {
+public class CharacterDataComparisonProviderTest {
 	private final DocumentBuilder documentBuilder = new DocumentUtils().newControlDocumentBuilder();
 	private final Document document = documentBuilder.newDocument();
 

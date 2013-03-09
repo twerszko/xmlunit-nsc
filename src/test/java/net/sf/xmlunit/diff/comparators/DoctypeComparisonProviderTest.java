@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-public class CompareDoctypeStrategyTest {
+public class DoctypeComparisonProviderTest {
 	private final DocumentUtils documentUtils = new DocumentUtils();
 
 	private static File rosesFile;
