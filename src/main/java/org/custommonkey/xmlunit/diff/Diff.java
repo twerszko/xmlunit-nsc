@@ -98,7 +98,6 @@ public class Diff implements DifferenceEvaluator {
     private boolean similar = true;
     private boolean identical = true;
     private boolean compared = false;
-    private final StringBuffer messages;
     private final DifferenceEngine differenceEngine;
     private DifferenceEvaluator differenceEvaluator;
     private ElementSelector elementSelector;
@@ -117,7 +116,6 @@ public class Diff implements DifferenceEvaluator {
         } else {
             this.differenceEngine = builder.differenceEngine;
         }
-        this.messages = new StringBuffer();
     }
 
     /**
@@ -135,7 +133,6 @@ public class Diff implements DifferenceEvaluator {
         this.elementSelector = prototype.elementSelector;
         this.differenceEngine = prototype.differenceEngine;
         this.differenceEvaluator = prototype.differenceEvaluator;
-        this.messages = new StringBuffer();
 
     }
 
@@ -294,21 +291,6 @@ public class Diff implements DifferenceEvaluator {
         return identical;
     }
 
-    /**
-     * Append a meaningful message to the buffer of messages
-     * 
-     * @param appendTo
-     *            the messages buffer
-     * @param expected
-     * @param actual
-     * @param control
-     * @param test
-     * @param difference
-     */
-    private void appendComparison(StringBuffer appendTo, Comparison comparison) {
-        appendTo.append(' ').append(new DifferenceFormater(comparison)).append('\n');
-    }
-
     @Override
     public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
         ComparisonResult evaluatedOutcome = outcome;
@@ -319,14 +301,6 @@ public class Diff implements DifferenceEvaluator {
         setVardict(comparison, evaluatedOutcome);
 
         boolean critical = isCritical(comparison, evaluatedOutcome);
-        // TODO get rid of this
-        if (critical) {
-            messages.append("\n[different]");
-        } else {
-            messages.append("\n[not identical]");
-        }
-        appendComparison(messages, comparison);
-
         if (critical) {
             return ComparisonResult.CRITICAL;
         }
@@ -363,34 +337,6 @@ public class Diff implements DifferenceEvaluator {
             default:
                 break;
         }
-    }
-
-    /**
-     * Append the message from the result of this Diff instance to a specified
-     * StringBuffer
-     * 
-     * @param toAppendTo
-     * @return specified StringBuffer with message appended
-     */
-    private StringBuilder appendMessage(StringBuilder toAppendTo) {
-        compare();
-        if (messages.length() == 0) {
-            messages.append("[identical]");
-        }
-        // fix for JDK1.4 backwards incompatibility
-        return toAppendTo.append(messages.toString());
-    }
-
-    /**
-     * Get the result of this Diff instance as a String
-     * 
-     * @return result of this Diff
-     */
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder(getClass().getName());
-        appendMessage(buf);
-        return buf.toString();
     }
 
     /**

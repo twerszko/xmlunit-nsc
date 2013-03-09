@@ -36,8 +36,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static junitparams.JUnitParamsRunner.$;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -126,33 +124,6 @@ public class DiffTest {
                 .build();
     }
 
-    @Test
-    public void should_create_valid_toString() throws Exception {
-        // given
-        Diff diff = prepareDiff(properties, aDocument, aDocument);
-
-        Element elemA = aDocument.createElement("tag");
-        Text textA = aDocument.createTextNode("Monkey");
-        elemA.appendChild(textA);
-
-        Element elemB = aDocument.createElement("tag");
-
-        // when
-        Comparison comparison = new Comparison(
-                ComparisonType.HAS_CHILD_NODES,
-                new Detail(elemA, "/tag", TRUE.toString()),
-                new Detail(elemB, "/tag", FALSE.toString()));
-        diff.evaluate(comparison, ComparisonResult.DIFFERENT);
-
-        String toStringResult = diff.toString();
-        String expectedToString = diff.getClass().getName() + "\n[different] Expected "
-                + ComparisonType.HAS_CHILD_NODES.getDescription()
-                + " 'true' but was 'false' - comparing <tag...> at /tag to <tag...> at /tag\n";
-
-        // then
-        assertThat(toStringResult).isEqualTo(expectedToString);
-    }
-
     public void should_create_valid_toString_2() throws Exception {
         // given
         Diff diff = prepareDiff(properties, aDocument, aDocument);
@@ -175,25 +146,6 @@ public class DiffTest {
 
         // then
         assertThat(toStringResult).isEqualTo(expectedToString);
-    }
-
-    @Test
-    public void should_create_valid_toString_when_different_attributes() throws Exception {
-        // given
-        String fruitBat = "<bat type=\"fruit\"/>";
-        String longEaredBat = "<bat type=\"longeared\"/>";
-
-        // when
-        Diff diff = prepareDiff(properties, fruitBat, longEaredBat);
-        String toStringResult = diff.toString();
-
-        String expectedString = diff.getClass().getName() + "\n[different] Expected "
-                + ComparisonType.ATTR_VALUE.getDescription()
-                + " 'fruit' but was 'longeared' - comparing "
-                + "<bat type=\"fruit\"...> at /bat[1]/@type to <bat type=\"longeared\"...> at /bat[1]/@type\n";
-
-        // then
-        assertThat(toStringResult).isEqualTo(expectedString);
     }
 
     @Test

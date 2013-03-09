@@ -38,7 +38,6 @@ package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -233,9 +232,6 @@ public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
                 .build();
         d.overrideDifferenceEvaluator(evaluator);
         assertFalse(d.similar());
-        assertTrue("postcode was matched against postcode1",
-                d.toString().indexOf("Expected element tag name 'postcode'"
-                        + " but was 'postcode1'") > -1);
     }
 
 }
