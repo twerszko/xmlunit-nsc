@@ -47,6 +47,7 @@ import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 
+import org.custommonkey.xmlunit.diff.DetailedDiff;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.junit.Before;
 import org.junit.Test;

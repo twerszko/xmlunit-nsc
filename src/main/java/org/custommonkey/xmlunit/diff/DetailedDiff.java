@@ -34,7 +34,7 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package org.custommonkey.xmlunit.diff;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,6 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 
-import org.custommonkey.xmlunit.diff.Diff;
 
 /**
  * Compares and describes all the differences between two XML documents. The

@@ -47,6 +47,7 @@ import net.sf.xmlunit.diff.Comparison.Detail;
 import net.sf.xmlunit.diff.ComparisonType;
 
 import org.custommonkey.xmlunit.builder.BuilderException;
+import org.custommonkey.xmlunit.diff.DetailedDiff;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
