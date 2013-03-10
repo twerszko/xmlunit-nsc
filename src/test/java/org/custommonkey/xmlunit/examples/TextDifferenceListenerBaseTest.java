@@ -45,236 +45,236 @@ import org.custommonkey.xmlunit.diff.Diff;
 import org.junit.Test;
 
 public class TextDifferenceListenerBaseTest {
-	private static final String C_ATTR = "controlAttr";
-	private static final String T_ATTR = "testAttr";
-	private static final String C_CDATA = "controlCdata";
-	private static final String T_CDATA = "testCdata";
-	private static final String C_CMMT = "controlComment";
-	private static final String T_CMMT = "testComment";
-	private static final String C_TEXT = "controlText";
-	private static final String T_TEXT = "testText";
+    private static final String C_ATTR = "controlAttr";
+    private static final String T_ATTR = "testAttr";
+    private static final String C_CDATA = "controlCdata";
+    private static final String T_CDATA = "testCdata";
+    private static final String C_CMMT = "controlComment";
+    private static final String T_CMMT = "testComment";
+    private static final String C_TEXT = "controlText";
+    private static final String T_TEXT = "testText";
 
-	private static class TestEvaluator extends TextDifferenceEvaluatorBase {
-		public int invocationCounter = 0;
-		public Comparison difference;
+    private static class TestEvaluator extends TextDifferenceEvaluatorBase {
+        public int invocationCounter = 0;
+        public Comparison difference;
 
-		protected TestEvaluator(DifferenceEvaluator delegateTo) {
-			super(delegateTo);
-		}
+        protected TestEvaluator(DifferenceEvaluator delegateTo) {
+            super(delegateTo);
+        }
 
-		@Override
-		protected ComparisonResult attributeDifference(Comparison d, ComparisonResult outcome) {
-			return ComparisonResult.EQUAL;
-		}
+        @Override
+        protected ComparisonResult attributeDifference(Comparison d, ComparisonResult outcome) {
+            return ComparisonResult.EQUAL;
+        }
 
-		@Override
-		protected ComparisonResult cdataDifference(Comparison d, ComparisonResult outcome) {
-			return ComparisonResult.EQUAL;
-		}
+        @Override
+        protected ComparisonResult cdataDifference(Comparison d, ComparisonResult outcome) {
+            return ComparisonResult.EQUAL;
+        }
 
-		@Override
-		protected ComparisonResult commentDifference(Comparison d, ComparisonResult outcome) {
-			return ComparisonResult.EQUAL;
-		}
+        @Override
+        protected ComparisonResult commentDifference(Comparison d, ComparisonResult outcome) {
+            return ComparisonResult.EQUAL;
+        }
 
-		@Override
-		protected ComparisonResult textDifference(Comparison d, ComparisonResult outcome) {
-			return ComparisonResult.EQUAL;
-		}
+        @Override
+        protected ComparisonResult textDifference(Comparison d, ComparisonResult outcome) {
+            return ComparisonResult.EQUAL;
+        }
 
-	}
+    }
 
-	@Test
-	public void should_delegate_attribute_difference() throws Exception {
-		// given
-		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
-		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
+    @Test
+    public void should_delegate_attribute_difference() throws Exception {
+        // given
+        String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
+        String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestEvaluator listener = new TestEvaluator(null) {
-			@Override
-			protected ComparisonResult attributeDifference(Comparison difference, ComparisonResult outcome) {
-				this.difference = difference;
-				invocationCounter++;
-				return ComparisonResult.EQUAL;
-			}
-		};
+        TestEvaluator listener = new TestEvaluator(null) {
+            @Override
+            protected ComparisonResult attributeDifference(Comparison difference, ComparisonResult outcome) {
+                this.difference = difference;
+                invocationCounter++;
+                return ComparisonResult.EQUAL;
+            }
+        };
 
-		// when
-		Diff diff = Diff.newDiff(new XmlUnitProperties())
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		diff.overrideDifferenceEvaluator(listener);
-		boolean identical = diff.identical();
+        // when
+        Diff diff = Diff.newDiff(new XmlUnitProperties())
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        diff.overrideDifferenceEvaluator(listener);
+        boolean identical = diff.identical();
 
-		// then
-		assertThat(identical).isTrue();
-		assertThat(listener.invocationCounter).isEqualTo(1);
-		assertThat(listener.difference.getControlDetails().getValue())
-		        .isEqualTo(C_ATTR);
-		assertThat(listener.difference.getTestDetails().getValue())
-		        .isEqualTo(T_ATTR);
+        // then
+        assertThat(identical).isTrue();
+        assertThat(listener.invocationCounter).isEqualTo(1);
+        assertThat(listener.difference.getControlDetails().getValue())
+                .isEqualTo(C_ATTR);
+        assertThat(listener.difference.getTestDetails().getValue())
+                .isEqualTo(T_ATTR);
 
-	}
+    }
 
-	@Test
-	public void should_delegate_cdata_difference() throws Exception {
-		// given
-		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
-		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
+    @Test
+    public void should_delegate_cdata_difference() throws Exception {
+        // given
+        String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
+        String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestEvaluator listener = new TestEvaluator(null) {
-			@Override
-			protected ComparisonResult cdataDifference(Comparison difference, ComparisonResult outcome) {
-				this.difference = difference;
-				invocationCounter++;
-				return ComparisonResult.EQUAL;
-			}
-		};
+        TestEvaluator listener = new TestEvaluator(null) {
+            @Override
+            protected ComparisonResult cdataDifference(Comparison difference, ComparisonResult outcome) {
+                this.difference = difference;
+                invocationCounter++;
+                return ComparisonResult.EQUAL;
+            }
+        };
 
-		// when
-		Diff diff = Diff.newDiff(new XmlUnitProperties())
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		diff.overrideDifferenceEvaluator(listener);
-		boolean identical = diff.identical();
+        // when
+        Diff diff = Diff.newDiff(new XmlUnitProperties())
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        diff.overrideDifferenceEvaluator(listener);
+        boolean identical = diff.identical();
 
-		// then
-		assertThat(identical).isTrue();
-		assertThat(listener.invocationCounter).isEqualTo(1);
-		assertThat(listener.difference.getControlDetails().getValue())
-		        .isEqualTo(C_CDATA);
-		assertThat(listener.difference.getTestDetails().getValue())
-		        .isEqualTo(T_CDATA);
-	}
+        // then
+        assertThat(identical).isTrue();
+        assertThat(listener.invocationCounter).isEqualTo(1);
+        assertThat(listener.difference.getControlDetails().getValue())
+                .isEqualTo(C_CDATA);
+        assertThat(listener.difference.getTestDetails().getValue())
+                .isEqualTo(T_CDATA);
+    }
 
-	@Test
-	public void should_delegate_comment_difference() throws Exception {
-		// given
-		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
-		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
+    @Test
+    public void should_delegate_comment_difference() throws Exception {
+        // given
+        String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
+        String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestEvaluator listener = new TestEvaluator(null) {
-			@Override
-			protected ComparisonResult commentDifference(Comparison difference, ComparisonResult outcome) {
-				this.difference = difference;
-				invocationCounter++;
-				return ComparisonResult.EQUAL;
-			}
-		};
+        TestEvaluator listener = new TestEvaluator(null) {
+            @Override
+            protected ComparisonResult commentDifference(Comparison difference, ComparisonResult outcome) {
+                this.difference = difference;
+                invocationCounter++;
+                return ComparisonResult.EQUAL;
+            }
+        };
 
-		// when
-		Diff diff = Diff.newDiff(new XmlUnitProperties())
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		diff.overrideDifferenceEvaluator(listener);
-		boolean identical = diff.identical();
+        // when
+        Diff diff = Diff.newDiff(new XmlUnitProperties())
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        diff.overrideDifferenceEvaluator(listener);
+        boolean identical = diff.identical();
 
-		// then
-		assertThat(identical).isTrue();
-		assertThat(listener.invocationCounter).isEqualTo(1);
-		assertThat(listener.difference.getControlDetails().getValue())
-		        .isEqualTo(C_CMMT);
-		assertThat(listener.difference.getTestDetails().getValue())
-		        .isEqualTo(T_CMMT);
-	}
+        // then
+        assertThat(identical).isTrue();
+        assertThat(listener.invocationCounter).isEqualTo(1);
+        assertThat(listener.difference.getControlDetails().getValue())
+                .isEqualTo(C_CMMT);
+        assertThat(listener.difference.getTestDetails().getValue())
+                .isEqualTo(T_CMMT);
+    }
 
-	@Test
-	public void should_delegate_text_difference() throws Exception {
-		// given
-		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
-		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
+    @Test
+    public void should_delegate_text_difference() throws Exception {
+        // given
+        String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
+        String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		TestEvaluator listener = new TestEvaluator(null) {
-			@Override
-			protected ComparisonResult textDifference(Comparison difference, ComparisonResult outcome) {
-				this.difference = difference;
-				invocationCounter++;
-				return ComparisonResult.EQUAL;
-			}
-		};
+        TestEvaluator listener = new TestEvaluator(null) {
+            @Override
+            protected ComparisonResult textDifference(Comparison difference, ComparisonResult outcome) {
+                this.difference = difference;
+                invocationCounter++;
+                return ComparisonResult.EQUAL;
+            }
+        };
 
-		// when
-		Diff diff = Diff.newDiff(new XmlUnitProperties())
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		diff.overrideDifferenceEvaluator(listener);
-		boolean identical = diff.identical();
+        // when
+        Diff diff = Diff.newDiff(new XmlUnitProperties())
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        diff.overrideDifferenceEvaluator(listener);
+        boolean identical = diff.identical();
 
-		// then
-		assertThat(identical).isTrue();
-		assertThat(listener.invocationCounter).isEqualTo(1);
-		assertThat(listener.difference.getControlDetails().getValue())
-		        .isEqualTo(C_TEXT);
-		assertThat(listener.difference.getTestDetails().getValue())
-		        .isEqualTo(T_TEXT);
-	}
+        // then
+        assertThat(identical).isTrue();
+        assertThat(listener.invocationCounter).isEqualTo(1);
+        assertThat(listener.difference.getControlDetails().getValue())
+                .isEqualTo(C_TEXT);
+        assertThat(listener.difference.getTestDetails().getValue())
+                .isEqualTo(T_TEXT);
+    }
 
-	@Test
-	public void should_delegate_textual_difference() throws Exception {
-		// given
-		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
-		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
+    @Test
+    public void should_delegate_textual_difference() throws Exception {
+        // given
+        String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
+        String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		final int[] invocationCounter = new int[1];
+        final int[] invocationCounter = new int[1];
 
-		TextDifferenceEvaluatorBase listener = new TextDifferenceEvaluatorBase(null) {
-			@Override
-			protected ComparisonResult textualDifference(Comparison d, ComparisonResult outcome) {
-				invocationCounter[0]++;
-				return ComparisonResult.EQUAL;
-			}
-		};
+        TextDifferenceEvaluatorBase evaluator = new TextDifferenceEvaluatorBase(null) {
+            @Override
+            protected ComparisonResult textualDifference(Comparison d, ComparisonResult outcome) {
+                invocationCounter[0]++;
+                return ComparisonResult.EQUAL;
+            }
+        };
 
-		// when
-		Diff diff = Diff.newDiff(new XmlUnitProperties())
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		diff.overrideDifferenceEvaluator(listener);
-		boolean identical = diff.identical();
+        // when
+        Diff diff = Diff.newDiff(new XmlUnitProperties())
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        diff.overrideDifferenceEvaluator(evaluator);
+        boolean identical = diff.identical();
 
-		// then
-		assertThat(identical).isTrue();
-		assertThat(invocationCounter[0]).isEqualTo(4);
-	}
+        // then
+        assertThat(identical).isTrue();
+        assertThat(invocationCounter[0]).isEqualTo(4);
+    }
 
-	@Test
-	public void should_delegate_everything() throws Exception {
-		// given
-		String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
-		String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
+    @Test
+    public void should_delegate_everything() throws Exception {
+        // given
+        String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
+        String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-		final int[] invocationCounter = new int[1];
+        final int[] invocationCounter = new int[1];
 
-		TextDifferenceEvaluatorBase listener = new TextDifferenceEvaluatorBase(new DifferenceEvaluator() {
-			public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
-				invocationCounter[0]++;
-				return ComparisonResult.EQUAL;
-			}
-		}) {
-		};
+        TextDifferenceEvaluatorBase evaluator = new TextDifferenceEvaluatorBase(new DifferenceEvaluator() {
+            @Override
+            public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
+                invocationCounter[0]++;
+                return ComparisonResult.EQUAL;
+            }
+        }) {};
 
-		// when
-		Diff diff = Diff.newDiff(new XmlUnitProperties())
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		diff.overrideDifferenceEvaluator(listener);
-		boolean identical = diff.identical();
+        // when
+        Diff diff = Diff.newDiff(new XmlUnitProperties())
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        diff.overrideDifferenceEvaluator(evaluator);
+        boolean identical = diff.identical();
 
-		// then
-		assertThat(identical).isTrue();
-		assertThat(invocationCounter[0]).isEqualTo(4);
-	}
+        // then
+        assertThat(identical).isTrue();
+        assertThat(invocationCounter[0]).isEqualTo(4);
+    }
 
-	private String getDoc(String attr, String cdata, String comment,
-	        String text) {
-		return "<root><first attr=\"" + attr + "\"/><!--" + comment + "-->"
-		        + "<second><![CDATA[" + cdata + "]]></second><third>" + text
-		        + "</third></root>";
-	}
+    private String getDoc(String attr, String cdata, String comment,
+            String text) {
+        return "<root><first attr=\"" + attr + "\"/><!--" + comment + "-->"
+                + "<second><![CDATA[" + cdata + "]]></second><third>" + text
+                + "</third></root>";
+    }
 }

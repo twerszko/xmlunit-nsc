@@ -68,7 +68,9 @@ public abstract class DifferenceEngineTestAbstract {
 
     protected List<Comparison> findDifferences(Source control, Source test) {
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        // ListingDifferenceListener listener = new ListingDifferenceListener();
         engine.setDifferenceEvaluator(evaluator);
+        // engine.addDifferenceListener(listener);
         engine.compare(control, test);
 
         return evaluator.getDifferences();
@@ -1022,5 +1024,39 @@ public abstract class DifferenceEngineTestAbstract {
         // given
         engine.addMatchListener(null);
         // then exception
+    }
+
+    @Test
+    public void should_ignore_missing_schema_location_in_test() {
+        // given
+        String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
+
+        Element control = doc.createElement("foo");
+        control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+        Element test = doc.createElement("foo");
+
+        // when
+        List<Comparison> differences = findDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.SCHEMA_LOCATION);
+    }
+
+    @Test
+    public void should_ignore_missing_schema_location_in_control() {
+        // given
+        String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
+
+        Element control = doc.createElement("foo");
+        Element test = doc.createElement("foo");
+        test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+
+        // when
+        List<Comparison> differences = findDifferences(control, test);
+
+        // then
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.SCHEMA_LOCATION);
     }
 }

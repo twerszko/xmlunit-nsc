@@ -15,7 +15,6 @@
 package net.sf.xmlunit.diff;
 
 import javax.annotation.Nullable;
-import javax.xml.transform.Source;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -79,11 +78,6 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
         });
     }
 
-    @Override
-    public void compare(Source ctrlSource, Source testSource) {
-        super.compare(ctrlSource, testSource);
-    }
-
     @Nullable
     private static Comparison filter(Comparison comp) {
         switch (comp.getType()) {
@@ -123,8 +117,20 @@ public final class DefaultDifferenceEngine extends DOMDifferenceEngine {
     }
 
     private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
-        return detail != null && detail.getTarget() instanceof Node
-                && !(detail.getTarget() instanceof Element)
-                && detail.getTarget().getParentNode() instanceof Document;
+        return isNode(detail)
+                && isNotElement(detail)
+                && hasDocumentParent(detail);
+    }
+
+    private static boolean hasDocumentParent(Comparison.Detail detail) {
+        return detail.getTarget().getParentNode() instanceof Document;
+    }
+
+    private static boolean isNotElement(Comparison.Detail detail) {
+        return !(detail.getTarget() instanceof Element);
+    }
+
+    private static boolean isNode(Comparison.Detail detail) {
+        return detail != null && detail.getTarget() instanceof Node;
     }
 }

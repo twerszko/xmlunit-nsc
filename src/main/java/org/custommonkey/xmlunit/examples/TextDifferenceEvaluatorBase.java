@@ -50,71 +50,75 @@ import net.sf.xmlunit.diff.DifferenceEvaluator;
  */
 public abstract class TextDifferenceEvaluatorBase implements DifferenceEvaluator {
 
-	private final DifferenceEvaluator delegateTo;
+    private final DifferenceEvaluator delegateTo;
 
-	protected TextDifferenceEvaluatorBase(DifferenceEvaluator delegateTo) {
-		this.delegateTo = delegateTo;
-	}
+    protected TextDifferenceEvaluatorBase(DifferenceEvaluator delegateTo) {
+        this.delegateTo = delegateTo;
+    }
 
-	/**
-	 * Delegates to the nested DifferenceListener unless the Difference is of
-	 * type {@link DifferenceConstants#ATTR_VALUE_ID ATTR_VALUE_ID},
-	 * {@link DifferenceConstants#CDATA_VALUE_ID CDATA_VALUE_ID},
-	 * {@link DifferenceConstants#COMMENT_VALUE_ID COMMENT_VALUE_ID} or
-	 * {@link DifferenceConstants#TEXT_VALUE_ID TEXT_VALUE_ID} - for those
-	 * special differences {@link #attributeDifference attributeDifference},
-	 * {@link #cdataDifference cdataDifference}, {@link #commentDifference
-	 * commentDifference} or {@link #textDifference textDifference} are invoked
-	 * respectively.
-	 */
-	public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-		switch (comparison.getType()) {
-			case ATTR_VALUE:
-				return attributeDifference(comparison, outcome);
-			case CDATA_VALUE:
-				return cdataDifference(comparison, outcome);
-			case COMMENT_VALUE:
-				return commentDifference(comparison, outcome);
-			case TEXT_VALUE:
-				return textDifference(comparison, outcome);
-			default:
-				return delegateTo.evaluate(comparison, outcome);
-		}
-	}
+    /**
+     * Delegates to the nested DifferenceListener unless the Difference is of
+     * type {@link DifferenceConstants#ATTR_VALUE_ID ATTR_VALUE_ID},
+     * {@link DifferenceConstants#CDATA_VALUE_ID CDATA_VALUE_ID},
+     * {@link DifferenceConstants#COMMENT_VALUE_ID COMMENT_VALUE_ID} or
+     * {@link DifferenceConstants#TEXT_VALUE_ID TEXT_VALUE_ID} - for those
+     * special differences {@link #attributeDifference attributeDifference},
+     * {@link #cdataDifference cdataDifference}, {@link #commentDifference
+     * commentDifference} or {@link #textDifference textDifference} are invoked
+     * respectively.
+     */
+    @Override
+    public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+        switch (comparison.getType()) {
+            case ATTR_VALUE:
+                return attributeDifference(comparison, outcome);
+            case CDATA_VALUE:
+                return cdataDifference(comparison, outcome);
+            case COMMENT_VALUE:
+                return commentDifference(comparison, outcome);
+            case TEXT_VALUE:
+                return textDifference(comparison, outcome);
+            default:
+                if (delegateTo != null) {
+                    return delegateTo.evaluate(comparison, outcome);
+                }
+        }
+        return outcome;
+    }
 
-	/**
-	 * Delegates to {@link #textualDifference textualDifference}.
-	 */
-	protected ComparisonResult attributeDifference(Comparison comparison, ComparisonResult outcome) {
-		return textualDifference(comparison, outcome);
-	}
+    /**
+     * Delegates to {@link #textualDifference textualDifference}.
+     */
+    protected ComparisonResult attributeDifference(Comparison comparison, ComparisonResult outcome) {
+        return textualDifference(comparison, outcome);
+    }
 
-	/**
-	 * Delegates to {@link #textualDifference textualDifference}.
-	 */
-	protected ComparisonResult cdataDifference(Comparison comparison, ComparisonResult outcome) {
-		return textualDifference(comparison, outcome);
-	}
+    /**
+     * Delegates to {@link #textualDifference textualDifference}.
+     */
+    protected ComparisonResult cdataDifference(Comparison comparison, ComparisonResult outcome) {
+        return textualDifference(comparison, outcome);
+    }
 
-	/**
-	 * Delegates to {@link #textualDifference textualDifference}.
-	 */
-	protected ComparisonResult commentDifference(Comparison comparison, ComparisonResult outcome) {
-		return textualDifference(comparison, outcome);
-	}
+    /**
+     * Delegates to {@link #textualDifference textualDifference}.
+     */
+    protected ComparisonResult commentDifference(Comparison comparison, ComparisonResult outcome) {
+        return textualDifference(comparison, outcome);
+    }
 
-	/**
-	 * Delegates to {@link #textualDifference textualDifference}.
-	 */
-	protected ComparisonResult textDifference(Comparison comparison, ComparisonResult outcome) {
-		return textualDifference(comparison, outcome);
-	}
+    /**
+     * Delegates to {@link #textualDifference textualDifference}.
+     */
+    protected ComparisonResult textDifference(Comparison comparison, ComparisonResult outcome) {
+        return textualDifference(comparison, outcome);
+    }
 
-	/**
-	 * Delegates to the nested DifferenceListener.
-	 */
-	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
-		return delegateTo.evaluate(comparison, outcome);
-	}
+    /**
+     * Delegates to the nested DifferenceListener.
+     */
+    protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
+        return delegateTo.evaluate(comparison, outcome);
+    }
 
 }

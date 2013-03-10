@@ -91,48 +91,6 @@ public class DefaultDifferenceEngineTest extends DifferenceEngineTestAbstract {
     }
 
     @Test
-    public void should_ignore_missing_schema_location_in_test() {
-        // TODO
-        // given
-        ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
-        String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
-
-        Element control = doc.createElement("foo");
-        control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
-        Element test = doc.createElement("foo");
-
-        // when
-        Source controlSource = Input.fromNode(control).build();
-        Source testSource = Input.fromNode(test).build();
-        engine.compare(controlSource, testSource);
-
-        // then
-        assertThat(collectingEvaluator.different).isFalse();
-        assertThat(collectingEvaluator.comparingWhat).isEqualTo(expectedComparisonType);
-    }
-
-    @Test
-    public void should_ignore_missing_schema_location_in_control() {
-        // TODO
-        // given
-        ComparisonType expectedComparisonType = ComparisonType.SCHEMA_LOCATION;
-        String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_SCHEMA_LOCATION_ATTR;
-
-        Element control = doc.createElement("foo");
-        Element test = doc.createElement("foo");
-        test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
-
-        // when
-        Source controlSource = Input.fromNode(control).build();
-        Source testSource = Input.fromNode(test).build();
-        engine.compare(controlSource, testSource);
-
-        // then
-        assertThat(collectingEvaluator.different).isFalse();
-        assertThat(collectingEvaluator.comparingWhat).isEqualTo(expectedComparisonType);
-    }
-
-    @Test
     public void should_ignore_missing_no_namespace_location_in_test() {
         // given
         ComparisonType expectedComparisonType = ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
@@ -170,54 +128,6 @@ public class DefaultDifferenceEngineTest extends DifferenceEngineTestAbstract {
         // then
         assertThat(collectingEvaluator.different).isFalse();
         assertThat(collectingEvaluator.comparingWhat).isEqualTo(expectedComparisonType);
-    }
-
-    /**
-     * XMLUnit 1.3 jumps from the document node straight to the root element,
-     * ignoring any other children the document might have. Some people consider
-     * this a bug (Issue 2770386) others rely on it.
-     * 
-     * <p>
-     * XMLUnit 2.x doesn't ignore differences in the prelude but we want to keep
-     * the behavior for the legacy code base.
-     * </p>
-     */
-    @Test
-    public void should_detect_missing_elements_between_doc_and_root_element_in_test() throws Exception {
-        // TODO
-        // given
-        String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-                + "<!-- some comment -->"
-                + "<?foo some PI ?>"
-                + "<bar/>";
-
-        String test = "<bar/>";
-
-        // when
-        List<Comparison> differences = findDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
-
-    }
-
-    @Test
-    public void should_detect_missing_elements_between_doc_and_root_element_in_control() throws Exception {
-        // TODO
-        // given
-        String control = "<bar/>";
-        String test = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
-                + "<!-- some comment -->"
-                + "<?foo some PI ?>"
-                + "<bar/>";
-
-        // when
-        List<Comparison> differences = findDifferences(control, test);
-
-        // then
-        assertThat(differences).hasSize(1);
-        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
     }
 
     @Test

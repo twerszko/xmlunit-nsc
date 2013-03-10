@@ -645,7 +645,6 @@ public class DiffTest {
 
     @Test
     public void should_check_repeated_element_names_with_attribute_qualification() throws Exception {
-
         // given
         String control = "<root><node id=\"1\"/><node id=\"2\"/></root>";
         String test = "<root><node id=\"2\"/><node id=\"1\"/></root>";
@@ -661,7 +660,6 @@ public class DiffTest {
 
     @Test
     public void should_check_repeated_element_names_with_attribute_qualification2() throws Exception {
-
         // given
         String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
@@ -677,7 +675,6 @@ public class DiffTest {
 
     @Test
     public void should_check_repeated_element_names_with_attribute_qualification3() throws Exception {
-
         // given
         String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
         String test = "<root><node id=\"2\" val=\"3\"/><node id=\"1\" val=\"4\"/></root>";
@@ -710,7 +707,7 @@ public class DiffTest {
 
     @Test
     public void should_check_repeated_element_names_with_namespaced_attribute_qualification() throws Exception {
-
+        // TODO
         // given
         String control =
                 "<root xmlns:a=\"http://a.com\" xmlns:b=\"http://b.com\">" +
@@ -1450,5 +1447,28 @@ public class DiffTest {
         // then
         assertThat(identical).isTrue();
         assertThat(evaluator.getDifferences()).isEmpty();
+    }
+
+    @Test
+    public void should_detect_missing_elements_between_doc_and_root_element_in_test() throws Exception {
+        // given
+        String control = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>"
+                + "<!-- some comment -->"
+                + "<?foo some PI ?>"
+                + "<bar/>";
+
+        String test = "<bar/>";
+
+        // when
+        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        Diff diff = prepareDiff(properties, control, test);
+        diff.overrideDifferenceEvaluator(evaluator);
+        boolean identical = diff.identical();
+
+        // then
+        assertThat(identical).isFalse();
+        List<Comparison> differences = evaluator.getDifferences();
+        assertThat(differences).hasSize(1);
+        assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
     }
 }
