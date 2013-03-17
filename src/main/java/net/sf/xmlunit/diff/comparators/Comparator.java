@@ -17,6 +17,9 @@ public abstract class Comparator {
 
 	public final void executeComparisons(Comparisons comparisons) {
 		for (Comparison comparison : comparisons.getAll()) {
+			if (ignoreComparison(comparison)) {
+				continue;
+			}
 			executeComparison(comparison);
 			if (isInterrupted()) {
 				return;
@@ -38,6 +41,10 @@ public abstract class Comparator {
 		}
 
 		return finalResult;
+	}
+
+	protected boolean ignoreComparison(Comparison comparison) {
+		return false;
 	}
 
 	protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {

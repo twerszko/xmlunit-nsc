@@ -19,39 +19,41 @@ import javax.xml.transform.Source;
  * XMLUnit's difference engine.
  */
 public interface DifferenceEngine {
-    /**
-     * Registers a listener that is notified of each comparison.
-     */
-    void addComparisonListener(ComparisonListener l);
+	/**
+	 * Registers a listener that is notified of each comparison.
+	 */
+	void addComparisonListener(ComparisonListener l);
 
-    /**
-     * Registers a listener that is notified of each comparison with outcome
-     * {@link ComparisonResult#EQUAL}.
-     */
-    void addMatchListener(ComparisonListener l);
+	/**
+	 * Registers a listener that is notified of each comparison with outcome
+	 * {@link ComparisonResult#EQUAL}.
+	 */
+	void addMatchListener(ComparisonListener l);
 
-    /**
-     * Registers a listener that is notified of each comparison with outcome
-     * other than {@link ComparisonResult#EQUAL}.
-     */
-    void addDifferenceListener(ComparisonListener l);
+	/**
+	 * Registers a listener that is notified of each comparison with outcome
+	 * other than {@link ComparisonResult#EQUAL}.
+	 */
+	void addDifferenceListener(ComparisonListener l);
 
-    /**
-     * Sets the strategy for selecting nodes to compare.
-     */
-    void setNodeMatcher(NodeMatcher n);
+	/**
+	 * Sets the strategy for selecting nodes to compare.
+	 */
+	void setNodeMatcher(NodeMatcher n);
 
-    /**
-     * Determines whether the comparison should stop after given difference has
-     * been found.
-     */
-    void setDifferenceEvaluator(DifferenceEvaluator e);
+	/**
+	 * Determines whether the comparison should stop after given difference has
+	 * been found.
+	 */
+	void setDifferenceEvaluator(DifferenceEvaluator e);
 
-    /**
-     * Compares two pieces of XML and invokes the registered listeners.
-     */
-    void compare(Source control, Source test);
+	/**
+	 * Compares two pieces of XML and invokes the registered listeners.
+	 */
+	void compare(Source control, Source test);
 
-    void setIgnoreAttributeOrder(boolean ignore);
+	void setIgnoreAttributeOrder(boolean ignore);
+
+	void setFilter(ComparisonFilter filter);
 
 }
