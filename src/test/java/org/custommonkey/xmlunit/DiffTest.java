@@ -86,6 +86,8 @@ public class DiffTest {
 
 	protected XmlUnitProperties properties;
 
+	private Document controlDoc;
+
 	@Before
 	public void setUp() throws Exception {
 		properties = new XmlUnitProperties();
@@ -1470,5 +1472,40 @@ public class DiffTest {
 		List<Comparison> differences = evaluator.getDifferences();
 		assertThat(differences).hasSize(1);
 		assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
+	}
+
+	@Test
+	public void should_detect_different_no_namespace_schema_location() throws Exception {
+		// given
+		DocumentUtils utils = new DocumentUtils(properties);
+
+		String attrName = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NO_NAMESPACE_SCHEMA_LOCATION_ATTR;
+
+		Document controlDoc = utils.newControlDocumentBuilder().newDocument();
+		Element control = controlDoc.createElement("foo");
+		control.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "bar");
+		controlDoc.appendChild(control);
+
+		Document testDoc = utils.newTestDocumentBuilder().newDocument();
+		Element test = testDoc.createElement("foo");
+		test.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, attrName, "baz");
+		testDoc.appendChild(test);
+
+		// when
+		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+		Diff diff = prepareDiff(properties, controlDoc, testDoc);
+		diff.overrideDifferenceEvaluator(evaluator);
+		boolean identical = diff.identical();
+
+		List<Comparison> differences = evaluator.getDifferences();
+
+		// then
+		assertThat(identical).isFalse();
+		assertThat(diff.similar()).isTrue();
+
+		Comparison difference = differences.get(0);
+		assertThat(difference.getType()).isEqualTo(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
+		assertThat(difference.getControlDetails().getValue()).isEqualTo("bar");
+		assertThat(difference.getTestDetails().getValue()).isEqualTo("baz");
 	}
 }
