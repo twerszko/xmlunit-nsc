@@ -55,6 +55,7 @@ import net.sf.xmlunit.diff.DifferenceEngine;
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.diff.DetailedDiff;
 import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffTest;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextSelector;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
