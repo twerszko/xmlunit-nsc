@@ -75,24 +75,27 @@ public final class DifferenceEvaluators {
 	 * encountered, uses the {@link #Default default} evaluator to decide which
 	 * differences leave the documents simlar.
 	 */
-	public static final DifferenceEvaluator DefaultStopWhenDifferent = stopWhenDifferent(Default);
-
-	/**
-	 * Makes the comparison stop as soon as the first "real" difference is
-	 * encountered.
-	 * 
-	 * @param nestedEvaluator
-	 *            provides the initial decision whether a difference is "real"
-	 *            or still leaves the documents in a similar state.
-	 */
-	public static DifferenceEvaluator stopWhenDifferent(final DifferenceEvaluator nestedEvaluator) {
-		return new DifferenceEvaluator() {
-			public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-				ComparisonResult r = nestedEvaluator.evaluate(comparison, outcome);
-				return r == ComparisonResult.DIFFERENT ? ComparisonResult.CRITICAL : r;
-			}
-		};
-	}
+	// public static final DifferenceEvaluator DefaultStopWhenDifferent =
+	// stopWhenDifferent(Default);
+	//
+	// /**
+	// * Makes the comparison stop as soon as the first "real" difference is
+	// * encountered.
+	// *
+	// * @param nestedEvaluator
+	// * provides the initial decision whether a difference is "real"
+	// * or still leaves the documents in a similar state.
+	// */
+	// public static DifferenceEvaluator stopWhenDifferent(final
+	// DifferenceEvaluator nestedEvaluator) {
+	// return new DifferenceEvaluator() {
+	// public ComparisonResult evaluate(Comparison comparison, ComparisonResult
+	// outcome) {
+	// ComparisonResult r = nestedEvaluator.evaluate(comparison, outcome);
+	// return r == ComparisonResult.DIFFERENT ? ComparisonResult.CRITICAL : r;
+	// }
+	// };
+	// }
 
 	/**
 	 * Combines multiple DifferenceEvaluators so that the first one that changes

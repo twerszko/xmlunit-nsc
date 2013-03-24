@@ -72,9 +72,7 @@ public abstract class DifferenceEngineTestAbstract {
 
 	protected List<Comparison> findDifferences(Source control, Source test) {
 		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-		// ListingDifferenceListener listener = new ListingDifferenceListener();
 		engine.setDifferenceEvaluator(evaluator);
-		// engine.addDifferenceListener(listener);
 		engine.compare(control, test);
 
 		return evaluator.getDifferences();

@@ -39,6 +39,8 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
 	private boolean ignoreAttributeOrder = true;
 
+	private DOMComparator comparator;
+
 	public boolean getIgnoreAttributeOrder() {
 		return ignoreAttributeOrder;
 	}
@@ -63,7 +65,7 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 	}
 
 	private void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		DOMComparator comparator = createComparator();
+		comparator = createComparator();
 		comparator.compare(control, test);
 	}
 
@@ -86,6 +88,13 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 			}
 		};
 		return comparator;
+	}
+
+	@Override
+	public void stop() {
+		if (comparator != null) {
+			comparator.setInterrupted(true);
+		}
 	}
 
 	@Override

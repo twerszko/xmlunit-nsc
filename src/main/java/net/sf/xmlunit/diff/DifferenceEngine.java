@@ -20,6 +20,16 @@ import javax.xml.transform.Source;
  */
 public interface DifferenceEngine {
 	/**
+	 * Compares two pieces of XML and invokes the registered listeners.
+	 */
+	void compare(Source control, Source test);
+
+	/**
+	 * Stops currently running comparison.
+	 */
+	void stop();
+
+	/**
 	 * Registers a listener that is notified of each comparison.
 	 */
 	void addComparisonListener(ComparisonListener l);
@@ -46,11 +56,6 @@ public interface DifferenceEngine {
 	 * been found.
 	 */
 	void setDifferenceEvaluator(DifferenceEvaluator e);
-
-	/**
-	 * Compares two pieces of XML and invokes the registered listeners.
-	 */
-	void compare(Source control, Source test);
 
 	void setIgnoreAttributeOrder(boolean ignore);
 

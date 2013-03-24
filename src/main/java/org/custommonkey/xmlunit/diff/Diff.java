@@ -93,400 +93,400 @@ import org.w3c.dom.Node;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class Diff {
-    private final XmlUnitProperties properties;
+	private final XmlUnitProperties properties;
 
-    private final Document controlDoc;
-    private final Document testDoc;
-    private boolean similar = true;
-    private boolean identical = true;
-    private boolean compared = false;
-    private final DifferenceEngine differenceEngine;
-    private DifferenceEvaluator differenceEvaluator;
-    private ElementSelector elementSelector;
+	private final Document controlDoc;
+	private final Document testDoc;
+	private boolean similar = true;
+	private boolean identical = true;
+	private boolean compared = false;
+	private final DifferenceEngine differenceEngine;
+	private DifferenceEvaluator differenceEvaluator;
+	private ElementSelector elementSelector;
 
-    /**
-     * Construct a Diff that compares the XML in two Documents using a specific
-     * DifferenceEngine and ElementQualifier
-     */
-    Diff(DiffBuilder builder) {
-        this.properties = builder.properties.clone();
-        this.controlDoc = getManipulatedDocument(builder.controlDocument);
-        this.testDoc = getManipulatedDocument(builder.testDocument);
-        this.elementSelector = builder.elementSelector;
-        if (builder.differenceEngine == null) {
-            this.differenceEngine = new DOMDifferenceEngine();
-        } else {
-            this.differenceEngine = builder.differenceEngine;
-        }
-    }
+	/**
+	 * Construct a Diff that compares the XML in two Documents using a specific
+	 * DifferenceEngine and ElementQualifier
+	 */
+	Diff(DiffBuilder builder) {
+		this.properties = builder.properties.clone();
+		this.controlDoc = getManipulatedDocument(builder.controlDocument);
+		this.testDoc = getManipulatedDocument(builder.testDocument);
+		this.elementSelector = builder.elementSelector;
+		if (builder.differenceEngine == null) {
+			this.differenceEngine = new DOMDifferenceEngine();
+		} else {
+			this.differenceEngine = builder.differenceEngine;
+		}
+	}
 
-    /**
-     * Construct a Diff from a prototypical instance. Used by extension
-     * subclasses
-     * 
-     * @param prototype
-     *            a prototypical instance
-     */
-    protected Diff(Diff prototype) {
-        // TODO clone?
-        this.properties = prototype.properties.clone();
-        this.controlDoc = getManipulatedDocument(prototype.controlDoc);
-        this.testDoc = getManipulatedDocument(prototype.testDoc);
-        this.elementSelector = prototype.elementSelector;
-        this.differenceEngine = prototype.differenceEngine;
-        this.differenceEvaluator = prototype.differenceEvaluator;
+	/**
+	 * Construct a Diff from a prototypical instance. Used by extension
+	 * subclasses
+	 * 
+	 * @param prototype
+	 *            a prototypical instance
+	 */
+	protected Diff(Diff prototype) {
+		// TODO clone?
+		this.properties = prototype.properties.clone();
+		this.controlDoc = getManipulatedDocument(prototype.controlDoc);
+		this.testDoc = getManipulatedDocument(prototype.testDoc);
+		this.elementSelector = prototype.elementSelector;
+		this.differenceEngine = prototype.differenceEngine;
+		this.differenceEvaluator = prototype.differenceEvaluator;
 
-    }
+	}
 
-    /**
-     * If {@link XmlUnit#getIgnoreWhitespace whitespace is ignored} in
-     * differences then manipulate the content to strip the redundant whitespace
-     * 
-     * @param originalDoc
-     *            a document making up one half of this difference
-     * @return the original document with redundant whitespace removed if
-     *         differences ignore whitespace
-     */
-    private Document getWhitespaceManipulatedDocument(Document originalDoc) {
-        return properties.getIgnoreWhitespace()
-                ? new XsltUtils(properties).getWhitespaceStrippedDocument(originalDoc)
-                : originalDoc;
-    }
+	/**
+	 * If {@link XmlUnit#getIgnoreWhitespace whitespace is ignored} in
+	 * differences then manipulate the content to strip the redundant whitespace
+	 * 
+	 * @param originalDoc
+	 *            a document making up one half of this difference
+	 * @return the original document with redundant whitespace removed if
+	 *         differences ignore whitespace
+	 */
+	private Document getWhitespaceManipulatedDocument(Document originalDoc) {
+		return properties.getIgnoreWhitespace()
+		        ? new XsltUtils(properties).getWhitespaceStrippedDocument(originalDoc)
+		        : originalDoc;
+	}
 
-    /**
-     * Manipulates the given document according to the setting in the XMLUnit
-     * class.
-     * 
-     * <p>
-     * This may involve:
-     * </p>
-     * <ul>
-     * <li>{@link XmlUnit.setIgnoreWhitespace stripping redundant whitespace}</li>
-     * <li>{@link XmlUnit.setIgnoreComments stripping comments}</li>
-     * <li>{@link XmlUnit.setNormalize normalizing Text nodes}</li>
-     * </ul>
-     * 
-     * @param orig
-     *            a document making up one half of this difference
-     * @return manipulated doc
-     */
-    private Document getManipulatedDocument(Document orig) {
-        return getNormalizedDocument(getCommentlessDocument(getWhitespaceManipulatedDocument(orig)));
-    }
+	/**
+	 * Manipulates the given document according to the setting in the XMLUnit
+	 * class.
+	 * 
+	 * <p>
+	 * This may involve:
+	 * </p>
+	 * <ul>
+	 * <li>{@link XmlUnit.setIgnoreWhitespace stripping redundant whitespace}</li>
+	 * <li>{@link XmlUnit.setIgnoreComments stripping comments}</li>
+	 * <li>{@link XmlUnit.setNormalize normalizing Text nodes}</li>
+	 * </ul>
+	 * 
+	 * @param orig
+	 *            a document making up one half of this difference
+	 * @return manipulated doc
+	 */
+	private Document getManipulatedDocument(Document orig) {
+		return getNormalizedDocument(getCommentlessDocument(getWhitespaceManipulatedDocument(orig)));
+	}
 
-    /**
-     * Removes all comment nodes if {@link XmlUnit.getIgnoreComments comments
-     * are ignored}.
-     * 
-     * @param originalDoc
-     *            a document making up one half of this difference
-     * @return manipulated doc
-     */
-    private Document getCommentlessDocument(Document orig) {
-        if (!properties.getIgnoreComments()) {
-            return orig;
-        }
+	/**
+	 * Removes all comment nodes if {@link XmlUnit.getIgnoreComments comments
+	 * are ignored}.
+	 * 
+	 * @param originalDoc
+	 *            a document making up one half of this difference
+	 * @return manipulated doc
+	 */
+	private Document getCommentlessDocument(Document orig) {
+		if (!properties.getIgnoreComments()) {
+			return orig;
+		}
 
-        return new XsltUtils(properties).getStripCommentsTransform(orig).toDocument();
-    }
+		return new XsltUtils(properties).getStripCommentsTransform(orig).toDocument();
+	}
 
-    private Document getNormalizedDocument(Document orig) {
-        if (!properties.getNormalize()) {
-            return orig;
-        }
-        Document d = (Document) orig.cloneNode(true);
-        d.normalize();
-        return d;
-    }
+	private Document getNormalizedDocument(Document orig) {
+		if (!properties.getNormalize()) {
+			return orig;
+		}
+		Document d = (Document) orig.cloneNode(true);
+		d.normalize();
+		return d;
+	}
 
-    /**
-     * Top of the recursive comparison execution tree
-     */
-    protected final void compare() {
-        if (compared) {
-            return;
-        }
-        DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(elementSelector);
-        if (properties.getCompareUnmatched()) {
-            differenceEngine.setNodeMatcher(new CompareUnmatchedNodeMatcher(nodeMatcher));
-        } else {
-            differenceEngine.setNodeMatcher(nodeMatcher);
-        }
+	/**
+	 * Top of the recursive comparison execution tree
+	 */
+	protected final void compare() {
+		if (compared) {
+			return;
+		}
+		DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(elementSelector);
+		if (properties.getCompareUnmatched()) {
+			differenceEngine.setNodeMatcher(new CompareUnmatchedNodeMatcher(nodeMatcher));
+		} else {
+			differenceEngine.setNodeMatcher(nodeMatcher);
+		}
 
-        // TODO this must be set higher
-        differenceEngine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
+		// TODO this must be set higher
+		differenceEngine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
 
-        // TODO
-        DifferenceEvaluator controllingEvaluator = createControllingEvaluator();
-        DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(controllingEvaluator);
-        differenceEngine.setDifferenceEvaluator(evaluator);
-        Source ctrlSource = Input.fromNode(controlDoc).build();
-        Source testSource = Input.fromNode(testDoc).build();
-        if (properties.getIgnoreComments()) {
-            ctrlSource = new CommentLessSource(ctrlSource);
-            testSource = new CommentLessSource(testSource);
-        }
-        if (properties.getNormalizeWhitespace()) {
-            ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
-            testSource = new WhitespaceNormalizedSource(testSource);
-        }
-        if (properties.getIgnoreWhitespace()) {
-            ctrlSource = new WhitespaceStrippedSource(ctrlSource);
-            testSource = new WhitespaceStrippedSource(testSource);
-        }
+		// TODO
+		DifferenceEvaluator controllingEvaluator = createControllingEvaluator();
+		DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(controllingEvaluator);
+		differenceEngine.setDifferenceEvaluator(evaluator);
+		Source ctrlSource = Input.fromNode(controlDoc).build();
+		Source testSource = Input.fromNode(testDoc).build();
+		if (properties.getIgnoreComments()) {
+			ctrlSource = new CommentLessSource(ctrlSource);
+			testSource = new CommentLessSource(testSource);
+		}
+		if (properties.getNormalizeWhitespace()) {
+			ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
+			testSource = new WhitespaceNormalizedSource(testSource);
+		}
+		if (properties.getIgnoreWhitespace()) {
+			ctrlSource = new WhitespaceStrippedSource(ctrlSource);
+			testSource = new WhitespaceStrippedSource(testSource);
+		}
 
-        differenceEngine.setFilter(new ComparisonFilter() {
-            @Override
-            public boolean ignore(Comparison comparison) {
-                switch (comparison.getType()) {
-                    case XML_ENCODING:
-                    case XML_STANDALONE:
-                    case XML_VERSION:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
+		differenceEngine.setFilter(new ComparisonFilter() {
+			@Override
+			public boolean ignore(Comparison comparison) {
+				switch (comparison.getType()) {
+					case XML_ENCODING:
+					case XML_STANDALONE:
+					case XML_VERSION:
+						return true;
+					default:
+						return false;
+				}
+			}
+		});
 
-        differenceEngine.compare(ctrlSource, testSource);
-        compared = true;
-    }
+		differenceEngine.compare(ctrlSource, testSource);
+		compared = true;
+	}
 
-    /**
-     * Return the result of a comparison. Two documents are considered to be
-     * "similar" if they contain the same elements and attributes regardless of
-     * order.
-     */
-    public boolean similar() {
-        compare();
-        return similar;
-    }
+	/**
+	 * Return the result of a comparison. Two documents are considered to be
+	 * "similar" if they contain the same elements and attributes regardless of
+	 * order.
+	 */
+	public boolean similar() {
+		compare();
+		return similar;
+	}
 
-    /**
-     * Return the result of a comparison. Two documents are considered to be
-     * "identical" if they contain the same elements and attributes in the same
-     * order.
-     */
-    public boolean identical() {
-        compare();
-        return identical;
-    }
+	/**
+	 * Return the result of a comparison. Two documents are considered to be
+	 * "identical" if they contain the same elements and attributes in the same
+	 * order.
+	 */
+	public boolean identical() {
+		compare();
+		return identical;
+	}
 
-    protected DifferenceEvaluator createControllingEvaluator() {
-        return new ControllingEvaluator();
-    }
+	protected DifferenceEvaluator createControllingEvaluator() {
+		return new ControllingEvaluator();
+	}
 
-    // TODO replace this with something more readable
-    protected class ControllingEvaluator implements DifferenceEvaluator {
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (ignoreComparison(comparison, outcome)) {
-                return outcome;
-            }
+	// TODO replace this with something more readable
+	protected class ControllingEvaluator implements DifferenceEvaluator {
+		@Override
+		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+			if (ignoreComparison(comparison, outcome)) {
+				return outcome;
+			}
 
-            ComparisonResult evaluatedOutcome = outcome;
-            if (differenceEvaluator != null) {
-                evaluatedOutcome = differenceEvaluator.evaluate(comparison, outcome);
-            }
+			ComparisonResult evaluatedOutcome = outcome;
+			if (differenceEvaluator != null) {
+				evaluatedOutcome = differenceEvaluator.evaluate(comparison, outcome);
+			}
 
-            setVardict(comparison, evaluatedOutcome);
+			setVardict(comparison, evaluatedOutcome);
 
-            boolean critical = isCritical(comparison, evaluatedOutcome);
-            if (critical) {
-                return ComparisonResult.CRITICAL;
-            }
-            return evaluatedOutcome;
-        }
+			boolean critical = isCritical(comparison, evaluatedOutcome);
+			if (critical) {
+				return ComparisonResult.CRITICAL;
+			}
+			return evaluatedOutcome;
+		}
 
-    }
+	}
 
-    private boolean ignoreComparison(Comparison comparison, ComparisonResult outcome) {
-        if (outcome == ComparisonResult.EQUAL) {
-            return true;
-        }
+	private boolean ignoreComparison(Comparison comparison, ComparisonResult outcome) {
+		if (outcome == ComparisonResult.EQUAL) {
+			return true;
+		}
 
-        Node controlTarget = comparison.getControlDetails().getTarget();
-        if ((comparesChildrenListLength(comparison) && isDocument(controlTarget))
-                ||
-                (comparison.getType() == ComparisonType.CHILD_LOOKUP
-                &&
-                (isNonElementDocumentChild(comparison.getControlDetails())
-                || isNonElementDocumentChild(comparison.getTestDetails()))
-                )) {
-            return true;
-        }
-        return false;
-    }
+		Node controlTarget = comparison.getControlDetails().getTarget();
+		if ((comparesChildrenListLength(comparison) && isDocument(controlTarget))
+		        ||
+		        (comparison.getType() == ComparisonType.CHILD_LOOKUP
+		        &&
+		        (isNonElementDocumentChild(comparison.getControlDetails())
+		        || isNonElementDocumentChild(comparison.getTestDetails()))
+		        )) {
+			return true;
+		}
+		return false;
+	}
 
-    private boolean comparesChildrenListLength(Comparison comparison) {
-        return comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH;
-    }
+	private boolean comparesChildrenListLength(Comparison comparison) {
+		return comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH;
+	}
 
-    private boolean isDocument(Node controlTarget) {
-        return controlTarget instanceof Document;
-    }
+	private boolean isDocument(Node controlTarget) {
+		return controlTarget instanceof Document;
+	}
 
-    private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
-        return isNode(detail)
-                && isNotElement(detail)
-                && hasDocumentParent(detail);
-    }
+	private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
+		return isNode(detail)
+		        && isNotElement(detail)
+		        && hasDocumentParent(detail);
+	}
 
-    private static boolean hasDocumentParent(Comparison.Detail detail) {
-        return detail.getTarget().getParentNode() instanceof Document;
-    }
+	private static boolean hasDocumentParent(Comparison.Detail detail) {
+		return detail.getTarget().getParentNode() instanceof Document;
+	}
 
-    private static boolean isNotElement(Comparison.Detail detail) {
-        return !(detail.getTarget() instanceof Element);
-    }
+	private static boolean isNotElement(Comparison.Detail detail) {
+		return !(detail.getTarget() instanceof Element);
+	}
 
-    private static boolean isNode(Comparison.Detail detail) {
-        return detail != null && detail.getTarget() instanceof Node;
-    }
+	private static boolean isNode(Comparison.Detail detail) {
+		return detail != null && detail.getTarget() instanceof Node;
+	}
 
-    private boolean isCritical(Comparison comparison, ComparisonResult outcome) {
-        if (outcome == ComparisonResult.CRITICAL) {
-            return true;
-        }
-        boolean isNotRecoverable = !comparison.getType().isRecoverable();
-        if (outcome == ComparisonResult.DIFFERENT && isNotRecoverable) {
-            return true;
-        }
-        return false;
-    }
+	private boolean isCritical(Comparison comparison, ComparisonResult outcome) {
+		if (outcome == ComparisonResult.CRITICAL) {
+			return true;
+		}
+		boolean isNotRecoverable = !comparison.getType().isRecoverable();
+		if (outcome == ComparisonResult.DIFFERENT && isNotRecoverable) {
+			return true;
+		}
+		return false;
+	}
 
-    private void setVardict(Comparison comparison, ComparisonResult outcome) {
-        boolean isRecoverable = comparison.getType().isRecoverable();
-        switch (outcome) {
-            case SIMILAR:
-                identical = false;
-                break;
-            case DIFFERENT:
-                identical = false;
-                if (!isRecoverable) {
-                    similar = false;
-                }
-                break;
-            case CRITICAL:
-                identical = false;
-                similar = false;
-                break;
-            default:
-                break;
-        }
-    }
+	private void setVardict(Comparison comparison, ComparisonResult outcome) {
+		boolean isRecoverable = comparison.getType().isRecoverable();
+		switch (outcome) {
+			case SIMILAR:
+				identical = false;
+				break;
+			case DIFFERENT:
+				identical = false;
+				if (!isRecoverable) {
+					similar = false;
+				}
+				break;
+			case CRITICAL:
+				identical = false;
+				similar = false;
+				break;
+			default:
+				break;
+		}
+	}
 
-    /**
-     * Override the <code>DifferenceListener</code> used to determine how to
-     * handle differences that are found.
-     * 
-     * @param evaluator
-     *            the DifferenceListener instance to delegate handling to.
-     */
-    public void overrideDifferenceEvaluator(DifferenceEvaluator evaluator) {
-        this.differenceEvaluator = evaluator;
-    }
+	/**
+	 * Override the <code>DifferenceListener</code> used to determine how to
+	 * handle differences that are found.
+	 * 
+	 * @param evaluator
+	 *            the DifferenceListener instance to delegate handling to.
+	 */
+	public void overrideDifferenceEvaluator(DifferenceEvaluator evaluator) {
+		this.differenceEvaluator = evaluator;
+	}
 
-    /**
-     * Override the <code>ElementQualifier</code> used to determine which
-     * control and test nodes are comparable for this difference comparison.
-     * 
-     * @param selector
-     *            the ElementQualifier instance to delegate to.
-     */
-    public void overrideElementSelector(ElementSelector selector) {
-        this.elementSelector = selector;
-    }
+	/**
+	 * Override the <code>ElementQualifier</code> used to determine which
+	 * control and test nodes are comparable for this difference comparison.
+	 * 
+	 * @param selector
+	 *            the ElementQualifier instance to delegate to.
+	 */
+	public void overrideElementSelector(ElementSelector selector) {
+		this.elementSelector = selector;
+	}
 
-    public DifferenceEngine getDifferenceEngine() {
-        return differenceEngine;
-    }
+	public DifferenceEngine getDifferenceEngine() {
+		return differenceEngine;
+	}
 
-    public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
-        return new DiffBuilder(properties);
-    }
+	public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
+		return new DiffBuilder(properties);
+	}
 
-    private static class CompareUnmatchedNodeMatcher implements NodeMatcher {
-        private final NodeMatcher matcher;
+	private static class CompareUnmatchedNodeMatcher implements NodeMatcher {
+		private final NodeMatcher matcher;
 
-        private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
-            this.matcher = nested;
-        }
+		private CompareUnmatchedNodeMatcher(NodeMatcher nested) {
+			this.matcher = nested;
+		}
 
-        @Override
-        public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+		@Override
+		public List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
 
-            final Map<Node, Node> matches = findMatches(controlNodes, testNodes);
-            Iterable<Node> unmatchedTestNodes = findUnmatchedTestNodes(testNodes, matches);
-            final List<Pair<Node>> result = new LinkedList<Pair<Node>>();
+			final Map<Node, Node> matches = findMatches(controlNodes, testNodes);
+			Iterable<Node> unmatchedTestNodes = findUnmatchedTestNodes(testNodes, matches);
+			final List<Pair<Node>> result = new LinkedList<Pair<Node>>();
 
-            for (Node controlNode : controlNodes) {
-                if (matches.containsKey(controlNode)) {
-                    result.add(Pair.of(controlNode, matches.get(controlNode)));
-                } else {
-                    for (Node unmatchedTestNode : unmatchedTestNodes) {
-                        matches.put(controlNode, unmatchedTestNode);
-                        result.add(Pair.of(controlNode, unmatchedTestNode));
-                    }
-                }
-            }
-            return result;
-        }
+			for (Node controlNode : controlNodes) {
+				if (matches.containsKey(controlNode)) {
+					result.add(Pair.of(controlNode, matches.get(controlNode)));
+				} else {
+					for (Node unmatchedTestNode : unmatchedTestNodes) {
+						matches.put(controlNode, unmatchedTestNode);
+						result.add(Pair.of(controlNode, unmatchedTestNode));
+					}
+				}
+			}
+			return result;
+		}
 
-        private Iterable<Node> findUnmatchedTestNodes(Iterable<Node> testNodes, final Map<Node, Node> matches) {
-            return Linqy.filter(testNodes, new Predicate<Node>() {
-                @Override
-                public boolean matches(Node testNode) {
-                    return !matches.containsValue(testNode);
-                }
-            });
-        }
+		private Iterable<Node> findUnmatchedTestNodes(Iterable<Node> testNodes, final Map<Node, Node> matches) {
+			return Linqy.filter(testNodes, new Predicate<Node>() {
+				@Override
+				public boolean matches(Node testNode) {
+					return !matches.containsValue(testNode);
+				}
+			});
+		}
 
-        private Map<Node, Node> findMatches(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
-            Map<Node, Node> map = new LinkedHashMap<Node, Node>();
-            List<Pair<Node>> matches = matcher.match(controlNodes, testNodes);
-            for (Pair<Node> match : matches) {
-                map.put(match.getFirst(), match.getSecond());
-            }
-            return map;
-        }
-    }
+		private Map<Node, Node> findMatches(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+			Map<Node, Node> map = new LinkedHashMap<Node, Node>();
+			List<Pair<Node>> matches = matcher.match(controlNodes, testNodes);
+			for (Pair<Node> match : matches) {
+				map.put(match.getFirst(), match.getSecond());
+			}
+			return map;
+		}
+	}
 
-    // TODO replace it with something more suitable
-    private class IgnorantDifferenceEvaluator implements DifferenceEvaluator {
-        private final DifferenceEvaluator delegate;
+	// TODO replace it with something more suitable
+	private class IgnorantDifferenceEvaluator implements DifferenceEvaluator {
+		private final DifferenceEvaluator delegate;
 
-        public IgnorantDifferenceEvaluator(DifferenceEvaluator delegate) {
-            this.delegate = delegate;
-        }
+		public IgnorantDifferenceEvaluator(DifferenceEvaluator delegate) {
+			this.delegate = delegate;
+		}
 
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (swallowComparison(comparison, outcome)) {
-                return outcome;
-            }
-            return delegate.evaluate(comparison, outcome);
-        }
+		@Override
+		public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+			if (swallowComparison(comparison, outcome)) {
+				return outcome;
+			}
+			return delegate.evaluate(comparison, outcome);
+		}
 
-        private boolean swallowComparison(Comparison comparison, ComparisonResult outcome) {
-            if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
-                int controlValue = (Short) comparison.getControlDetails().getValue();
-                int testValue = (Short) comparison.getTestDetails().getValue();
-                return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
-            }
-            return false;
-        }
+		private boolean swallowComparison(Comparison comparison, ComparisonResult outcome) {
+			if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
+				int controlValue = (Short) comparison.getControlDetails().getValue();
+				int testValue = (Short) comparison.getTestDetails().getValue();
+				return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
+			}
+			return false;
+		}
 
-        private final Short TEXT_TYPE = Node.TEXT_NODE;
-        private final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
+		private final Short TEXT_TYPE = Node.TEXT_NODE;
+		private final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
 
-        private boolean isTextOrCdataNode(int nodeType) {
-            return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
-        }
+		private boolean isTextOrCdataNode(int nodeType) {
+			return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
+		}
 
-        private boolean comparesNodeTypes(Comparison comparison) {
-            return comparison.getType() == ComparisonType.NODE_TYPE;
-        }
-    }
+		private boolean comparesNodeTypes(Comparison comparison) {
+			return comparison.getType() == ComparisonType.NODE_TYPE;
+		}
+	}
 }

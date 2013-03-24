@@ -17,24 +17,24 @@ package net.sf.xmlunit.diff;
  * The possible outcomes of a comparision.
  */
 public enum ComparisonResult {
-    /**
-     * The two nodes are the same for the sake of this comparison.
-     */
-    EQUAL,
-    /**
-     * The two nodes are different but similar enough to satisfy a weak equality
-     * constraint
-     */
-    SIMILAR,
-    /**
-     * The two nodes are different.
-     */
-    DIFFERENT,
-    /**
-     * The two nodes are different and comparison should stop immediately.
-     * 
-     * <p>
-     * Only used as a return type by {@link DifferenceEvaluator}
-     */
-    CRITICAL,
+	/**
+	 * The two nodes are the same for the sake of this comparison.
+	 */
+	EQUAL,
+	/**
+	 * The two nodes are different but similar enough to satisfy a weak equality
+	 * constraint
+	 */
+	SIMILAR,
+	/**
+	 * The two nodes are different.
+	 */
+	DIFFERENT,
+	/**
+	 * The two nodes are different and comparison should stop immediately.
+	 * 
+	 * <p>
+	 * Only used as a return type by {@link DifferenceEvaluator}
+	 */
+	CRITICAL,
 }

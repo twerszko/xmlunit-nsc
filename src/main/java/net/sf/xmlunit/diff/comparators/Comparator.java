@@ -7,7 +7,7 @@ import net.sf.xmlunit.diff.internal.Comparisons;
 public abstract class Comparator {
 	private boolean interrupted;
 
-	protected final void setInterrupted(boolean interrupted) {
+	public final void setInterrupted(boolean interrupted) {
 		this.interrupted = interrupted;
 	}
 
@@ -36,9 +36,9 @@ public abstract class Comparator {
 
 		comparisonPerformed(comparison, finalResult);
 
-		if (finalResult == ComparisonResult.CRITICAL) {
-			interrupted = true;
-		}
+		// if (finalResult == ComparisonResult.CRITICAL) {
+		// interrupted = true;
+		// }
 
 		return finalResult;
 	}
