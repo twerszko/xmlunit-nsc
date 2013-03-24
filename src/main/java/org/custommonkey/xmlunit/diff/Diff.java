@@ -277,6 +277,10 @@ public class Diff {
 		return new ControllingEvaluator();
 	}
 
+	protected void stopComparison() {
+		differenceEngine.stop();
+	}
+
 	// TODO replace this with something more readable
 	protected class ControllingEvaluator implements DifferenceEvaluator {
 		@Override
@@ -294,11 +298,10 @@ public class Diff {
 
 			boolean critical = isCritical(comparison, evaluatedOutcome);
 			if (critical) {
-				return ComparisonResult.CRITICAL;
+				stopComparison();
 			}
 			return evaluatedOutcome;
 		}
-
 	}
 
 	private boolean ignoreComparison(Comparison comparison, ComparisonResult outcome) {

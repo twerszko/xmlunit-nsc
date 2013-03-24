@@ -34,7 +34,7 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package org.custommonkey.xmlunit.diff;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -52,10 +52,9 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEngine;
 
+import org.custommonkey.xmlunit.SimpleXpathEngine;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.builder.BuilderException;
-import org.custommonkey.xmlunit.diff.DetailedDiff;
-import org.custommonkey.xmlunit.diff.Diff;
-import org.custommonkey.xmlunit.diff.DiffTest;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextSelector;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -71,7 +70,7 @@ import org.xml.sax.SAXException;
  * Test a DetailedDiff. Extend the test case class for Diff so we can rerun
  * those tests with a DetailedDiff and assert that behaviour has not changed.
  */
-public class DetailedDiffTest extends DiffTest {
+public class DetailedDiffTest extends DiffTestAbstract {
 
 	@Override
 	protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {

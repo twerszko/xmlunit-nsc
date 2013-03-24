@@ -98,7 +98,10 @@ public class DetailedDiff extends Diff {
 			allDifferences.add(difference);
 			return evaluatedValue;
 		}
+	}
 
+	@Override
+	protected void stopComparison() {
 	}
 
 	/**

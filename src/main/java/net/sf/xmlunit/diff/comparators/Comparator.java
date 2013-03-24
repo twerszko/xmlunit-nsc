@@ -36,10 +36,6 @@ public abstract class Comparator {
 
 		comparisonPerformed(comparison, finalResult);
 
-		// if (finalResult == ComparisonResult.CRITICAL) {
-		// interrupted = true;
-		// }
-
 		return finalResult;
 	}
 
