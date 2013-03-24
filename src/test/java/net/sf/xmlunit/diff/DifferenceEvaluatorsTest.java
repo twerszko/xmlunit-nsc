@@ -13,59 +13,67 @@
  */
 package net.sf.xmlunit.diff;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 import org.junit.Test;
 
 public class DifferenceEvaluatorsTest {
 
-    private static class Evaluator implements DifferenceEvaluator {
-        private boolean called = false;
-        private final ComparisonResult ret;
+	private static class Evaluator implements DifferenceEvaluator {
+		private boolean called = false;
+		private final ComparisonResult ret;
 
-        private Evaluator(ComparisonResult ret) {
-            this.ret = ret;
-        }
+		private Evaluator(ComparisonResult ret) {
+			this.ret = ret;
+		}
 
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult orig) {
-            called = true;
-            return ret;
-        }
-    }
+		public ComparisonResult evaluate(Comparison comparison, ComparisonResult orig) {
+			called = true;
+			return ret;
+		}
+	}
 
-    @Test
-    public void empty_first_just_works() {
-        // given
-        DifferenceEvaluator d = DifferenceEvaluators.first();
-        // when
-        ComparisonResult evaluationResult = d.evaluate(null, ComparisonResult.CRITICAL);
-        // then
-        assertThat(evaluationResult, is(equalTo(ComparisonResult.CRITICAL)));
-    }
+	@Test
+	public void should_return_orginal_result_when_empty_first() {
+		// given
+		ComparisonResult expectredResult = ComparisonResult.SIMILAR;
+		DifferenceEvaluator d = DifferenceEvaluators.first();
+		// when
+		ComparisonResult result = d.evaluate(null, expectredResult);
+		// then
+		assertThat(result).isEqualTo(expectredResult);
+	}
 
-    @Test
-    public void first_change_wins_in_first() {
-        // given
-        Evaluator e1 = new Evaluator(ComparisonResult.CRITICAL);
-        Evaluator e2 = new Evaluator(ComparisonResult.EQUAL);
-        DifferenceEvaluator d = DifferenceEvaluators.first(e1, e2);
+	@Test
+	public void should_use_first_evaluator() {
+		// given
+		Evaluator e1 = new Evaluator(ComparisonResult.SIMILAR);
+		Evaluator e2 = new Evaluator(ComparisonResult.EQUAL);
+		DifferenceEvaluator d = DifferenceEvaluators.first(e1, e2);
 
-        // when
-        ComparisonResult evaluationResult1 = d.evaluate(null, ComparisonResult.DIFFERENT);
+		// when
+		ComparisonResult result = d.evaluate(null, ComparisonResult.DIFFERENT);
 
-        // then
-        assertThat(evaluationResult1, is(equalTo(ComparisonResult.CRITICAL)));
-        assertTrue(e1.called);
-        assertFalse(e2.called);
-        e1.called = false;
-        assertEquals(ComparisonResult.EQUAL, d.evaluate(null, ComparisonResult.CRITICAL));
-        assertTrue(e1.called);
-        assertTrue(e2.called);
-    }
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.SIMILAR);
+		assertThat(e1.called).isTrue();
+		assertThat(e2.called).isFalse();
+	}
+
+	@Test
+	public void should_ommit_first_evaluator() {
+		// given
+		Evaluator e1 = new Evaluator(ComparisonResult.SIMILAR);
+		Evaluator e2 = new Evaluator(ComparisonResult.EQUAL);
+		DifferenceEvaluator d = DifferenceEvaluators.first(e1, e2);
+
+		// when
+		ComparisonResult result = d.evaluate(null, ComparisonResult.SIMILAR);
+
+		// then
+		assertThat(result).isEqualTo(ComparisonResult.EQUAL);
+		assertThat(e1.called).isTrue();
+		assertThat(e2.called).isTrue();
+	}
 
 }
