@@ -61,12 +61,12 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngine;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelectors;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
-import net.sf.xmlunit.diff.comparators.DefaultDifferenceEngineFactory;
-import net.sf.xmlunit.diff.comparators.DifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.ElementNameAndAttributeSelector;
 import org.custommonkey.xmlunit.XMLConstants;
@@ -1293,8 +1293,6 @@ public abstract class DiffTestAbstract {
     }
 
     /**
-     * @throws IOException
-     * @throws SAXException
      * @see https 
      *      ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187
      *      &atid=377768

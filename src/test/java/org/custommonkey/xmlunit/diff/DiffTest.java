@@ -46,9 +46,9 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
-import net.sf.xmlunit.diff.comparators.DefaultDifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;

@@ -65,6 +65,7 @@ public class DetailedDiff extends Diff {
      *            information is required
      */
     public DetailedDiff(Diff prototype) {
+        // TODO replace with delegation
         super(prototype);
         allDifferences = new ArrayList<Comparison>();
     }
@@ -94,15 +95,15 @@ public class DetailedDiff extends Diff {
             }
             allDifferences.add(comparison);
         }
+
+        @Override
+        protected void stopComparison() {
+        }
     }
 
     @Override
     protected ComparisonListener createControllingListener(DifferenceEngine engine) {
         return new AddingListener(engine);
-    }
-
-    @Override
-    protected void stopComparison(DifferenceEngine engine) {
     }
 
     /**

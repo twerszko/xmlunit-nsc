@@ -50,7 +50,7 @@ import javax.xml.transform.dom.DOMSource;
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.comparators.DifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.XmlUnitProperties;

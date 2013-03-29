@@ -8,9 +8,9 @@ import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.dom.DOMSource;
 
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
-import net.sf.xmlunit.diff.comparators.DifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.builder.Builder;

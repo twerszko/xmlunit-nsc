@@ -50,13 +50,13 @@ import net.sf.xmlunit.diff.ComparisonFilter;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEngine;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.NodeMatcher;
-import net.sf.xmlunit.diff.comparators.DefaultDifferenceEngineFactory;
-import net.sf.xmlunit.diff.comparators.DifferenceEngineFactory;
 import net.sf.xmlunit.input.CommentLessSource;
 import net.sf.xmlunit.input.WhitespaceNormalizedSource;
 import net.sf.xmlunit.input.WhitespaceStrippedSource;
@@ -129,6 +129,7 @@ public class Diff {
      * @param prototype
      *            a prototypical instance
      */
+    // TODO this can be removed
     protected Diff(Diff prototype) {
         // TODO clone?
         this.properties = prototype.properties.clone();
@@ -286,11 +287,6 @@ public class Diff {
     }
 
     // TODO
-    protected void stopComparison(DifferenceEngine engine) {
-        engine.stop();
-    }
-
-    // TODO
     protected class ControllingListener implements ComparisonListener {
         private final DifferenceEngine engine;
 
@@ -306,8 +302,12 @@ public class Diff {
             setVardict(comparison, outcome);
             boolean critical = isCritical(comparison, outcome);
             if (critical) {
-                stopComparison(engine);
+                stopComparison();
             }
+        }
+
+        protected void stopComparison() {
+            engine.stop();
         }
     }
 
