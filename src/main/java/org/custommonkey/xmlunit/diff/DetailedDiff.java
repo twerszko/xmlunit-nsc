@@ -41,7 +41,6 @@ import java.util.List;
 
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 /**
  * Compares and describes all the differences between two XML documents. The
@@ -54,63 +53,57 @@ import net.sf.xmlunit.diff.DifferenceEvaluator;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class DetailedDiff extends Diff {
-	private final List<Comparison> allDifferences;
+    private final List<Comparison> allDifferences;
 
-	/**
-	 * Create a new instance based on a prototypical Diff instance
-	 * 
-	 * @param prototype
-	 *            the Diff instance for which more detailed difference
-	 *            information is required
-	 */
-	public DetailedDiff(Diff prototype) {
-		super(prototype);
-		allDifferences = new ArrayList<Comparison>();
-	}
+    /**
+     * Create a new instance based on a prototypical Diff instance
+     * 
+     * @param prototype
+     *            the Diff instance for which more detailed difference
+     *            information is required
+     */
+    public DetailedDiff(Diff prototype) {
+        super(prototype);
+        allDifferences = new ArrayList<Comparison>();
+        // TODO
+        prototype.removeControllingListener();
+        differenceEngine.addComparisonListener(new AddingListener());
+    }
 
-	@Override
-	protected DifferenceEvaluator createControllingEvaluator() {
-		return new AddingEvaluator();
-	}
+    // TODO
+    protected class AddingListener extends ControllingListener {
+        @Override
+        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+            super.comparisonPerformed(comparison, outcome);
+            switch (outcome) {
+                case EQUAL:
+                    return;
+                case DIFFERENT:
+                    break;
+                case SIMILAR:
+                    comparison.setRecoverable(true);
+                    break;
+                case CRITICAL:
+                    comparison.setRecoverable(false);
+                    break;
+                default:
+                    throw new IllegalArgumentException(outcome + " is not supported");
+            }
+            allDifferences.add(comparison);
+        }
+    }
 
-	// TODO
-	private class AddingEvaluator extends ControllingEvaluator {
+    @Override
+    protected void stopComparison() {
+    }
 
-		@Override
-		public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
-			ComparisonResult returnValue = super.evaluate(difference, outcome);
-			ComparisonResult evaluatedValue = returnValue;
-			switch (returnValue) {
-				case EQUAL:
-					return returnValue;
-				case DIFFERENT:
-					break;
-				case SIMILAR:
-					difference.setRecoverable(true);
-					break;
-				case CRITICAL:
-					difference.setRecoverable(false);
-					evaluatedValue = ComparisonResult.DIFFERENT;
-					break;
-				default:
-					throw new IllegalArgumentException(returnValue + " is not supported");
-			}
-			allDifferences.add(difference);
-			return evaluatedValue;
-		}
-	}
-
-	@Override
-	protected void stopComparison() {
-	}
-
-	/**
-	 * Obtain all the differences found by this instance
-	 * 
-	 * @return a list of {@link Difference differences}
-	 */
-	public List<Comparison> getAllDifferences() {
-		compare();
-		return allDifferences;
-	}
+    /**
+     * Obtain all the differences found by this instance
+     * 
+     * @return a list of {@link Difference differences}
+     */
+    public List<Comparison> getAllDifferences() {
+        compare();
+        return allDifferences;
+    }
 }

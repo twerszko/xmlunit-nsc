@@ -29,6 +29,12 @@ public abstract class ObservableDifferenceEngine implements DifferenceEngine {
     }
 
     @Override
+    public void removeComparisonListener(ComparisonListener l) {
+        Preconditions.checkArgument(l != null, "listener must not be null");
+        listeners.removeComparisonListener(l);
+    }
+
+    @Override
     public void addMatchListener(ComparisonListener l) {
         Preconditions.checkArgument(l != null, "listener must not be null");
         listeners.addMatchListener(l);

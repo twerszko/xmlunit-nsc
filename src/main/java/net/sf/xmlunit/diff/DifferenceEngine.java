@@ -19,46 +19,49 @@ import javax.xml.transform.Source;
  * XMLUnit's difference engine.
  */
 public interface DifferenceEngine {
-	/**
-	 * Compares two pieces of XML and invokes the registered listeners.
-	 */
-	void compare(Source control, Source test);
+    /**
+     * Compares two pieces of XML and invokes the registered listeners.
+     */
+    void compare(Source control, Source test);
 
-	/**
-	 * Stops currently running comparison.
-	 */
-	void stop();
+    /**
+     * Stops currently running comparison.
+     */
+    void stop();
 
-	/**
-	 * Registers a listener that is notified of each comparison.
-	 */
-	void addComparisonListener(ComparisonListener l);
+    /**
+     * Registers a listener that is notified of each comparison.
+     */
+    void addComparisonListener(ComparisonListener l);
 
-	/**
-	 * Registers a listener that is notified of each comparison with outcome
-	 * {@link ComparisonResult#EQUAL}.
-	 */
-	void addMatchListener(ComparisonListener l);
+    // TODO
+    void removeComparisonListener(ComparisonListener l);
 
-	/**
-	 * Registers a listener that is notified of each comparison with outcome
-	 * other than {@link ComparisonResult#EQUAL}.
-	 */
-	void addDifferenceListener(ComparisonListener l);
+    /**
+     * Registers a listener that is notified of each comparison with outcome
+     * {@link ComparisonResult#EQUAL}.
+     */
+    void addMatchListener(ComparisonListener l);
 
-	/**
-	 * Sets the strategy for selecting nodes to compare.
-	 */
-	void setNodeMatcher(NodeMatcher n);
+    /**
+     * Registers a listener that is notified of each comparison with outcome
+     * other than {@link ComparisonResult#EQUAL}.
+     */
+    void addDifferenceListener(ComparisonListener l);
 
-	/**
-	 * Determines whether the comparison should stop after given difference has
-	 * been found.
-	 */
-	void setDifferenceEvaluator(DifferenceEvaluator e);
+    /**
+     * Sets the strategy for selecting nodes to compare.
+     */
+    void setNodeMatcher(NodeMatcher n);
 
-	void setIgnoreAttributeOrder(boolean ignore);
+    /**
+     * Determines whether the comparison should stop after given difference has
+     * been found.
+     */
+    void setDifferenceEvaluator(DifferenceEvaluator e);
 
-	void setFilter(ComparisonFilter filter);
+    void setIgnoreAttributeOrder(boolean ignore);
+
+    void setFilter(ComparisonFilter filter);
 
 }

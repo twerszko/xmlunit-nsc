@@ -36,6 +36,10 @@ public class ComparisonListenerSupport {
         compListeners.add(l);
     }
 
+    public void removeComparisonListener(ComparisonListener l) {
+        compListeners.remove(l);
+    }
+
     /**
      * Registers a listener that is notified of each comparison with outcome
      * {@link ComparisonResult#EQUAL}.

@@ -590,16 +590,16 @@ public abstract class DiffTestAbstract {
 		// when
 		Diff diffWithIdenticalOverride = prepareDiff(properties, control, test);
 		diffWithIdenticalOverride.overrideDifferenceEvaluator(
-		        new OverrideDifferenceListener(ComparisonResult.EQUAL)
+		        new OverridingDifferenceEvaluator(ComparisonResult.EQUAL)
 		        );
 
 		Diff diffWithSimilarOverride = prepareDiff(properties, control, test);
 		diffWithSimilarOverride.overrideDifferenceEvaluator(
-		        new OverrideDifferenceListener(ComparisonResult.SIMILAR)
+		        new OverridingDifferenceEvaluator(ComparisonResult.SIMILAR)
 		        );
 
 		Diff diffWithOverride = prepareDiff(properties, control, test);
-		diffWithOverride.overrideDifferenceEvaluator(new OverrideDifferenceListener(
+		diffWithOverride.overrideDifferenceEvaluator(new OverridingDifferenceEvaluator(
 		        ComparisonResult.DIFFERENT));
 
 		// then
@@ -789,10 +789,10 @@ public abstract class DiffTestAbstract {
 		assertThat(diff.similar()).isTrue();
 	}
 
-	private class OverrideDifferenceListener implements DifferenceEvaluator {
+	private class OverridingDifferenceEvaluator implements DifferenceEvaluator {
 		private final ComparisonResult overrideValue;
 
-		private OverrideDifferenceListener(ComparisonResult overrideValue) {
+		private OverridingDifferenceEvaluator(ComparisonResult overrideValue) {
 			this.overrideValue = overrideValue;
 		}
 
