@@ -46,7 +46,9 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
+import net.sf.xmlunit.diff.comparators.DefaultDifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
@@ -55,34 +57,41 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class DiffTest extends DiffTestAbstract {
-	@Test
-	public void should_stop_comparison_after_first_difference() throws Exception {
-		// given
-		DocumentUtils utils = new DocumentUtils(properties);
-		Document controlDoc = utils.newControlDocumentBuilder().newDocument();
-		Element control = controlDoc.createElement("foo");
-		controlDoc.appendChild(control);
-		control.appendChild(controlDoc.createTextNode("text"));
+    @Test
+    public void should_stop_comparison_after_first_difference() throws Exception {
+        // given
+        DocumentUtils utils = new DocumentUtils(properties);
+        Document controlDoc = utils.newControlDocumentBuilder().newDocument();
+        Element control = controlDoc.createElement("foo");
+        controlDoc.appendChild(control);
+        control.appendChild(controlDoc.createTextNode("text"));
 
-		Document testDoc = utils.newTestDocumentBuilder().newDocument();
-		Element test = testDoc.createElement("bar");
-		testDoc.appendChild(test);
+        Document testDoc = utils.newTestDocumentBuilder().newDocument();
+        Element test = testDoc.createElement("bar");
+        testDoc.appendChild(test);
 
-		// when
-		ComparisonListener listener = mock(ComparisonListener.class);
+        // when
+        final ComparisonListener listener = mock(ComparisonListener.class);
 
-		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-		Diff diff = prepareDiff(properties, controlDoc, testDoc);
-		diff.getDifferenceEngine().addDifferenceListener(listener);
-		diff.overrideDifferenceEvaluator(evaluator);
-		boolean identical = diff.identical();
+        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        Diff diff = prepareDiff(properties, controlDoc, testDoc);
+        diff.setEngineFactory(new DefaultDifferenceEngineFactory() {
+            @Override
+            public DifferenceEngine newEngine() {
+                DifferenceEngine engine = super.newEngine();
+                engine.addDifferenceListener(listener);
+                return engine;
+            }
+        });
+        diff.overrideDifferenceEvaluator(evaluator);
+        boolean identical = diff.identical();
 
-		List<Comparison> differences = evaluator.getDifferences();
+        List<Comparison> differences = evaluator.getDifferences();
 
-		// then
-		assertThat(differences).hasSize(1);
-		assertThat(identical).isFalse();
-		Mockito.verify(listener, times(1)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        // then
+        assertThat(differences).hasSize(1);
+        assertThat(identical).isFalse();
+        Mockito.verify(listener, times(1)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-	}
+    }
 }

@@ -40,7 +40,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.xmlunit.diff.Comparison;
+import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DifferenceEngine;
 
 /**
  * Compares and describes all the differences between two XML documents. The
@@ -65,13 +67,14 @@ public class DetailedDiff extends Diff {
     public DetailedDiff(Diff prototype) {
         super(prototype);
         allDifferences = new ArrayList<Comparison>();
-        // TODO
-        prototype.removeControllingListener();
-        differenceEngine.addComparisonListener(new AddingListener());
     }
 
     // TODO
     protected class AddingListener extends ControllingListener {
+        public AddingListener(DifferenceEngine engine) {
+            super(engine);
+        }
+
         @Override
         public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
             super.comparisonPerformed(comparison, outcome);
@@ -94,7 +97,12 @@ public class DetailedDiff extends Diff {
     }
 
     @Override
-    protected void stopComparison() {
+    protected ComparisonListener createControllingListener(DifferenceEngine engine) {
+        return new AddingListener(engine);
+    }
+
+    @Override
+    protected void stopComparison(DifferenceEngine engine) {
     }
 
     /**

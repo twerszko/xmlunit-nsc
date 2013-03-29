@@ -50,12 +50,13 @@ import net.sf.xmlunit.diff.ComparisonFilter;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DOMDifferenceEngine;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.NodeMatcher;
+import net.sf.xmlunit.diff.comparators.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.comparators.DifferenceEngineFactory;
 import net.sf.xmlunit.input.CommentLessSource;
 import net.sf.xmlunit.input.WhitespaceNormalizedSource;
 import net.sf.xmlunit.input.WhitespaceStrippedSource;
@@ -101,11 +102,9 @@ public class Diff {
     private boolean similar = true;
     private boolean identical = true;
     private boolean compared = false;
-    protected final DifferenceEngine differenceEngine;
+    private DifferenceEngineFactory engineFactory;
     private DifferenceEvaluator differenceEvaluator;
     private ElementSelector elementSelector;
-
-    private ControllingListener controllingListener;
 
     /**
      * Construct a Diff that compares the XML in two Documents using a specific
@@ -116,13 +115,11 @@ public class Diff {
         this.controlDoc = getManipulatedDocument(builder.controlDocument);
         this.testDoc = getManipulatedDocument(builder.testDocument);
         this.elementSelector = builder.elementSelector;
-        if (builder.differenceEngine == null) {
-            this.differenceEngine = new DOMDifferenceEngine();
+        if (builder.engineFactory == null) {
+            this.engineFactory = new DefaultDifferenceEngineFactory();
         } else {
-            this.differenceEngine = builder.differenceEngine;
+            this.engineFactory = builder.engineFactory;
         }
-        // TODO
-        initEngine();
     }
 
     /**
@@ -138,19 +135,12 @@ public class Diff {
         this.controlDoc = getManipulatedDocument(prototype.controlDoc);
         this.testDoc = getManipulatedDocument(prototype.testDoc);
         this.elementSelector = prototype.elementSelector;
-        this.differenceEngine = prototype.differenceEngine;
+        this.engineFactory = prototype.engineFactory;
         this.differenceEvaluator = prototype.differenceEvaluator;
-        initEngine();
     }
 
-    // TODO bleeee
-    private void initEngine() {
-        controllingListener = new ControllingListener();
-        differenceEngine.addComparisonListener(controllingListener);
-    }
-
-    protected final void removeControllingListener() {
-        differenceEngine.removeComparisonListener(controllingListener);
+    public void setEngineFactory(DifferenceEngineFactory factory) {
+        this.engineFactory = factory;
     }
 
     /**
@@ -221,19 +211,23 @@ public class Diff {
         if (compared) {
             return;
         }
+
+        DifferenceEngine engine = engineFactory.newEngine();
+        engine.addComparisonListener(createControllingListener(engine));
+
         DefaultNodeMatcher nodeMatcher = new DefaultNodeMatcher(elementSelector);
         if (properties.getCompareUnmatched()) {
-            differenceEngine.setNodeMatcher(new CompareUnmatchedNodeMatcher(nodeMatcher));
+            engine.setNodeMatcher(new CompareUnmatchedNodeMatcher(nodeMatcher));
         } else {
-            differenceEngine.setNodeMatcher(nodeMatcher);
+            engine.setNodeMatcher(nodeMatcher);
         }
 
         // TODO this must be set higher
-        differenceEngine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
+        engine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
 
         // TODO
         DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(differenceEvaluator);
-        differenceEngine.setDifferenceEvaluator(evaluator);
+        engine.setDifferenceEvaluator(evaluator);
         Source ctrlSource = Input.fromNode(controlDoc).build();
         Source testSource = Input.fromNode(testDoc).build();
         if (properties.getIgnoreComments()) {
@@ -249,7 +243,7 @@ public class Diff {
             testSource = new WhitespaceStrippedSource(testSource);
         }
 
-        differenceEngine.setFilter(new ComparisonFilter() {
+        engine.setFilter(new ComparisonFilter() {
             @Override
             public boolean ignore(Comparison comparison) {
                 switch (comparison.getType()) {
@@ -263,8 +257,12 @@ public class Diff {
             }
         });
 
-        differenceEngine.compare(ctrlSource, testSource);
+        engine.compare(ctrlSource, testSource);
         compared = true;
+    }
+
+    protected ComparisonListener createControllingListener(DifferenceEngine engine) {
+        return new ControllingListener(engine);
     }
 
     /**
@@ -287,12 +285,19 @@ public class Diff {
         return identical;
     }
 
-    protected void stopComparison() {
-        differenceEngine.stop();
+    // TODO
+    protected void stopComparison(DifferenceEngine engine) {
+        engine.stop();
     }
 
     // TODO
     protected class ControllingListener implements ComparisonListener {
+        private final DifferenceEngine engine;
+
+        public ControllingListener(DifferenceEngine engine) {
+            this.engine = engine;
+        }
+
         @Override
         public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
             if (ignoreComparison(comparison, outcome)) {
@@ -301,7 +306,7 @@ public class Diff {
             setVardict(comparison, outcome);
             boolean critical = isCritical(comparison, outcome);
             if (critical) {
-                stopComparison();
+                stopComparison(engine);
             }
         }
     }
@@ -402,10 +407,6 @@ public class Diff {
      */
     public void overrideElementSelector(ElementSelector selector) {
         this.elementSelector = selector;
-    }
-
-    public DifferenceEngine getDifferenceEngine() {
-        return differenceEngine;
     }
 
     public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {

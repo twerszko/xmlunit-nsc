@@ -34,9 +34,6 @@ public interface DifferenceEngine {
      */
     void addComparisonListener(ComparisonListener l);
 
-    // TODO
-    void removeComparisonListener(ComparisonListener l);
-
     /**
      * Registers a listener that is notified of each comparison with outcome
      * {@link ComparisonResult#EQUAL}.

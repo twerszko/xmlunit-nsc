@@ -8,9 +8,9 @@ import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
+import net.sf.xmlunit.diff.comparators.DifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.builder.Builder;
@@ -28,7 +28,7 @@ public class DiffBuilder {
     Document testDocument;
     Document controlDocument;
 
-    DifferenceEngine differenceEngine = null;
+    DifferenceEngineFactory engineFactory = null;
     ElementSelector elementSelector = ElementSelectors.byName;
 
     public DiffBuilder(@Nullable XmlUnitProperties properties) {
@@ -173,8 +173,8 @@ public class DiffBuilder {
         private DiffPropertiesBuilder() {
         }
 
-        public DiffPropertiesBuilder usingDifferenceEngine(@Nullable DifferenceEngine engine) {
-            differenceEngine = engine;
+        public DiffPropertiesBuilder usingDifferenceEngineFactory(@Nullable DifferenceEngineFactory factory) {
+            engineFactory = factory;
             return this;
         }
 
