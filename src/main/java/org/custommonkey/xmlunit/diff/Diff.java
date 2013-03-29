@@ -232,8 +232,7 @@ public class Diff {
         differenceEngine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
 
         // TODO
-        DifferenceEvaluator controllingEvaluator = createControllingEvaluator();
-        DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(controllingEvaluator);
+        DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(differenceEvaluator);
         differenceEngine.setDifferenceEvaluator(evaluator);
         Source ctrlSource = Input.fromNode(controlDoc).build();
         Source testSource = Input.fromNode(testDoc).build();
@@ -288,10 +287,6 @@ public class Diff {
         return identical;
     }
 
-    protected DifferenceEvaluator createControllingEvaluator() {
-        return new ControllingEvaluator();
-    }
-
     protected void stopComparison() {
         differenceEngine.stop();
     }
@@ -308,29 +303,6 @@ public class Diff {
             if (critical) {
                 stopComparison();
             }
-        }
-    }
-
-    // TODO replace this with something more readable
-    protected class ControllingEvaluator implements DifferenceEvaluator {
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (ignoreComparison(comparison, outcome)) {
-                return outcome;
-            }
-
-            ComparisonResult evaluatedOutcome = outcome;
-            if (differenceEvaluator != null) {
-                evaluatedOutcome = differenceEvaluator.evaluate(comparison, outcome);
-            }
-
-            // setVardict(comparison, evaluatedOutcome);
-
-            // boolean critical = isCritical(comparison, evaluatedOutcome);
-            // if (critical) {
-            // stopComparison();
-            // }
-            return evaluatedOutcome;
         }
     }
 
@@ -497,6 +469,13 @@ public class Diff {
         @Override
         public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
             if (swallowComparison(comparison, outcome)) {
+                return outcome;
+            }
+            if (ignoreComparison(comparison, outcome)) {
+                return outcome;
+            }
+
+            if (delegate == null) {
                 return outcome;
             }
             return delegate.evaluate(comparison, outcome);
