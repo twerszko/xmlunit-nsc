@@ -64,9 +64,7 @@ import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Pair;
 import net.sf.xmlunit.util.Predicate;
 
-import org.custommonkey.xmlunit.XmlUnit;
 import org.custommonkey.xmlunit.XmlUnitProperties;
-import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -112,8 +110,8 @@ public class Diff {
      */
     Diff(DiffBuilder builder) {
         this.properties = builder.properties.clone();
-        this.controlDoc = getManipulatedDocument(builder.controlDocument);
-        this.testDoc = getManipulatedDocument(builder.testDocument);
+        this.controlDoc = builder.controlDocument;
+        this.testDoc = builder.testDocument;
         this.elementSelector = builder.elementSelector;
         if (builder.engineFactory == null) {
             this.engineFactory = new DefaultDifferenceEngineFactory();
@@ -133,8 +131,8 @@ public class Diff {
     protected Diff(Diff prototype) {
         // TODO clone?
         this.properties = prototype.properties.clone();
-        this.controlDoc = getManipulatedDocument(prototype.controlDoc);
-        this.testDoc = getManipulatedDocument(prototype.testDoc);
+        this.controlDoc = prototype.controlDoc;
+        this.testDoc = prototype.testDoc;
         this.elementSelector = prototype.elementSelector;
         this.engineFactory = prototype.engineFactory;
         this.differenceEvaluator = prototype.differenceEvaluator;
@@ -142,67 +140,6 @@ public class Diff {
 
     public void setEngineFactory(DifferenceEngineFactory factory) {
         this.engineFactory = factory;
-    }
-
-    /**
-     * If {@link XmlUnit#getIgnoreWhitespace whitespace is ignored} in
-     * differences then manipulate the content to strip the redundant whitespace
-     * 
-     * @param originalDoc
-     *            a document making up one half of this difference
-     * @return the original document with redundant whitespace removed if
-     *         differences ignore whitespace
-     */
-    private Document getWhitespaceManipulatedDocument(Document originalDoc) {
-        return properties.getIgnoreWhitespace()
-                ? new XsltUtils(properties).getWhitespaceStrippedDocument(originalDoc)
-                : originalDoc;
-    }
-
-    /**
-     * Manipulates the given document according to the setting in the XMLUnit
-     * class.
-     * 
-     * <p>
-     * This may involve:
-     * </p>
-     * <ul>
-     * <li>{@link XmlUnit.setIgnoreWhitespace stripping redundant whitespace}</li>
-     * <li>{@link XmlUnit.setIgnoreComments stripping comments}</li>
-     * <li>{@link XmlUnit.setNormalize normalizing Text nodes}</li>
-     * </ul>
-     * 
-     * @param orig
-     *            a document making up one half of this difference
-     * @return manipulated doc
-     */
-    private Document getManipulatedDocument(Document orig) {
-        return getNormalizedDocument(getCommentlessDocument(getWhitespaceManipulatedDocument(orig)));
-    }
-
-    /**
-     * Removes all comment nodes if {@link XmlUnit.getIgnoreComments comments
-     * are ignored}.
-     * 
-     * @param originalDoc
-     *            a document making up one half of this difference
-     * @return manipulated doc
-     */
-    private Document getCommentlessDocument(Document orig) {
-        if (!properties.getIgnoreComments()) {
-            return orig;
-        }
-
-        return new XsltUtils(properties).getStripCommentsTransform(orig).toDocument();
-    }
-
-    private Document getNormalizedDocument(Document orig) {
-        if (!properties.getNormalize()) {
-            return orig;
-        }
-        Document d = (Document) orig.cloneNode(true);
-        d.normalize();
-        return d;
     }
 
     /**
