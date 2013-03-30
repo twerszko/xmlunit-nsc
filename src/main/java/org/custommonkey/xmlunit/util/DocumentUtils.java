@@ -105,7 +105,6 @@ public class DocumentUtils {
         factory.setNamespaceAware(true);
         factory.setIgnoringElementContentWhitespace(properties.getIgnoreWhitespace());
         factory.setExpandEntityReferences(properties.getExpandEntityReferences());
-        factory.setCoalescing(properties.getIgnoreDiffBetweenTextAndCDATA());
 
         return factory;
     }

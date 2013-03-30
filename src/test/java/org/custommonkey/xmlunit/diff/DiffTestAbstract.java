@@ -85,10 +85,12 @@ import org.xml.sax.SAXException;
 public abstract class DiffTestAbstract {
 
     protected XmlUnitProperties properties;
+    private DocumentUtils documentUtils;
 
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
+        documentUtils = new DocumentUtils(properties);
     }
 
     protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {
@@ -878,22 +880,6 @@ public abstract class DiffTestAbstract {
     }
 
     @Test
-    public void should_be_identical_when_CDATA_ignored() throws Exception {
-        // given
-        properties.setIgnoreDiffBetweenTextAndCDATA(true);
-
-        String control = "<a>Hello</a>";
-        String test = "<a><![CDATA[Hello]]></a>";
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-
-        // then
-        assertThat(diff.identical()).isTrue();
-        assertThat(diff.similar()).isTrue();
-    }
-
-    @Test
     public void should_neither_be_identical_nor_similar_when_different_commants() throws Exception {
         // given
         String control = "<foo><!-- test --><bar a=\"b\"/> </foo>";
@@ -1248,7 +1234,7 @@ public abstract class DiffTestAbstract {
     }
 
     @Test
-    public void should_be_similar_when_CDATA_and_ignored_whitespaces() throws Exception {
+    public void should_be_similar_when_ignoring_whitespaces() throws Exception {
 
         // given
         String control =
@@ -1263,7 +1249,6 @@ public abstract class DiffTestAbstract {
                         "<Person> <Name> <![CDATA[JOE]]> </Name> </Person></Data>";
 
         properties.setIgnoreWhitespace(true);
-        properties.setIgnoreDiffBetweenTextAndCDATA(true);
 
         // when
         Diff diff = prepareDiff(properties, control, test);
@@ -1334,8 +1319,8 @@ public abstract class DiffTestAbstract {
         String control = "<!DOCTYPE skinconfig []>" + "<!--abcd--><root></root>";
         String test = "<!DOCTYPE skinconfig [<!--abcd-->]>" + "<root></root>";
 
-        Document controlDoc = new DocumentUtils(properties).buildTestDocument(control);
-        Document testDoc = new DocumentUtils(properties).buildControlDocument(test);
+        Document controlDoc = documentUtils.buildTestDocument(control);
+        Document testDoc = documentUtils.buildControlDocument(test);
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
@@ -1465,25 +1450,22 @@ public abstract class DiffTestAbstract {
     }
 
     @Test
-    public void should_ignore_difference_between_text_and_cdata() throws Exception {
+    public void should_detect_similarity_of_text_and_cdata() throws Exception {
         // given
-        properties.setIgnoreDiffBetweenTextAndCDATA(true);
-        ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-
         String control = "<stuff>string</stuff>";
         String test = "<stuff><![CDATA[string]]></stuff>";
 
-        Document controlDoc = new DocumentUtils(properties).buildTestDocument(control);
-        Document testDoc = new DocumentUtils(properties).buildControlDocument(test);
+        Document controlDoc = documentUtils.buildTestDocument(control);
+        Document testDoc = documentUtils.buildControlDocument(test);
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
         boolean identical = diff.identical();
+        boolean similar = diff.similar();
 
         // then
-        assertThat(identical).isTrue();
-        assertThat(evaluator.getDifferences()).isEmpty();
+        assertThat(identical).isFalse();
+        assertThat(similar).isTrue();
     }
 
     @Test

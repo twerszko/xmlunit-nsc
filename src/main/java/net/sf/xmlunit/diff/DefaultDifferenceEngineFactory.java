@@ -1,10 +1,13 @@
 package net.sf.xmlunit.diff;
 
+import net.sf.xmlunit.util.Preconditions;
+
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.w3c.dom.Node;
 
 public class DefaultDifferenceEngineFactory implements DifferenceEngineFactory {
     private final XmlUnitProperties properties;
+    private DifferenceEvaluator evaluator;
 
     // TODO
     public DefaultDifferenceEngineFactory(XmlUnitProperties properties) {
@@ -14,8 +17,21 @@ public class DefaultDifferenceEngineFactory implements DifferenceEngineFactory {
     @Override
     public DifferenceEngine newEngine() {
         DOMDifferenceEngine engine = new DOMDifferenceEngine();
+        applyEvaluator(engine);
         applyComparisonFilter(engine);
         return engine;
+    }
+
+    @Override
+    public void useEvaluator(DifferenceEvaluator evaluator) {
+        Preconditions.checkArgument(evaluator != null, "Evaluator cannot be null");
+        this.evaluator = evaluator;
+    }
+
+    protected void applyEvaluator(DOMDifferenceEngine engine) {
+        if (evaluator != null) {
+            engine.setEvaluator(evaluator);
+        }
     }
 
     protected void applyComparisonFilter(DifferenceEngine engine) {

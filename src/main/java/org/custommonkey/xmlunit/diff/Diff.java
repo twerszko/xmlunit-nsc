@@ -95,10 +95,6 @@ public class Diff {
     private DifferenceEvaluator differenceEvaluator;
     private ElementSelector elementSelector;
 
-    /**
-     * Construct a Diff that compares the XML in two Documents using a specific
-     * DifferenceEngine and ElementQualifier
-     */
     Diff(DiffBuilder builder) {
         this.properties = builder.properties.clone();
         this.ctrlSource = builder.controlSource;
@@ -152,7 +148,7 @@ public class Diff {
 
         // TODO
         if (differenceEvaluator != null) {
-            engine.setDifferenceEvaluator(differenceEvaluator);
+            engine.setEvaluator(differenceEvaluator);
         }
         engine.compare(ctrlSource, testSource);
         compared = true;

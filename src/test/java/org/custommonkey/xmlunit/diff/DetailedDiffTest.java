@@ -770,23 +770,6 @@ public class DetailedDiffTest extends DiffTestAbstract {
     }
 
     @Test
-    public void should_ignore_text_and_cdata_type_difference() throws Exception {
-        // given
-        properties.setIgnoreDiffBetweenTextAndCDATA(true);
-        String control = "<stuff>more stuff</stuff>";
-        String test = "<stuff><![CDATA[more stuff]]></stuff>";
-
-        // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
-        List<Comparison> differences = diff.getAllDifferences();
-        boolean identical = diff.identical();
-
-        // then
-        assertThat(identical).isTrue();
-        assertThat(differences).hasSize(0);
-    }
-
-    @Test
     public void should_detect_text_and_cdata_type_difference() throws Exception {
         // given
         String control = "<stuff>more stuff</stuff>";
@@ -796,9 +779,11 @@ public class DetailedDiffTest extends DiffTestAbstract {
         DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
+        boolean similar = diff.similar();
 
         // then
         assertThat(identical).isFalse();
+        assertThat(similar).isTrue();
         assertThat(differences).hasSize(1);
         assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.NODE_TYPE);
     }

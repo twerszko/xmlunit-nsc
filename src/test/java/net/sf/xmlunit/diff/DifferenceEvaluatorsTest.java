@@ -37,7 +37,7 @@ public class DifferenceEvaluatorsTest {
 	public void should_return_orginal_result_when_empty_first() {
 		// given
 		ComparisonResult expectredResult = ComparisonResult.SIMILAR;
-		DifferenceEvaluator d = DifferenceEvaluators.first();
+		DifferenceEvaluator d = Evaluators.first();
 		// when
 		ComparisonResult result = d.evaluate(null, expectredResult);
 		// then
@@ -49,7 +49,7 @@ public class DifferenceEvaluatorsTest {
 		// given
 		Evaluator e1 = new Evaluator(ComparisonResult.SIMILAR);
 		Evaluator e2 = new Evaluator(ComparisonResult.EQUAL);
-		DifferenceEvaluator d = DifferenceEvaluators.first(e1, e2);
+		DifferenceEvaluator d = Evaluators.first(e1, e2);
 
 		// when
 		ComparisonResult result = d.evaluate(null, ComparisonResult.DIFFERENT);
@@ -65,7 +65,7 @@ public class DifferenceEvaluatorsTest {
 		// given
 		Evaluator e1 = new Evaluator(ComparisonResult.SIMILAR);
 		Evaluator e2 = new Evaluator(ComparisonResult.EQUAL);
-		DifferenceEvaluator d = DifferenceEvaluators.first(e1, e2);
+		DifferenceEvaluator d = Evaluators.first(e1, e2);
 
 		// when
 		ComparisonResult result = d.evaluate(null, ComparisonResult.SIMILAR);

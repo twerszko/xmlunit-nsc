@@ -31,7 +31,7 @@ import org.w3c.dom.Node;
  */
 public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
-	private DifferenceEvaluator diffEvaluator = DifferenceEvaluators.Default;
+	private DifferenceEvaluator diffEvaluator = Evaluators.Default;
 
 	private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
 
@@ -98,7 +98,7 @@ public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 	}
 
 	@Override
-	public void setDifferenceEvaluator(DifferenceEvaluator evaluator) {
+	public void setEvaluator(DifferenceEvaluator evaluator) {
 		Preconditions.checkArgument(evaluator != null, "difference evaluator must not be null");
 		diffEvaluator = evaluator;
 	}

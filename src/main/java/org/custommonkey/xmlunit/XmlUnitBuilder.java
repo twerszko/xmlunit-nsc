@@ -137,24 +137,6 @@ public class XmlUnitBuilder {
         return this;
     }
 
-    /**
-     * Whether CDATA sections and Text nodes should be considered the same.
-     * 
-     * <p>
-     * The default is false.
-     * </p>
-     * 
-     * <p>
-     * This also set the DocumentBuilderFactory's
-     * {@link javax.xml.parsers.DocumentBuilderFactory#setCoalescing coalescing}
-     * flag on the factories for the control and test document.
-     * </p>
-     */
-    public XmlUnitBuilder ignoringDiffBetweenTextAndCDATA(boolean ignore) {
-        properties.setIgnoreDiffBetweenTextAndCDATA(ignore);
-        return this;
-    }
-
     // TODO: docu
     public XmlUnitBuilder usingControlDocumentBuilderFactoryClass(
             @Nullable Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactory) {

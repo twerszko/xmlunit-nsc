@@ -55,7 +55,7 @@ public interface DifferenceEngine {
      * Determines whether the comparison should stop after given difference has
      * been found.
      */
-    void setDifferenceEvaluator(DifferenceEvaluator e);
+    void setEvaluator(DifferenceEvaluator e);
 
     void setIgnoreAttributeOrder(boolean ignore);
 

@@ -240,7 +240,7 @@ public class DOMDifferenceEngineTest extends DifferenceEngineTestAbstract {
 				return ComparisonResult.SIMILAR;
 			}
 		};
-		engine.setDifferenceEvaluator(evaluator);
+		engine.setEvaluator(evaluator);
 
 		// when
 		DOMComparator comparator = engine.createComparator();

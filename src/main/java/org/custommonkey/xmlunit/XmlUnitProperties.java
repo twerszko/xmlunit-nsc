@@ -23,7 +23,7 @@ public class XmlUnitProperties implements Cloneable {
     private String xsltVersion = "1.0";
     private boolean ignoreAttributeOrder = true;
     private boolean expandEntityReference = false;
-    private boolean ignoreDiffBetweenTextAndCDATA = false;
+    private final boolean ignoreDiffBetweenTextAndCDATA = false;
     private Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass;
     private Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass;
     private Class<? extends TransformerFactory> transformerFactoryClass;
@@ -228,34 +228,6 @@ public class XmlUnitProperties implements Cloneable {
      */
     public void setExpandEntityReferences(boolean expandEntityReferences) {
         this.expandEntityReference = expandEntityReferences;
-    }
-
-    /**
-     * Whether CDATA sections and Text nodes should be considered the same.
-     * 
-     * <p>
-     * The default is false.
-     * </p>
-     * 
-     * <p>
-     * This also set the DocumentBuilderFactory's
-     * {@link javax.xml.parsers.DocumentBuilderFactory#setCoalescing coalescing}
-     * flag on the factories for the control and test document.
-     * </p>
-     */
-    public void setIgnoreDiffBetweenTextAndCDATA(boolean ignore) {
-        ignoreDiffBetweenTextAndCDATA = ignore;
-    }
-
-    // TODO this and other options used in DocumentBuilderFactory should be set
-    // somwhere else
-    /**
-     * Whether CDATA sections and Text nodes should be considered the same.
-     * 
-     * @return false by default
-     */
-    public boolean getIgnoreDiffBetweenTextAndCDATA() {
-        return ignoreDiffBetweenTextAndCDATA;
     }
 
     // TODO docu

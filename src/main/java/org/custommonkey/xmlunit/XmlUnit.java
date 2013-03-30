@@ -39,7 +39,11 @@ package org.custommonkey.xmlunit;
 import java.io.IOException;
 import java.io.Reader;
 
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
+
 import org.custommonkey.xmlunit.diff.Diff;
+import org.custommonkey.xmlunit.diff.DiffBuilder;
 import org.custommonkey.xmlunit.exceptions.XmlUnitException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
@@ -185,6 +189,14 @@ public final class XmlUnit {
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
+    }
+
+    public DiffBuilder newDiff() {
+        return Diff.newDiff(properties);
+    }
+
+    public DifferenceEngineFactory newDifferenceEngineFactory() {
+        return new DefaultDifferenceEngineFactory(properties);
     }
 
     public DocumentUtils newDocumentUtils() {

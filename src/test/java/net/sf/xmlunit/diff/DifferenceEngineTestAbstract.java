@@ -49,7 +49,7 @@ public abstract class DifferenceEngineTestAbstract {
 
 		evaluator = new ListingDifferenceEvaluator();
 		engine = createEngine();
-		engine.setDifferenceEvaluator(evaluator);
+		engine.setEvaluator(evaluator);
 		doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 	}
 
@@ -72,7 +72,7 @@ public abstract class DifferenceEngineTestAbstract {
 
 	protected List<Comparison> findDifferences(Source control, Source test) {
 		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-		engine.setDifferenceEvaluator(evaluator);
+		engine.setEvaluator(evaluator);
 		engine.compare(control, test);
 
 		return evaluator.getDifferences();
@@ -98,7 +98,7 @@ public abstract class DifferenceEngineTestAbstract {
 	protected List<Comparison> findDifferencesWithMatcher(
 	        Source controlSource, Source testSource, NodeMatcher nodeMatcher) {
 		ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-		engine.setDifferenceEvaluator(evaluator);
+		engine.setEvaluator(evaluator);
 		engine.setNodeMatcher(nodeMatcher);
 		engine.compare(controlSource, testSource);
 		return evaluator.getDifferences();
@@ -1017,7 +1017,7 @@ public abstract class DifferenceEngineTestAbstract {
 	@Test(expected = IllegalArgumentException.class)
 	public void should_throw_when_setting_null_evaluator() throws Exception {
 		// given
-		engine.setDifferenceEvaluator(null);
+		engine.setEvaluator(null);
 		// then exception
 	}
 
