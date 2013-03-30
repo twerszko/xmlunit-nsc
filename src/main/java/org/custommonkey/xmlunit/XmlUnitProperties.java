@@ -18,7 +18,6 @@ public class XmlUnitProperties implements Cloneable {
     private boolean ignoreWhitespace = false;
     private boolean normalizeWhitespace = false;
     private boolean ignoreComments = false;
-    private final boolean normalize = false;
     private NamespaceContext xpathNamespaceContext;
     private boolean compareUnmatched = true;
     private String xsltVersion = "1.0";
@@ -125,7 +124,7 @@ public class XmlUnitProperties implements Cloneable {
     }
 
     /**
-     * Whether the parser shall be instructed to expand entity references.
+     * Whether to compare unmatched control nodes to unmatched test nodes.
      */
     public boolean getCompareUnmatched() {
         return compareUnmatched;
@@ -248,6 +247,8 @@ public class XmlUnitProperties implements Cloneable {
         ignoreDiffBetweenTextAndCDATA = ignore;
     }
 
+    // TODO this and other options used in DocumentBuilderFactory should be set
+    // somwhere else
     /**
      * Whether CDATA sections and Text nodes should be considered the same.
      * 

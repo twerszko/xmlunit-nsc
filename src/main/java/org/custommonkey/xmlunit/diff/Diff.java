@@ -45,11 +45,8 @@ import javax.annotation.Nullable;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.diff.Comparison;
-import net.sf.xmlunit.diff.ComparisonFilter;
 import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
@@ -61,8 +58,6 @@ import net.sf.xmlunit.util.Pair;
 import net.sf.xmlunit.util.Predicate;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -109,11 +104,7 @@ public class Diff {
         this.ctrlSource = builder.controlSource;
         this.testSource = builder.testSource;
         this.elementSelector = builder.elementSelector;
-        if (builder.engineFactory == null) {
-            this.engineFactory = new DefaultDifferenceEngineFactory();
-        } else {
-            this.engineFactory = builder.engineFactory;
-        }
+        this.engineFactory = builder.engineFactory;
     }
 
     /**
@@ -162,21 +153,6 @@ public class Diff {
         // TODO
         DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(differenceEvaluator);
         engine.setDifferenceEvaluator(evaluator);
-
-        engine.setFilter(new ComparisonFilter() {
-            @Override
-            public boolean ignore(Comparison comparison) {
-                switch (comparison.getType()) {
-                    case XML_ENCODING:
-                    case XML_STANDALONE:
-                    case XML_VERSION:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-
         engine.compare(ctrlSource, testSource);
         compared = true;
     }
@@ -231,47 +207,11 @@ public class Diff {
     }
 
     private boolean ignoreComparison(Comparison comparison, ComparisonResult outcome) {
-        if (outcome == ComparisonResult.EQUAL) {
-            return true;
-        }
+        // if (outcome == ComparisonResult.EQUAL) {
+        // return true;
+        // }
 
-        Node controlTarget = comparison.getControlDetails().getTarget();
-        if ((comparesChildrenListLength(comparison) && isDocument(controlTarget))
-                ||
-                (comparison.getType() == ComparisonType.CHILD_LOOKUP
-                &&
-                (isNonElementDocumentChild(comparison.getControlDetails())
-                || isNonElementDocumentChild(comparison.getTestDetails()))
-                )) {
-            return true;
-        }
         return false;
-    }
-
-    private boolean comparesChildrenListLength(Comparison comparison) {
-        return comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH;
-    }
-
-    private boolean isDocument(Node controlTarget) {
-        return controlTarget instanceof Document;
-    }
-
-    private static boolean isNonElementDocumentChild(Comparison.Detail detail) {
-        return isNode(detail)
-                && isNotElement(detail)
-                && hasDocumentParent(detail);
-    }
-
-    private static boolean hasDocumentParent(Comparison.Detail detail) {
-        return detail.getTarget().getParentNode() instanceof Document;
-    }
-
-    private static boolean isNotElement(Comparison.Detail detail) {
-        return !(detail.getTarget() instanceof Element);
-    }
-
-    private static boolean isNode(Comparison.Detail detail) {
-        return detail != null && detail.getTarget() instanceof Node;
     }
 
     private boolean isCritical(Comparison comparison, ComparisonResult outcome) {
@@ -388,9 +328,6 @@ public class Diff {
 
         @Override
         public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (swallowComparison(comparison, outcome)) {
-                return outcome;
-            }
             if (ignoreComparison(comparison, outcome)) {
                 return outcome;
             }
@@ -399,26 +336,6 @@ public class Diff {
                 return outcome;
             }
             return delegate.evaluate(comparison, outcome);
-        }
-
-        private boolean swallowComparison(Comparison comparison, ComparisonResult outcome) {
-            if (properties.getIgnoreDiffBetweenTextAndCDATA() && comparesNodeTypes(comparison)) {
-                int controlValue = (Short) comparison.getControlDetails().getValue();
-                int testValue = (Short) comparison.getTestDetails().getValue();
-                return isTextOrCdataNode(controlValue) && isTextOrCdataNode(testValue);
-            }
-            return false;
-        }
-
-        private final Short TEXT_TYPE = Node.TEXT_NODE;
-        private final Short CDATA_TYPE = Node.CDATA_SECTION_NODE;
-
-        private boolean isTextOrCdataNode(int nodeType) {
-            return TEXT_TYPE.equals(nodeType) || CDATA_TYPE.equals(nodeType);
-        }
-
-        private boolean comparesNodeTypes(Comparison comparison) {
-            return comparison.getType() == ComparisonType.NODE_TYPE;
         }
     }
 }

@@ -45,29 +45,29 @@ import net.sf.xmlunit.diff.DifferenceEvaluator;
  */
 public class FloatingPointTolerantDifferenceEvaluator extends TextDifferenceEvaluatorBase {
 
-	private final double tolerance;
+    private final double tolerance;
 
-	public FloatingPointTolerantDifferenceEvaluator(DifferenceEvaluator delegateTo, double tolerance) {
-		super(delegateTo);
-		this.tolerance = tolerance;
-	}
+    public FloatingPointTolerantDifferenceEvaluator(DifferenceEvaluator delegateTo, double tolerance) {
+        super(delegateTo);
+        this.tolerance = tolerance;
+    }
 
-	@Override
-	protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
-		String control = String.valueOf(comparison.getControlDetails().getValue());
-		String test = String.valueOf(comparison.getTestDetails().getValue());
-		if (control != null && test != null) {
-			try {
-				double controlVal = Double.parseDouble(control);
-				double testVal = Double.parseDouble(test);
-				return Math.abs(controlVal - testVal) < tolerance
-				        ? ComparisonResult.EQUAL
-				        : ComparisonResult.DIFFERENT;
-			} catch (NumberFormatException nfe) {
-				// ignore, delegate to nested DifferenceListener
-			}
-		}
-		// no numbers or null, delegate
-		return super.textualDifference(comparison, outcome);
-	}
+    @Override
+    protected ComparisonResult textualDifference(Comparison comparison, ComparisonResult outcome) {
+        String control = String.valueOf(comparison.getControlDetails().getValue());
+        String test = String.valueOf(comparison.getTestDetails().getValue());
+        if (control != null && test != null) {
+            try {
+                double controlVal = Double.parseDouble(control);
+                double testVal = Double.parseDouble(test);
+                return Math.abs(controlVal - testVal) < tolerance
+                        ? ComparisonResult.EQUAL
+                        : ComparisonResult.DIFFERENT;
+            } catch (NumberFormatException nfe) {
+                // ignore, delegate to nested DifferenceListener
+            }
+        }
+        // no numbers or null, delegate
+        return super.textualDifference(comparison, outcome);
+    }
 }

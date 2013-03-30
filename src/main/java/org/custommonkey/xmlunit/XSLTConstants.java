@@ -53,41 +53,7 @@ public interface XSLTConstants extends XMLConstants {
             XSLT_START_NO_VERSION + " version=\"1.0\">";
 
     /**
-     * &lt;xsl:output&gt; for XML with no indentation
-     */
-    String XSLT_XML_OUTPUT_NOINDENT =
-            "<xsl:output method=\"xml\" version=\"1.0\" indent=\"no\"/>";
-
-    /**
-     * &lt;xsl:strip-space&gt; for all elements
-     */
-    String XSLT_STRIP_WHITESPACE =
-            "<xsl:strip-space elements=\"*\"/>";
-
-    /**
-     * &lt;xsl:template&gt; to copy the current nodeset into the output tree
-     */
-    String XSLT_IDENTITY_TEMPLATE =
-            "<xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template>";
-
-    /**
-     * &lt;xsl:template&gt; to copy the current nodeset into the output tree
-     * while stripping comments.
-     */
-    String XSLT_STRIP_COMMENTS_TEMPLATE =
-            "<xsl:template match=\"node()[not(self::comment())]|@*\">"
-                    + "<xsl:copy><xsl:apply-templates select=\"node()[not(self::comment())]|@*\"/></xsl:copy>"
-                    + "</xsl:template>";
-
-    /**
      * &lt;/xsl:stylesheet&gt;
      */
     String XSLT_END = "</xsl:stylesheet>";
-
-    /**
-     * Factory class of the XSLTC version shipping with JDK 1.5 which is pretty
-     * broken.
-     */
-    String JAVA5_XSLTC_FACTORY_NAME =
-            "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
 }

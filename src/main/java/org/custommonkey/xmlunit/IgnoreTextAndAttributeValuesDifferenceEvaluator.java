@@ -52,34 +52,38 @@ import org.custommonkey.xmlunit.diff.Diff;
  */
 public class IgnoreTextAndAttributeValuesDifferenceEvaluator implements DifferenceEvaluator {
 
-	private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
-	        ComparisonType.ATTR_VALUE,
-	        ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
-	        ComparisonType.TEXT_VALUE
-	};
+    private static final ComparisonType[] IGNORED_TYPES = new ComparisonType[] {
+            ComparisonType.ATTR_VALUE,
+            ComparisonType.ATTR_VALUE_EXPLICITLY_SPECIFIED,
+            ComparisonType.TEXT_VALUE
+    };
 
-	private boolean isIgnoredDifference(Comparison comparison) {
-		ComparisonType differenceType = comparison.getType();
-		for (ComparisonType ignoredType : IGNORED_TYPES) {
-			if (differenceType == ignoredType) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private boolean isIgnoredDifference(Comparison comparison) {
+        ComparisonType differenceType = comparison.getType();
+        for (ComparisonType ignoredType : IGNORED_TYPES) {
+            if (differenceType == ignoredType) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
-	 *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
-	 *         to accept all other differences.
-	 * @see DifferenceListener#differenceFound(Difference)
-	 */
-	public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-		if (isIgnoredDifference(comparison)) {
-			return ComparisonResult.SIMILAR;
-		} else {
-			return ComparisonResult.DIFFERENT;
-		}
-	}
+    /**
+     * @return RETURN_IGNORE_DIFFERENCE_NODES_SIMILAR to ignore differences in
+     *         values of TEXT or ATTRIBUTE nodes, and RETURN_ACCEPT_DIFFERENCE
+     *         to accept all other differences.
+     * @see DifferenceListener#differenceFound(Difference)
+     */
+    @Override
+    public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+        if (outcome == ComparisonResult.EQUAL) {
+            return outcome;
+        }
+        if (isIgnoredDifference(comparison)) {
+            return ComparisonResult.SIMILAR;
+        } else {
+            return ComparisonResult.DIFFERENT;
+        }
+    }
 
 }

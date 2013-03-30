@@ -1,6 +1,5 @@
 package org.custommonkey.xmlunit.diff;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -10,6 +9,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.builder.Input;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
@@ -21,11 +21,9 @@ import net.sf.xmlunit.util.Preconditions;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.builder.Builder;
 import org.custommonkey.xmlunit.builder.BuilderException;
-import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 public class DiffBuilder {
     XmlUnitProperties properties;
@@ -34,7 +32,7 @@ public class DiffBuilder {
     Source testSource;
     Source controlSource;
 
-    DifferenceEngineFactory engineFactory = null;
+    DifferenceEngineFactory engineFactory;
     ElementSelector elementSelector = ElementSelectors.byName;
 
     public DiffBuilder(@Nullable XmlUnitProperties properties) {
@@ -45,15 +43,14 @@ public class DiffBuilder {
         }
 
         documentUtils = new DocumentUtils(this.properties);
+        engineFactory = new DefaultDifferenceEngineFactory(this.properties);
     }
 
     private Document prepareDocumentFrom(InputSource inputSource, DocumentBuilder parser) throws BuilderException {
         try {
             Document document = documentUtils.buildDocument(parser, inputSource);
             return document;
-        } catch (IOException e) {
-            throw new BuilderException("Failed to build Diff!", e);
-        } catch (SAXException e) {
+        } catch (Exception e) {
             throw new BuilderException("Failed to build Diff!", e);
         }
     }
@@ -62,47 +59,45 @@ public class DiffBuilder {
         try {
             Document document = documentUtils.buildDocument(parser, reader);
             return document;
-        } catch (ConfigurationException e) {
-            throw new BuilderException("Failed to build Diff!", e);
-        } catch (SAXException e) {
-            throw new BuilderException("Failed to build Diff!", e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BuilderException("Failed to build Diff!", e);
         }
     }
 
-    public DiffTestDocBuilder betweenControlDocument(Document controlDoc) {
-        Preconditions.checkArgument(controlDoc != null, "Document cannot be null");
-        this.controlSource = Input.fromDocument(controlDoc).build();
+    public DiffTestDocBuilder betweenControlDocument(Document document) {
+        Preconditions.checkArgument(document != null, "Document cannot be null");
+        this.controlSource = Input.fromDocument(document).build();
         ;
         return new DiffTestDocBuilder();
     }
 
-    public DiffTestDocBuilder betweenControlDocument(DOMSource controlDomSource) {
-        Preconditions.checkArgument(controlDomSource != null, "DOMSource cannot be null");
-        this.controlSource = controlDomSource;
+    public DiffTestDocBuilder betweenControlDocument(Source source) {
+        Preconditions.checkArgument(source != null, "Source cannot be null");
+        // TODO probably this should be converted to DOM first to apply all
+        // properties like coalescing
+        this.controlSource = source;
         return new DiffTestDocBuilder();
     }
 
-    public DiffTestDocBuilder betweenControlDocument(InputSource controlInputSource) throws BuilderException {
-        Preconditions.checkArgument(controlInputSource != null, "InputSource cannot be null");
-        Document controlDoc = prepareDocumentFrom(controlInputSource, documentUtils.newControlDocumentBuilder());
+    public DiffTestDocBuilder betweenControlDocument(InputSource source) throws BuilderException {
+        Preconditions.checkArgument(source != null, "Source cannot be null");
+        Document controlDoc = prepareDocumentFrom(source, documentUtils.newControlDocumentBuilder());
         this.controlSource = Input.fromDocument(controlDoc).build();
         return new DiffTestDocBuilder();
     }
 
-    public DiffTestDocBuilder betweenControlDocument(String controlDocString) throws BuilderException {
-        Preconditions.checkArgument(controlDocString != null, "String cannot be null");
+    public DiffTestDocBuilder betweenControlDocument(String string) throws BuilderException {
+        Preconditions.checkArgument(string != null, "String cannot be null");
         Document controlDoc = prepareDocumentFrom(
-                new StringReader(controlDocString),
+                new StringReader(string),
                 documentUtils.newControlDocumentBuilder());
         this.controlSource = Input.fromDocument(controlDoc).build();
         return new DiffTestDocBuilder();
     }
 
-    public DiffTestDocBuilder betweenControlDocument(Reader controlDocReader) throws BuilderException {
-        Preconditions.checkArgument(controlDocReader != null, "Reader cannot be null");
-        Document controlDoc = prepareDocumentFrom(controlDocReader, documentUtils.newControlDocumentBuilder());
+    public DiffTestDocBuilder betweenControlDocument(Reader reader) throws BuilderException {
+        Preconditions.checkArgument(reader != null, "Reader cannot be null");
+        Document controlDoc = prepareDocumentFrom(reader, documentUtils.newControlDocumentBuilder());
         this.controlSource = Input.fromDocument(controlDoc).build();
         return new DiffTestDocBuilder();
     }
@@ -138,38 +133,40 @@ public class DiffBuilder {
         private DiffTestDocBuilder() {
         }
 
-        public DiffPropertiesBuilder andTestDocument(Document testDoc) throws BuilderException {
-            Preconditions.checkArgument(testDoc != null, "Document cannot be null");
+        public DiffPropertiesBuilder andTestDocument(Document document) throws BuilderException {
+            Preconditions.checkArgument(document != null, "Document cannot be null");
+            testSource = Input.fromDocument(document).build();
+            return new DiffPropertiesBuilder();
+        }
+
+        public DiffPropertiesBuilder andTestDocument(DOMSource source) throws BuilderException {
+            Preconditions.checkArgument(source != null, "Source cannot be null");
+            // TODO
+            // Document testDoc = source.getNode().getOwnerDocument();
+            // testSource = Input.fromDocument(testDoc).build();
+            testSource = source;
+            return new DiffPropertiesBuilder();
+        }
+
+        public DiffPropertiesBuilder andTestDocument(InputSource source) throws BuilderException {
+            Preconditions.checkArgument(source != null, "Source cannot be null");
+            Document testDoc = prepareDocumentFrom(source, documentUtils.newTestDocumentBuilder());
             testSource = Input.fromDocument(testDoc).build();
             return new DiffPropertiesBuilder();
         }
 
-        public DiffPropertiesBuilder andTestDocument(DOMSource testDomSource) throws BuilderException {
-            Preconditions.checkArgument(testDomSource != null, "DOMSource cannot be null");
-            Document testDoc = testDomSource.getNode().getOwnerDocument();
-            testSource = Input.fromDocument(testDoc).build();
-            return new DiffPropertiesBuilder();
-        }
-
-        public DiffPropertiesBuilder andTestDocument(InputSource testDomSource) throws BuilderException {
-            Preconditions.checkArgument(testDomSource != null, "InputSource cannot be null");
-            Document testDoc = prepareDocumentFrom(testDomSource, documentUtils.newTestDocumentBuilder());
-            testSource = Input.fromDocument(testDoc).build();
-            return new DiffPropertiesBuilder();
-        }
-
-        public DiffPropertiesBuilder andTestDocument(String testDocString) throws BuilderException {
-            Preconditions.checkArgument(testDocString != null, "String cannot be null");
+        public DiffPropertiesBuilder andTestDocument(String string) throws BuilderException {
+            Preconditions.checkArgument(string != null, "String cannot be null");
             Document testDoc = prepareDocumentFrom(
-                    new StringReader(testDocString),
+                    new StringReader(string),
                     documentUtils.newTestDocumentBuilder());
             testSource = Input.fromDocument(testDoc).build();
             return new DiffPropertiesBuilder();
         }
 
-        public DiffPropertiesBuilder andTestDocument(Reader testDocReader) throws BuilderException {
-            Preconditions.checkArgument(testDocReader != null, "Reader cannot be null");
-            Document testDoc = prepareDocumentFrom(testDocReader, documentUtils.newTestDocumentBuilder());
+        public DiffPropertiesBuilder andTestDocument(Reader reader) throws BuilderException {
+            Preconditions.checkArgument(reader != null, "Reader cannot be null");
+            Document testDoc = prepareDocumentFrom(reader, documentUtils.newTestDocumentBuilder());
             testSource = Input.fromDocument(testDoc).build();
             return new DiffPropertiesBuilder();
         }
@@ -181,7 +178,8 @@ public class DiffBuilder {
         private DiffPropertiesBuilder() {
         }
 
-        public DiffPropertiesBuilder usingDifferenceEngineFactory(@Nullable DifferenceEngineFactory factory) {
+        public DiffPropertiesBuilder usingDifferenceEngineFactory(DifferenceEngineFactory factory) {
+            Preconditions.checkArgument(factory != null, "DifferenceEngineFactory canno be null");
             engineFactory = factory;
             return this;
         }

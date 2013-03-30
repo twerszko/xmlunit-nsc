@@ -69,6 +69,9 @@ public abstract class TextDifferenceEvaluatorBase implements DifferenceEvaluator
      */
     @Override
     public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+        if (outcome == ComparisonResult.EQUAL) {
+            return outcome;
+        }
         switch (comparison.getType()) {
             case ATTR_VALUE:
                 return attributeDifference(comparison, outcome);

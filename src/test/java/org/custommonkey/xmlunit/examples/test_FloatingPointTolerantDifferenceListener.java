@@ -44,40 +44,45 @@ import org.custommonkey.xmlunit.diff.Diff;
 
 public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 
-	public void testFloatingPointTolerance() throws Exception {
-		String control = "<foo value=\"2.718281828\"/>";
-		String test = "<foo value=\"2.71\"/>";
-		Diff d = Diff.newDiff(null)
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
+    public void testFloatingPointTolerance() throws Exception {
+        String control = "<foo value=\"2.718281828\"/>";
+        String test = "<foo value=\"2.71\"/>";
+        Diff d = Diff.newDiff(null)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
 
-		FloatingPointTolerantDifferenceEvaluator c =
-		        new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
-			        public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
-				        fail("differenceFound shouldn't get invoked, but"
-				                + " was with type " + d.getType());
-				        return null;
-			        }
-		        }, 1e-2);
+        FloatingPointTolerantDifferenceEvaluator c =
+                new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
+                    @Override
+                    public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
+                        if (outcome == ComparisonResult.EQUAL) {
+                            return outcome;
+                        }
+                        fail("differenceFound shouldn't get invoked, but"
+                                + " was with type " + d.getType());
+                        return null;
+                    }
+                }, 1e-2);
 
-		d.overrideDifferenceEvaluator(c);
-		assertTrue(d.identical());
+        d.overrideDifferenceEvaluator(c);
+        assertTrue(d.identical());
 
-		c = new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
-			public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
-				fail("differenceFound shouldn't get invoked, but"
-				        + " was with type " + d.getType());
-				return null;
-			}
-		}, 1e-3);
+        c = new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
+            @Override
+            public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
+                fail("differenceFound shouldn't get invoked, but"
+                        + " was with type " + d.getType());
+                return null;
+            }
+        }, 1e-3);
 
-		d = Diff.newDiff(null)
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
-		d.overrideDifferenceEvaluator(c);
-		assertFalse(d.identical());
-	}
+        d = Diff.newDiff(null)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
+        d.overrideDifferenceEvaluator(c);
+        assertFalse(d.identical());
+    }
 
 }

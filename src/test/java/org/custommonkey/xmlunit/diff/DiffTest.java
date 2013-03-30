@@ -75,7 +75,7 @@ public class DiffTest extends DiffTestAbstract {
 
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.setEngineFactory(new DefaultDifferenceEngineFactory() {
+        diff.setEngineFactory(new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();

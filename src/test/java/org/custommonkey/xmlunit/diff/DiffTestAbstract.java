@@ -627,8 +627,7 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, control, test);
         diff.overrideDifferenceEvaluator(
-                new ExpectedDifferenceEvaluator(ComparisonType.NAMESPACE_PREFIX)
-                );
+                new ExpectedDifferenceEvaluator(ComparisonType.NAMESPACE_PREFIX));
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -821,6 +820,9 @@ public abstract class DiffTestAbstract {
 
         @Override
         public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
+            if (outcome == ComparisonResult.EQUAL) {
+                return outcome;
+            }
             assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
             examineDifferenceContents(difference);
             return ComparisonResult.DIFFERENT;
@@ -1138,7 +1140,7 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>");
-        diff.setEngineFactory(new DefaultDifferenceEngineFactory() {
+        diff.setEngineFactory(new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
@@ -1149,7 +1151,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedTracker, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedTracker, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
     }
 
     @Test
@@ -1158,7 +1160,7 @@ public abstract class DiffTestAbstract {
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory() {
+        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
@@ -1172,7 +1174,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
     }
 
     @Test
@@ -1181,7 +1183,7 @@ public abstract class DiffTestAbstract {
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory() {
+        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
@@ -1195,7 +1197,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
     }
 
     @Test
@@ -1205,7 +1207,7 @@ public abstract class DiffTestAbstract {
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory() {
+        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
@@ -1218,7 +1220,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
     }
 
     @Test
@@ -1228,7 +1230,7 @@ public abstract class DiffTestAbstract {
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
         doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
 
-        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory() {
+        DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
@@ -1242,7 +1244,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(14)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
     }
 
     @Test

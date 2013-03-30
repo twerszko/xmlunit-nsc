@@ -46,39 +46,43 @@ import org.custommonkey.xmlunit.diff.Diff;
 
 public class test_CaseInsensitiveDifferenceListener extends TestCase {
 
-	private static final String ATTR = "aTtr";
-	private static final String CDATA = "C Data";
-	private static final String CMMT = "a Comment";
-	private static final String TEXT = "some Text";
+    private static final String ATTR = "aTtr";
+    private static final String CDATA = "C Data";
+    private static final String CMMT = "a Comment";
+    private static final String TEXT = "some Text";
 
-	public void testCaseInsensitive() throws Exception {
-		String control = getDoc(ATTR, CDATA, CMMT, TEXT);
-		String test = getDoc(ATTR.toUpperCase(Locale.US),
-		        CDATA.toUpperCase(Locale.US),
-		        CMMT.toUpperCase(Locale.US),
-		        TEXT.toUpperCase(Locale.US));
-		Diff d = Diff.newDiff(null)
-		        .betweenControlDocument(control)
-		        .andTestDocument(test)
-		        .build();
+    public void testCaseInsensitive() throws Exception {
+        String control = getDoc(ATTR, CDATA, CMMT, TEXT);
+        String test = getDoc(ATTR.toUpperCase(Locale.US),
+                CDATA.toUpperCase(Locale.US),
+                CMMT.toUpperCase(Locale.US),
+                TEXT.toUpperCase(Locale.US));
+        Diff d = Diff.newDiff(null)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .build();
 
-		CaseInsensitiveDifferenceEvaluator c =
-		        new CaseInsensitiveDifferenceEvaluator(new DifferenceEvaluator() {
-			        public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
-				        fail("differenceFound shouldn't get invoked, but"
-				                + " was with type " + d.getType());
-				        return null;
-			        }
-		        });
+        CaseInsensitiveDifferenceEvaluator c =
+                new CaseInsensitiveDifferenceEvaluator(new DifferenceEvaluator() {
+                    @Override
+                    public ComparisonResult evaluate(Comparison d, ComparisonResult outcome) {
+                        if (outcome == ComparisonResult.EQUAL) {
+                            return outcome;
+                        }
+                        fail("differenceFound shouldn't get invoked, but"
+                                + " was with type " + d.getType());
+                        return null;
+                    }
+                });
 
-		d.overrideDifferenceEvaluator(c);
-		assertTrue(d.identical());
-	}
+        d.overrideDifferenceEvaluator(c);
+        assertTrue(d.identical());
+    }
 
-	private static String getDoc(String attr, String cdata, String comment,
-	        String text) {
-		return "<root><first attr=\"" + attr + "\"/><!--" + comment + "-->"
-		        + "<second><![CDATA[" + cdata + "]]></second><third>" + text
-		        + "</third></root>";
-	}
+    private static String getDoc(String attr, String cdata, String comment,
+            String text) {
+        return "<root><first attr=\"" + attr + "\"/><!--" + comment + "-->"
+                + "<second><![CDATA[" + cdata + "]]></second><third>" + text
+                + "</third></root>";
+    }
 }

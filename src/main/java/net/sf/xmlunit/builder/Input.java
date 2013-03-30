@@ -51,6 +51,7 @@ public class Input {
             source = new DOMSource(d);
         }
 
+        @Override
         public Source build() {
             assert source != null;
             return source;
@@ -92,6 +93,7 @@ public class Input {
             }
         }
 
+        @Override
         public Source build() {
             assert source != null;
             return source;
@@ -222,10 +224,12 @@ public class Input {
             super(s);
         }
 
+        @Override
         public TransformationBuilder withStylesheet(Builder b) {
             return withStylesheet(b.build());
         }
 
+        @Override
         public Source build() {
             return new DOMSource(getHelper().transformToDocument());
         }
