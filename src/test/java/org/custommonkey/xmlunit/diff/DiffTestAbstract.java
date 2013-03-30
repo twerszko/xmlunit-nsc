@@ -465,7 +465,7 @@ public abstract class DiffTestAbstract {
 
     @Test
     public void should_check_whitespace_awareness_with_normalization() throws Exception {
-        properties.setNormalize(true);
+        properties.setNormalizeWhitespace(true);
         should_check_whitespace_awareness();
     }
 
@@ -929,7 +929,7 @@ public abstract class DiffTestAbstract {
 
     @Test
     public void should_pass_when_normalization() throws Exception {
-        properties.setNormalize(true);
+        properties.setNormalizeWhitespace(true);
         should_neither_be_identical_nor_similar_when_different_commants();
         should_be_identical_and_similar_when_different_commants();
     }
@@ -960,11 +960,11 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
         assertThat(diff.identical()).isFalse();
 
-        properties.setNormalize(true);
+        properties.setNormalizeWhitespace(true);
         diff = prepareDiff(properties, control, test);
         assertTrue(diff.identical());
         assertTrue(diff.similar());
-        properties.setNormalize(false);
+        properties.setNormalizeWhitespace(false);
 
         diff = prepareDiff(properties, control, test);
         assertThat(diff.similar()).isFalse();

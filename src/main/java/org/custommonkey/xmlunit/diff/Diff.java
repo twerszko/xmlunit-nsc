@@ -44,7 +44,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonFilter;
 import net.sf.xmlunit.diff.ComparisonListener;
@@ -57,9 +56,6 @@ import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.NodeMatcher;
-import net.sf.xmlunit.input.CommentLessSource;
-import net.sf.xmlunit.input.WhitespaceNormalizedSource;
-import net.sf.xmlunit.input.WhitespaceStrippedSource;
 import net.sf.xmlunit.util.Linqy;
 import net.sf.xmlunit.util.Pair;
 import net.sf.xmlunit.util.Predicate;
@@ -95,8 +91,8 @@ import org.w3c.dom.Node;
 public class Diff {
     private final XmlUnitProperties properties;
 
-    private final Document controlDoc;
-    private final Document testDoc;
+    private final Source ctrlSource;
+    private final Source testSource;
     private boolean similar = true;
     private boolean identical = true;
     private boolean compared = false;
@@ -110,8 +106,8 @@ public class Diff {
      */
     Diff(DiffBuilder builder) {
         this.properties = builder.properties.clone();
-        this.controlDoc = builder.controlDocument;
-        this.testDoc = builder.testDocument;
+        this.ctrlSource = builder.controlSource;
+        this.testSource = builder.testSource;
         this.elementSelector = builder.elementSelector;
         if (builder.engineFactory == null) {
             this.engineFactory = new DefaultDifferenceEngineFactory();
@@ -131,8 +127,8 @@ public class Diff {
     protected Diff(Diff prototype) {
         // TODO clone?
         this.properties = prototype.properties.clone();
-        this.controlDoc = prototype.controlDoc;
-        this.testDoc = prototype.testDoc;
+        this.ctrlSource = prototype.ctrlSource;
+        this.testSource = prototype.testSource;
         this.elementSelector = prototype.elementSelector;
         this.engineFactory = prototype.engineFactory;
         this.differenceEvaluator = prototype.differenceEvaluator;
@@ -166,20 +162,6 @@ public class Diff {
         // TODO
         DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(differenceEvaluator);
         engine.setDifferenceEvaluator(evaluator);
-        Source ctrlSource = Input.fromNode(controlDoc).build();
-        Source testSource = Input.fromNode(testDoc).build();
-        if (properties.getIgnoreComments()) {
-            ctrlSource = new CommentLessSource(ctrlSource);
-            testSource = new CommentLessSource(testSource);
-        }
-        if (properties.getNormalizeWhitespace()) {
-            ctrlSource = new WhitespaceNormalizedSource(ctrlSource);
-            testSource = new WhitespaceNormalizedSource(testSource);
-        }
-        if (properties.getIgnoreWhitespace()) {
-            ctrlSource = new WhitespaceStrippedSource(ctrlSource);
-            testSource = new WhitespaceStrippedSource(testSource);
-        }
 
         engine.setFilter(new ComparisonFilter() {
             @Override

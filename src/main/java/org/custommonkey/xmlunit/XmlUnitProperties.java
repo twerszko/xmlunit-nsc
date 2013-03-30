@@ -18,7 +18,7 @@ public class XmlUnitProperties implements Cloneable {
     private boolean ignoreWhitespace = false;
     private boolean normalizeWhitespace = false;
     private boolean ignoreComments = false;
-    private boolean normalize = false;
+    private final boolean normalize = false;
     private NamespaceContext xpathNamespaceContext;
     private boolean compareUnmatched = true;
     private String xsltVersion = "1.0";
@@ -108,45 +108,6 @@ public class XmlUnitProperties implements Cloneable {
      */
     public void setIgnoreComments(boolean ignoreComments) {
         this.ignoreComments = ignoreComments;
-    }
-
-    /**
-     * Whether Text nodes should be normalized.
-     * 
-     * <p>
-     * The default value is false
-     * </p>
-     */
-    public boolean getNormalize() {
-        return normalize;
-    }
-
-    /**
-     * Whether Text nodes should be normalized.
-     * 
-     * <p>
-     * The default value is false
-     * </p>
-     * 
-     * <p>
-     * <b>Note:</b> if you are only working with documents read from streams
-     * (like files or network connections) or working with strings, there is no
-     * reason to change the default since the XML parser is required to
-     * normalize the documents. If you are testing {@link org.w3c.Document
-     * Document} instances you've created in code, you may want to alter the
-     * default behavior.
-     * </p>
-     * 
-     * <p>
-     * <b>Note2:</b> depending on the XML parser or XSLT transformer you use,
-     * setting {@link setIgnoreWhitespace ignoreWhitespace} or
-     * {@link setIgnoreComments ignoreComments} to true may have already
-     * normalized your document and this setting doesn't have any effect
-     * anymore.
-     * </p>
-     */
-    public void setNormalize(boolean normalize) {
-        this.normalize = normalize;
     }
 
     /**

@@ -35,6 +35,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 
+import net.sf.xmlunit.util.Preconditions;
 import net.sf.xmlunit.xpath.JaxpXpathEngine;
 import net.sf.xmlunit.xpath.XpathEngine;
 
@@ -334,9 +335,7 @@ public class DocumentUtils {
      *             when document is null
      */
     public static String documentToString(Document document) throws TransformerException {
-        if (document == null) {
-            throw new IllegalArgumentException("Document cannot be null!");
-        }
+        Preconditions.checkArgument(document != null, "Document cannot be null!");
 
         DOMSource domSource = new DOMSource(document);
         StringWriter writer = new StringWriter();
