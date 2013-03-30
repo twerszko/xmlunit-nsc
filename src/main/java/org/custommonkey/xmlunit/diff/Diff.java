@@ -151,8 +151,9 @@ public class Diff {
         engine.setIgnoreAttributeOrder(properties.getIgnoreAttributeOrder());
 
         // TODO
-        DifferenceEvaluator evaluator = new IgnorantDifferenceEvaluator(differenceEvaluator);
-        engine.setDifferenceEvaluator(evaluator);
+        if (differenceEvaluator != null) {
+            engine.setDifferenceEvaluator(differenceEvaluator);
+        }
         engine.compare(ctrlSource, testSource);
         compared = true;
     }
@@ -191,9 +192,6 @@ public class Diff {
 
         @Override
         public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-            if (ignoreComparison(comparison, outcome)) {
-                return;
-            }
             setVardict(comparison, outcome);
             boolean critical = isCritical(comparison, outcome);
             if (critical) {
@@ -204,14 +202,6 @@ public class Diff {
         protected void stopComparison() {
             engine.stop();
         }
-    }
-
-    private boolean ignoreComparison(Comparison comparison, ComparisonResult outcome) {
-        // if (outcome == ComparisonResult.EQUAL) {
-        // return true;
-        // }
-
-        return false;
     }
 
     private boolean isCritical(Comparison comparison, ComparisonResult outcome) {
@@ -315,27 +305,6 @@ public class Diff {
                 map.put(match.getFirst(), match.getSecond());
             }
             return map;
-        }
-    }
-
-    // TODO replace it with something more suitable
-    private class IgnorantDifferenceEvaluator implements DifferenceEvaluator {
-        private final DifferenceEvaluator delegate;
-
-        public IgnorantDifferenceEvaluator(DifferenceEvaluator delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (ignoreComparison(comparison, outcome)) {
-                return outcome;
-            }
-
-            if (delegate == null) {
-                return outcome;
-            }
-            return delegate.evaluate(comparison, outcome);
         }
     }
 }

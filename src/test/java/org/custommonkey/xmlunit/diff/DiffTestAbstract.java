@@ -874,7 +874,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertThat(diff.similar()).isTrue();
     }
 
     @Test
