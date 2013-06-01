@@ -55,236 +55,236 @@ import org.w3c.dom.Element;
  * @see test_Diff#testRepeatedElementNamesWithTextQualification()
  */
 public class test_RecursiveElementNameAndTextQualifier extends TestCase {
-    private static final String TAG_NAME = "tagYoureIt";
-    private static final String TAG_NAME2 = "tagYoureIt2";
-    private static final String TEXT_A = "textA";
-    private static final String TEXT_B = "textB";
-    private Document document;
-    private XmlUnitProperties properties;
+	private static final String TAG_NAME = "tagYoureIt";
+	private static final String TAG_NAME2 = "tagYoureIt2";
+	private static final String TEXT_A = "textA";
+	private static final String TEXT_B = "textB";
+	private Document document;
+	private XmlUnitProperties properties;
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        properties = new XmlUnitProperties();
-        document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
-    }
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		properties = new XmlUnitProperties();
+		document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
+	}
 
-    // copy of ElementNameAndTextQualifier test
-    public void testSingleTextValue() throws Exception {
-        ElementSelector qualifier = ElementSelectors.byNameAndTextRec;
+	// copy of ElementNameAndTextQualifier test
+	public void testSingleTextValue() throws Exception {
+		ElementSelector qualifier = ElementSelectors.byNameAndTextRec;
 
-        Element control = document.createElement(TAG_NAME);
-        control.appendChild(document.createTextNode(TEXT_A));
+		Element control = document.createElement(TAG_NAME);
+		control.appendChild(document.createTextNode(TEXT_A));
 
-        Element test = document.createElement(TAG_NAME);
+		Element test = document.createElement(TAG_NAME);
 
-        assertFalse("control text not comparable to empty text",
-                qualifier.canBeCompared(control, test));
+		assertFalse("control text not comparable to empty text",
+		        qualifier.canBeCompared(control, test));
 
-        test.appendChild(document.createTextNode(TEXT_A));
-        assertTrue("control textA comparable to test textA",
-                qualifier.canBeCompared(control, test));
+		test.appendChild(document.createTextNode(TEXT_A));
+		assertTrue("control textA comparable to test textA",
+		        qualifier.canBeCompared(control, test));
 
-        test = document.createElement(TAG_NAME);
+		test = document.createElement(TAG_NAME);
 
-        test.appendChild(document.createTextNode(TEXT_B));
-        assertFalse("control textA not comparable to test textB",
-                qualifier.canBeCompared(control, test));
-    }
+		test.appendChild(document.createTextNode(TEXT_B));
+		assertFalse("control textA not comparable to test textB",
+		        qualifier.canBeCompared(control, test));
+	}
 
-    // copy of ElementNameAndTextQualifier test
-    public void testMultipleTextValues() throws Exception {
-        ElementSelector qualifier = ElementSelectors.byNameAndTextRec;
+	// copy of ElementNameAndTextQualifier test
+	public void testMultipleTextValues() throws Exception {
+		ElementSelector qualifier = ElementSelectors.byNameAndTextRec;
 
-        Element control = document.createElement(TAG_NAME);
-        control.appendChild(document.createTextNode(TEXT_A));
-        control.appendChild(document.createTextNode(TEXT_B));
+		Element control = document.createElement(TAG_NAME);
+		control.appendChild(document.createTextNode(TEXT_A));
+		control.appendChild(document.createTextNode(TEXT_B));
 
-        Element test = document.createElement(TAG_NAME);
-        test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
-        assertTrue("denormalised control text comparable to normalised test text",
-                qualifier.canBeCompared(control, test));
-    }
+		Element test = document.createElement(TAG_NAME);
+		test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
+		assertTrue("denormalised control text comparable to normalised test text",
+		        qualifier.canBeCompared(control, test));
+	}
 
-    // three levels
-    public void testThreeLevels() throws Exception {
-        ElementSelector qualifier = ElementSelectors.byNameAndTextRec;
+	// three levels
+	public void testThreeLevels() throws Exception {
+		ElementSelector qualifier = ElementSelectors.byNameAndTextRec;
 
-        Element control = document.createElement(TAG_NAME);
-        Element child = document.createElement(TAG_NAME2);
-        control.appendChild(child);
-        Element child2 = document.createElement(TAG_NAME);
-        child.appendChild(child2);
-        child2.appendChild(document.createTextNode(TEXT_B));
+		Element control = document.createElement(TAG_NAME);
+		Element child = document.createElement(TAG_NAME2);
+		control.appendChild(child);
+		Element child2 = document.createElement(TAG_NAME);
+		child.appendChild(child2);
+		child2.appendChild(document.createTextNode(TEXT_B));
 
-        Element test = document.createElement(TAG_NAME);
-        child = document.createElement(TAG_NAME2);
-        test.appendChild(child);
-        child2 = document.createElement(TAG_NAME);
-        child.appendChild(child2);
-        child2.appendChild(document.createTextNode(TEXT_B));
+		Element test = document.createElement(TAG_NAME);
+		child = document.createElement(TAG_NAME2);
+		test.appendChild(child);
+		child2 = document.createElement(TAG_NAME);
+		child.appendChild(child2);
+		child2.appendChild(document.createTextNode(TEXT_B));
 
-        assertTrue(qualifier.canBeCompared(control, test));
-    }
+		assertTrue(qualifier.canBeCompared(control, test));
+	}
 
-    /**
-     * @see https 
-     *      ://sourceforge.net/forum/forum.php?thread_id=1440169&forum_id=73274
-     */
-    public void testThread1440169() throws Exception {
-        String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
-        String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
-        Diff d = Diff.newDiff(properties)
-                .betweenControlDocument(s1)
-                .andTestDocument(s2)
-                .build();
-        assertFalse(d.similar());
+	/**
+	 * @see https 
+	 *      ://sourceforge.net/forum/forum.php?thread_id=1440169&forum_id=73274
+	 */
+	public void testThread1440169() throws Exception {
+		String s1 = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
+		String s2 = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
+		Diff d = Diff.newDiff(properties)
+		        .betweenControlDocument(s1)
+		        .andTestDocument(s2)
+		        .build();
+		assertFalse(d.similar());
 
-        // reset
-        d = Diff.newDiff(properties)
-                .betweenControlDocument(s1)
-                .andTestDocument(s2)
-                .build();
-        d.overrideElementSelector(ElementSelectors.byNameAndText);
-        assertFalse(d.similar());
+		// reset
+		d = Diff.newDiff(properties)
+		        .betweenControlDocument(s1)
+		        .andTestDocument(s2)
+		        .build();
+		d.overrideElementSelector(ElementSelectors.byNameAndText);
+		assertFalse(d.similar());
 
-        // reset once again
-        d = Diff.newDiff(properties)
-                .betweenControlDocument(s1)
-                .andTestDocument(s2)
-                .build();
-        d.overrideElementSelector(ElementSelectors.byNameAndTextRec);
-        assertTrue(d.similar());
+		// reset once again
+		d = Diff.newDiff(properties)
+		        .betweenControlDocument(s1)
+		        .andTestDocument(s2)
+		        .build();
+		d.overrideElementSelector(ElementSelectors.byNameAndTextRec);
+		assertTrue(d.similar());
 
-    }
+	}
 
-    public void testUserGuideExample() throws Exception {
-        String control =
-                "<table>\n"
-                        + "  <tr>\n"
-                        + "    <td>foo</td>\n"
-                        + "  </tr>\n"
-                        + "  <tr>\n"
-                        + "    <td>bar</td>\n"
-                        + "  </tr>\n"
-                        + "</table>\n";
-        String test =
-                "<table>\n"
-                        + "  <tr>\n"
-                        + "    <td>bar</td>\n"
-                        + "  </tr>\n"
-                        + "  <tr>\n"
-                        + "    <td>foo</td>\n"
-                        + "  </tr>\n"
-                        + "</table>\n";
+	public void testUserGuideExample() throws Exception {
+		String control =
+		        "<table>\n"
+		                + "  <tr>\n"
+		                + "    <td>foo</td>\n"
+		                + "  </tr>\n"
+		                + "  <tr>\n"
+		                + "    <td>bar</td>\n"
+		                + "  </tr>\n"
+		                + "</table>\n";
+		String test =
+		        "<table>\n"
+		                + "  <tr>\n"
+		                + "    <td>bar</td>\n"
+		                + "  </tr>\n"
+		                + "  <tr>\n"
+		                + "    <td>foo</td>\n"
+		                + "  </tr>\n"
+		                + "</table>\n";
 
-        Diff d = Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        d.overrideElementSelector(ElementSelectors.byNameAndTextRec);
-        assertTrue(d.toString(), d.similar());
-    }
+		Diff d = Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .withElementSelector(ElementSelectors.byNameAndTextRec)
+		        .build();
+		assertTrue(d.toString(), d.similar());
+	}
 
-    /**
-     * @see https 
-     *      ://sourceforge.net/forum/forum.php?thread_id=2948005&amp;forum_id
-     *      =73273
-     */
-    public void testOpenDiscussionThread2948995_1() throws Exception {
-        String control = "<root>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>1</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>2</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>3</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>4</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "</root>";
-        String test = "<root>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>2</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>1</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>3</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>4</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "</root>";
+	/**
+	 * @see https 
+	 *      ://sourceforge.net/forum/forum.php?thread_id=2948005&amp;forum_id
+	 *      =73273
+	 */
+	public void testOpenDiscussionThread2948995_1() throws Exception {
+		String control = "<root>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>1</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>2</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>3</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>4</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "</root>";
+		String test = "<root>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>2</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>1</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>3</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>4</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "</root>";
 
-        Diff myDiff = Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        myDiff.overrideElementSelector(ElementSelectors.byNameAndTextRec);
-        assertThat(myDiff.similar()).isTrue();
-    }
+		Diff myDiff = Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
+		myDiff.overrideElementSelector(ElementSelectors.byNameAndTextRec);
+		assertThat(myDiff.similar()).isTrue();
+	}
 
-    /**
-     * @see https 
-     *      ://sourceforge.net/forum/forum.php?thread_id=2948005&amp;forum_id
-     *      =73273
-     */
-    public void testOpenDiscussionThread2948995_2() throws Exception {
-        String control = "<root>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>1</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>2</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>3</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>4</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "</root>";
-        String test = "<root>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>1</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>2</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "  <ent>"
-                + "    <value>"
-                + "      <int>4</int>"
-                + "    </value>"
-                + "    <value>"
-                + "      <int>3</int>"
-                + "    </value>"
-                + "  </ent>"
-                + "</root>";
+	/**
+	 * @see https 
+	 *      ://sourceforge.net/forum/forum.php?thread_id=2948005&amp;forum_id
+	 *      =73273
+	 */
+	public void testOpenDiscussionThread2948995_2() throws Exception {
+		String control = "<root>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>1</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>2</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>3</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>4</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "</root>";
+		String test = "<root>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>1</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>2</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "  <ent>"
+		        + "    <value>"
+		        + "      <int>4</int>"
+		        + "    </value>"
+		        + "    <value>"
+		        + "      <int>3</int>"
+		        + "    </value>"
+		        + "  </ent>"
+		        + "</root>";
 
-        Diff myDiff = Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-        myDiff.overrideElementSelector(ElementSelectors.byNameAndTextRec);
-        assertThat(myDiff.similar()).isTrue();
-    }
+		Diff myDiff = Diff.newDiff(properties)
+		        .betweenControlDocument(control)
+		        .andTestDocument(test)
+		        .build();
+		myDiff.overrideElementSelector(ElementSelectors.byNameAndTextRec);
+		assertThat(myDiff.similar()).isTrue();
+	}
 }
