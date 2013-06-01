@@ -51,6 +51,7 @@ import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
+import net.sf.xmlunit.diff.ElementSelector;
 
 import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -95,6 +96,17 @@ public class DetailedDiffTest extends DiffTestAbstract {
             DifferenceEngineFactory factory) throws Exception {
 
         return new DetailedDiff(super.prepareDiff(properties, control, test, factory));
+    }
+
+    @Override
+    protected Diff prepareDiff(
+            XmlUnitProperties properties,
+            String control, String test,
+            ElementSelector selector)
+            throws Exception {
+
+        return new DetailedDiff(
+                super.prepareDiff(properties, control, test, selector));
     }
 
     private XmlUnitProperties properties;
@@ -400,8 +412,8 @@ public class DetailedDiffTest extends DiffTestAbstract {
         Diff diff = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
+                .usingElementSelector(new MultiLevelElementNameAndTextSelector(2))
                 .build();
-        diff.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Comparison> differences = detailedDiff.getAllDifferences();
 
@@ -441,8 +453,8 @@ public class DetailedDiffTest extends DiffTestAbstract {
         Diff diff = Diff.newDiff(properties)
                 .betweenControlDocument(test)
                 .andTestDocument(control)
+                .usingElementSelector(new MultiLevelElementNameAndTextSelector(2))
                 .build();
-        diff.overrideElementSelector(new MultiLevelElementNameAndTextSelector(2));
         DetailedDiff detailedDiff = new DetailedDiff(diff);
         List<Comparison> differences = detailedDiff.getAllDifferences();
 

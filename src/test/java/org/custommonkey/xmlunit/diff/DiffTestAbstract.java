@@ -65,6 +65,7 @@ import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
+import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 
@@ -127,7 +128,20 @@ public abstract class DiffTestAbstract {
                 .build();
     }
 
-    // TODO
+    protected Diff prepareDiff(
+            XmlUnitProperties properties,
+            String control, String test,
+            ElementSelector selector)
+            throws Exception {
+
+        return Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .usingElementSelector(selector)
+                .build();
+    }
+
+    // TODO toString?
     // @Test
     // public void should_create_valid_toString_2() throws Exception {
     // // given
@@ -656,8 +670,7 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\"/><node id=\"1\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndAttributeSelector("id"));
+        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector("id"));
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -671,8 +684,7 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndAttributeSelector("id"));
+        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector("id"));
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -686,8 +698,7 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\" val=\"3\"/><node id=\"1\" val=\"4\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -703,8 +714,7 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -727,8 +737,7 @@ public abstract class DiffTestAbstract {
                         "</root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
         diff.overrideDifferenceEvaluator(
                 new ExpectedDifferenceEvaluator(
                         new ComparisonType[] {
@@ -763,8 +772,7 @@ public abstract class DiffTestAbstract {
                 };
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(ElementSelectors.byNameAndText);
+        Diff diff = prepareDiff(properties, control, test, ElementSelectors.byNameAndText);
         diff.overrideDifferenceEvaluator(delegate);
 
         // then
@@ -1306,8 +1314,7 @@ public abstract class DiffTestAbstract {
                         "</tag>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.overrideElementSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
 
         // then
         assertThat(diff.similar()).isTrue();

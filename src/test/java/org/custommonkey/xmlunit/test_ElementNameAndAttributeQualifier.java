@@ -252,8 +252,8 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
         d = Diff.newDiff(null)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
+                .usingElementSelector(new ElementNameAndAttributeSelector())
                 .build();
-        d.overrideElementSelector(new ElementNameAndAttributeSelector());
         assertTrue(d.similar());
     }
 
