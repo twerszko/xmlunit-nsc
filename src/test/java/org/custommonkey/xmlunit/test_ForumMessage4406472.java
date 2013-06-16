@@ -42,6 +42,8 @@ import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.diff.Diff;
@@ -116,20 +118,28 @@ public class test_ForumMessage4406472 extends TestCase {
     }
 
     public void testOriginal() throws Exception {
+        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
+        engineFactory.useEvaluator(new OriginalDifferenceEvaluator());
+
         Diff d = Diff.newDiff(null)
                 .betweenControlDocument(doc1)
                 .andTestDocument(doc2)
                 .build();
-        d.overrideDifferenceEvaluator(new OriginalDifferenceEvaluator());
+        d.setEngineFactory(engineFactory);
+
         assertTrue(d.toString(), d.similar());
     }
 
     public void testModified() throws Exception {
+        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
+        engineFactory.useEvaluator(new ModifiedDifferenceEvaluator());
+
         Diff d = Diff.newDiff(null)
                 .betweenControlDocument(doc1)
                 .andTestDocument(doc2)
                 .build();
-        d.overrideDifferenceEvaluator(new ModifiedDifferenceEvaluator());
+        d.setEngineFactory(engineFactory);
+
         assertTrue(d.toString(), d.similar());
     }
 }

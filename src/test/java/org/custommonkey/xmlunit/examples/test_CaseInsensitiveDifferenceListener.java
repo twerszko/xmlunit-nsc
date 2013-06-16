@@ -40,8 +40,11 @@ import java.util.Locale;
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 
 public class test_CaseInsensitiveDifferenceListener extends TestCase {
@@ -74,8 +77,10 @@ public class test_CaseInsensitiveDifferenceListener extends TestCase {
                         return null;
                     }
                 });
+        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
+        engineFactory.useEvaluator(c);
 
-        d.overrideDifferenceEvaluator(c);
+        d.setEngineFactory(engineFactory);
         assertTrue(d.identical());
     }
 

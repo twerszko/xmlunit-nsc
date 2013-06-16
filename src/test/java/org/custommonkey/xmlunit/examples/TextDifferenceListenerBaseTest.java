@@ -38,10 +38,13 @@ package org.custommonkey.xmlunit.examples;
 import static org.fest.assertions.api.Assertions.assertThat;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TextDifferenceListenerBaseTest {
@@ -54,10 +57,18 @@ public class TextDifferenceListenerBaseTest {
     private static final String C_TEXT = "controlText";
     private static final String T_TEXT = "testText";
 
+    private DifferenceEngineFactory engineFactory;
+
+    @Before
+    public void setUp() {
+        engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
+    }
+
     private static class TestEvaluator extends TextDifferenceEvaluatorBase {
         public int invocationCounter = 0;
         public Comparison difference;
 
+        // TODO this should be listener
         protected TestEvaluator(DifferenceEvaluator delegateTo) {
             super(delegateTo);
         }
@@ -81,7 +92,6 @@ public class TextDifferenceListenerBaseTest {
         protected ComparisonResult textDifference(Comparison d, ComparisonResult outcome) {
             return ComparisonResult.EQUAL;
         }
-
     }
 
     @Test
@@ -90,7 +100,8 @@ public class TextDifferenceListenerBaseTest {
         String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-        TestEvaluator listener = new TestEvaluator(null) {
+        // TODO this should be listener
+        TestEvaluator evaluator = new TestEvaluator(null) {
             @Override
             protected ComparisonResult attributeDifference(Comparison difference, ComparisonResult outcome) {
                 this.difference = difference;
@@ -99,20 +110,22 @@ public class TextDifferenceListenerBaseTest {
             }
         };
 
+        engineFactory.useEvaluator(evaluator);
+
         // when
         Diff diff = Diff.newDiff(new XmlUnitProperties())
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        diff.overrideDifferenceEvaluator(listener);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
         assertThat(identical).isTrue();
-        assertThat(listener.invocationCounter).isEqualTo(1);
-        assertThat(listener.difference.getControlDetails().getValue())
+        assertThat(evaluator.invocationCounter).isEqualTo(1);
+        assertThat(evaluator.difference.getControlDetails().getValue())
                 .isEqualTo(C_ATTR);
-        assertThat(listener.difference.getTestDetails().getValue())
+        assertThat(evaluator.difference.getTestDetails().getValue())
                 .isEqualTo(T_ATTR);
 
     }
@@ -123,7 +136,7 @@ public class TextDifferenceListenerBaseTest {
         String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-        TestEvaluator listener = new TestEvaluator(null) {
+        TestEvaluator evaluator = new TestEvaluator(null) {
             @Override
             protected ComparisonResult cdataDifference(Comparison difference, ComparisonResult outcome) {
                 this.difference = difference;
@@ -131,21 +144,22 @@ public class TextDifferenceListenerBaseTest {
                 return ComparisonResult.EQUAL;
             }
         };
+        engineFactory.useEvaluator(evaluator);
 
         // when
         Diff diff = Diff.newDiff(new XmlUnitProperties())
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        diff.overrideDifferenceEvaluator(listener);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
         assertThat(identical).isTrue();
-        assertThat(listener.invocationCounter).isEqualTo(1);
-        assertThat(listener.difference.getControlDetails().getValue())
+        assertThat(evaluator.invocationCounter).isEqualTo(1);
+        assertThat(evaluator.difference.getControlDetails().getValue())
                 .isEqualTo(C_CDATA);
-        assertThat(listener.difference.getTestDetails().getValue())
+        assertThat(evaluator.difference.getTestDetails().getValue())
                 .isEqualTo(T_CDATA);
     }
 
@@ -155,7 +169,7 @@ public class TextDifferenceListenerBaseTest {
         String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-        TestEvaluator listener = new TestEvaluator(null) {
+        TestEvaluator evaluator = new TestEvaluator(null) {
             @Override
             protected ComparisonResult commentDifference(Comparison difference, ComparisonResult outcome) {
                 this.difference = difference;
@@ -163,21 +177,22 @@ public class TextDifferenceListenerBaseTest {
                 return ComparisonResult.EQUAL;
             }
         };
+        engineFactory.useEvaluator(evaluator);
 
         // when
         Diff diff = Diff.newDiff(new XmlUnitProperties())
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        diff.overrideDifferenceEvaluator(listener);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
         assertThat(identical).isTrue();
-        assertThat(listener.invocationCounter).isEqualTo(1);
-        assertThat(listener.difference.getControlDetails().getValue())
+        assertThat(evaluator.invocationCounter).isEqualTo(1);
+        assertThat(evaluator.difference.getControlDetails().getValue())
                 .isEqualTo(C_CMMT);
-        assertThat(listener.difference.getTestDetails().getValue())
+        assertThat(evaluator.difference.getTestDetails().getValue())
                 .isEqualTo(T_CMMT);
     }
 
@@ -187,7 +202,7 @@ public class TextDifferenceListenerBaseTest {
         String control = getDoc(C_ATTR, C_CDATA, C_CMMT, C_TEXT);
         String test = getDoc(T_ATTR, T_CDATA, T_CMMT, T_TEXT);
 
-        TestEvaluator listener = new TestEvaluator(null) {
+        TestEvaluator evaluator = new TestEvaluator(null) {
             @Override
             protected ComparisonResult textDifference(Comparison difference, ComparisonResult outcome) {
                 this.difference = difference;
@@ -195,21 +210,22 @@ public class TextDifferenceListenerBaseTest {
                 return ComparisonResult.EQUAL;
             }
         };
+        engineFactory.useEvaluator(evaluator);
 
         // when
         Diff diff = Diff.newDiff(new XmlUnitProperties())
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        diff.overrideDifferenceEvaluator(listener);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
         assertThat(identical).isTrue();
-        assertThat(listener.invocationCounter).isEqualTo(1);
-        assertThat(listener.difference.getControlDetails().getValue())
+        assertThat(evaluator.invocationCounter).isEqualTo(1);
+        assertThat(evaluator.difference.getControlDetails().getValue())
                 .isEqualTo(C_TEXT);
-        assertThat(listener.difference.getTestDetails().getValue())
+        assertThat(evaluator.difference.getTestDetails().getValue())
                 .isEqualTo(T_TEXT);
     }
 
@@ -228,13 +244,14 @@ public class TextDifferenceListenerBaseTest {
                 return ComparisonResult.EQUAL;
             }
         };
+        engineFactory.useEvaluator(evaluator);
 
         // when
         Diff diff = Diff.newDiff(new XmlUnitProperties())
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -256,14 +273,16 @@ public class TextDifferenceListenerBaseTest {
                 invocationCounter[0]++;
                 return ComparisonResult.EQUAL;
             }
-        }) {};
+        }) {
+        };
+        engineFactory.useEvaluator(evaluator);
 
         // when
         Diff diff = Diff.newDiff(new XmlUnitProperties())
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then

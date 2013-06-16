@@ -38,12 +38,16 @@ package org.custommonkey.xmlunit.examples;
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 
 public class test_FloatingPointTolerantDifferenceListener extends TestCase {
 
+    // TODO refactor
     public void testFloatingPointTolerance() throws Exception {
         String control = "<foo value=\"2.718281828\"/>";
         String test = "<foo value=\"2.71\"/>";
@@ -64,8 +68,10 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
                         return null;
                     }
                 }, 1e-2);
+        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
+        engineFactory.useEvaluator(c);
 
-        d.overrideDifferenceEvaluator(c);
+        d.setEngineFactory(engineFactory);
         assertTrue(d.identical());
 
         c = new FloatingPointTolerantDifferenceEvaluator(new DifferenceEvaluator() {
@@ -77,11 +83,12 @@ public class test_FloatingPointTolerantDifferenceListener extends TestCase {
             }
         }, 1e-3);
 
+        engineFactory.useEvaluator(c);
         d = Diff.newDiff(null)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .build();
-        d.overrideDifferenceEvaluator(c);
+        d.setEngineFactory(engineFactory);
         assertFalse(d.identical());
     }
 

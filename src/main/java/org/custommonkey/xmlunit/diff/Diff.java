@@ -44,7 +44,6 @@ import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.diff.DifferenceEvaluator;
 import net.sf.xmlunit.diff.NodeMatcher;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -81,7 +80,6 @@ public class Diff {
     private boolean identical = true;
     private boolean compared = false;
     private DifferenceEngineFactory engineFactory;
-    private DifferenceEvaluator differenceEvaluator;
     private final NodeMatcher nodeMatcher;
 
     Diff(DiffBuilder builder) {
@@ -107,7 +105,6 @@ public class Diff {
         this.testSource = prototype.testSource;
         this.nodeMatcher = prototype.nodeMatcher;
         this.engineFactory = prototype.engineFactory;
-        this.differenceEvaluator = prototype.differenceEvaluator;
     }
 
     public void setEngineFactory(DifferenceEngineFactory factory) {
@@ -126,10 +123,6 @@ public class Diff {
         engine.addComparisonListener(createControllingListener(engine));
         engine.setNodeMatcher(nodeMatcher);
 
-        // TODO
-        if (differenceEvaluator != null) {
-            engine.setEvaluator(differenceEvaluator);
-        }
         engine.compare(ctrlSource, testSource);
         compared = true;
     }
@@ -194,33 +187,22 @@ public class Diff {
     private void setVardict(Comparison comparison, ComparisonResult outcome) {
         boolean isRecoverable = comparison.getType().isRecoverable();
         switch (outcome) {
-        case SIMILAR:
-            identical = false;
-            break;
-        case DIFFERENT:
-            identical = false;
-            if (!isRecoverable) {
+            case SIMILAR:
+                identical = false;
+                break;
+            case DIFFERENT:
+                identical = false;
+                if (!isRecoverable) {
+                    similar = false;
+                }
+                break;
+            case CRITICAL:
+                identical = false;
                 similar = false;
-            }
-            break;
-        case CRITICAL:
-            identical = false;
-            similar = false;
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
         }
-    }
-
-    /**
-     * Override the <code>DifferenceListener</code> used to determine how to
-     * handle differences that are found.
-     * 
-     * @param evaluator
-     *            the DifferenceListener instance to delegate handling to.
-     */
-    public void overrideDifferenceEvaluator(DifferenceEvaluator evaluator) {
-        this.differenceEvaluator = evaluator;
     }
 
     public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {

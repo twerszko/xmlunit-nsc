@@ -74,16 +74,18 @@ public class DiffTest extends DiffTestAbstract {
         final ComparisonListener listener = mock(ComparisonListener.class);
 
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
-        Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.setEngineFactory(new DefaultDifferenceEngineFactory(properties) {
+        DefaultDifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(properties) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
                 engine.addDifferenceListener(listener);
                 return engine;
             }
-        });
-        diff.overrideDifferenceEvaluator(evaluator);
+        };
+        engineFactory.useEvaluator(evaluator);
+
+        Diff diff = prepareDiff(properties, controlDoc, testDoc);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         List<Comparison> differences = evaluator.getDifferences();

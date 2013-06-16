@@ -87,11 +87,13 @@ public abstract class DiffTestAbstract {
 
     protected XmlUnitProperties properties;
     private DocumentUtils documentUtils;
+    protected DefaultDifferenceEngineFactory engineFactory;
 
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
         documentUtils = new DocumentUtils(properties);
+        engineFactory = new DefaultDifferenceEngineFactory(properties);
     }
 
     protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {
@@ -589,11 +591,10 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.similar()).isFalse();
-
     }
 
     @Test
-    public void should_check_diffs_with_overriden_DifferenceListener() throws Exception {
+    public void should_always_be_equal_with_overriden_evaluator() throws Exception {
         // given
         String control =
                 "<vehicles>" +
@@ -606,30 +607,65 @@ public abstract class DiffTestAbstract {
                         "<car colour=\"white\">nissan primera</car>" +
                         "<car colour=\"blue\">peugot 206</car></vehicles>";
 
+        engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.EQUAL));
+
         // when
-        Diff diffWithIdenticalOverride = prepareDiff(properties, control, test);
-        diffWithIdenticalOverride.overrideDifferenceEvaluator(
-                new OverridingDifferenceEvaluator(ComparisonResult.EQUAL)
-                );
-
-        Diff diffWithSimilarOverride = prepareDiff(properties, control, test);
-        diffWithSimilarOverride.overrideDifferenceEvaluator(
-                new OverridingDifferenceEvaluator(ComparisonResult.SIMILAR)
-                );
-
-        Diff diffWithOverride = prepareDiff(properties, control, test);
-        diffWithOverride.overrideDifferenceEvaluator(new OverridingDifferenceEvaluator(
-                ComparisonResult.DIFFERENT));
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diffWithIdenticalOverride.identical()).isTrue();
-        assertThat(diffWithIdenticalOverride.similar()).isTrue();
+        assertThat(diff.identical()).isTrue();
+        assertThat(diff.similar()).isTrue();
+    }
 
-        assertThat(diffWithSimilarOverride.identical()).isFalse();
-        assertThat(diffWithSimilarOverride.similar()).isTrue();
+    @Test
+    public void should_always_be_similar_with_overriden_evaluator() throws Exception {
+        // given
+        String control =
+                "<vehicles>" +
+                        "<car colour=\"white\">ford fiesta</car>" +
+                        "<car colour=\"red\">citroen xsara</car>" +
+                        "</vehicles>";
 
-        assertThat(diffWithOverride.identical()).isFalse();
-        assertThat(diffWithOverride.similar()).isFalse();
+        String test =
+                "<vehicles>" +
+                        "<car colour=\"white\">nissan primera</car>" +
+                        "<car colour=\"blue\">peugot 206</car></vehicles>";
+
+        engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.SIMILAR));
+
+        // when
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
+
+        // then
+        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).isTrue();
+    }
+
+    @Test
+    public void should_always_be_different_with_overriden_evaluator() throws Exception {
+        // given
+        String control =
+                "<vehicles>" +
+                        "<car colour=\"white\">ford fiesta</car>" +
+                        "<car colour=\"red\">citroen xsara</car>" +
+                        "</vehicles>";
+
+        String test =
+                "<vehicles>" +
+                        "<car colour=\"white\">nissan primera</car>" +
+                        "<car colour=\"blue\">peugot 206</car></vehicles>";
+
+        engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.DIFFERENT));
+
+        // when
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
+
+        // then
+        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).isFalse();
     }
 
     @Test
@@ -640,10 +676,11 @@ public abstract class DiffTestAbstract {
         FileReader control = new FileReader(controlFile);
         FileReader test = new FileReader(testFile);
 
+        engineFactory.useEvaluator(new ExpectedDifferenceEvaluator(ComparisonType.NAMESPACE_PREFIX));
+
         // when
         Diff diff = prepareDiff(properties, control, test);
-        diff.overrideDifferenceEvaluator(
-                new ExpectedDifferenceEvaluator(ComparisonType.NAMESPACE_PREFIX));
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -736,15 +773,16 @@ public abstract class DiffTestAbstract {
                         "<node id=\"1\" c:val=\"a\" d:val=\"b\"/>" +
                         "</root>";
 
+        ExpectedDifferenceEvaluator evaluator = new ExpectedDifferenceEvaluator(
+                new ComparisonType[] {
+                        ComparisonType.NAMESPACE_PREFIX,
+                        ComparisonType.CHILD_NODELIST_SEQUENCE
+                });
+        engineFactory.useEvaluator(evaluator);
+
         // when
         Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
-        diff.overrideDifferenceEvaluator(
-                new ExpectedDifferenceEvaluator(
-                        new ComparisonType[] {
-                                ComparisonType.NAMESPACE_PREFIX,
-                                ComparisonType.CHILD_NODELIST_SEQUENCE
-                        })
-                );
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -752,9 +790,7 @@ public abstract class DiffTestAbstract {
     }
 
     @Test
-    public void should_check_repeated_element_names_with_text_qualification()
-            throws Exception {
-
+    public void should_check_repeated_element_names_with_text_qualification() throws Exception {
         // given
         String control = "<root><node>1</node><node>2</node></root>";
         String test = "<root><node>2</node><node>1</node></root>";
@@ -770,10 +806,11 @@ public abstract class DiffTestAbstract {
                         assertThat(differenceXpathLocation).isEqualTo("/root[1]/node[" + i + "]");
                     }
                 };
+        engineFactory.useEvaluator(delegate);
 
         // when
         Diff diff = prepareDiff(properties, control, test, ElementSelectors.byNameAndText);
-        diff.overrideDifferenceEvaluator(delegate);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -1106,17 +1143,19 @@ public abstract class DiffTestAbstract {
         String control = "<foo:bar xmlns:foo='urn:foo'/>";
         String test = "<bar xmlns='urn:foo'/>";
 
+        DifferenceEvaluator evaluator = new DifferenceEvaluator() {
+            @Override
+            public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+                return ComparisonResult.CRITICAL;
+            }
+        };
+        engineFactory.useEvaluator(evaluator);
+
         // when
         Diff controlDiff = prepareDiff(properties, control, test);
 
         Diff diff = prepareDiff(properties, control, test);
-        diff.overrideDifferenceEvaluator(
-                new DifferenceEvaluator() {
-                    @Override
-                    public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-                        return ComparisonResult.CRITICAL;
-                    }
-                });
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(controlDiff.identical()).isFalse();
@@ -1346,6 +1385,7 @@ public abstract class DiffTestAbstract {
         // given
         properties.setIgnoreComments(true);
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
 
         String control = "<foo><!--bar--></foo>";
         String test = "<foo><!--baz--></foo>";
@@ -1355,7 +1395,7 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -1368,6 +1408,7 @@ public abstract class DiffTestAbstract {
         // given
         properties.setIgnoreComments(true);
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
 
         String control = "<foo><!--bar--><baz/></foo>";
         String test = "<foo><baz/></foo>";
@@ -1377,7 +1418,7 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -1390,6 +1431,7 @@ public abstract class DiffTestAbstract {
         // given
         properties.setNormalizeWhitespace(true);
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
 
         String control = "<stuff>string</stuff>";
         String test = "<stuff>  string  </stuff>";
@@ -1399,7 +1441,7 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -1412,6 +1454,7 @@ public abstract class DiffTestAbstract {
         // given
         properties.setIgnoreWhitespace(true);
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
 
         String control = "<stuff>string</stuff>";
         String test = "<stuff>  string  </stuff>";
@@ -1421,7 +1464,7 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -1433,6 +1476,7 @@ public abstract class DiffTestAbstract {
     public void should_detect_difference_between_text_and_cdata() throws Exception {
         // given
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
 
         String control = "<stuff>string</stuff>";
         String test = "<stuff><![CDATA[string]]></stuff>";
@@ -1442,7 +1486,7 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -1487,8 +1531,10 @@ public abstract class DiffTestAbstract {
 
         // when
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
+
         Diff diff = prepareDiff(properties, control, test);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         // then
@@ -1517,8 +1563,10 @@ public abstract class DiffTestAbstract {
 
         // when
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
+        engineFactory.useEvaluator(evaluator);
+
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 
         List<Comparison> differences = evaluator.getDifferences();

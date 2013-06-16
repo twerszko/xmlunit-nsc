@@ -44,6 +44,8 @@ import java.util.List;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.ComparisonType;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
 
 import org.custommonkey.xmlunit.diff.DetailedDiff;
@@ -56,10 +58,12 @@ import org.junit.Test;
  */
 public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
     private DifferenceEvaluator evaluator;
+    private DifferenceEngineFactory engineFactory;
 
     @Before
     public void setUp() {
         evaluator = new IgnoreTextAndAttributeValuesDifferenceEvaluator();
+        engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
     }
 
     @Test
@@ -138,11 +142,12 @@ public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
         String similarTest = "<clouds><cloud name=\"cirrus\" rain=\"no\">wispy</cloud></clouds>";
 
         // when
+        engineFactory.useEvaluator(evaluator);
         Diff diff = Diff.newDiff(null)
                 .betweenControlDocument(control)
                 .andTestDocument(similarTest)
                 .build();
-        diff.overrideDifferenceEvaluator(evaluator);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.similar()).isTrue();
@@ -173,11 +178,12 @@ public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
         String dissimilarTest = "<clouds><cloud name=\"nimbus\"/></clouds>";
 
         // when
+        engineFactory.useEvaluator(evaluator);
         Diff dissimilarDiff = Diff.newDiff(null)
                 .betweenControlDocument(control)
                 .andTestDocument(dissimilarTest)
                 .build();
-        dissimilarDiff.overrideDifferenceEvaluator(evaluator);
+        dissimilarDiff.setEngineFactory(engineFactory);
 
         // then
         assertThat(dissimilarDiff.similar()).isFalse();
@@ -190,12 +196,13 @@ public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
         String dissimilarTest = "<clouds><cloud name=\"nimbus\"/></clouds>";
 
         // when
+        engineFactory.useEvaluator(evaluator);
         DetailedDiff dissimilarDetailedDiff = new DetailedDiff(
                 Diff.newDiff(null)
                         .betweenControlDocument(control)
                         .andTestDocument(dissimilarTest)
                         .build());
-        dissimilarDetailedDiff.overrideDifferenceEvaluator(evaluator);
+        dissimilarDetailedDiff.setEngineFactory(engineFactory);
         List<Comparison> differences = dissimilarDetailedDiff.getAllDifferences();
 
         // then
@@ -226,11 +233,12 @@ public class test_IgnoreTextAndAttributeValuesDifferenceEvaluator {
                 + "<street-address>20 east cheap</street-address>"
                 + "</location>";
 
+        engineFactory.useEvaluator(evaluator);
         Diff d = Diff.newDiff(null)
                 .betweenControlDocument(xmlString1)
                 .andTestDocument(xmlString2)
                 .build();
-        d.overrideDifferenceEvaluator(evaluator);
+        d.setEngineFactory(engineFactory);
         assertFalse(d.similar());
     }
 
