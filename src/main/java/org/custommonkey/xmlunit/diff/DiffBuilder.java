@@ -9,13 +9,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.builder.Input;
-import net.sf.xmlunit.diff.CompareUnmatchedNodeMatcher;
 import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
-import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.diff.ElementSelector;
-import net.sf.xmlunit.diff.ElementSelectors;
-import net.sf.xmlunit.diff.NodeMatcher;
 import net.sf.xmlunit.input.CommentLessSource;
 import net.sf.xmlunit.input.WhitespaceNormalizedSource;
 import net.sf.xmlunit.input.WhitespaceStrippedSource;
@@ -29,16 +24,13 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 public class DiffBuilder {
-    XmlUnitProperties properties;
+    final XmlUnitProperties properties;
     final DocumentUtils documentUtils;
 
     Source testSource;
     Source controlSource;
 
     DifferenceEngineFactory engineFactory;
-
-    private ElementSelector elementSelector = ElementSelectors.byName;
-    NodeMatcher nodeMatcher;
 
     public DiffBuilder(@Nullable XmlUnitProperties properties) {
         if (properties == null) {
@@ -114,17 +106,6 @@ public class DiffBuilder {
         if (testSource == null) {
             throw new BuilderException("Test document must be provided!");
         }
-        if (elementSelector == null) {
-            throw new BuilderException("Element selector cannot be null!");
-        }
-    }
-
-    private NodeMatcher createNodeMatcher(ElementSelector selector) {
-        NodeMatcher nodeMatcher = new DefaultNodeMatcher(selector);
-        if (properties.getCompareUnmatched()) {
-            nodeMatcher = new CompareUnmatchedNodeMatcher(nodeMatcher);
-        }
-        return nodeMatcher;
     }
 
     private Source applyProperties(Source input) {
@@ -197,18 +178,11 @@ public class DiffBuilder {
             return this;
         }
 
-        public DiffPropertiesBuilder usingElementSelector(ElementSelector selector) {
-            Preconditions.checkArgument(elementSelector != null, "ElementSelector cannot be null");
-            elementSelector = selector;
-            return this;
-        }
-
         @Override
         public Diff build() throws BuilderException {
             validate();
             testSource = applyProperties(testSource);
             controlSource = applyProperties(controlSource);
-            nodeMatcher = createNodeMatcher(elementSelector);
             return new Diff(DiffBuilder.this);
         }
     }

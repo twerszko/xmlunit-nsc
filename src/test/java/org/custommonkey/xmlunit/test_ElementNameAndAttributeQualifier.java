@@ -38,6 +38,8 @@ package org.custommonkey.xmlunit;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -248,11 +250,14 @@ public class test_ElementNameAndAttributeQualifier extends TestCase {
                 .build();
         assertFalse(d.similar());
 
+        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties());
+        engineFactory.useSelector(new ElementNameAndAttributeSelector());
+
         // reset
         d = Diff.newDiff(null)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(new ElementNameAndAttributeSelector())
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertTrue(d.similar());
     }

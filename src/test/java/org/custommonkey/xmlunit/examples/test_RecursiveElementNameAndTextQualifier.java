@@ -38,6 +38,8 @@ package org.custommonkey.xmlunit.examples;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 
@@ -59,14 +61,17 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
     private static final String TAG_NAME2 = "tagYoureIt2";
     private static final String TEXT_A = "textA";
     private static final String TEXT_B = "textB";
+
     private Document document;
     private XmlUnitProperties properties;
+    private DifferenceEngineFactory engineFactory;
 
     @Override
     @Before
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
         document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
+        engineFactory = new DefaultDifferenceEngineFactory(properties);
     }
 
     // copy of ElementNameAndTextQualifier test
@@ -141,18 +146,20 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
         assertFalse(d.similar());
 
         // reset
+        engineFactory.useSelector(ElementSelectors.byNameAndText);
         d = Diff.newDiff(properties)
                 .betweenControlDocument(s1)
                 .andTestDocument(s2)
-                .usingElementSelector(ElementSelectors.byNameAndText)
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertFalse(d.similar());
 
         // reset once again
+        engineFactory.useSelector(ElementSelectors.byNameAndTextRec);
         d = Diff.newDiff(properties)
                 .betweenControlDocument(s1)
                 .andTestDocument(s2)
-                .usingElementSelector(ElementSelectors.byNameAndTextRec)
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertTrue(d.similar());
 
@@ -178,10 +185,11 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                         + "  </tr>\n"
                         + "</table>\n";
 
+        engineFactory.useSelector(ElementSelectors.byNameAndTextRec);
         Diff d = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(ElementSelectors.byNameAndTextRec)
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertTrue(d.toString(), d.similar());
     }
@@ -229,10 +237,11 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                 + "  </ent>"
                 + "</root>";
 
+        engineFactory.useSelector(ElementSelectors.byNameAndTextRec);
         Diff myDiff = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(ElementSelectors.byNameAndTextRec)
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertThat(myDiff.similar()).isTrue();
     }
@@ -280,10 +289,11 @@ public class test_RecursiveElementNameAndTextQualifier extends TestCase {
                 + "  </ent>"
                 + "</root>";
 
+        engineFactory.useSelector(ElementSelectors.byNameAndTextRec);
         Diff myDiff = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(ElementSelectors.byNameAndTextRec)
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertThat(myDiff.similar()).isTrue();
     }

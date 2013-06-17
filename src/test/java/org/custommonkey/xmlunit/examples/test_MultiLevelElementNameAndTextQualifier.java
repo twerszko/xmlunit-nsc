@@ -37,6 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.examples;
 
 import junit.framework.TestCase;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 
@@ -56,14 +58,16 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
     private static final String TAG_NAME2 = "tagYoureIt2";
     private static final String TEXT_A = "textA";
     private static final String TEXT_B = "textB";
-    private Document document;
 
+    private Document document;
     private XmlUnitProperties properties;
+    private DifferenceEngineFactory engineFactory;
 
     @Override
     public void setUp() throws Exception {
         properties = new XmlUnitProperties();
         document = new DocumentUtils(properties).newControlDocumentBuilder().newDocument();
+        engineFactory = new DefaultDifferenceEngineFactory(properties);
     }
 
     // copy of ElementNameAndTextQualifier test
@@ -141,18 +145,20 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
         assertFalse(d.similar());
 
         // reset
+        engineFactory.useSelector(ElementSelectors.byNameAndText);
         d = Diff.newDiff(properties)
                 .betweenControlDocument(s1)
                 .andTestDocument(s2)
-                .usingElementSelector(ElementSelectors.byNameAndText)
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertFalse(d.similar());
 
         // reset once again
+        engineFactory.useSelector(new MultiLevelElementNameAndTextSelector(2));
         d = Diff.newDiff(properties)
                 .betweenControlDocument(s1)
                 .andTestDocument(s2)
-                .usingElementSelector(new MultiLevelElementNameAndTextSelector(2))
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertTrue(d.similar());
 
@@ -178,28 +184,31 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
                         + "  </tr>\n"
                         + "</table>\n";
 
+        engineFactory.useSelector(new MultiLevelElementNameAndTextSelector(2));
         Diff d = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(new MultiLevelElementNameAndTextSelector(2))
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertFalse(d.toString(), d.similar());
 
+        // TODO Diff builder knows about properties
+        engineFactory.useSelector(new MultiLevelElementNameAndTextSelector(2));
         properties.setIgnoreWhitespace(true);
         d = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(new MultiLevelElementNameAndTextSelector(2))
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertTrue(d.toString(), d.similar());
         properties.setIgnoreWhitespace(false);
 
+        engineFactory.useSelector(new MultiLevelElementNameAndTextSelector(2, true));
         d = Diff.newDiff(properties)
                 .betweenControlDocument(control)
                 .andTestDocument(test)
-                .usingElementSelector(new MultiLevelElementNameAndTextSelector(2, true))
+                .usingDifferenceEngineFactory(engineFactory)
                 .build();
         assertTrue(d.toString(), d.similar());
     }
-
 }

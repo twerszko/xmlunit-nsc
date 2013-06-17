@@ -44,7 +44,6 @@ import net.sf.xmlunit.diff.ComparisonListener;
 import net.sf.xmlunit.diff.ComparisonResult;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.diff.NodeMatcher;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 
@@ -72,21 +71,16 @@ import org.custommonkey.xmlunit.XmlUnitProperties;
  * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class Diff {
-    private final XmlUnitProperties properties;
-
     private final Source ctrlSource;
     private final Source testSource;
     private boolean similar = true;
     private boolean identical = true;
     private boolean compared = false;
     private DifferenceEngineFactory engineFactory;
-    private final NodeMatcher nodeMatcher;
 
     Diff(DiffBuilder builder) {
-        this.properties = builder.properties.clone();
         this.ctrlSource = builder.controlSource;
         this.testSource = builder.testSource;
-        this.nodeMatcher = builder.nodeMatcher;
         this.engineFactory = builder.engineFactory;
     }
 
@@ -100,10 +94,8 @@ public class Diff {
     // TODO this can be removed
     protected Diff(Diff prototype) {
         // TODO clone?
-        this.properties = prototype.properties.clone();
         this.ctrlSource = prototype.ctrlSource;
         this.testSource = prototype.testSource;
-        this.nodeMatcher = prototype.nodeMatcher;
         this.engineFactory = prototype.engineFactory;
     }
 
@@ -121,7 +113,6 @@ public class Diff {
 
         DifferenceEngine engine = engineFactory.newEngine();
         engine.addComparisonListener(createControllingListener(engine));
-        engine.setNodeMatcher(nodeMatcher);
 
         engine.compare(ctrlSource, testSource);
         compared = true;

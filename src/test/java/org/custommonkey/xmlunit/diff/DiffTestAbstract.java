@@ -65,7 +65,6 @@ import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
-import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 
@@ -127,19 +126,6 @@ public abstract class DiffTestAbstract {
                 .betweenControlDocument(control)
                 .andTestDocument(test)
                 .usingDifferenceEngineFactory(engineFactory)
-                .build();
-    }
-
-    protected Diff prepareDiff(
-            XmlUnitProperties properties,
-            String control, String test,
-            ElementSelector selector)
-            throws Exception {
-
-        return Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .usingElementSelector(selector)
                 .build();
     }
 
@@ -707,7 +693,9 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\"/><node id=\"1\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector("id"));
+        engineFactory.useSelector(new ElementNameAndAttributeSelector("id"));
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -721,7 +709,9 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector("id"));
+        engineFactory.useSelector(new ElementNameAndAttributeSelector("id"));
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -735,7 +725,9 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\" val=\"3\"/><node id=\"1\" val=\"4\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
+        engineFactory.useSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -751,7 +743,9 @@ public abstract class DiffTestAbstract {
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
+        engineFactory.useSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.identical()).isFalse();
@@ -778,10 +772,12 @@ public abstract class DiffTestAbstract {
                         ComparisonType.NAMESPACE_PREFIX,
                         ComparisonType.CHILD_NODELIST_SEQUENCE
                 });
+
         engineFactory.useEvaluator(evaluator);
+        engineFactory.useSelector(new ElementNameAndAttributeSelector());
 
         // when
-        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test);
         diff.setEngineFactory(engineFactory);
 
         // then
@@ -806,10 +802,12 @@ public abstract class DiffTestAbstract {
                         assertThat(differenceXpathLocation).isEqualTo("/root[1]/node[" + i + "]");
                     }
                 };
+
         engineFactory.useEvaluator(delegate);
+        engineFactory.useSelector(ElementSelectors.byNameAndText);
 
         // when
-        Diff diff = prepareDiff(properties, control, test, ElementSelectors.byNameAndText);
+        Diff diff = prepareDiff(properties, control, test);
         diff.setEngineFactory(engineFactory);
 
         // then
@@ -1353,7 +1351,9 @@ public abstract class DiffTestAbstract {
                         "</tag>";
 
         // when
-        Diff diff = prepareDiff(properties, control, test, new ElementNameAndAttributeSelector());
+        engineFactory.useSelector(new ElementNameAndAttributeSelector());
+        Diff diff = prepareDiff(properties, control, test);
+        diff.setEngineFactory(engineFactory);
 
         // then
         assertThat(diff.similar()).isTrue();
