@@ -1580,4 +1580,35 @@ public abstract class DiffTestAbstract {
         assertThat(difference.getControlDetails().getValue()).isEqualTo("bar");
         assertThat(difference.getTestDetails().getValue()).isEqualTo("baz");
     }
+
+    @Test
+    public void should_be_different_when_element_order_different() throws Exception {
+        // given
+        String control = "<class id=\"c0\"> "
+                + "<method id=\"c0_m0\"> "
+                + "<dependency_info stmtId=\"c0_m0_s4\"> "
+                + "<dependent tid=\"c3_m1_s18\"/> "
+                + "<dependent tid=\"c3_m1_s32\"/> "
+                + "<dependent tid=\"c3_m1_s26\"/> "
+                + "</dependency_info> "
+                + "</method> "
+                + "</class>";
+        String test = "<class id=\"c0\"> "
+                + "<method id=\"c0_m0\"> "
+                + "<dependency_info stmtId=\"c0_m0_s4\"> "
+                + "<dependent tid=\"c3_m1_s32\"/> "
+                + "<dependent tid=\"c3_m1_s18\"/> "
+                + "<dependent tid=\"c3_m1_s26\"/> "
+                + "</dependency_info> "
+                + "</method> "
+                + "</class>";
+
+        // when
+        Diff diff = prepareDiff(properties, control, test);
+
+        // then
+        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).isFalse();
+
+    }
 }
