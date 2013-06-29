@@ -73,10 +73,11 @@ import org.custommonkey.xmlunit.XmlUnitProperties;
 public class Diff {
     private final Source ctrlSource;
     private final Source testSource;
+    private DifferenceEngineFactory engineFactory;
+
     private boolean similar = true;
     private boolean identical = true;
     private boolean compared = false;
-    private DifferenceEngineFactory engineFactory;
 
     Diff(DiffBuilder builder) {
         this.ctrlSource = builder.controlSource;
@@ -178,21 +179,21 @@ public class Diff {
     private void setVardict(Comparison comparison, ComparisonResult outcome) {
         boolean isRecoverable = comparison.getType().isRecoverable();
         switch (outcome) {
-            case SIMILAR:
-                identical = false;
-                break;
-            case DIFFERENT:
-                identical = false;
-                if (!isRecoverable) {
-                    similar = false;
-                }
-                break;
-            case CRITICAL:
-                identical = false;
+        case SIMILAR:
+            identical = false;
+            break;
+        case DIFFERENT:
+            identical = false;
+            if (!isRecoverable) {
                 similar = false;
-                break;
-            default:
-                break;
+            }
+            break;
+        case CRITICAL:
+            identical = false;
+            similar = false;
+            break;
+        default:
+            break;
         }
     }
 

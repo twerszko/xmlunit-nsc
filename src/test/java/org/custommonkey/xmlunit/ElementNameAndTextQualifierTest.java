@@ -37,9 +37,12 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
+import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.ElementSelector;
 import net.sf.xmlunit.diff.ElementSelectors;
 
+import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,12 +54,17 @@ public class ElementNameAndTextQualifierTest {
     private static final String TEXT_A = "textA";
     private static final String TEXT_B = "textB";
     private Document document;
-    private ElementSelector elementNameAndTextQualifier;
+    private ElementSelector selectorUnderTest;
+
+    private XmlUnitProperties properties;
+    private DifferenceEngineFactory engineFactory;
 
     @Before
     public void setUp() throws Exception {
+        properties = new XmlUnitProperties();
         document = new DocumentUtils(new XmlUnitProperties()).newControlDocumentBuilder().newDocument();
-        elementNameAndTextQualifier = ElementSelectors.byNameAndText;
+        selectorUnderTest = ElementSelectors.byNameAndText;
+        engineFactory = new DefaultDifferenceEngineFactory(properties);
     }
 
     @Test
@@ -67,16 +75,16 @@ public class ElementNameAndTextQualifierTest {
         Element test = document.createElement(TAG_NAME);
 
         // when
-        boolean qualifiedForComparison1 = elementNameAndTextQualifier
+        boolean qualifiedForComparison1 = selectorUnderTest
                 .canBeCompared(control, test);
 
         test.appendChild(document.createTextNode(TEXT_A));
-        boolean qualifiedForComparison2 = elementNameAndTextQualifier
+        boolean qualifiedForComparison2 = selectorUnderTest
                 .canBeCompared(control, test);
 
         test = document.createElement(TAG_NAME);
         test.appendChild(document.createTextNode(TEXT_B));
-        boolean qualifiedForComparison3 = elementNameAndTextQualifier
+        boolean qualifiedForComparison3 = selectorUnderTest
                 .canBeCompared(control, test);
 
         // then
@@ -96,10 +104,31 @@ public class ElementNameAndTextQualifierTest {
         test.appendChild(document.createTextNode(TEXT_A + TEXT_B));
 
         // when
-        boolean qualifiedForComparison = elementNameAndTextQualifier.canBeCompared(control, test);
+        boolean qualifiedForComparison = selectorUnderTest.canBeCompared(control, test);
 
         // then
         assertThat(qualifiedForComparison).isTrue();
+    }
+
+    @Test
+    public void should_cannot_compare_when_different_order_deep_in_the_tree() throws Exception {
+        // given
+        engineFactory.useSelector(selectorUnderTest);
+
+        String control = "<a><b><c>foo</c></b><b><c>bar</c></b></a>";
+        String test = "<a><b><c>bar</c></b><b><c>foo</c></b></a>";
+
+        Diff d = Diff.newDiff(properties)
+                .betweenControlDocument(control)
+                .andTestDocument(test)
+                .usingDifferenceEngineFactory(engineFactory)
+                .build();
+
+        // when
+        boolean similar = d.similar();
+
+        // then
+        assertThat(similar).isFalse();
     }
 
 }
