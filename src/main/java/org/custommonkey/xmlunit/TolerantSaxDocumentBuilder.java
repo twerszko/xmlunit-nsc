@@ -45,7 +45,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -60,13 +59,10 @@ import org.xml.sax.helpers.DefaultHandler;
  * well-formed, it is intended for use with HTML pages so that they can be
  * transformed into DOM trees, without being XHTML to start with. Note that this
  * class currently does not handle entity, DTD or CDATA tags. <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  * 
  * @see HTMLDocumentBuilder#parse
  */
-public class TolerantSaxDocumentBuilder
-        extends DefaultHandler implements LexicalHandler {
+public class TolerantSaxDocumentBuilder extends DefaultHandler implements LexicalHandler {
     private final DocumentBuilder documentBuilder;
     private final StringBuffer traceBuffer;
     private Document currentDocument;
@@ -80,8 +76,7 @@ public class TolerantSaxDocumentBuilder
      *            will be built up with SAX calls
      * @throws ParserConfigurationException
      */
-    public TolerantSaxDocumentBuilder(DocumentBuilder documentBuilder)
-            throws ParserConfigurationException {
+    public TolerantSaxDocumentBuilder(DocumentBuilder documentBuilder) throws ParserConfigurationException {
         this.documentBuilder = documentBuilder;
         this.traceBuffer = new StringBuffer();
     }
@@ -125,17 +120,18 @@ public class TolerantSaxDocumentBuilder
      * ContentHandler method.
      */
     public void characters(char[] data, int start, int length) {
-        if (length >= 0) {
-            String characterData = new String(data, start, length);
-            trace("characters:" + characterData);
-            if (currentElement == null) {
-                warn("Can't append text node to null currentElement");
-            } else {
-                Text textNode = currentDocument.createTextNode(characterData);
-                currentElement.appendChild(textNode);
-            }
-        } else {
+        if (length < 0) {
             warn("characters called with negative length");
+            return;
+        }
+
+        String characterData = new String(data, start, length);
+        trace("characters:" + characterData);
+        if (currentElement == null) {
+            warn("Can't append text node to null currentElement");
+        } else {
+            Text textNode = currentDocument.createTextNode(characterData);
+            currentElement.appendChild(textNode);
         }
     }
 
@@ -144,8 +140,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void startElement(String namespaceURI, String localName,
-            String qName, Attributes atts) throws SAXException {
+    public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
         trace("startElement:" + localName + "~" + qName);
         Element newElement = createElement(namespaceURI, qName, atts);
         appendNode(newElement);
@@ -157,8 +152,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void endElement(String namespaceURI, String localName,
-            String qName) throws SAXException {
+    public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
         trace("endElement:" + localName + "~" + qName);
         if (currentElement == null) {
             warn(qName + ": endElement before any startElement");
@@ -192,9 +186,8 @@ public class TolerantSaxDocumentBuilder
         }
     }
 
-    private boolean isElementMatching(Element anElement, String qname) {
-        return anElement.getNodeName() != null
-                && anElement.getNodeName().equals(qname);
+    private boolean isElementMatching(Element element, String qname) {
+        return element.getNodeName() != null && element.getNodeName().equals(qname);
     }
 
     /**
@@ -211,8 +204,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void ignorableWhitespace(char ch[], int start, int length)
-            throws SAXException {
+    public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {
         unhandled("ignorableWhitespace");
     }
 
@@ -221,11 +213,9 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void processingInstruction(String target, String data)
-            throws SAXException {
+    public void processingInstruction(String target, String data) throws SAXException {
         trace("processingInstruction");
-        ProcessingInstruction instruction =
-                currentDocument.createProcessingInstruction(target, data);
+        ProcessingInstruction instruction = currentDocument.createProcessingInstruction(target, data);
         appendNode(instruction);
     }
 
@@ -250,8 +240,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void startPrefixMapping(String prefix, String uri)
-            throws SAXException {
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
         unhandled("startPrefixMapping");
     }
 
@@ -261,8 +250,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void startDTD(String name, String publicId,
-            String systemId) throws SAXException {
+    public void startDTD(String name, String publicId, String systemId) throws SAXException {
         unhandled("startDTD");
     }
 
@@ -271,8 +259,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void endDTD()
-            throws SAXException {
+    public void endDTD() throws SAXException {
         unhandled("endDTD");
     }
 
@@ -281,8 +268,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void startEntity(String name)
-            throws SAXException {
+    public void startEntity(String name) throws SAXException {
         unhandled("startEntity");
     }
 
@@ -291,8 +277,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void endEntity(String name)
-            throws SAXException {
+    public void endEntity(String name) throws SAXException {
         unhandled("endEntity");
     }
 
@@ -301,8 +286,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void startCDATA()
-            throws SAXException {
+    public void startCDATA() throws SAXException {
         unhandled("startCDATA");
     }
 
@@ -311,8 +295,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void endCDATA()
-            throws SAXException {
+    public void endCDATA() throws SAXException {
         unhandled("endCDATA");
     }
 
@@ -321,8 +304,7 @@ public class TolerantSaxDocumentBuilder
      * 
      * @throws SAXException
      */
-    public void comment(char ch[], int start, int length)
-            throws SAXException {
+    public void comment(char ch[], int start, int length) throws SAXException {
         String commentText = new String(ch, start, length);
         trace("comment:" + commentText);
         Comment comment = currentDocument.createComment(commentText);
@@ -365,17 +347,17 @@ public class TolerantSaxDocumentBuilder
      * @param attributes
      * @return the created Element
      */
-    private Element createElement(String namespaceURI, String qName,
-            Attributes attributes) {
+    private Element createElement(String namespaceURI, String qName, Attributes attributes) {
         Element newElement = currentDocument.createElement(qName);
 
         if (namespaceURI != null && namespaceURI.length() > 0) {
             newElement.setPrefix(namespaceURI);
         }
 
-        for (int i = 0; attributes != null && i < attributes.getLength(); ++i) {
-            newElement.setAttribute(attributes.getQName(i),
-                    attributes.getValue(i));
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); i++) {
+                newElement.setAttribute(attributes.getQName(i), attributes.getValue(i));
+            }
         }
 
         return newElement;
