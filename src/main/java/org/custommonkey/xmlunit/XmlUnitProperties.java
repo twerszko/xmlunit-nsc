@@ -23,7 +23,6 @@ public class XmlUnitProperties implements Cloneable {
     private String xsltVersion = "1.0";
     private boolean ignoreAttributeOrder = true;
     private boolean expandEntityReference = false;
-    private final boolean ignoreDiffBetweenTextAndCDATA = false;
     private Class<? extends DocumentBuilderFactory> controlDocumentBuilderFactoryClass;
     private Class<? extends DocumentBuilderFactory> testDocumentBuilderFactoryClass;
     private Class<? extends TransformerFactory> transformerFactoryClass;

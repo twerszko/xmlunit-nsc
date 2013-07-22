@@ -51,8 +51,8 @@ import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
+import net.sf.xmlunit.xpath.SimpleXpathEngine;
 
-import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextSelector;

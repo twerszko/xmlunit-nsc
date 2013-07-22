@@ -34,16 +34,15 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package net.sf.xmlunit.xpath;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.xpath.AbstractXpathEngineTest;
-import net.sf.xmlunit.xpath.XpathEngine;
-
+import org.custommonkey.xmlunit.SimpleSerializer;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Test;
 import org.w3c.dom.Node;

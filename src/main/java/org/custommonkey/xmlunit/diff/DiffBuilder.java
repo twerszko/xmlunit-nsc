@@ -25,9 +25,6 @@ import javax.xml.transform.dom.DOMSource;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.input.CommentLessSource;
-import net.sf.xmlunit.input.WhitespaceNormalizedSource;
-import net.sf.xmlunit.input.WhitespaceStrippedSource;
 import net.sf.xmlunit.util.Preconditions;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -38,7 +35,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 public class DiffBuilder {
-    final XmlUnitProperties properties;
     final DocumentUtils documentUtils;
 
     Source testSource;
@@ -47,14 +43,13 @@ public class DiffBuilder {
     DifferenceEngineFactory engineFactory;
 
     public DiffBuilder(@Nullable XmlUnitProperties properties) {
-        if (properties == null) {
-            this.properties = new XmlUnitProperties();
-        } else {
-            this.properties = properties.clone();
+        XmlUnitProperties xmlUnitProperties = properties;
+        if (xmlUnitProperties == null) {
+            xmlUnitProperties = new XmlUnitProperties();
         }
 
-        documentUtils = new DocumentUtils(this.properties);
-        engineFactory = new DefaultDifferenceEngineFactory(this.properties);
+        documentUtils = new DocumentUtils(xmlUnitProperties);
+        engineFactory = new DefaultDifferenceEngineFactory(xmlUnitProperties);
     }
 
     private Document prepareDocumentFrom(InputSource inputSource, DocumentBuilder parser) throws BuilderException {
@@ -122,20 +117,6 @@ public class DiffBuilder {
         }
     }
 
-    private Source applyProperties(Source input) {
-        Source result = input;
-        if (properties.getIgnoreComments()) {
-            result = new CommentLessSource(result);
-        }
-        if (properties.getNormalizeWhitespace()) {
-            result = new WhitespaceNormalizedSource(result);
-        }
-        if (properties.getIgnoreWhitespace()) {
-            result = new WhitespaceStrippedSource(result);
-        }
-        return result;
-    }
-
     public class DiffTestDocBuilder {
 
         private DiffTestDocBuilder() {
@@ -195,8 +176,8 @@ public class DiffBuilder {
         @Override
         public Diff build() throws BuilderException {
             validate();
-            testSource = applyProperties(testSource);
-            controlSource = applyProperties(controlSource);
+            testSource = documentUtils.applySourceProperties(testSource);
+            controlSource = documentUtils.applySourceProperties(controlSource);
             return new Diff(DiffBuilder.this);
         }
     }

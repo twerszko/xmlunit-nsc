@@ -49,9 +49,8 @@ public class JaxpXpathEngine implements XpathEngine {
      */
     public IterableNodeList selectNodes(String xPath, Source s) throws XpathException {
         try {
-            return new IterableNodeList(
-                    (NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),
-                            XPathConstants.NODESET));
+            return new IterableNodeList((NodeList) xpath.evaluate(xPath, Convert.toInputSource(s),
+                    XPathConstants.NODESET));
         } catch (XPathExpressionException ex) {
             throw new XpathException(ex);
         }

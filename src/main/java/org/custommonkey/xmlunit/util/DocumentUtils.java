@@ -1,6 +1,4 @@
-/*  
-    Copyright 2012 Tomasz Werszko
-    	
+/*  	
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -28,6 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -35,11 +34,14 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 
+import net.sf.xmlunit.input.CommentLessSource;
+import net.sf.xmlunit.input.WhitespaceNormalizedSource;
+import net.sf.xmlunit.input.WhitespaceStrippedSource;
 import net.sf.xmlunit.util.Preconditions;
 import net.sf.xmlunit.xpath.JaxpXpathEngine;
+import net.sf.xmlunit.xpath.SimpleXpathEngine;
 import net.sf.xmlunit.xpath.XpathEngine;
 
-import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.Validator;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
@@ -321,6 +323,20 @@ public class DocumentUtils {
             eng.setNamespaceContext(XmlUnitNamespaceContext2Jaxp13.turnIntoMap(properties.getXpathNamespaceContext()));
         }
         return eng;
+    }
+
+    public Source applySourceProperties(Source input) {
+        Source result = input;
+        if (properties.getIgnoreComments()) {
+            result = new CommentLessSource(result);
+        }
+        if (properties.getNormalizeWhitespace()) {
+            result = new WhitespaceNormalizedSource(result);
+        }
+        if (properties.getIgnoreWhitespace()) {
+            result = new WhitespaceStrippedSource(result);
+        }
+        return result;
     }
 
     /**

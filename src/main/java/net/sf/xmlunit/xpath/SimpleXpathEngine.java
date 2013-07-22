@@ -34,7 +34,7 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package net.sf.xmlunit.xpath;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -56,8 +56,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xmlunit.util.IterableNodeList;
-import net.sf.xmlunit.xpath.XpathEngine;
 
+import org.custommonkey.xmlunit.XSLTConstants;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.XsltUtils;
