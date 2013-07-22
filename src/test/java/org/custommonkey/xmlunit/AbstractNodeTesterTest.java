@@ -36,11 +36,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import junit.framework.Assert;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Element;
@@ -48,16 +51,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-/**
- * JUnit test for AbstractNodeTester
- */
-public class test_AbstractNodeTester {
+public class AbstractNodeTesterTest {
 
     @Test
-    @Ignore
-    // TODO This doesn't pass when run with other tests. Find out why!
-            public
-            void testExactlyOncePerMethod() throws Exception {
+    public void testExactlyOncePerMethod() throws Exception {
+        // given
+        XmlUnitProperties properties = new XmlUnitProperties();
+        properties.setExpandEntityReferences(true);
+        DocumentUtils documentUtils = new DocumentUtils(properties);
+
         String testXml = "<!DOCTYPE foo ["
                 + "<!ELEMENT foo (#PCDATA)>"
                 + "<!ATTLIST foo  attr CDATA #IMPLIED>"
@@ -71,9 +73,11 @@ public class test_AbstractNodeTester {
                 + "&my;"
                 + "<![CDATA[baz]]>"
                 + "</foo>";
-        DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
+
         NodeTest nt = new NodeTest(documentUtils, testXml);
-        ExactlyOncePerMethod tester = new ExactlyOncePerMethod();
+        ExactlyOncePerMethod tester = Mockito.spy(new ExactlyOncePerMethod());
+
+        // when
         nt.performTest(tester, new short[] {
                 Node.ATTRIBUTE_NODE,
                 Node.CDATA_SECTION_NODE,
@@ -88,63 +92,42 @@ public class test_AbstractNodeTester {
                 Node.PROCESSING_INSTRUCTION_NODE,
                 Node.TEXT_NODE,
         });
-        tester.verify();
+
+        // then
+        InOrder inOrder = Mockito.inOrder(tester);
+        inOrder.verify(tester, times(1)).testElement(any(Element.class));
+        inOrder.verify(tester, times(1)).testComment(any(Comment.class));
+        inOrder.verify(tester, times(1)).testProcessingInstruction(any(ProcessingInstruction.class));
+        inOrder.verify(tester, times(1)).testText(any(Text.class));
+        inOrder.verify(tester, times(1)).testCDATASection(any(CDATASection.class));
+        inOrder.verify(tester, times(1)).noMoreNodes(any(NodeTest.class));
     }
 
     private class ExactlyOncePerMethod extends AbstractNodeTester {
 
-        private boolean cdataCalled;
-        private boolean commentCalled;
-        private boolean elementCalled;
-        private boolean piCalled;
-        private boolean textCalled;
-        private boolean noMoreNodesCalled;
-
         public void testCDATASection(CDATASection cdata) {
-            Assert.assertFalse("testCDATASection called", cdataCalled);
-            cdataCalled = true;
-            Assert.assertEquals("baz", cdata.getNodeValue());
+            assertThat(cdata.getNodeValue()).isEqualTo("baz");
         }
 
         public void testComment(Comment comment) {
-            Assert.assertFalse("testComment called", commentCalled);
-            commentCalled = true;
-            Assert.assertEquals("comment", comment.getNodeValue());
+            assertThat(comment.getNodeValue()).isEqualTo("comment");
         }
 
         public void testElement(Element element) {
-            Assert.assertFalse("testElement called", elementCalled);
-            elementCalled = true;
-            Assert.assertEquals("foo", element.getNodeName());
-            Assert.assertEquals("value", element.getAttribute("attr"));
+            assertThat(element.getNodeName()).isEqualTo("foo");
+            assertThat(element.getAttribute("attr")).isEqualTo("value");
         }
 
         public void testProcessingInstruction(ProcessingInstruction instr) {
-            Assert.assertFalse("testProcessingInstruction called", piCalled);
-            piCalled = true;
-            Assert.assertEquals("target", instr.getTarget());
-            Assert.assertEquals("processing-instruction", instr.getData());
+            assertThat(instr.getTarget()).isEqualTo("target");
+            assertThat(instr.getData()).isEqualTo("processing-instruction");
         }
 
         public void testText(Text text) {
-            Assert.assertFalse("testText called", textCalled);
-            textCalled = true;
-            Assert.assertEquals("barhello", text.getNodeValue());
+            assertThat(text.getNodeValue()).isEqualTo("barhello");
         }
 
         public void noMoreNodes(NodeTest t) {
-            Assert.assertFalse("noMoreNodes called", noMoreNodesCalled);
-            noMoreNodesCalled = true;
-        }
-
-        void verify() {
-            Assert.assertTrue("testCDATASection not called", cdataCalled);
-            Assert.assertTrue("testComment not called", commentCalled);
-            Assert.assertTrue("testElement not called", elementCalled);
-            Assert.assertTrue("testProcessingInstruction not called",
-                    piCalled);
-            Assert.assertTrue("testText not called", textCalled);
-            Assert.assertTrue("noMoreNodes not called", noMoreNodesCalled);
         }
     }
 }

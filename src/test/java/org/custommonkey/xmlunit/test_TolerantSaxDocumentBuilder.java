@@ -52,9 +52,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-/**
- * JUnit test for TolerantSaxDocumentBuilder
- */
 public class test_TolerantSaxDocumentBuilder {
     private TolerantSaxDocumentBuilder builder;
     private SAXParser parser;

@@ -156,10 +156,9 @@ public class NodeTest {
      * @exception NodeTestException
      *                if test fails
      */
-    public void performTest(NodeTester tester, short[] nodeTypes)
-            throws NodeTestException {
-        NodeIterator iter = documentTraversal.createNodeIterator(rootNode,
-                NodeFilter.SHOW_ALL, new NodeTypeNodeFilter(nodeTypes), true);
+    public void performTest(NodeTester tester, short[] nodeTypes) throws NodeTestException {
+        NodeIterator iter = documentTraversal.createNodeIterator(
+                rootNode, NodeFilter.SHOW_ALL, new NodeTypeNodeFilter(nodeTypes), true);
 
         for (Node nextNode = iter.nextNode(); nextNode != null; nextNode = iter.nextNode()) {
             tester.testNode(nextNode, this);
