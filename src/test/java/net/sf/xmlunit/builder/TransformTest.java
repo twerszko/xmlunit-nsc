@@ -13,12 +13,8 @@
  */
 package net.sf.xmlunit.builder;
 
+import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -48,6 +44,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import com.google.common.io.Closeables;
+import com.googlecode.catchexception.apis.CatchExceptionBdd;
 
 public class TransformTest {
     private static final String FLEABALL = "<fleaball><animal><shaggy>dog</shaggy></animal></fleaball>";
@@ -76,7 +73,7 @@ public class TransformTest {
         String result = Transform.source(source).withStylesheet(stylesheet).build().toString();
 
         // then
-        assertThat(result, is(equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>")));
+        assertThat(result).isEqualTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>");
     }
 
     @Test
@@ -89,7 +86,7 @@ public class TransformTest {
         Document doc = Transform.source(source).withStylesheet(stylesheet).build().toDocument();
 
         // then
-        assertThat(doc.getDocumentElement().getTagName(), is(equalTo("dog")));
+        assertThat(doc.getDocumentElement().getTagName()).isEqualTo("dog");
     }
 
     @Test
@@ -103,7 +100,7 @@ public class TransformTest {
                 .withOutputProperty(OutputKeys.METHOD, "html").build().toString();
 
         // then
-        assertThat(result, is(not(equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>"))));
+        assertThat(result).isNotEqualTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>");
     }
 
     @Test
@@ -252,8 +249,6 @@ public class TransformTest {
 
     /**
      * Issue 1742826
-     * 
-     * @throws TransformerException
      */
     @Test
     public void should_get_exception_when_incorrect_include_uri() throws Exception {
@@ -282,20 +277,15 @@ public class TransformTest {
         factory.setURIResolver(mockedResolver);
         factory.setErrorListener(mockedErrorListener);
 
-        try {
-            Transform.source(source)
-                    .withStylesheet(stylesheet)
-                    .usingFactory(factory)
-                    .withURIResolver(mockedResolver)
-                    .build()
-                    .toString();
-
-            fail("should fail because of unknown include URI");
-        } catch (ConfigurationException tce) {
-            // expected exception because of unknown protocol "urn"
-        }
+        TransformationResult result = Transform.source(source)
+                .withStylesheet(stylesheet)
+                .usingFactory(factory)
+                .withURIResolver(mockedResolver)
+                .build();
+        CatchExceptionBdd.when(result).toString();
 
         // then
+        assertThat(caughtException()).isInstanceOf(ConfigurationException.class);
         verify(mockedResolver, times(1)).resolve("urn:bar", systemId);
     }
 
