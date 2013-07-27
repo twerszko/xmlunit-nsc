@@ -14,8 +14,6 @@
 package net.sf.xmlunit.builder;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.core.Is.is;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,13 +22,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.TestTools;
+import net.sf.xmlunit.util.Convert;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -42,11 +41,11 @@ public class InputTest {
     public void should_parse_document() throws IOException {
         // given
         File testFile = TestResources.ANIMAL_FILE.getFile();
-        Document doc = TestTools.parseDocument(Input.fromFile(testFile).build());
+        Document doc = parseDocument(Input.fromFile(testFile).build());
 
         // when
         Source source = Input.fromDocument(doc).build();
-        doc = TestTools.parseDocument(source);
+        doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -59,11 +58,11 @@ public class InputTest {
 
         // when
         Source source = Input.fromFile(testFile.getAbsolutePath()).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
-        Assert.assertThat(TestResources.ANIMAL_FILE.getUri().toString(), is(equalTo(source.getSystemId())));
+        assertThat(TestResources.ANIMAL_FILE.getUri().toString()).isEqualTo(source.getSystemId());
     }
 
     @Test
@@ -73,7 +72,7 @@ public class InputTest {
 
         // when
         Source source = Input.fromFile(testFile).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -90,7 +89,7 @@ public class InputTest {
 
             // when
             Source source = Input.fromStream(is).build();
-            Document doc = TestTools.parseDocument(source);
+            Document doc = parseDocument(source);
 
             // then
             assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -109,7 +108,7 @@ public class InputTest {
 
             // when
             Source source = Input.fromReader(reader).build();
-            Document doc = TestTools.parseDocument(source);
+            Document doc = parseDocument(source);
 
             // then
             assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -125,7 +124,7 @@ public class InputTest {
 
         // when
         Source source = Input.fromMemory(fileContent).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -138,7 +137,7 @@ public class InputTest {
 
         // when
         Source source = Input.fromMemory(byteArray).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -151,7 +150,7 @@ public class InputTest {
 
         // when
         Source source = Input.fromURI(uriString).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -164,7 +163,7 @@ public class InputTest {
 
         // when
         Source source = Input.fromURI(uri).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -177,7 +176,7 @@ public class InputTest {
 
         // when
         Source source = Input.fromURL(url).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("animal");
@@ -191,7 +190,7 @@ public class InputTest {
         // when
         Source input = Input.fromMemory("<animal>furry</animal>").build();
         Source source = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile).build()).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("furry");
@@ -205,9 +204,19 @@ public class InputTest {
         // when
         Input.Builder input = Input.fromMemory("<animal>furry</animal>");
         Source source = Input.byTransforming(input).withStylesheet(Input.fromFile(testFile)).build();
-        Document doc = TestTools.parseDocument(source);
+        Document doc = parseDocument(source);
 
         // then
         assertThat(doc.getDocumentElement().getTagName()).isEqualTo("furry");
+    }
+
+    private static Document parseDocument(Source s) {
+        try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = builder.parse(Convert.toInputSource(s));
+            return document;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to parse document.", e);
+        }
     }
 }
