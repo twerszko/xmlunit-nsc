@@ -62,47 +62,65 @@ public class ParsingValidator extends Validator {
     }
 
     @Override
-    public ValidationResult validateInstance(Source s) {
+    public ValidationResult validateInstance(Source source) {
+        SAXParser parser;
         try {
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setValidating(true);
-            SAXParser parser = factory.newSAXParser();
-            if (language == Language.XML_SCHEMA) {
-                parser.setProperty(Properties.SCHEMA_LANGUAGE, language.getNsUri());
-            }
-            final Source[] source = getSchemaSources();
-            Handler handler = new Handler();
-            if (source.length != 0) {
-                if (language == Language.XML_SCHEMA) {
-                    InputSource[] schemaSource = new InputSource[source.length];
-                    for (int i = 0; i < source.length; i++) {
-                        schemaSource[i] = Convert.toInputSource(source[i]);
-                    }
-                    parser.setProperty(Properties.SCHEMA_SOURCE, schemaSource);
-                } else if (source.length == 1) {
-                    handler.setSchemaSystemId(source[0].getSystemId());
-                }
-            }
-            InputSource input = Convert.toInputSource(s);
-            try {
-                parser.parse(input, handler);
-            } catch (SAXParseException e) {
-                handler.error(e);
-            } catch (SAXException e) {
-                throw new XMLUnitRuntimeException(e);
-            }
-            return handler.getResult();
+            parser = createParser();
         } catch (ParserConfigurationException ex) {
             throw new ConfigurationException(ex);
+        } catch (SAXException ex) {
+            throw new XMLUnitRuntimeException(ex);
+        }
+
+        try {
+            return doInstanceValidation(parser, source);
         } catch (SAXNotRecognizedException ex) {
             throw new ConfigurationException(ex);
         } catch (SAXNotSupportedException ex) {
             throw new ConfigurationException(ex);
-        } catch (SAXException ex) {
-            throw new XMLUnitRuntimeException(ex);
         } catch (IOException ex) {
             throw new XMLUnitRuntimeException(ex);
+        }
+    }
+
+    private ValidationResult doInstanceValidation(SAXParser parser, Source source)
+            throws SAXNotRecognizedException, SAXNotSupportedException, IOException {
+        if (language == Language.XML_SCHEMA) {
+            parser.setProperty(Properties.SCHEMA_LANGUAGE, language.getNsUri());
+        }
+        final Source[] sources = getSchemaSources();
+        Handler handler = new Handler();
+        if (sources.length != 0) {
+            if (language == Language.XML_SCHEMA) {
+                InputSource[] schemaSource = new InputSource[sources.length];
+                for (int i = 0; i < sources.length; i++) {
+                    schemaSource[i] = Convert.toInputSource(sources[i]);
+                }
+                parser.setProperty(Properties.SCHEMA_SOURCE, schemaSource);
+            } else if (sources.length == 1) {
+                handler.setSchemaSystemId(sources[0].getSystemId());
+            }
+        }
+        parse(source, parser, handler);
+        return handler.getResult();
+    }
+
+    private SAXParser createParser() throws ParserConfigurationException, SAXException {
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(true);
+        SAXParser parser = factory.newSAXParser();
+        return parser;
+    }
+
+    private void parse(Source source, SAXParser parser, Handler handler) throws IOException {
+        InputSource input = Convert.toInputSource(source);
+        try {
+            parser.parse(input, handler);
+        } catch (SAXParseException e) {
+            handler.error(e);
+        } catch (SAXException e) {
+            throw new XMLUnitRuntimeException(e);
         }
     }
 
@@ -138,11 +156,8 @@ public class ParsingValidator extends Validator {
         }
 
         @Override
-        public InputSource resolveEntity(String publicId,
-                String systemId)
-                throws java.io.IOException, SAXException {
-            if (this.systemId != null &&
-                    (getSchemaURI() == null || getSchemaURI().equals(publicId))) {
+        public InputSource resolveEntity(String publicId, String systemId) throws IOException, SAXException {
+            if (this.systemId != null && (getSchemaURI() == null || getSchemaURI().equals(publicId))) {
                 return new InputSource(this.systemId);
             }
             return super.resolveEntity(publicId, systemId);
