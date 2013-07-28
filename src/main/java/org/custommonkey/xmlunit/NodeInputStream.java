@@ -49,8 +49,8 @@ import javax.xml.transform.stream.StreamResult;
 import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.builder.Transform;
 import net.sf.xmlunit.builder.Transform.Builder;
+import net.sf.xmlunit.util.XsltUtils;
 
-import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Node;
 
 /**
@@ -64,6 +64,8 @@ public class NodeInputStream extends InputStream {
     private final ByteArrayOutputStream nodeContentBytes;
     private final Properties outputProperties;
     private int atPos = 0;
+
+    // TODO get rid of it
     private final XmlUnitProperties properties;
 
     /**
@@ -105,8 +107,14 @@ public class NodeInputStream extends InputStream {
         }
         try {
             Source source = Input.fromNode(rootNode).build();
+
+            // TODO
+            XsltUtils xsltUtils = new XsltUtils();
+            xsltUtils.setUriResolver(properties.getUriResolver());
+            xsltUtils.setTransformerFactoryClass(properties.getTransformerFactoryClass());
+
             Builder transformBuilder = Transform.source(source)
-                    .usingFactory(new XsltUtils(properties).newTransformerFactory());
+                    .usingFactory(xsltUtils.newTransformerFactory());
             Iterator<Entry<Object, Object>> it = outputProperties.entrySet().iterator();
             while (it.hasNext()) {
                 Entry<Object, Object> entry = it.next();

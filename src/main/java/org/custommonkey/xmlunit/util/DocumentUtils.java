@@ -163,8 +163,7 @@ public class DocumentUtils {
      * @throws SAXException
      * @throws IOException
      */
-    public Document buildControlDocument(InputSource fromSource)
-            throws IOException, SAXException {
+    public Document buildControlDocument(InputSource fromSource) throws IOException, SAXException {
         return buildDocument(newControlDocumentBuilder(), fromSource);
     }
 
@@ -177,8 +176,7 @@ public class DocumentUtils {
      * @throws SAXException
      * @throws IOException
      */
-    public Document buildTestDocument(String fromXML)
-            throws SAXException, IOException {
+    public Document buildTestDocument(String fromXML) throws SAXException, IOException {
         return buildDocument(newTestDocumentBuilder(), new StringReader(fromXML));
     }
 
@@ -316,7 +314,9 @@ public class DocumentUtils {
             // constellations - like Ant shipping a more recent version of
             // xml-apis than the JDK - may contain the JAXP 1.3 interfaces
             // without implementations
-            eng = new SimpleXpathEngine(properties);
+            SimpleXpathEngine simpleEngine = new SimpleXpathEngine(properties);
+            simpleEngine.setXsltVersion(properties.getXsltVersion());
+            eng = simpleEngine;
         }
         if (properties.getXpathNamespaceContext() != null) {
             // TODO

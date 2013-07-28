@@ -34,19 +34,18 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package org.custommonkey.xmlunit.util;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
 
+import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.util.DocumentUtils;
-import org.custommonkey.xmlunit.util.XsltUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -110,50 +109,6 @@ public class XMLUnitTest {
                 .build()
                 .similar())
                 .isFalse();
-    }
-
-    @Test
-    public void testSetTransformerFactory() throws Exception {
-        // given
-        TransformerFactory factoryBefore = new XsltUtils(properties).newTransformerFactory();
-        Class<? extends TransformerFactory> factoryClass = factoryBefore.getClass();
-
-        // when
-        properties.setTransformerFactoryClass(factoryClass);
-        TransformerFactory factoryAfter = new XsltUtils(properties).newTransformerFactory();
-
-        // then
-        assertThat(factoryBefore).isNotSameAs(factoryAfter);
-        assertThat(factoryAfter.getClass().getName()).isEqualTo(factoryClass.getName());
-
-    }
-
-    @Test
-    public void should_use_default_xslt_version() {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
-
-        // when
-        XsltUtils xsltUtils = new XsltUtils(properties);
-
-        // then
-        assertThat(properties.getXsltVersion()).isEqualTo("1.0");
-        assertThat(xsltUtils.getXSLTStart()).isEqualTo(XSLTConstants.XSLT_START);
-    }
-
-    @Test
-    public void should_use_other_xslt_version() {
-        // given
-        XmlUnitProperties properties = new XmlUnitProperties();
-        properties.setXsltVersion("2.0");
-
-        // when
-        XsltUtils xsltUtils = new XsltUtils(properties);
-
-        // then
-        assertThat(properties.getXsltVersion()).isEqualTo("2.0");
-        assertThat(xsltUtils.getXSLTStart()).startsWith(XSLTConstants.XSLT_START_NO_VERSION);
-        assertThat(xsltUtils.getXSLTStart()).endsWith("\"2.0\">");
     }
 
     @Test(expected = ConfigurationException.class)

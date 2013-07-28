@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
@@ -33,12 +32,12 @@ import javax.xml.transform.URIResolver;
 
 import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.builder.Transform.TransformationResult;
+import net.sf.xmlunit.util.XsltUtils;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
-import org.custommonkey.xmlunit.util.XsltUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -64,7 +63,7 @@ public class TransformTest {
     }
 
     @Test
-    public void should_transform_animal_to_string() throws IOException {
+    public void should_transform_animal_to_string() throws Exception {
         // given
         Source source = Input.fromFile(TestResources.DOG_FILE.getFile()).build();
         Source stylesheet = Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build();
@@ -77,7 +76,7 @@ public class TransformTest {
     }
 
     @Test
-    public void should_transform_animal_to_document() throws IOException {
+    public void should_transform_animal_to_document() throws Exception {
         // given
         Source source = Input.fromFile(TestResources.DOG_FILE.getFile()).build();
         Source stylesheet = Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build();
@@ -90,7 +89,7 @@ public class TransformTest {
     }
 
     @Test
-    public void should_transform_animal_to_html() throws IOException {
+    public void should_transform_animal_to_html() throws Exception {
         // given
         Source source = Input.fromFile(TestResources.DOG_FILE.getFile()).build();
         Source stylesheet = Input.fromFile(TestResources.ANIMAL_XSL.getFile()).build();
@@ -104,7 +103,7 @@ public class TransformTest {
     }
 
     @Test
-    public void should_transform_simple_xml() throws TransformerException {
+    public void should_transform_simple_xml() throws Exception {
         // given
         Source source = Input.fromMemory(FLEABALL).build();
         Source stylesheet = Input.fromFile(animalXsl).build();
@@ -158,7 +157,7 @@ public class TransformTest {
     }
 
     @Test
-    public void should_transform_to_html() throws TransformerException {
+    public void should_transform_to_html() throws Exception {
         // given
         Source source = Input.fromMemory(FLEABALL).build();
         Source stylesheet = Input.fromFile(animalXsl).build();
@@ -219,7 +218,7 @@ public class TransformTest {
      * @throws TransformerException
      */
     @Test
-    public void should_transform_with_xsl_with_include() throws TransformerException {
+    public void should_transform_with_xsl_with_include() throws Exception {
         // given
         String input = "<bug><animal>creepycrawly</animal></bug>";
 
@@ -267,7 +266,7 @@ public class TransformTest {
         stylesheet.setSystemId(systemId);
         source.setSystemId(systemId);
 
-        TransformerFactory factory = new XsltUtils(properties).newTransformerFactory();
+        TransformerFactory factory = new XsltUtils().newTransformerFactory();
 
         // when
         URIResolver mockedResolver = mock(URIResolver.class);

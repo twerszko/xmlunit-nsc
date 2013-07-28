@@ -56,12 +56,12 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xmlunit.util.IterableNodeList;
+import net.sf.xmlunit.util.XsltUtils;
 
 import org.custommonkey.xmlunit.XSLTConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.custommonkey.xmlunit.util.XsltUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -73,14 +73,13 @@ import org.w3c.dom.NodeList;
  * to execute the Xpath. This is not an efficient method for accessing XPaths
  * but it is portable across underlying transform implementations. (Yes I know
  * Jaxen is too, but this approach seemed to be the simplest thing that could
- * possibly work...) <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * possibly work...)
  */
 public class SimpleXpathEngine implements XpathEngine {
+    private final static String DEFAULT_XSLT_VERSION = "1.0";
 
+    private String xsltVersion = DEFAULT_XSLT_VERSION;
     private Map<String, String> ctx = Collections.emptyMap();
-
     private final XmlUnitProperties properties;
 
     public SimpleXpathEngine(@Nullable XmlUnitProperties properties) {
@@ -91,14 +90,19 @@ public class SimpleXpathEngine implements XpathEngine {
         }
     }
 
+    public void setXsltVersion(String xsltVersion) {
+        this.xsltVersion = xsltVersion;
+    }
+
     /**
      * What every XSL transform needs
      * 
      * @return
      */
     private StringBuffer getXSLTBase() {
-        StringBuffer result = new StringBuffer(XSLTConstants.XML_DECLARATION)
-                .append(new XsltUtils(properties).getXSLTStart());
+        StringBuffer result = new StringBuffer()
+                .append(XSLTConstants.XML_DECLARATION)
+                .append(createXsltStartTag());
         String tmp = result.toString();
         int close = tmp.lastIndexOf('>');
         if (close == -1) {
@@ -159,17 +163,26 @@ public class SimpleXpathEngine implements XpathEngine {
             throws TransformerException, ConfigurationException, XpathException {
         try {
             StreamSource xsltSource = new StreamSource(new StringReader(xslt));
-            TransformerFactory tf = new XsltUtils(properties).newTransformerFactory();
+
+            // TODO
+            XsltUtils xsltUtils = new XsltUtils();
+            xsltUtils.setUriResolver(properties.getUriResolver());
+            xsltUtils.setTransformerFactoryClass(properties.getTransformerFactoryClass());
+
+            TransformerFactory tf = xsltUtils.newTransformerFactory();
             ErrorListener el = new ErrorListener() {
+                @Override
                 public void error(TransformerException ex) throws TransformerException {
                     // any error in our simple stylesheet must be fatal
                     throw ex;
                 }
 
+                @Override
                 public void fatalError(TransformerException ex) throws TransformerException {
                     throw ex;
                 }
 
+                @Override
                 public void warning(TransformerException ex) {
                     // there shouldn't be any warning
                     // TODO logger
@@ -232,6 +245,7 @@ public class SimpleXpathEngine implements XpathEngine {
      * @param document
      * @return list of matching nodes
      */
+    @Override
     public IterableNodeList selectNodes(String select, Source source)
             throws ConfigurationException, XpathException {
         try {
@@ -250,6 +264,7 @@ public class SimpleXpathEngine implements XpathEngine {
      * @param document
      * @return evaluated result
      */
+    @Override
     public String evaluate(String xPath, Source s) throws XpathException, ConfigurationException {
         try {
             StringWriter writer = new StringWriter();
@@ -261,6 +276,7 @@ public class SimpleXpathEngine implements XpathEngine {
         }
     }
 
+    @Override
     public void setNamespaceContext(@Nullable Map<String, String> prefix2Uri) {
         if (prefix2Uri == null) {
             this.ctx = Collections.emptyMap();
@@ -301,6 +317,13 @@ public class SimpleXpathEngine implements XpathEngine {
                     .append(' ');
         }
         return nsDecls.toString();
+    }
+
+    /**
+     * XSLT stylesheet element using the configured XSLT version.
+     */
+    String createXsltStartTag() {
+        return XSLTConstants.XSLT_START_NO_VERSION + " version=\"" + xsltVersion + "\">";
     }
 
 }

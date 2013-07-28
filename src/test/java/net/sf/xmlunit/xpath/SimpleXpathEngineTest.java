@@ -1,39 +1,16 @@
 /*
- ******************************************************************
-Copyright (c) 200, Jeff Martin, Tim Bacon
-All rights reserved.
+  This file is licensed to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
+  http://www.apache.org/licenses/LICENSE-2.0
 
- * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
- * Neither the name of the xmlunit.sourceforge.net nor the names
-      of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written
-      permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
- ******************************************************************
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-
 package net.sf.xmlunit.xpath;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -42,6 +19,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 
 import org.custommonkey.xmlunit.SimpleSerializer;
+import org.custommonkey.xmlunit.XSLTConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Test;
@@ -50,7 +28,7 @@ import org.w3c.dom.Node;
 public class SimpleXpathEngineTest extends AbstractXpathEngineTest {
 
     @Override
-    protected XpathEngine newXpathEngine() {
+    protected SimpleXpathEngine newXpathEngine() {
         return new SimpleXpathEngine(null);
     }
 
@@ -75,5 +53,32 @@ public class SimpleXpathEngineTest extends AbstractXpathEngineTest {
         // This cannot work with xsl. Xsl wont parse with such XPath
         // so for this engine exception is expected
         super.should_get_matching_node_with_default_ns_and_empty_prefix();
+    }
+
+    @Test
+    public void should_use_default_xslt_version() {
+        // given
+        SimpleXpathEngine engine = newXpathEngine();
+
+        // when
+        String tag = engine.createXsltStartTag();
+
+        // then
+        assertThat(tag).isEqualTo(XSLTConstants.XSLT_START);
+    }
+
+    @Test
+    public void should_use_other_xslt_version() {
+        // given
+        String xsltVersion = "2.0";
+        SimpleXpathEngine engine = newXpathEngine();
+        engine.setXsltVersion(xsltVersion);
+
+        // when
+        String tag = engine.createXsltStartTag();
+
+        // then
+        assertThat(tag).startsWith(XSLTConstants.XSLT_START_NO_VERSION);
+        assertThat(tag).endsWith("\"" + xsltVersion + "\">");
     }
 }
