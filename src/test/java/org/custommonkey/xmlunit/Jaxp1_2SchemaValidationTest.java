@@ -36,6 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -43,11 +44,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
+
 import net.sf.xmlunit.TestResources;
 
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
+//TODO refactor
 public class Jaxp1_2SchemaValidationTest {
 
     private Validator validator;
@@ -63,9 +69,11 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(xsdFile.getAbsolutePath());
+        Source[] sources = new Source[] { new StreamSource(xsdFile) };
+        validator.setSchemaSources(sources);
 
-        validator.assertIsValid();
+        // then
+        assertThat(validator.isValid()).isTrue();
     }
 
     @Test
@@ -81,9 +89,11 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(new FileInputStream(xsdFile));
+        StreamSource source = new StreamSource(new FileInputStream(xsdFile));
+        validator.setSchemaSources(new Source[] { source });
 
-        validator.assertIsValid();
+        // then
+        assertThat(validator.isValid()).isTrue();
     }
 
     @Test
@@ -99,10 +109,11 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator
-                .setJAXP12SchemaSource(new InputSource(new FileReader(xsdFile)));
+        InputSource saxSource = new InputSource(new FileReader(xsdFile));
+        validator.setSchemaSources(new Source[] { new SAXSource(saxSource) });
 
-        validator.assertIsValid();
+        // then
+        assertThat(validator.isValid()).isTrue();
     }
 
     @Test
@@ -118,29 +129,10 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(xsdFile);
+        validator.setSchemaSources(new Source[] { new StreamSource(xsdFile) });
 
-        validator.assertIsValid();
-    }
-
-    @Test
-    public void testUsingObjectArrayContainingStringURI() throws Exception {
-        File xsdFile = TestResources.BOOK_XSD.getFile();
-        assertTrue("xsdFile " + xsdFile.getAbsolutePath() + " exists",
-                xsdFile.exists());
-
-        File xmlFile = TestResources.BOOK_XSD_GENERATED_NO_SCHEMA.getFile();
-        assertTrue("xmlFile " + xmlFile.getAbsolutePath() + " exists",
-                xmlFile.exists());
-
-        validator = new Validator(new FileReader(xmlFile));
-
-        validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(new Object[] {
-                xsdFile.getAbsolutePath()
-        });
-
-        validator.assertIsValid();
+        // then
+        assertThat(validator.isValid()).isTrue();
     }
 
     @Test
@@ -156,11 +148,12 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(new String[] {
-                xsdFile.getAbsolutePath()
+        validator.setSchemaSources(new Source[] {
+                new StreamSource(xsdFile.getAbsolutePath())
         });
 
-        validator.assertIsValid();
+        // then
+        assertThat(validator.isValid()).isTrue();
     }
 
     @Test
@@ -177,9 +170,10 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(xsdFile);
+        validator.setSchemaSources(new Source[] { new StreamSource(xsdFile) });
 
-        assertFalse("Isn't valid since no schema can be found", validator.isValid());
+        // then
+        assertThat(validator.isValid()).isFalse();
     }
 
     @Test
@@ -194,8 +188,9 @@ public class Jaxp1_2SchemaValidationTest {
         validator = new Validator(new FileReader(xmlFile));
 
         validator.useXMLSchema(true);
-        validator.setJAXP12SchemaSource(xsdFile);
+        validator.setSchemaSources(new Source[] { new StreamSource(xsdFile) });
 
-        assertFalse("Isn't valid since no schema can be found", validator.isValid());
+        // then
+        assertThat(validator.isValid()).isFalse();
     }
 }

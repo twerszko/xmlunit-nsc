@@ -36,9 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -74,19 +72,17 @@ import org.xml.sax.helpers.DefaultHandler;
  * <br/>
  * to validate some XML against a completely different DTD</li>
  * </ul>
- * <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 
-// TODO: Builder
+// TODO: Refactor or remove!!!11!111
+@Deprecated
 public class Validator extends DefaultHandler {
     private final InputSource validationInputSource;
     private final StringBuffer messages;
     private final boolean usingDoctypeReader;
     private final String systemId;
 
-    private Object schemaSource;
+    private Source[] schemaSources;
     private boolean useSchema = false;
 
     private Boolean isValid;
@@ -255,7 +251,7 @@ public class Validator extends DefaultHandler {
      * 
      * @param use
      *            indicate that XML Schema should be used to validate documents.
-     * @see #setJAXP12SchemaSource(Object)
+     * @see #setSchemaSources(Object)
      */
     public void useXMLSchema(boolean use) {
         useSchema = use;
@@ -269,17 +265,7 @@ public class Validator extends DefaultHandler {
      */
     public boolean isValid() {
         validate();
-        return isValid.booleanValue();
-    }
-
-    /**
-     * Assert that a document is valid.
-     */
-    // TODO remove junit
-    public void assertIsValid() {
-        if (!isValid()) {
-            junit.framework.Assert.fail(messages.toString());
-        }
+        return isValid;
     }
 
     /**
@@ -318,23 +304,20 @@ public class Validator extends DefaultHandler {
         if (systemId != null) {
             schemaSourceList.add(new StreamSource(systemId));
         }
-        addSchemaSources(schemaSource, schemaSourceList);
+        if (schemaSources != null) {
+            for (Source schemaSource : schemaSources) {
+                schemaSourceList.add(schemaSource);
+            }
+        }
         v.setSchemaSources(schemaSourceList.toArray(new Source[schemaSourceList.size()]));
 
-        try {
-            ValidationResult r =
-                    v.validateInstance(new SAXSource(validationInputSource));
-            isValid = r.isValid() ? Boolean.TRUE : Boolean.FALSE;
-            for (ValidationProblem p : r.getProblems()) {
-                validationProblem(p);
-            }
-        } catch (ConfigurationException e) {
-            throw new ConfigurationException(e.getCause());
-        } catch (XMLUnitRuntimeException e) {
-            throw new XMLUnitRuntimeException(e.getMessage(), e.getCause());
+        ValidationResult r = v.validateInstance(new SAXSource(validationInputSource));
+        isValid = r.isValid();
+        for (ValidationProblem p : r.getProblems()) {
+            validationProblem(p);
         }
 
-        if (usingDoctypeReader && isValid == Boolean.FALSE) {
+        if (usingDoctypeReader && !isValid) {
             try {
                 messages.append("\nContent was: ")
                         .append(getOriginalContent(validationInputSource));
@@ -360,56 +343,15 @@ public class Validator extends DefaultHandler {
      * @param message
      */
     private void invalidate(String message) {
-        isValid = Boolean.FALSE;
+        isValid = false;
         messages.append(message).append(' ');
     }
 
-    /**
-     * As per JAXP 1.2 changes, which introduced a standard way for parsers to
-     * support schema validation. Since only W3C Schema support was included in
-     * JAXP 1.2, this is the only mechanism currently supported by this method.
-     * 
-     * @param schemaSource
-     *            This can be one of the following:
-     *            <ul>
-     *            <li>String that points to the URI of the schema</li>
-     *            <li>InputStream with the contents of the schema</li>
-     *            <li>SAX InputSource</li>
-     *            <li>File</li>
-     *            <li>an array of Objects with the contents being one of the
-     *            types defined above. An array of Objects can be used only when
-     *            the schema language has the ability to assemble a schema at
-     *            runtime. When an array of Objects is passed it is illegal to
-     *            have two schemas that share the same namespace.</li>
-     *            </ul>
-     * @see http://java.sun.com/webservices/jaxp/change-requests-11.html
-     */
-    public void setJAXP12SchemaSource(Object schemaSource) {
-        this.schemaSource = schemaSource;
+    public void setSchemaSources(Source[] schemaSources) {
+        this.schemaSources = schemaSources;
     }
 
-    private void addSchemaSources(Object schemaSources, List<Source> targetList) {
-        // TODO split
-        if (schemaSources instanceof String) {
-            targetList.add(new StreamSource((String) schemaSources));
-        } else if (schemaSources instanceof File) {
-            targetList.add(new StreamSource((File) schemaSources));
-        } else if (schemaSources instanceof InputStream) {
-            targetList.add(new StreamSource((InputStream) schemaSources));
-        } else if (schemaSources instanceof InputSource) {
-            targetList.add(new SAXSource((InputSource) schemaSources));
-        } else if (schemaSources instanceof Object[]) {
-            for (Object s : (Object[]) schemaSources) {
-                addSchemaSources(s, targetList);
-            }
-        } else if (schemaSources != null) {
-            throw new XMLUnitRuntimeException("Unknown schema source type: "
-                    + schemaSources.getClass());
-        }
-    }
-
-    private static String getOriginalContent(InputSource s)
-            throws IOException {
+    private static String getOriginalContent(InputSource s) throws IOException {
         return s.getCharacterStream() instanceof DoctypeReader
                 ? ((DoctypeReader) s.getCharacterStream()).getContent()
                 : ((DoctypeInputStream) s.getByteStream())
