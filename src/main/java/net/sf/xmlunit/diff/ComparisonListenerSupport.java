@@ -13,7 +13,6 @@
  */
 package net.sf.xmlunit.diff;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -59,8 +58,7 @@ public class ComparisonListenerSupport {
     /**
      * Propagates the result of a comparision to all registered listeners.
      */
-    public void fireComparisonPerformed(Comparison comparison,
-            ComparisonResult outcome) {
+    public void fireComparisonPerformed(Comparison comparison, ComparisonResult outcome) {
         fire(comparison, outcome, compListeners);
         if (outcome == ComparisonResult.EQUAL) {
             fire(comparison, outcome, matchListeners);
@@ -69,11 +67,13 @@ public class ComparisonListenerSupport {
         }
     }
 
-    private static void fire(Comparison comparison, ComparisonResult outcome,
+    private static void fire(
+            Comparison comparison,
+            ComparisonResult outcome,
             List<ComparisonListener> listeners) {
         if (!listeners.isEmpty()) {
-            for (Iterator<ComparisonListener> it = listeners.iterator(); it.hasNext();) {
-                it.next().comparisonPerformed(comparison, outcome);
+            for (ComparisonListener listener : listeners) {
+                listener.comparisonPerformed(comparison, outcome);
             }
         }
     }

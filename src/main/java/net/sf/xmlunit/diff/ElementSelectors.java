@@ -59,10 +59,8 @@ public final class ElementSelectors {
         @Override
         public boolean canBeCompared(Element controlElement,
                 Element testElement) {
-            return controlElement != null
-                    && testElement != null
-                    && bothNullOrEqual(Nodes.getQName(controlElement),
-                            Nodes.getQName(testElement));
+            return controlElement != null && testElement != null
+                    && bothNullOrEqual(Nodes.getQName(controlElement), Nodes.getQName(testElement));
         }
     };
 
@@ -173,8 +171,7 @@ public final class ElementSelectors {
     public static final ElementSelector byNameAndAllAttributes =
             new ElementSelector() {
                 @Override
-                public boolean canBeCompared(Element controlElement,
-                        Element testElement) {
+                public boolean canBeCompared(Element controlElement, Element testElement) {
                     if (!byName.canBeCompared(controlElement, testElement)) {
                         return false;
                     }
@@ -193,10 +190,8 @@ public final class ElementSelectors {
      */
     public static final ElementSelector byNameAndTextRec = new ElementSelector() {
         @Override
-        public boolean canBeCompared(Element controlElement,
-                Element testElement) {
-            if (!byNameAndText.canBeCompared(controlElement,
-                    testElement)) {
+        public boolean canBeCompared(Element controlElement, Element testElement) {
+            if (!byNameAndText.canBeCompared(controlElement, testElement)) {
                 return false;
             }
             NodeList controlChildren = controlElement.getChildNodes();
@@ -204,9 +199,7 @@ public final class ElementSelectors {
             final int controlLen = controlChildren.getLength();
             final int testLen = testChildren.getLength();
             int controlIndex, testIndex;
-            for (controlIndex = testIndex = 0;
-            controlIndex < controlLen && testIndex < testLen;
-            ) {
+            for (controlIndex = testIndex = 0; controlIndex < controlLen && testIndex < testLen;) {
                 // find next non-text child nodes
                 Node c = controlChildren.item(controlIndex);
                 while (isText(c) && ++controlIndex < controlLen) {
@@ -268,7 +261,8 @@ public final class ElementSelectors {
         return o1 == null ? o2 == null : o1.equals(o2);
     }
 
-    private static boolean mapsEqualForKeys(Map<QName, String> control,
+    private static boolean mapsEqualForKeys(
+            Map<QName, String> control,
             Map<QName, String> test,
             Iterable<QName> keys) {
         for (QName q : keys) {

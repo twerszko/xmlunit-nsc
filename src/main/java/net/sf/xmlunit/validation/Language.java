@@ -19,25 +19,19 @@ import javax.xml.XMLConstants;
  * Constants for the languages supported by XMLUnit's schema validation. More
  * languages may be supported depending on your JAXP environment.
  */
-public final class Languages {
-    private Languages() {
-    }
-
+public enum Language {
     /**
      * W3C XML Schema.
      * 
      * @see javax.xml.XMLConstants#W3C_XML_SCHEMA_NS_URI
      */
-    public static final String W3C_XML_SCHEMA_NS_URI =
-            XMLConstants.W3C_XML_SCHEMA_NS_URI;
-
+    XML_SCHEMA(XMLConstants.W3C_XML_SCHEMA_NS_URI),
     /**
      * DTD
      * 
      * @see javax.xml.XMLConstants#XML_DTD_NS_URI
      */
-    public static final String XML_DTD_NS_URI = XMLConstants.XML_DTD_NS_URI;
-
+    XML_DTD(XMLConstants.XML_DTD_NS_URI),
     /**
      * RELAX NG
      * 
@@ -48,5 +42,26 @@ public final class Languages {
      * 
      * @see javax.xml.XMLConstants#RELAXNG_NS_URI
      */
-    public static final String RELAXNG_NS_URI = XMLConstants.RELAXNG_NS_URI;
+    RELAXNG(XMLConstants.RELAXNG_NS_URI),
+    OTHER("");
+
+    private final String nsUri;
+
+    private Language(String nsUri) {
+        this.nsUri = nsUri;
+    }
+
+    public static Language fromUri(String nsUri) {
+        for (Language lang : values()) {
+            if (lang.getNsUri().equals(nsUri)) {
+                return lang;
+            }
+        }
+        return OTHER;
+    }
+
+    public String getNsUri() {
+        return nsUri;
+    }
+
 }

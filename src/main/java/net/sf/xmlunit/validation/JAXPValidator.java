@@ -43,21 +43,19 @@ public class JAXPValidator extends Validator {
 
     @Override
     public ValidationResult validateSchema() {
-        ValidationHandler v = new ValidationHandler();
-        SchemaFactory f = getFactory();
-        f.setErrorHandler(v);
+        ValidationHandler handler = new ValidationHandler();
+        SchemaFactory factory = getFactory();
+        factory.setErrorHandler(handler);
         try {
-            f.newSchema(getSchemaSources());
-        } catch (SAXException e) {
-            if (e instanceof SAXParseException) {
-                v.error((SAXParseException) e);
-            } else {
-                throw new XMLUnitRuntimeException(e);
-            }
+            factory.newSchema(getSchemaSources());
+        } catch (SAXParseException e) {
+            handler.error(e);
+        } catch (Exception e) {
+            throw new XMLUnitRuntimeException(e);
         } finally {
-            f.setErrorHandler(null);
+            factory.setErrorHandler(null);
         }
-        return v.getResult();
+        return handler.getResult();
     }
 
     @Override
@@ -68,21 +66,17 @@ public class JAXPValidator extends Validator {
         } catch (SAXException e) {
             throw new XMLUnitRuntimeException("The schema is invalid", e);
         }
-        ValidationHandler v = new ValidationHandler();
-        javax.xml.validation.Validator val = schema.newValidator();
-        val.setErrorHandler(v);
+        ValidationHandler handler = new ValidationHandler();
+        javax.xml.validation.Validator validator = schema.newValidator();
+        validator.setErrorHandler(handler);
         try {
-            val.validate(s);
-        } catch (SAXException e) {
-            if (e instanceof SAXParseException) {
-                v.error((SAXParseException) e);
-            } else {
-                throw new XMLUnitRuntimeException(e);
-            }
-        } catch (java.io.IOException e) {
+            validator.validate(s);
+        } catch (SAXParseException e) {
+            handler.error(e);
+        } catch (Exception e) {
             throw new XMLUnitRuntimeException(e);
         }
-        return v.getResult();
+        return handler.getResult();
     }
 
 }

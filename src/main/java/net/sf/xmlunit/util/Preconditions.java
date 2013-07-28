@@ -1,5 +1,3 @@
-package net.sf.xmlunit.util;
-
 /*
  This file is licensed to You under the Apache License, Version 2.0
  (the "License"); you may not use this file except in compliance with
@@ -13,6 +11,7 @@ package net.sf.xmlunit.util;
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+package net.sf.xmlunit.util;
 
 public final class Preconditions {
     private Preconditions() {

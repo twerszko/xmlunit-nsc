@@ -13,12 +13,18 @@
  */
 package net.sf.xmlunit.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import net.sf.xmlunit.builder.Input;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Attr;
@@ -32,8 +38,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-import static org.junit.Assert.*;
-
+//TODO refactor
 public class NodesTest {
 
     private static final String FOO = "foo";
@@ -173,14 +178,17 @@ public class NodesTest {
         final Document toTest = handleWsSetup();
         final Node stripped = Nodes.stripWhitespace(toTest);
         return new Map.Entry<Document, Node>() {
+            @Override
             public Document getKey() {
                 return toTest;
             }
 
+            @Override
             public Node getValue() {
                 return stripped;
             }
 
+            @Override
             public Node setValue(Node n) {
                 throw new UnsupportedOperationException();
             }
@@ -191,14 +199,17 @@ public class NodesTest {
         final Document toTest = handleWsSetup();
         final Node stripped = Nodes.normalizeWhitespace(toTest);
         return new Map.Entry<Document, Node>() {
+            @Override
             public Document getKey() {
                 return toTest;
             }
 
+            @Override
             public Node getValue() {
                 return stripped;
             }
 
+            @Override
             public Node setValue(Node n) {
                 throw new UnsupportedOperationException();
             }

@@ -14,7 +14,9 @@ public class Attributes {
     private final Attr noNamespaceSchemaLocation;
     private final List<Attr> regularAttributes;
 
-    private Attributes(Attr schemaLocation, Attr noNamespaceSchemaLocation,
+    private Attributes(
+            Attr schemaLocation,
+            Attr noNamespaceSchemaLocation,
             List<Attr> remainingAttributes) {
         this.schemaLocation = schemaLocation;
         this.noNamespaceSchemaLocation = noNamespaceSchemaLocation;

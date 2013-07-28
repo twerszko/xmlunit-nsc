@@ -13,6 +13,8 @@
  */
 package net.sf.xmlunit.validation;
 
+import java.io.IOException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -39,14 +41,16 @@ import org.xml.sax.helpers.DefaultHandler;
  * </p>
  */
 public class ParsingValidator extends Validator {
-    private final String language;
+    private final Language language;
 
-    public ParsingValidator(String language) {
-        if (!Languages.W3C_XML_SCHEMA_NS_URI.equals(language)
-                && !Languages.XML_DTD_NS_URI.equals(language)) {
+    public ParsingValidator(Language language) {
+        switch (language) {
+        case XML_SCHEMA:
+        case XML_DTD:
+            break;
+        default:
             throw new IllegalArgumentException("only DTD and W3C Schema"
-                    + " validation are supported by"
-                    + " ParsingValidator");
+                    + " validation are supported by ParsingValidator");
         }
         this.language = language;
     }
@@ -64,20 +68,18 @@ public class ParsingValidator extends Validator {
             factory.setNamespaceAware(true);
             factory.setValidating(true);
             SAXParser parser = factory.newSAXParser();
-            if (Languages.W3C_XML_SCHEMA_NS_URI.equals(language)) {
-                parser.setProperty(Properties.SCHEMA_LANGUAGE,
-                        Languages.W3C_XML_SCHEMA_NS_URI);
+            if (language == Language.XML_SCHEMA) {
+                parser.setProperty(Properties.SCHEMA_LANGUAGE, language.getNsUri());
             }
             final Source[] source = getSchemaSources();
             Handler handler = new Handler();
             if (source.length != 0) {
-                if (Languages.W3C_XML_SCHEMA_NS_URI.equals(language)) {
+                if (language == Language.XML_SCHEMA) {
                     InputSource[] schemaSource = new InputSource[source.length];
                     for (int i = 0; i < source.length; i++) {
                         schemaSource[i] = Convert.toInputSource(source[i]);
                     }
-                    parser.setProperty(Properties.SCHEMA_SOURCE,
-                            schemaSource);
+                    parser.setProperty(Properties.SCHEMA_SOURCE, schemaSource);
                 } else if (source.length == 1) {
                     handler.setSchemaSystemId(source[0].getSystemId());
                 }
@@ -85,12 +87,10 @@ public class ParsingValidator extends Validator {
             InputSource input = Convert.toInputSource(s);
             try {
                 parser.parse(input, handler);
+            } catch (SAXParseException e) {
+                handler.error(e);
             } catch (SAXException e) {
-                if (e instanceof SAXParseException) {
-                    handler.error((SAXParseException) e);
-                } else {
-                    throw new XMLUnitRuntimeException(e);
-                }
+                throw new XMLUnitRuntimeException(e);
             }
             return handler.getResult();
         } catch (ParserConfigurationException ex) {
@@ -101,7 +101,7 @@ public class ParsingValidator extends Validator {
             throw new ConfigurationException(ex);
         } catch (SAXException ex) {
             throw new XMLUnitRuntimeException(ex);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new XMLUnitRuntimeException(ex);
         }
     }

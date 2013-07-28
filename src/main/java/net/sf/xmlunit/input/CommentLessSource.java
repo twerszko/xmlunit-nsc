@@ -28,7 +28,7 @@ import net.sf.xmlunit.util.Preconditions;
 public final class CommentLessSource extends DOMSource {
 
     public CommentLessSource(Source originalSource) {
-        Preconditions.checkArgument(originalSource != null, "source must not be null");
+        Preconditions.checkArgument(originalSource != null, "Source must not be null!");
         Transformation t = new Transformation(originalSource);
         t.setStylesheet(getStylesheet());
         setNode(t.transformToDocument());
@@ -44,4 +44,5 @@ public final class CommentLessSource extends DOMSource {
     private static Source getStylesheet() {
         return new StreamSource(new StringReader(STYLE));
     }
+
 }

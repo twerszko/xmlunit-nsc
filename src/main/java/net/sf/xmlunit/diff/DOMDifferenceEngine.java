@@ -11,15 +11,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-
 package net.sf.xmlunit.diff;
 
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.diff.comparators.ComparisonProviders;
-import net.sf.xmlunit.diff.comparators.DOMComparator;
-import net.sf.xmlunit.diff.comparators.ElementComparisonProvider;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
+import net.sf.xmlunit.diff.providers.ComparisonProviders;
+import net.sf.xmlunit.diff.providers.DOMComparator;
+import net.sf.xmlunit.diff.providers.ElementComparisonProvider;
 import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.Preconditions;
 
@@ -31,101 +30,106 @@ import org.w3c.dom.Node;
  */
 public class DOMDifferenceEngine extends ObservableDifferenceEngine {
 
-	private DifferenceEvaluator diffEvaluator = Evaluators.Default;
+    private DifferenceEvaluator diffEvaluator = Evaluators.Default;
 
-	private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
+    private NodeMatcher nodeMatcher = new DefaultNodeMatcher();
 
-	private ComparisonFilter filter = new DefaultComparisonFilter();
+    private ComparisonFilter filter = new ComparisonFilter() {
+        @Override
+        public boolean ignore(Comparison comparison) {
+            return false;
+        }
+    };
 
-	private boolean ignoreAttributeOrder = true;
+    private boolean ignoreAttributeOrder = true;
 
-	private DOMComparator comparator;
+    private DOMComparator comparator;
 
-	public boolean getIgnoreAttributeOrder() {
-		return ignoreAttributeOrder;
-	}
+    public boolean getIgnoreAttributeOrder() {
+        return ignoreAttributeOrder;
+    }
 
-	@Override
-	public void setIgnoreAttributeOrder(boolean ignoreAttributeOrder) {
-		this.ignoreAttributeOrder = ignoreAttributeOrder;
-	}
+    @Override
+    public void setIgnoreAttributeOrder(boolean ignoreAttributeOrder) {
+        this.ignoreAttributeOrder = ignoreAttributeOrder;
+    }
 
-	@Override
-	public void compare(Source control, Source test) {
-		Preconditions.checkArgument(control != null, "control must not be null");
-		Preconditions.checkArgument(test != null, "test must not be null");
-		try {
-			compareNodes(
-			        NodeAndXpath.from(Convert.toNode(control)),
-			        NodeAndXpath.from(Convert.toNode(test)));
-		} catch (Exception ex) {
-			// TODO remove pokemon exception handling
-			throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
-		}
-	}
+    @Override
+    public void compare(Source control, Source test) {
+        Preconditions.checkArgument(control != null, "control must not be null");
+        Preconditions.checkArgument(test != null, "test must not be null");
+        try {
+            compareNodes(
+                    NodeAndXpath.from(Convert.toNode(control)),
+                    NodeAndXpath.from(Convert.toNode(test)));
+        } catch (Exception ex) {
+            throw new XMLUnitRuntimeException("Caught exception during comparison", ex);
+        }
+    }
 
-	private void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
-		comparator = createComparator();
-		comparator.compare(control, test);
-	}
+    private void compareNodes(NodeAndXpath<Node> control, NodeAndXpath<Node> test) {
+        comparator = createComparator();
+        comparator.compare(control, test);
+    }
 
-	DOMComparator createComparator() {
-		ComparisonProviders providers = new ConfiguredComparisonProviders();
-		DOMComparator comparator = new DOMComparator(providers) {
-			@Override
-			protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
-				return getDifferenceEvaluator().evaluate(comparison, result);
-			};
+    DOMComparator createComparator() {
+        ComparisonProviders providers = new ConfiguredComparisonProviders();
+        DOMComparator comparator = new DOMComparator(providers) {
+            @Override
+            protected ComparisonResult evaluateResult(Comparison comparison, ComparisonResult result) {
+                return getDifferenceEvaluator().evaluate(comparison, result);
+            };
 
-			@Override
-			protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
-				getListeners().fireComparisonPerformed(comparison, result);
-			}
+            @Override
+            protected void comparisonPerformed(Comparison comparison, ComparisonResult result) {
+                getListeners().fireComparisonPerformed(comparison, result);
+            }
 
-			@Override
-			protected boolean ignoreComparison(Comparison comparison) {
-				return getFilter().ignore(comparison);
-			}
-		};
-		return comparator;
-	}
+            @Override
+            protected boolean ignoreComparison(Comparison comparison) {
+                return getFilter().ignore(comparison);
+            }
+        };
+        return comparator;
+    }
 
-	@Override
-	public void stop() {
-		if (comparator != null) {
-			comparator.setInterrupted(true);
-		}
-	}
+    @Override
+    public void stop() {
+        if (comparator != null) {
+            comparator.setInterrupted(true);
+        }
+    }
 
-	@Override
-	public void setEvaluator(DifferenceEvaluator evaluator) {
-		Preconditions.checkArgument(evaluator != null, "difference evaluator must not be null");
-		diffEvaluator = evaluator;
-	}
+    @Override
+    public void setEvaluator(DifferenceEvaluator evaluator) {
+        Preconditions.checkArgument(evaluator != null, "difference evaluator must not be null");
+        diffEvaluator = evaluator;
+    }
 
-	protected DifferenceEvaluator getDifferenceEvaluator() {
-		return diffEvaluator;
-	}
+    protected DifferenceEvaluator getDifferenceEvaluator() {
+        return diffEvaluator;
+    }
 
-	@Override
-	public void setNodeMatcher(NodeMatcher n) {
-		Preconditions.checkArgument(n != null, "node matcher must not be null");
-		nodeMatcher = n;
-	}
+    @Override
+    public void setNodeMatcher(NodeMatcher n) {
+        Preconditions.checkArgument(n != null, "Node matcher must not be null!");
+        nodeMatcher = n;
+    }
 
-	protected ComparisonFilter getFilter() {
-		return filter;
-	}
+    protected ComparisonFilter getFilter() {
+        return filter;
+    }
 
-	public void setFilter(ComparisonFilter filter) {
-		Preconditions.checkArgument(filter != null, "filter must not be null");
-		this.filter = filter;
-	}
+    @Override
+    public void setFilter(ComparisonFilter filter) {
+        Preconditions.checkArgument(filter != null, "Filter must not be null!");
+        this.filter = filter;
+    }
 
-	private class ConfiguredComparisonProviders extends ComparisonProviders {
-		public ConfiguredComparisonProviders() {
-			setElementComparisonProvider(new ElementComparisonProvider(getIgnoreAttributeOrder()));
-			setNodeMatcher(nodeMatcher);
-		}
-	}
+    private class ConfiguredComparisonProviders extends ComparisonProviders {
+        public ConfiguredComparisonProviders() {
+            setElementComparisonProvider(new ElementComparisonProvider(getIgnoreAttributeOrder()));
+            setNodeMatcher(nodeMatcher);
+        }
+    }
 }

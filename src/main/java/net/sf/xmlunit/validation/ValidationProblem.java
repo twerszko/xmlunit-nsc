@@ -65,14 +65,10 @@ public class ValidationProblem {
         return message;
     }
 
-    static ValidationProblem fromException(SAXParseException e,
-            ProblemType type) {
-        return new ValidationProblem(e.getMessage(),
-                e.getLineNumber() > 0
-                        ? e.getLineNumber() : UNKNOWN,
-                e.getColumnNumber() > 0
-                        ? e.getColumnNumber() : UNKNOWN,
-                type);
+    static ValidationProblem fromException(SAXParseException e, ProblemType type) {
+        int line = e.getLineNumber() > 0 ? e.getLineNumber() : UNKNOWN;
+        int column = e.getColumnNumber() > 0 ? e.getColumnNumber() : UNKNOWN;
+        return new ValidationProblem(e.getMessage(), line, column, type);
     }
 
 }

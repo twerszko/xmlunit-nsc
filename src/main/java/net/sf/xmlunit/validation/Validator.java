@@ -75,12 +75,14 @@ public abstract class Validator {
     /**
      * Factory that obtains a Validator instance based on the schema language.
      * 
-     * @see Languages
+     * @see Language
      */
-    public static Validator forLanguage(String language) {
-        if (!Languages.XML_DTD_NS_URI.equals(language)) {
-            return new JAXPValidator(language);
+    public static Validator forLanguage(String languageNsUri) {
+        Language lang = Language.fromUri(languageNsUri);
+        if (lang == Language.XML_DTD) {
+            return new ParsingValidator(lang);
+        } else {
+            return new JAXPValidator(languageNsUri);
         }
-        return new ParsingValidator(Languages.XML_DTD_NS_URI);
     }
 }

@@ -25,7 +25,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 
 import net.sf.xmlunit.builder.Input;
-import net.sf.xmlunit.diff.comparators.DOMComparator;
+import net.sf.xmlunit.diff.providers.DOMComparator;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;

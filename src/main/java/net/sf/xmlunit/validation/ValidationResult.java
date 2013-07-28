@@ -13,9 +13,8 @@
  */
 package net.sf.xmlunit.validation;
 
-/**
- * The result of a validation.
- */
+import java.util.ArrayList;
+
 public class ValidationResult {
     private final boolean valid;
     private final Iterable<ValidationProblem> problems;
@@ -36,6 +35,9 @@ public class ValidationResult {
      * Retrieves the problems that have been found.
      */
     public Iterable<ValidationProblem> getProblems() {
+        if (problems == null) {
+            return new ArrayList<ValidationProblem>();
+        }
         return problems;
     }
 }

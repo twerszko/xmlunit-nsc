@@ -43,7 +43,7 @@ import javax.xml.transform.Source;
 import javax.xml.validation.SchemaFactory;
 
 import net.sf.xmlunit.validation.JAXPValidator;
-import net.sf.xmlunit.validation.Languages;
+import net.sf.xmlunit.validation.Language;
 import net.sf.xmlunit.validation.ValidationProblem;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
@@ -67,7 +67,7 @@ public class Validator {
      * validates using W3C XML Schema 1.0.
      */
     public Validator() {
-        this(Languages.W3C_XML_SCHEMA_NS_URI, null);
+        this(Language.XML_SCHEMA.getNsUri(), null);
     }
 
     /**

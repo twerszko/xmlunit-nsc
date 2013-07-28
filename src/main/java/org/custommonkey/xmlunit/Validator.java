@@ -49,7 +49,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.validation.Languages;
+import net.sf.xmlunit.validation.Language;
 import net.sf.xmlunit.validation.ParsingValidator;
 import net.sf.xmlunit.validation.ValidationProblem;
 import net.sf.xmlunit.validation.ValidationResult;
@@ -312,9 +312,8 @@ public class Validator extends DefaultHandler {
             return;
         }
 
-        ParsingValidator v =
-                new ParsingValidator(useSchema ? Languages.W3C_XML_SCHEMA_NS_URI
-                        : Languages.XML_DTD_NS_URI);
+        Language language = useSchema ? Language.XML_SCHEMA : Language.XML_DTD;
+        ParsingValidator v = new ParsingValidator(language);
         List<Source> schemaSourceList = new ArrayList<Source>();
         if (systemId != null) {
             schemaSourceList.add(new StreamSource(systemId));

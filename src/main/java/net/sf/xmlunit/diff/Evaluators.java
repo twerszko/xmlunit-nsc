@@ -43,33 +43,6 @@ public final class Evaluators {
     public static final DifferenceEvaluator Default = new DefaultEvaluator();
 
     /**
-     * Makes the comparison stop as soon as the first "real" difference is
-     * encountered, uses the {@link #Default default} evaluator to decide which
-     * differences leave the documents simlar.
-     */
-    // public static final DifferenceEvaluator DefaultStopWhenDifferent =
-    // stopWhenDifferent(Default);
-    //
-    // /**
-    // * Makes the comparison stop as soon as the first "real" difference is
-    // * encountered.
-    // *
-    // * @param nestedEvaluator
-    // * provides the initial decision whether a difference is "real"
-    // * or still leaves the documents in a similar state.
-    // */
-    // public static DifferenceEvaluator stopWhenDifferent(final
-    // DifferenceEvaluator nestedEvaluator) {
-    // return new DifferenceEvaluator() {
-    // public ComparisonResult evaluate(Comparison comparison, ComparisonResult
-    // outcome) {
-    // ComparisonResult r = nestedEvaluator.evaluate(comparison, outcome);
-    // return r == ComparisonResult.DIFFERENT ? ComparisonResult.CRITICAL : r;
-    // }
-    // };
-    // }
-
-    /**
      * Combines multiple DifferenceEvaluators so that the first one that changes
      * the outcome wins.
      */
@@ -93,26 +66,26 @@ public final class Evaluators {
         public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
             if (outcome == ComparisonResult.DIFFERENT) {
                 switch (comparison.getType()) {
-                    case NODE_TYPE:
-                        Short control = (Short) comparison.getControlDetails().getValue();
-                        Short test = (Short) comparison.getTestDetails().getValue();
-                        if ((control.equals(TEXT) && test.equals(CDATA))
-                                || (control.equals(CDATA) && test.equals(TEXT))) {
-                            outcome = ComparisonResult.SIMILAR;
-                        }
-                        break;
-                    case HAS_DOCTYPE_DECLARATION:
-                    case DOCTYPE_SYSTEM_ID:
-                    case SCHEMA_LOCATION:
-                    case NO_NAMESPACE_SCHEMA_LOCATION:
-                    case NAMESPACE_PREFIX:
-                    case ATTR_VALUE_EXPLICITLY_SPECIFIED:
-                    case CHILD_NODELIST_SEQUENCE:
-                    case XML_ENCODING:
+                case NODE_TYPE:
+                    Short control = (Short) comparison.getControlDetails().getValue();
+                    Short test = (Short) comparison.getTestDetails().getValue();
+                    if ((control.equals(TEXT) && test.equals(CDATA))
+                            || (control.equals(CDATA) && test.equals(TEXT))) {
                         outcome = ComparisonResult.SIMILAR;
-                        break;
-                    default:
-                        break;
+                    }
+                    break;
+                case HAS_DOCTYPE_DECLARATION:
+                case DOCTYPE_SYSTEM_ID:
+                case SCHEMA_LOCATION:
+                case NO_NAMESPACE_SCHEMA_LOCATION:
+                case NAMESPACE_PREFIX:
+                case ATTR_VALUE_EXPLICITLY_SPECIFIED:
+                case CHILD_NODELIST_SEQUENCE:
+                case XML_ENCODING:
+                    outcome = ComparisonResult.SIMILAR;
+                    break;
+                default:
+                    break;
                 }
             }
             return outcome;

@@ -16,6 +16,7 @@ package net.sf.xmlunit.validation;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
@@ -23,38 +24,35 @@ import org.xml.sax.SAXParseException;
  * ErrorHandler collecting parser exceptions as ValidationProblems
  */
 final class ValidationHandler implements ErrorHandler {
-    private List<ValidationProblem> problems =
-            new LinkedList<ValidationProblem>();
+    private final List<ValidationProblem> problems = new LinkedList<ValidationProblem>();
     private boolean valid = true;
     // fatal errors are re-thrown by the parser
     private SAXParseException lastFatalError = null;
 
+    @Override
     public void error(SAXParseException e) {
         if (e != lastFatalError) {
             valid = false;
-            problems.add(ValidationProblem.fromException(e,
-                    ValidationProblem
-                    .ProblemType.ERROR)
-                    );
+            ValidationProblem problem = ValidationProblem.fromException(e, ValidationProblem.ProblemType.ERROR);
+            problems.add(problem);
         }
     }
 
+    @Override
     public void fatalError(SAXParseException e) {
         valid = false;
         lastFatalError = e;
-        problems.add(ValidationProblem.fromException(e,
-                ValidationProblem
-                .ProblemType.ERROR));
+        ValidationProblem problem = ValidationProblem.fromException(e, ValidationProblem.ProblemType.ERROR);
+        problems.add(problem);
     }
 
+    @Override
     public void warning(SAXParseException e) {
-        problems.add(ValidationProblem.fromException(e,
-                ValidationProblem
-                .ProblemType.WARNING));
+        ValidationProblem problem = ValidationProblem.fromException(e, ValidationProblem.ProblemType.WARNING);
+        problems.add(problem);
     }
 
     ValidationResult getResult() {
-        return new ValidationResult(valid,
-                Collections.unmodifiableList(problems));
+        return new ValidationResult(valid, Collections.unmodifiableList(problems));
     }
 }
