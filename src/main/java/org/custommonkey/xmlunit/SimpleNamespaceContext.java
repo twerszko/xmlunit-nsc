@@ -37,10 +37,9 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * Implementation of NamespaceContext that's backed by a map.
@@ -68,7 +67,7 @@ public class SimpleNamespaceContext implements NamespaceContext {
      *            maps prefix to Namespace URI
      */
     public SimpleNamespaceContext(Map<String, String> prefixMap) {
-        this.prefixMap = Maps.newHashMap(prefixMap);
+        this.prefixMap = new HashMap<String, String>(prefixMap);
     }
 
     public String getNamespaceURI(String prefix) {
