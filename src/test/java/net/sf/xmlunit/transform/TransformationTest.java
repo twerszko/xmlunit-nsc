@@ -22,11 +22,11 @@ import java.io.IOException;
 import javax.xml.transform.OutputKeys;
 
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.builder.Input;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xmlunit.builder.Input;
 
 public class TransformationTest {
     private Transformation transformation;

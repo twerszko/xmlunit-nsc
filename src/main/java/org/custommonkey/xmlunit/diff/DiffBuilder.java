@@ -22,7 +22,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.util.Preconditions;
@@ -33,6 +32,7 @@ import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xmlunit.builder.Input;
 
 public class DiffBuilder {
     final DocumentUtils documentUtils;

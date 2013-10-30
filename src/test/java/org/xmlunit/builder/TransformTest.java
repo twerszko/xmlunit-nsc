@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.builder;
+package org.xmlunit.builder;
 
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -31,7 +31,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.builder.Transform.TransformationResult;
 import net.sf.xmlunit.util.XsltUtils;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -41,19 +40,17 @@ import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xmlunit.builder.Transform.TransformationResult;
 
 import com.google.common.io.Closeables;
 import com.googlecode.catchexception.apis.CatchExceptionBdd;
 
 public class TransformTest {
     private static final String FLEABALL = "<fleaball><animal><shaggy>dog</shaggy></animal></fleaball>";
-
     private final static String DOG = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog/>";
-
     private final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
     private File animalXsl;
-
     private XmlUnitProperties properties;
 
     @Before

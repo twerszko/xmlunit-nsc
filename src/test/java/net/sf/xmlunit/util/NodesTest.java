@@ -23,7 +23,6 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.sf.xmlunit.builder.Input;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +36,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
+import org.xmlunit.builder.Input;
 
 //TODO refactor
 public class NodesTest {

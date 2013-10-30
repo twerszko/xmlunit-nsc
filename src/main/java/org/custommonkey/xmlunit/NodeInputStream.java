@@ -46,12 +46,12 @@ import java.util.Properties;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 
-import net.sf.xmlunit.builder.Input;
-import net.sf.xmlunit.builder.Transform;
-import net.sf.xmlunit.builder.Transform.Builder;
 import net.sf.xmlunit.util.XsltUtils;
 
 import org.w3c.dom.Node;
+import org.xmlunit.builder.Input;
+import org.xmlunit.builder.Transform;
+import org.xmlunit.builder.Transform.Builder;
 
 /**
  * Adapter class to present the content of a DOM Node (e.g. a Document) as an

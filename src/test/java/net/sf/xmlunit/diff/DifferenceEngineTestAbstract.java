@@ -13,7 +13,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.NullNode;
-import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.XMLConstants;
@@ -31,6 +30,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
+import org.xmlunit.builder.Input;
 
 public abstract class DifferenceEngineTestAbstract {
 	protected XmlUnitProperties properties;

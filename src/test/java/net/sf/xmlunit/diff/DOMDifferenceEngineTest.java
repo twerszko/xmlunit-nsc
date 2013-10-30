@@ -24,7 +24,6 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.diff.providers.DOMComparator;
 import net.sf.xmlunit.util.Convert;
 
@@ -32,6 +31,7 @@ import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xmlunit.builder.Input;
 
 public class DOMDifferenceEngineTest extends DifferenceEngineTestAbstract {
 

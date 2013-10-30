@@ -22,7 +22,6 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.builder.Input;
 import net.sf.xmlunit.util.IterableNodeList;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -33,6 +32,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xmlunit.builder.Input;
 
 public abstract class AbstractXpathEngineTest {
 
