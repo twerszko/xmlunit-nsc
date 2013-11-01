@@ -65,7 +65,6 @@ import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEvaluator;
-import net.sf.xmlunit.diff.ElementSelectors;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 
 import org.custommonkey.xmlunit.ElementNameAndAttributeSelector;
@@ -80,6 +79,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xmlunit.diff.ElementSelectors;
 
 @RunWith(JUnitParamsRunner.class)
 public abstract class DiffTestAbstract {

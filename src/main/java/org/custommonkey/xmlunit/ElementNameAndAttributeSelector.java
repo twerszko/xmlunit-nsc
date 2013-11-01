@@ -39,12 +39,12 @@ package org.custommonkey.xmlunit;
 import java.util.Arrays;
 
 import net.sf.xmlunit.diff.DifferenceEngine;
-import net.sf.xmlunit.diff.ElementSelector;
-import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.diff.Diff;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xmlunit.diff.ElementSelector;
+import org.xmlunit.diff.ElementSelectors;
 
 /**
  * More complex interface implementation that tests two elements for tag name

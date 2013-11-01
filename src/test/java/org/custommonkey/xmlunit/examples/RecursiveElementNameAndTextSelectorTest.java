@@ -17,8 +17,6 @@ package org.custommonkey.xmlunit.examples;
 import static org.fest.assertions.api.Assertions.assertThat;
 import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.diff.ElementSelector;
-import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
@@ -27,6 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xmlunit.diff.ElementSelector;
+import org.xmlunit.diff.ElementSelectors;
 
 public class RecursiveElementNameAndTextSelectorTest {
     private Document document;

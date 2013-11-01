@@ -39,14 +39,14 @@ package org.custommonkey.xmlunit.examples;
 import junit.framework.TestCase;
 import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.diff.ElementSelector;
-import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xmlunit.diff.ElementSelector;
+import org.xmlunit.diff.ElementSelectors;
 
 /**
  * JUnit testcase for MultiLevelElementNameAndTextQualifier

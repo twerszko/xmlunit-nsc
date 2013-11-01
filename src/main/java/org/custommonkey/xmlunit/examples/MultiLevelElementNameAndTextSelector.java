@@ -36,11 +36,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.examples;
 
-import net.sf.xmlunit.diff.ElementSelector;
-import net.sf.xmlunit.diff.ElementSelectors;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlunit.diff.ElementSelector;
+import org.xmlunit.diff.ElementSelectors;
 
 /**
  * Per popular request an interface implementation that uses element names and

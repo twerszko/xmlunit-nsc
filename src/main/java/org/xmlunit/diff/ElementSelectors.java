@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff;
+package org.xmlunit.diff;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -152,12 +152,12 @@ public final class ElementSelectors {
         final Collection<QName> qs = Arrays.asList(attribs);
         return new ElementSelector() {
             @Override
-            public boolean canBeCompared(Element controlElement,
-                    Element testElement) {
+            public boolean canBeCompared(Element controlElement, Element testElement) {
                 if (!byName.canBeCompared(controlElement, testElement)) {
                     return false;
                 }
-                return mapsEqualForKeys(Nodes.getAttributes(controlElement),
+                return mapsEqualForKeys(
+                        Nodes.getAttributes(controlElement),
                         Nodes.getAttributes(testElement),
                         qs);
             }

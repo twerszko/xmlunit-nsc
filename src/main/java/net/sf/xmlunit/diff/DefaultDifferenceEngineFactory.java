@@ -4,6 +4,8 @@ import net.sf.xmlunit.util.Preconditions;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.w3c.dom.Node;
+import org.xmlunit.diff.ElementSelector;
+import org.xmlunit.diff.ElementSelectors;
 
 public class DefaultDifferenceEngineFactory implements DifferenceEngineFactory {
     private final XmlUnitProperties properties;
@@ -69,12 +71,12 @@ public class DefaultDifferenceEngineFactory implements DifferenceEngineFactory {
         @Override
         public boolean ignore(Comparison comparison) {
             switch (comparison.getType()) {
-                case XML_ENCODING:
-                case XML_STANDALONE:
-                case XML_VERSION:
-                    return true;
-                default:
-                    break;
+            case XML_ENCODING:
+            case XML_STANDALONE:
+            case XML_VERSION:
+                return true;
+            default:
+                break;
             }
             if (comparesChildNodeListLengthOfDocNode(comparison)) {
                 return true;
