@@ -42,12 +42,12 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.validation.SchemaFactory;
 
-import net.sf.xmlunit.validation.JAXPValidator;
-import net.sf.xmlunit.validation.Language;
-import net.sf.xmlunit.validation.ValidationProblem;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.xml.sax.SAXParseException;
+import org.xmlunit.validation.JAXPValidator;
+import org.xmlunit.validation.Language;
+import org.xmlunit.validation.ValidationProblem;
 
 /**
  * Validator class based of {@link javax.xml.validation javax.xml.validation}.

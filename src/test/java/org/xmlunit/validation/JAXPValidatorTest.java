@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.validation;
+package org.xmlunit.validation;
 
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static com.googlecode.catchexception.apis.CatchExceptionBdd.when;
@@ -27,6 +27,9 @@ import net.sf.xmlunit.TestResources;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.junit.Before;
 import org.junit.Test;
+import org.xmlunit.validation.JAXPValidator;
+import org.xmlunit.validation.Language;
+import org.xmlunit.validation.ValidationResult;
 
 public class JAXPValidatorTest {
 

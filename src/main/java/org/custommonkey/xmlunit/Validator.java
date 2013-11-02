@@ -47,16 +47,16 @@ import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.validation.Language;
-import net.sf.xmlunit.validation.ParsingValidator;
-import net.sf.xmlunit.validation.ValidationProblem;
-import net.sf.xmlunit.validation.ValidationResult;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xmlunit.validation.Language;
+import org.xmlunit.validation.ParsingValidator;
+import org.xmlunit.validation.ValidationProblem;
+import org.xmlunit.validation.ValidationResult;
 
 /**
  * Validates XML against its internal or external DOCTYPE, or a completely

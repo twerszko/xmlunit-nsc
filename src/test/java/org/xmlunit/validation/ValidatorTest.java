@@ -1,8 +1,12 @@
-package net.sf.xmlunit.validation;
+package org.xmlunit.validation;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import org.junit.Test;
+import org.xmlunit.validation.JAXPValidator;
+import org.xmlunit.validation.Language;
+import org.xmlunit.validation.ParsingValidator;
+import org.xmlunit.validation.Validator;
 
 public class ValidatorTest {
 

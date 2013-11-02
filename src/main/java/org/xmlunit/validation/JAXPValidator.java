@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.validation;
+package org.xmlunit.validation;
 
 import javax.xml.transform.Source;
 import javax.xml.validation.Schema;

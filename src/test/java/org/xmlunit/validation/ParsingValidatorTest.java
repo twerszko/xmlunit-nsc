@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.validation;
+package org.xmlunit.validation;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -20,6 +20,9 @@ import javax.xml.transform.stream.StreamSource;
 import net.sf.xmlunit.TestResources;
 
 import org.junit.Test;
+import org.xmlunit.validation.Language;
+import org.xmlunit.validation.ParsingValidator;
+import org.xmlunit.validation.ValidationResult;
 
 public class ParsingValidatorTest {
 
