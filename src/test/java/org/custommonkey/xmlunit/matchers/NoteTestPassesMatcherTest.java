@@ -21,23 +21,23 @@ import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 
-import org.custommonkey.xmlunit.CountingNodeTester;
 import org.custommonkey.xmlunit.NodeTest;
 import org.custommonkey.xmlunit.NodeTester;
 import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.examples.CountingNodeTester;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
 //TODO Refactor me
 public class NoteTestPassesMatcherTest {
-    private static final String xpathValuesControlXML =
+    private static final String CONTROL_XML =
             "<root>" +
                     "<outer attr=\"urk\">" +
                     "<inner attr=\"urk\">controlDocument</inner>" +
                     "</outer>" +
                     "</root>";
-    private static final String xpathValuesTestXML =
+    private static final String TEST_XML =
             "<root>" +
                     "<outer attr=\"urk\">" +
                     "<inner attr=\"ugh\">testDocument</inner>" +
@@ -50,14 +50,14 @@ public class NoteTestPassesMatcherTest {
 
         NodeTester tester = new CountingNodeTester(1);
 
-        assertThat(new NodeTest(documentUtils, xpathValuesControlXML), passesWith(tester, Node.TEXT_NODE));
+        assertThat(new NodeTest(documentUtils, CONTROL_XML), passesWith(tester, Node.TEXT_NODE));
         try {
-            assertThat(new NodeTest(documentUtils, xpathValuesControlXML), passesWith(tester, Node.ELEMENT_NODE));
+            assertThat(new NodeTest(documentUtils, CONTROL_XML), passesWith(tester, Node.ELEMENT_NODE));
             fail("Expected node test failure #1!");
         } catch (AssertionError e) {
         }
 
-        NodeTest test = new NodeTest(documentUtils, new StringReader(xpathValuesTestXML));
+        NodeTest test = new NodeTest(documentUtils, new StringReader(TEST_XML));
         tester = new CountingNodeTester(4);
         assertThat(test, passesWith(tester, new short[] { Node.TEXT_NODE, Node.ELEMENT_NODE }));
         assertThat(test, notPassesWith(tester, new short[] { Node.TEXT_NODE, Node.COMMENT_NODE }));
