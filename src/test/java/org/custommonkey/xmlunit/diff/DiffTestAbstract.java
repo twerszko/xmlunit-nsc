@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.diff;
 
 import static junitparams.JUnitParamsRunner.$;
+import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -49,7 +50,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -93,40 +93,6 @@ public abstract class DiffTestAbstract {
         properties = new XmlUnitProperties();
         documentUtils = new DocumentUtils(properties);
         engineFactory = new DefaultDifferenceEngineFactory(properties);
-    }
-
-    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {
-        return Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-    }
-
-    protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws Exception {
-        return Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-    }
-
-    protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws Exception {
-        return Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .build();
-    }
-
-    protected Diff prepareDiff(
-            XmlUnitProperties properties,
-            String control, String test,
-            DifferenceEngineFactory engineFactory)
-            throws Exception {
-
-        return Diff.newDiff(properties)
-                .betweenControlDocument(control)
-                .andTestDocument(test)
-                .usingDifferenceEngineFactory(engineFactory)
-                .build();
     }
 
     // TODO toString?

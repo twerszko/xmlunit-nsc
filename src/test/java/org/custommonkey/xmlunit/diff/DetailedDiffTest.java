@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.diff;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,35 +67,33 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+
 /**
- * Test a DetailedDiff. Extend the test case class for Diff so we can rerun
- * those tests with a DetailedDiff and assert that behaviour has not changed.
+ * Test a DetailedDiff. Extend the test case class for Diff so we can rerun those tests with a DetailedDiff
+ * and assert that behaviour has not changed.
  */
 public class DetailedDiffTest extends DiffTestAbstract {
 
-    @Override
-    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test) throws Exception {
-        return new DetailedDiff(super.prepareDiff(properties, control, test));
+    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test)
+            throws Exception {
+        return new DetailedDiff(Diffs.prepareDiff(properties, control, test));
     }
 
-    @Override
     protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws Exception {
-        return new DetailedDiff(super.prepareDiff(properties, control, test));
+        return new DetailedDiff(Diffs.prepareDiff(properties, control, test));
     }
 
-    @Override
     protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws Exception {
-        return new DetailedDiff(super.prepareDiff(properties, control, test));
+        return new DetailedDiff(Diffs.prepareDiff(properties, control, test));
     }
 
-    @Override
     protected Diff prepareDiff(
             XmlUnitProperties properties,
             String control,
             String test,
             DifferenceEngineFactory factory) throws Exception {
 
-        return new DetailedDiff(super.prepareDiff(properties, control, test, factory));
+        return new DetailedDiff(Diffs.prepareDiff(properties, control, test, factory));
     }
 
     private XmlUnitProperties properties;
@@ -325,11 +324,11 @@ public class DetailedDiffTest extends DiffTestAbstract {
      * @throws IOException
      * @throws SAXException
      * @throws BuilderException
-     * @see http 
-     *      ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
+     * @see http ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
      */
     @Test
-    public void should_check_issue_from_forum_thread_1691528() throws SAXException, IOException, BuilderException {
+    public void should_check_issue_from_forum_thread_1691528() throws SAXException, IOException,
+            BuilderException {
         // given
         String control =
                 "<table border=\"1\">" +
@@ -372,8 +371,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
      * @throws SAXException
      * @throws BuilderException
      * 
-     * @see https
-     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
+     * @see https ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
      *      &amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -419,7 +417,8 @@ public class DetailedDiffTest extends DiffTestAbstract {
     }
 
     @Test
-    public void should_check_xpath_of_missing_node_reverse() throws SAXException, IOException, BuilderException {
+    public void should_check_xpath_of_missing_node_reverse() throws SAXException, IOException,
+            BuilderException {
         // given
         String control =
                 "<books>" +
@@ -463,8 +462,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
     }
 
     /**
-     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
-     * atid=377768
+     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187& atid=377768
      * 
      * @throws IOException
      * @throws SAXException
@@ -497,8 +495,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
     }
 
     /**
-     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
-     * atid=377768
+     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187& atid=377768
      * 
      * @throws IOException
      * @throws SAXException
@@ -547,8 +544,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
     /**
      * @throws IOException
      * @throws SAXException
-     * @see https
-     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062518
+     * @see https ://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062518
      *      &amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -791,8 +787,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
     }
 
     /**
-     * @see http 
-     *      ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
+     * @see http ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
      */
     @Test
     public void should_ignore_namespace_attribute_differences() throws Exception {
