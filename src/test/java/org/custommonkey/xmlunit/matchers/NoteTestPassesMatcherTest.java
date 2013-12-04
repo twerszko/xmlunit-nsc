@@ -19,6 +19,7 @@ import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.passesWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.io.StringReader;
 
 import org.custommonkey.xmlunit.NodeTest;
@@ -28,34 +29,26 @@ import org.custommonkey.xmlunit.examples.CountingNodeTester;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
 
 //TODO Refactor me
 public class NoteTestPassesMatcherTest {
-    private static final String CONTROL_XML =
-            "<root>" +
-                    "<outer attr=\"urk\">" +
-                    "<inner attr=\"urk\">controlDocument</inner>" +
-                    "</outer>" +
-                    "</root>";
-    private static final String TEST_XML =
-            "<root>" +
-                    "<outer attr=\"urk\">" +
-                    "<inner attr=\"ugh\">testDocument</inner>" +
-                    "</outer>" +
-                    "</root>";
+    private static final String CONTROL_XML = "<root>" +
+            "<outer attr=\"urk\">" +
+            "<inner attr=\"urk\">controlDocument</inner>" +
+            "</outer>" +
+            "</root>";
+    private static final String TEST_XML = "<root>" +
+            "<outer attr=\"urk\">" +
+            "<inner attr=\"ugh\">testDocument</inner>" +
+            "</outer>" +
+            "</root>";
+    private NodeTester tester;
 
     @Test
     public void testNodeTest() throws Exception {
         DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
-
-        NodeTester tester = new CountingNodeTester(1);
-
-        assertThat(new NodeTest(documentUtils, CONTROL_XML), passesWith(tester, Node.TEXT_NODE));
-        try {
-            assertThat(new NodeTest(documentUtils, CONTROL_XML), passesWith(tester, Node.ELEMENT_NODE));
-            fail("Expected node test failure #1!");
-        } catch (AssertionError e) {
-        }
 
         NodeTest test = new NodeTest(documentUtils, new StringReader(TEST_XML));
         tester = new CountingNodeTester(4);
@@ -73,5 +66,25 @@ public class NoteTestPassesMatcherTest {
             fail("Expected node test failure #3!");
         } catch (AssertionError e) {
         }
+    }
+
+    @Test
+    public void node_test_should_pass_with_a_simple_tester() throws SAXException,
+            IOException {
+        // given
+        tester = new CountingNodeTester(1);
+        NodeTest nodeTest = createNodeTest(CONTROL_XML);
+        assertThat(nodeTest, passesWith(tester, Node.TEXT_NODE));
+        try {
+            assertThat(nodeTest, passesWith(tester, Node.ELEMENT_NODE));
+            fail("Expected node test failure #1!");
+        } catch (AssertionError e) {
+        }
+    }
+
+    NodeTest createNodeTest(String xml) throws SAXException, IOException {
+        DocumentUtils documentUtils = new DocumentUtils(new XmlUnitProperties());
+        NodeTest nodeTest = new NodeTest(documentUtils, xml);
+        return nodeTest;
     }
 }
