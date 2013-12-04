@@ -37,7 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.diff;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -60,7 +59,6 @@ import org.custommonkey.xmlunit.examples.MultiLevelElementNameAndTextSelector;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -94,13 +92,6 @@ public class DetailedDiffTest extends DiffTestAbstract {
             DifferenceEngineFactory factory) throws Exception {
 
         return new DetailedDiff(Diffs.prepareDiff(properties, control, test, factory));
-    }
-
-    private XmlUnitProperties properties;
-
-    @Before
-    public void before() {
-        properties = new XmlUnitProperties();
     }
 
     @Test
