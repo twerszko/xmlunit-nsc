@@ -36,13 +36,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.diff;
 
+import static org.custommonkey.xmlunit.diff.Diffs.prepareDetailedDiff;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.List;
 
 import javax.xml.transform.dom.DOMSource;
@@ -71,19 +71,6 @@ import org.xml.sax.SAXException;
  * and assert that behaviour has not changed.
  */
 public class DetailedDiffTest extends DiffTestAbstract {
-
-    protected Diff prepareDiff(XmlUnitProperties properties, Document control, Document test)
-            throws Exception {
-        return new DetailedDiff(Diffs.prepareDiff(properties, control, test));
-    }
-
-    protected Diff prepareDiff(XmlUnitProperties properties, String control, String test) throws Exception {
-        return new DetailedDiff(Diffs.prepareDiff(properties, control, test));
-    }
-
-    protected Diff prepareDiff(XmlUnitProperties properties, Reader control, Reader test) throws Exception {
-        return new DetailedDiff(Diffs.prepareDiff(properties, control, test));
-    }
 
     protected Diff prepareDiff(
             XmlUnitProperties properties,
@@ -475,7 +462,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
                         "<e>1</e></root>";
 
         // when
-        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff detailedDiff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = detailedDiff.getAllDifferences();
         Comparison difference = differences.get(0);
 
@@ -508,7 +495,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         // when
         properties.setCompareUnmatched(false);
 
-        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff detailedDiff = prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = detailedDiff.getAllDifferences();
 
         Comparison difference = differences.get(0);
@@ -555,7 +542,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
 
         // when
         properties.setCompareUnmatched(false);
-        DetailedDiff detailedDiff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff detailedDiff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = detailedDiff.getAllDifferences();
 
         Comparison difference = differences.get(0);
@@ -622,7 +609,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         String test = "<qwerty><keyboard/></qwerty>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
 
@@ -651,7 +638,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         String test = "<stuff><item id=\"2\"/><item id=\"1\"/></stuff>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
 
@@ -692,7 +679,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         String test = "<qwerty><keyboard/></qwerty>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
 
@@ -723,7 +710,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         String test = "<stuff><list><glass/></list></stuff>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
 
@@ -746,7 +733,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         String test = "<stuff><list>item text</list></stuff>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
 
@@ -765,7 +752,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
         String test = "<stuff><![CDATA[more stuff]]></stuff>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean identical = diff.identical();
         boolean similar = diff.similar();
@@ -829,7 +816,7 @@ public class DetailedDiffTest extends DiffTestAbstract {
                 + "</abc:Message>";
 
         // when
-        DetailedDiff diff = (DetailedDiff) prepareDiff(properties, control, test);
+        DetailedDiff diff = (DetailedDiff) prepareDetailedDiff(properties, control, test);
         List<Comparison> differences = diff.getAllDifferences();
         boolean similar = diff.similar();
         boolean identical = diff.identical();

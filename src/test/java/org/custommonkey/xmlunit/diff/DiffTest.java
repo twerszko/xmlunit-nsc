@@ -40,7 +40,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
+import static org.custommonkey.xmlunit.diff.Diffs.*;
 
 import java.util.List;
 
