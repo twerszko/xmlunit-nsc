@@ -40,6 +40,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.custommonkey.xmlunit.diff.Diff.newDiff;
 import static org.custommonkey.xmlunit.diff.Diffs.*;
 
 import java.util.List;
@@ -85,7 +86,7 @@ public class DiffTest extends DiffTestAbstract {
         };
         engineFactory.useEvaluator(evaluator);
 
-        Diff diff = prepareDiff(properties, controlDoc, testDoc);
+        Diff diff = newDiff().betweenControlDocument(controlDoc).andTestDocument(testDoc).build();
         diff.setEngineFactory(engineFactory);
         boolean identical = diff.identical();
 

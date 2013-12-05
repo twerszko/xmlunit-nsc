@@ -200,4 +200,8 @@ public class Diff {
     public static DiffBuilder newDiff(@Nullable XmlUnitProperties properties) {
         return new DiffBuilder(properties);
     }
+    
+    public static DiffBuilder newDiff() {
+        return new DiffBuilder(null);
+    }
 }
