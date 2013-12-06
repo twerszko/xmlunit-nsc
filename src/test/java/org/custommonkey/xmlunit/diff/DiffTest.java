@@ -56,12 +56,14 @@ import org.w3c.dom.Document;
 
 
 public class DiffTest extends DiffTestAbstract {
+
     @Test
     public void should_stop_comparison_after_first_difference() throws Exception {
         // given
         ListingDifferenceEvaluator evaluator = new ListingDifferenceEvaluator();
         ComparisonListener listener = mock(ComparisonListener.class);
-        Diff diff = newDiff().betweenControlDocument(buildControlDocument()).andTestDocument(buildTestDocument()).build();
+        Diff diff = newDiff().betweenControlDocument(buildControlDocument())
+                .andTestDocument(buildTestDocument()).build();
         diff.setEngineFactory(createEngineFactory(evaluator, listener));
         // when
         boolean identical = diff.identical();
@@ -85,7 +87,7 @@ public class DiffTest extends DiffTestAbstract {
         return engineFactory;
     }
 
-    Document buildTestDocument() {
+    private Document buildTestDocument() {
         Document doc = new DocumentUtils().newTestDocumentBuilder().newDocument();
         doc.appendChild(doc.createElement("bar"));
         return doc;
