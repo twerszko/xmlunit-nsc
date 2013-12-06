@@ -14,7 +14,7 @@
 package net.sf.xmlunit.diff;
 
 /**
- * Is notified of comparisions and their results.
+ * The listener interface for receiving comparison events
  */
 public interface ComparisonListener {
     void comparisonPerformed(Comparison comparison, ComparisonResult result);
