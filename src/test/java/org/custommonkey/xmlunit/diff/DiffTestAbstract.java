@@ -104,11 +104,8 @@ public abstract class DiffTestAbstract {
         // when
         Diff diffControl = newDiff().betweenControlDocument(control).andTestDocument(control).build();
         Diff diff = newDiff().betweenControlDocument(control).andTestDocument(test).build();
-        // then
-        assertThat(diffControl.similar()).isTrue();
-        assertThat(diffControl.identical()).isTrue();
-        assertThat(diff.similar()).isFalse();
-        assertThat(diff.identical()).isFalse();
+        assertIdentical(diffControl);
+        assertDifferent(diff);
     }
 
     @SuppressWarnings("unused")
@@ -173,8 +170,7 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
         // then
-        assertThat(diff.similar()).isFalse();
-        assertThat(diff.identical()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -183,11 +179,9 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = newDiff()
                 .betweenControlDocument("<control><test>test1</test><test>test2</test></control>")
-                .andTestDocument(       "<control><test>test2</test><test>text1</test></control>").build();
+                .andTestDocument("<control><test>test2</test><test>text1</test></control>").build();
 
-        // then
-        assertThat(diff.similar()).isFalse();
-        assertThat(diff.identical()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -202,7 +196,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
     }
 
     @Test
@@ -214,8 +208,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, control);
 
         // then
-        assertThat(diff.identical()).isTrue();
-        assertThat(diff.similar()).isTrue();
+        assertIdentical(diff);
     }
 
     @Test
@@ -228,8 +221,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -242,8 +234,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -256,8 +247,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -270,8 +260,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -284,8 +273,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -297,9 +285,7 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, control, test);
 
-        // then
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
     }
 
     @Test
@@ -320,9 +306,7 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, xmlWithDTD, xmlWithoutDTD);
 
-        // then
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isFalse();
+        assertSimilar(diff);
     }
 
     @Test
@@ -345,7 +329,11 @@ public abstract class DiffTestAbstract {
         File tempDtdFile = File.createTempFile(this.getClass().toString(), "dtd");
         tempDtdFile.deleteOnExit();
         FileWriter dtdWriter = new FileWriter(tempDtdFile);
-        dtdWriter.write(aDTD);
+        try {
+            dtdWriter.write(aDTD);
+        } finally {
+            dtdWriter.close();
+        }
 
         String xmlWithExternalDTD =
                 "<!DOCTYPE test SYSTEM \"" +
@@ -356,9 +344,7 @@ public abstract class DiffTestAbstract {
             // when
             Diff diff = prepareDiff(properties, xmlWithDTD, xmlWithExternalDTD);
 
-            // then
-            assertThat(diff.similar()).isTrue();
-            assertThat(diff.identical()).isFalse();
+            assertSimilar(diff);
         } finally {
             tempDtdFile.delete();
         }
@@ -381,8 +367,7 @@ public abstract class DiffTestAbstract {
 
         Diff diff = prepareDiff(properties, xmlWithDTD, xmlWithAnotherDTD);
 
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
     }
 
     /**
@@ -394,10 +379,6 @@ public abstract class DiffTestAbstract {
      */
     @Test
     public void should_check_whitespace_awareness() throws Exception {
-        // to avoid test sequencing issues we need to restore whitespace setting
-        boolean whitespaceAwareDiffSimilar = true;
-        boolean whitespaceIgnoredDiffSimilar = false;
-
         XmlUnitProperties properties1 = new XmlUnitProperties();
         properties1.setIgnoreWhitespace(false);
 
@@ -410,14 +391,10 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff whitespaceAwareDiff = prepareDiff(properties1, control, test);
-        whitespaceAwareDiffSimilar = whitespaceAwareDiff.similar();
-
         Diff whitespaceIgnoredDiff = prepareDiff(properties2, control, test);
-        whitespaceIgnoredDiffSimilar = whitespaceIgnoredDiff.similar();
-
         // then
-        assertThat(whitespaceAwareDiffSimilar).isFalse();
-        assertThat(whitespaceIgnoredDiffSimilar).isTrue();
+        assertDifferent(whitespaceAwareDiff);
+        assertIdentical(whitespaceIgnoredDiff);
     }
 
     @Test
@@ -454,12 +431,8 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
         Diff reverseDiff = prepareDiff(properties, test, control);
 
-        // then
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isFalse();
-
-        assertThat(reverseDiff.similar()).isTrue();
-        assertThat(reverseDiff.identical()).isFalse();
+        assertSimilar(diff);
+        assertSimilar(reverseDiff);
     }
 
     /**
@@ -483,12 +456,8 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
         Diff reverseDiff = prepareDiff(properties, test, control);
 
-        // then
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isFalse();
-
-        assertThat(reverseDiff.similar()).isTrue();
-        assertThat(reverseDiff.identical()).isFalse();
+        assertSimilar(diff);
+        assertSimilar(reverseDiff);
     }
 
     @Test
@@ -509,12 +478,8 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
         Diff reverseDiff = prepareDiff(properties, test, control);
 
-        // then
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isFalse();
-
-        assertThat(reverseDiff.similar()).isTrue();
-        assertThat(reverseDiff.identical()).isFalse();
+        assertSimilar(diff);
+        assertSimilar(reverseDiff);
     }
 
     @Test
@@ -533,9 +498,8 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, control, test);
-
         // then
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -559,8 +523,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isTrue();
-        assertThat(diff.similar()).isTrue();
+        assertIdentical(diff);
     }
 
     @Test
@@ -584,8 +547,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -609,8 +571,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -628,8 +589,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -639,10 +599,10 @@ public abstract class DiffTestAbstract {
         String test = "<root><node><inner-node>text</inner-node></node></root>";
 
         // when
-        Diff myDiff = prepareDiff(properties, control, test);
+        Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(myDiff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -657,8 +617,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -673,8 +632,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -689,8 +647,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -707,8 +664,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -741,8 +697,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -771,8 +726,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     private abstract class ExaminingExpectedDifferenceListener extends ExpectedDifferenceEvaluator {
@@ -792,8 +746,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     private class OverridingDifferenceEvaluator implements DifferenceEvaluator {
@@ -865,7 +818,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -878,8 +831,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, expected, actual);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -892,8 +844,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -907,8 +858,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isTrue();
-        assertThat(diff.similar()).isTrue();
+        assertIdentical(diff);
     }
 
     @Test
@@ -958,7 +908,7 @@ public abstract class DiffTestAbstract {
         properties.setNormalizeWhitespace(false);
 
         diff = prepareDiff(properties, control, test);
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     // fails with Java 5 and later
@@ -987,8 +937,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -1002,8 +951,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isTrue();
-        assertThat(diff.similar()).isTrue();
+        assertIdentical(diff);
     }
 
     /**
@@ -1031,11 +979,10 @@ public abstract class DiffTestAbstract {
                         "</a:Message>";
 
         // when
-        Diff d = prepareDiff(properties, control, test);
+        Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(d.identical()).isFalse();
-        assertThat(d.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     /**
@@ -1065,7 +1012,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
     }
 
     /**
@@ -1089,7 +1036,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
     }
 
     @Test
@@ -1113,11 +1060,9 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(controlDiff.identical()).isFalse();
-        assertThat(controlDiff.similar()).isTrue();
+        assertSimilar(controlDiff);
 
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
     }
 
     @Test
@@ -1139,7 +1084,7 @@ public abstract class DiffTestAbstract {
         });
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
         verify(mockedTracker, times(13)).comparisonPerformed(any(Comparison.class),
                 any(ComparisonResult.class));
     }
@@ -1164,7 +1109,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", factory);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
         verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
                 any(ComparisonResult.class));
     }
@@ -1189,7 +1134,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", factory);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
         verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
                 any(ComparisonResult.class));
     }
@@ -1214,7 +1159,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", factory);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
         verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
                 any(ComparisonResult.class));
     }
@@ -1240,7 +1185,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>", factory);
 
         // then
-        assertThat(diff.identical()).isTrue();
+        assertIdentical(diff);
         verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
                 any(ComparisonResult.class));
     }
@@ -1266,7 +1211,7 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.similar()).isTrue();
+        assertIdentical(diff);
     }
 
     /**
@@ -1320,7 +1265,7 @@ public abstract class DiffTestAbstract {
         diff.setEngineFactory(engineFactory);
 
         // then
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -1337,11 +1282,8 @@ public abstract class DiffTestAbstract {
         Diff reverseDiff = prepareDiff(properties, testDoc, controlDoc);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isTrue();
-
-        assertThat(reverseDiff.identical()).isFalse();
-        assertThat(reverseDiff.similar()).isTrue();
+        assertSimilar(diff);
+        assertSimilar(reverseDiff);
     }
 
     @Test
@@ -1360,10 +1302,9 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         // then
-        assertThat(identical).isTrue();
+        assertIdentical(diff);
         assertThat(evaluator.getDifferences()).isEmpty();
     }
 
@@ -1383,10 +1324,9 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         // then
-        assertThat(identical).isTrue();
+        assertIdentical(diff);
         assertThat(evaluator.getDifferences()).isEmpty();
     }
 
@@ -1406,10 +1346,9 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         // then
-        assertThat(identical).isTrue();
+        assertIdentical(diff);
         assertThat(evaluator.getDifferences()).isEmpty();
     }
 
@@ -1429,10 +1368,9 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         // then
-        assertThat(identical).isTrue();
+        assertIdentical(diff);
         assertThat(evaluator.getDifferences()).isEmpty();
     }
 
@@ -1451,11 +1389,10 @@ public abstract class DiffTestAbstract {
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         // then
         List<Comparison> differences = evaluator.getDifferences();
-        assertThat(identical).isFalse();
+        assertDifferent(diff);
         assertThat(differences).hasSize(1);
 
         Comparison difference = differences.get(0);
@@ -1475,12 +1412,9 @@ public abstract class DiffTestAbstract {
 
         // when
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
-        boolean identical = diff.identical();
-        boolean similar = diff.similar();
 
         // then
-        assertThat(identical).isFalse();
-        assertThat(similar).isTrue();
+        assertSimilar(diff);
     }
 
     @Test
@@ -1499,10 +1433,9 @@ public abstract class DiffTestAbstract {
 
         Diff diff = prepareDiff(properties, control, test);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         // then
-        assertThat(identical).isFalse();
+        assertSimilar(diff);
         List<Comparison> differences = evaluator.getDifferences();
         assertThat(differences).hasSize(1);
         assertThat(differences.get(0).getType()).isEqualTo(ComparisonType.CHILD_NODELIST_SEQUENCE);
@@ -1531,13 +1464,11 @@ public abstract class DiffTestAbstract {
 
         Diff diff = prepareDiff(properties, controlDoc, testDoc);
         diff.setEngineFactory(engineFactory);
-        boolean identical = diff.identical();
 
         List<Comparison> differences = evaluator.getDifferences();
 
         // then
-        assertThat(identical).isFalse();
-        assertThat(diff.similar()).isTrue();
+        assertSimilar(diff);
 
         Comparison difference = differences.get(0);
         assertThat(difference.getType()).isEqualTo(ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION);
@@ -1571,8 +1502,21 @@ public abstract class DiffTestAbstract {
         Diff diff = prepareDiff(properties, control, test);
 
         // then
-        assertThat(diff.identical()).isFalse();
-        assertThat(diff.similar()).isFalse();
+        assertDifferent(diff);
+    }
 
+    protected void assertDifferent(Diff diff) {
+        assertThat(diff.similar()).isFalse();
+        assertThat(diff.identical()).isFalse();
+    }
+
+    protected void assertSimilar(Diff diff) {
+        assertThat(diff.similar()).isTrue();
+        assertThat(diff.identical()).isFalse();
+    }
+
+    protected void assertIdentical(Diff diff) {
+        assertThat(diff.similar()).isTrue();
+        assertThat(diff.identical()).isTrue();
     }
 }
