@@ -329,11 +329,7 @@ public abstract class DiffTestAbstract {
         File tempDtdFile = File.createTempFile(this.getClass().toString(), "dtd");
         tempDtdFile.deleteOnExit();
         FileWriter dtdWriter = new FileWriter(tempDtdFile);
-        try {
-            dtdWriter.write(aDTD);
-        } finally {
-            dtdWriter.close();
-        }
+        dtdWriter.write(aDTD);
 
         String xmlWithExternalDTD =
                 "<!DOCTYPE test SYSTEM \"" +
@@ -1506,17 +1502,17 @@ public abstract class DiffTestAbstract {
     }
 
     protected void assertDifferent(Diff diff) {
-        assertThat(diff.similar()).isFalse();
-        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).as("Should not be similar").isFalse();
+        assertThat(diff.identical()).as("Should not be identical").isFalse();
     }
 
     protected void assertSimilar(Diff diff) {
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isFalse();
+        assertThat(diff.similar()).as("Should be similar").isTrue();
+        assertThat(diff.identical()).as("Should not be identical").isFalse();
     }
 
     protected void assertIdentical(Diff diff) {
-        assertThat(diff.similar()).isTrue();
-        assertThat(diff.identical()).isTrue();
+        assertThat(diff.similar()).as("Should be similar").isTrue();
+        assertThat(diff.identical()).as("Should be identical").isTrue();
     }
 }
