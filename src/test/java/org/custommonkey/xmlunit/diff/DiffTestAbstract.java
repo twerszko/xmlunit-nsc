@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.diff;
 
-import static junitparams.JUnitParamsRunner.$;
+import static org.custommonkey.xmlunit.diff.Diff.newDiff;
 import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -81,6 +81,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xmlunit.diff.ElementSelectors;
 
+
 @RunWith(JUnitParamsRunner.class)
 public abstract class DiffTestAbstract {
 
@@ -95,100 +96,97 @@ public abstract class DiffTestAbstract {
         engineFactory = new DefaultDifferenceEngineFactory(properties);
     }
 
-    // TODO toString?
-    // @Test
-    // public void should_create_valid_toString_2() throws Exception {
-    // // given
-    // Diff diff = prepareDiff(properties, aDocument, aDocument);
-    //
-    // // when
-    // Text textA = aDocument.createTextNode("Monkey");
-    // Text textB = aDocument.createTextNode("Chicken");
-    //
-    // Comparison comparison = new Comparison(
-    // ComparisonType.TEXT_VALUE,
-    // new Detail(textA, "/tag/text()", "Monkey"),
-    // new Detail(textB, "/tag/text()", "Chicken"));
-    //
-    // diff.evaluate(comparison, ComparisonResult.DIFFERENT);
-    //
-    // String toStringResult = diff.toString();
-    // String expectedToString = diff.getClass().getName() +
-    // "\n[different] Expected "
-    // + ComparisonType.TEXT_VALUE.getDescription()
-    // + " 'Monkey' but was 'Chicken' - comparing <tag ...>Monkey</tag> "
-    // + "at /tag/text() to <tag ...>Chicken</tag> at /tag/text()\n";
-    //
-    // // then
-    // assertThat(toStringResult).isEqualTo(expectedToString);
-    // }
-
+    // TODO split this into well named test cases
     @Test
-    @Parameters(method = "provideXmlPairs")
-    public void should_check_if_two_xmls_arent_similar(String control, String test)
+    @Parameters(method = "getXmlPairs")
+    public void similar_should_be_false_when_xmls_are_different(String control, String test)
             throws Exception {
-
-        // given
         // when
-        Diff diffControl = prepareDiff(properties, control, control);
-        Diff diff = prepareDiff(properties, control, test);
-
+        Diff diffControl = newDiff().betweenControlDocument(control).andTestDocument(control).build();
+        Diff diff = newDiff().betweenControlDocument(control).andTestDocument(test).build();
         // then
         assertThat(diffControl.similar()).isTrue();
+        assertThat(diffControl.identical()).isTrue();
         assertThat(diff.similar()).isFalse();
+        assertThat(diff.identical()).isFalse();
     }
 
     @SuppressWarnings("unused")
-    private Object[] provideXmlPairs() {
-        return $(
-                $(
+    private Object[] getXmlPairs() {
+        return new Object[][] {
+                {
                         "<test/>",
-                        "<fail/>"),
-                $(
+                        "<fail/>"
+                },
+                {
                         "<test></test>",
-                        "<fail/>"),
-                $(
+                        "<fail/>"
+                },
+                {
                         "<test>test</test>",
-                        "<fail>test</fail>"),
-                $(
+                        "<fail>test</fail>"
+                },
+                {
                         "<test test=\"test\">test</test>",
-                        "<test>test</test>"),
-                $(
+                        "<test>test</test>"
+                },
+                {
                         "<test/>",
-                        "<fail/>"),
-                $(
+                        "<fail/>"
+                },
+                {
                         "<test>test</test>",
-                        "<test>fail</test>"),
-                $(
+                        "<test>fail</test>"
+                },
+                {
                         "<test test=\"test\"/>",
-                        "<test test=\"fail\"/>"),
-                $(
+                        "<test test=\"fail\"/>"
+                },
+                {
                         "<test><test><test></test></test></test>",
-                        "<test><test><test>test</test></test></test>"),
-                $(
+                        "<test><test><test>test</test></test></test>"
+                },
+                {
                         "<test test=\"test\"><test>test<test>test</test></test></test>",
-                        "<test test=\"test\"><test>fail<test>test</test></test></test>"),
-                $(
+                        "<test test=\"test\"><test>fail<test>test</test></test></test>"
+                },
+                {
                         "<test test=\"test\"><test>test<test>test</test></test></test>",
-                        "<test test=\"fail\"><test>test<test>test</test></test></test>"),
-                $(
+                        "<test test=\"fail\"><test>test<test>test</test></test></test>"
+                },
+                {
                         "<html>Yo this is a test!</html>",
-                        "<html>Yo this isn't a test!</html>"),
-                $(
+                        "<html>Yo this isn't a test!</html>"
+                },
+                {
                         "<java></java>",
-                        "<java><package-def><ident>org</ident><dot/><ident>apache</ident><dot/><ident>test</ident></package-def></java>"));
+                        "<java><package-def><ident>org</ident><dot/><ident>apache</ident><dot/><ident>test</ident></package-def></java>"
+                }
+        };
     }
 
     @Test
-    public void should_pass_when_two_strings_arent_identical() throws Exception {
+    public void should_be_different_when_text_node_values_differ() throws Exception {
         // given
-        String control = "<control><test>test1</test><test>test2</test></control>";
-        String test = "<control><test>test2</test><test>test1</test></control>";
-
+        String doc1 = "<root><test>text1</test></root>";
+        String doc2 = "<root><test>text2</test></root>";
         // when
-        Diff diff = prepareDiff(properties, control, test);
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
+        // then
+        assertThat(diff.similar()).isFalse();
+        assertThat(diff.identical()).isFalse();
+    }
+
+    @Test
+    public void should_be_different_when_text_nodes_order_differs() throws Exception {
+        // given
+        // when
+        Diff diff = newDiff()
+                .betweenControlDocument("<control><test>test1</test><test>test2</test></control>")
+                .andTestDocument(       "<control><test>test2</test><test>text1</test></control>").build();
 
         // then
+        assertThat(diff.similar()).isFalse();
         assertThat(diff.identical()).isFalse();
     }
 
@@ -301,12 +299,7 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.similar()).isTrue();
-        if (diff.identical()) {
-            // TODO
-            // should not ideally be identical
-            // but JAXP implementations can reorder attributes
-            // inside NamedNodeMap
-        }
+        assertThat(diff.identical()).isTrue();
     }
 
     @Test
@@ -393,8 +386,8 @@ public abstract class DiffTestAbstract {
     }
 
     /**
-     * Raised by aakture 25.04.2002 Despite the name under which this defect was
-     * raised the issue is really about managing redundant whitespace
+     * Raised by aakture 25.04.2002 Despite the name under which this defect was raised the issue is really
+     * about managing redundant whitespace
      * 
      * @throws IOException
      * @throws SAXException
@@ -719,7 +712,8 @@ public abstract class DiffTestAbstract {
     }
 
     @Test
-    public void should_check_repeated_element_names_with_namespaced_attribute_qualification() throws Exception {
+    public void should_check_repeated_element_names_with_namespaced_attribute_qualification()
+            throws Exception {
         // TODO
         // given
         String control =
@@ -1013,10 +1007,9 @@ public abstract class DiffTestAbstract {
     }
 
     /**
-     * inspired by {@link http 
-     * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html
-     * Erik von Oosten's Weblog}, made us implement special handling of
-     * schemaLocation.
+     * inspired by {@link http
+     * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html Erik von Oosten's Weblog},
+     * made us implement special handling of schemaLocation.
      * 
      * @throws IOException
      * @throws SAXException
@@ -1051,8 +1044,7 @@ public abstract class DiffTestAbstract {
      * @throws IOException
      * @throws SAXException
      * 
-     * @see http 
-     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
+     * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
      *      amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -1082,8 +1074,7 @@ public abstract class DiffTestAbstract {
      * @throws IOException
      * @throws SAXException
      * 
-     * @see http 
-     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
+     * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
      *      amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -1133,7 +1124,8 @@ public abstract class DiffTestAbstract {
     public void should_verify_calls_on_overriden_MatchTracker() throws Exception {
         // given
         final ComparisonListener mockedTracker = mock(ComparisonListener.class);
-        doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        doNothing().when(mockedTracker).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
 
         // when
         Diff diff = prepareDiff(properties, "<foo/>", "<foo/>");
@@ -1148,14 +1140,16 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedTracker, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedTracker, times(13)).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
     }
 
     @Test
     public void should_verify_calls_on_MatchTracker_overriden_in_engine() throws Exception {
         // given
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
-        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
 
         DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
@@ -1171,14 +1165,16 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
     }
 
     @Test
     public void should_verify_calls_on_MatchTracker_overriden_in_diff() throws Exception {
         // given
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
-        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
 
         DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
@@ -1194,7 +1190,8 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
     }
 
     @Test
@@ -1202,7 +1199,8 @@ public abstract class DiffTestAbstract {
 
         // given
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
-        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
 
         DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
@@ -1217,7 +1215,8 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
     }
 
     @Test
@@ -1225,7 +1224,8 @@ public abstract class DiffTestAbstract {
 
         // given
         final ComparisonListener mockedListener = mock(ComparisonListener.class);
-        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        doNothing().when(mockedListener).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
 
         DifferenceEngineFactory factory = new DefaultDifferenceEngineFactory(properties) {
             @Override
@@ -1241,7 +1241,8 @@ public abstract class DiffTestAbstract {
 
         // then
         assertThat(diff.identical()).isTrue();
-        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class), any(ComparisonResult.class));
+        verify(mockedListener, times(13)).comparisonPerformed(any(Comparison.class),
+                any(ComparisonResult.class));
     }
 
     @Test
@@ -1269,8 +1270,7 @@ public abstract class DiffTestAbstract {
     }
 
     /**
-     * Not a real test. Need something that actually fails unless I set the
-     * flag.
+     * Not a real test. Need something that actually fails unless I set the flag.
      * 
      * @throws IOException
      * @throws SAXException
@@ -1291,9 +1291,7 @@ public abstract class DiffTestAbstract {
     }
 
     /**
-     * @see https 
-     *      ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187
-     *      &atid=377768
+     * @see https ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187 &atid=377768
      */
     @Test
     public void should_check_issue_2807167() throws Exception {

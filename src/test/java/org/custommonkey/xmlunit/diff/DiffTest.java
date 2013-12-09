@@ -50,6 +50,7 @@ import net.sf.xmlunit.diff.DifferenceEngine;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
 import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
 
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -75,7 +76,7 @@ public class DiffTest extends DiffTestAbstract {
 
     private DifferenceEngineFactory createEngineFactory(ListingDifferenceEvaluator evaluator,
             final ComparisonListener listener) {
-        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(properties) {
+        DifferenceEngineFactory engineFactory = new DefaultDifferenceEngineFactory(new XmlUnitProperties()) {
             @Override
             public DifferenceEngine newEngine() {
                 DifferenceEngine engine = super.newEngine();
