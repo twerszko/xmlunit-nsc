@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,9 +103,8 @@ public abstract class DiffTestAbstract {
     public void similar_should_be_false_when_xmls_are_different(String control, String test)
             throws Exception {
         // when
-        Diff diffControl = newDiff().betweenControlDocument(control).andTestDocument(control).build();
         Diff diff = newDiff().betweenControlDocument(control).andTestDocument(test).build();
-        assertIdentical(diffControl);
+        // then
         assertDifferent(diff);
     }
 
@@ -124,10 +124,6 @@ public abstract class DiffTestAbstract {
                         "<fail>test</fail>"
                 },
                 {
-                        "<test test=\"test\">test</test>",
-                        "<test>test</test>"
-                },
-                {
                         "<test/>",
                         "<fail/>"
                 },
@@ -145,15 +141,7 @@ public abstract class DiffTestAbstract {
                 },
                 {
                         "<test test=\"test\"><test>test<test>test</test></test></test>",
-                        "<test test=\"test\"><test>fail<test>test</test></test></test>"
-                },
-                {
-                        "<test test=\"test\"><test>test<test>test</test></test></test>",
                         "<test test=\"fail\"><test>test<test>test</test></test></test>"
-                },
-                {
-                        "<html>Yo this is a test!</html>",
-                        "<html>Yo this isn't a test!</html>"
                 },
                 {
                         "<java></java>",
@@ -174,91 +162,77 @@ public abstract class DiffTestAbstract {
     }
 
     @Test
-    public void should_be_different_when_text_nodes_order_differs() throws Exception {
+    public void should_be_different_when_text_node_order_differs() throws Exception {
         // given
+        String doc1 = "<control><test>test1</test><test>test2</test></control>";
+        String doc2 = "<control><test>test2</test><test>text1</test></control>";
         // when
-        Diff diff = newDiff()
-                .betweenControlDocument("<control><test>test1</test><test>test2</test></control>")
-                .andTestDocument("<control><test>test2</test><test>text1</test></control>").build();
-
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
+        // then
         assertDifferent(diff);
     }
 
     @Test
-    public void should_pass_when_two_strings_are_identical() throws Exception {
+    public void should_be_identical_when_docs_are_identical() throws Exception {
         // given
-        File controlFile = TestResources.BLAME_FILE.getFile();
-        File testFile = TestResources.BLAME_FILE.getFile();
-        FileReader control = new FileReader(controlFile);
-        FileReader test = new FileReader(testFile);
-
+        Reader doc1 = new FileReader(TestResources.BLAME_FILE.getFile());
+        Reader doc2 = new FileReader(TestResources.BLAME_FILE.getFile());
         // when
-        Diff diff = prepareDiff(properties, control, test);
-
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
         // then
         assertIdentical(diff);
     }
 
     @Test
-    public void should_pass_when_string_is_identical_with_itself() throws Exception {
+    public void should_be_identical_when_doc_is_compared_to_itself() throws Exception {
         // given
-        String control = "<same>pass</same>";
-
+        String doc = "<same>text</same>";
         // when
-        Diff diff = prepareDiff(properties, control, control);
-
+        Diff diff = newDiff().betweenControlDocument(doc).andTestDocument(doc).build();
         // then
         assertIdentical(diff);
     }
 
     @Test
-    public void should_pass_when_one_node_missing_in_control_string() throws Exception {
+    public void should_be_different_when_element_is_added() throws Exception {
         // given
-        String control = "<root></root>";
-        String test = "<root><node/></root>";
-
+        String doc1 = "<root></root>";
+        String doc2 = "<root><node/></root>";
         // when
-        Diff diff = prepareDiff(properties, control, test);
-
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
         // then
         assertDifferent(diff);
     }
 
     @Test
-    public void should_pass_when_one_extra_node_in_control_string() throws Exception {
+    public void should_be_different_when_element_is_removed() throws Exception {
         // given
-        String control = "<root><node/></root>";
-        String test = "<root></root>";
-
+        String doc1 = "<root><node/></root>";
+        String doc2 = "<root></root>";
         // when
-        Diff diff = prepareDiff(properties, control, test);
-
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
         // then
         assertDifferent(diff);
     }
 
     @Test
-    public void should_be_similar_when_nodes_in_reverse_order() throws Exception {
+    public void should_be_similar_when_element_order_differs() throws Exception {
         // given
-        String control = "<root><same/><pass/></root>";
-        String test = "<root><pass/><same/></root>";
-
+        String doc1 = "<root><child1/><child2/></root>";
+        String doc2 = "<root><child2/><child1/></root>";
         // when
-        Diff diff = prepareDiff(properties, control, test);
-
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
         // then
         assertSimilar(diff);
     }
 
     @Test
-    public void should_pass_when_extra_attribute_in_test_string() throws Exception {
+    public void should_be_different_when_attribute_is_added() throws Exception {
         // given
-        String control = "<same>pass</same>";
-        String test = "<same except=\"this\">pass</same>";
-
+        String doc1 = "<root>text</root>";
+        String doc2 = "<root a=\"b\">text</root>";
         // when
-        Diff diff = prepareDiff(properties, control, test);
-
+        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
         // then
         assertDifferent(diff);
     }
