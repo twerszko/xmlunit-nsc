@@ -36,41 +36,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.diff;
 
-import static org.custommonkey.xmlunit.diff.Diff.newDiff;
-import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.diff.Comparison;
-import net.sf.xmlunit.diff.ComparisonListener;
-import net.sf.xmlunit.diff.ComparisonResult;
-import net.sf.xmlunit.diff.ComparisonType;
-import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
-import net.sf.xmlunit.diff.DifferenceEngine;
-import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.diff.DifferenceEvaluator;
-import net.sf.xmlunit.diff.ListingDifferenceEvaluator;
-
+import net.sf.xmlunit.diff.*;
 import org.custommonkey.xmlunit.ElementNameAndAttributeSelector;
 import org.custommonkey.xmlunit.XMLConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
+import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -82,9 +55,24 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xmlunit.diff.ElementSelectors;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.custommonkey.xmlunit.diff.Diff.newDiff;
+import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 
 @RunWith(JUnitParamsRunner.class)
-public abstract class DiffTestAbstract {
+public abstract class AbstractDiffTest {
 
     protected XmlUnitProperties properties;
     private DocumentUtils documentUtils;
@@ -103,14 +91,12 @@ public abstract class DiffTestAbstract {
     public void similar_should_be_false_when_xmls_are_different(String control, String test)
             throws Exception {
         // when
-        Diff diff = newDiff().betweenControlDocument(control).andTestDocument(test).build();
-        // then
-        assertDifferent(diff);
+        assertDifferent(createDiff(control, test));
     }
 
     @SuppressWarnings("unused")
     private Object[] getXmlPairs() {
-        return new Object[][] {
+        return new Object[][]{
                 {
                         "<test/>",
                         "<fail/>"
@@ -136,10 +122,6 @@ public abstract class DiffTestAbstract {
                         "<test test=\"fail\"/>"
                 },
                 {
-                        "<test><test><test></test></test></test>",
-                        "<test><test><test>test</test></test></test>"
-                },
-                {
                         "<test test=\"test\"><test>test<test>test</test></test></test>",
                         "<test test=\"fail\"><test>test<test>test</test></test></test>"
                 },
@@ -152,198 +134,119 @@ public abstract class DiffTestAbstract {
 
     @Test
     public void should_be_different_when_text_node_values_differ() throws Exception {
-        // given
-        String doc1 = "<root><test>text1</test></root>";
-        String doc2 = "<root><test>text2</test></root>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertDifferent(diff);
+        String ctrl = "<root><test>text1</test></root>";
+        String test = "<root><test>text2</test></root>";
+
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
     public void should_be_different_when_text_node_order_differs() throws Exception {
-        // given
-        String doc1 = "<control><test>test1</test><test>test2</test></control>";
-        String doc2 = "<control><test>test2</test><test>text1</test></control>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertDifferent(diff);
+        String ctrl = "<control><test>test1</test><test>test2</test></control>";
+        String test = "<control><test>test2</test><test>text1</test></control>";
+
+        assertDifferent(createDiff(ctrl, test));
+    }
+
+    @Test
+    public void should_be_different_when_text_node_is_added() throws Exception {
+        String ctrl = "<control><test></test></control>";
+        String test = "<control><test>text</test></control>";
+
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
     public void should_be_identical_when_docs_are_identical() throws Exception {
-        // given
-        Reader doc1 = new FileReader(TestResources.BLAME_FILE.getFile());
-        Reader doc2 = new FileReader(TestResources.BLAME_FILE.getFile());
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertIdentical(diff);
+        String ctrl = TestResources.BLAME_FILE.getContents();
+        String test = TestResources.BLAME_FILE.getContents();
+
+        assertIdentical(createDiff(ctrl, test));
     }
 
     @Test
     public void should_be_identical_when_doc_is_compared_to_itself() throws Exception {
-        // given
-        String doc = "<same>text</same>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc).andTestDocument(doc).build();
-        // then
-        assertIdentical(diff);
+        String doc = "<root a=\"b\">text</root>";
+
+        assertIdentical(createDiff(doc, doc));
     }
 
     @Test
     public void should_be_different_when_element_is_added() throws Exception {
-        // given
-        String doc1 = "<root></root>";
-        String doc2 = "<root><node/></root>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertDifferent(diff);
+        String ctrl = "<root></root>";
+        String test = "<root><node/></root>";
+
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
     public void should_be_different_when_element_is_removed() throws Exception {
-        // given
-        String doc1 = "<root><node/></root>";
-        String doc2 = "<root></root>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertDifferent(diff);
+        String ctrl = "<root><node/></root>";
+        String test = "<root></root>";
+
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
     public void should_be_similar_when_element_order_differs() throws Exception {
-        // given
-        String doc1 = "<root><child1/><child2/></root>";
-        String doc2 = "<root><child2/><child1/></root>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertSimilar(diff);
+        String ctrl = "<root><child1/><child2/></root>";
+        String test = "<root><child2/><child1/></root>";
+
+        assertSimilar(createDiff(ctrl, test));
     }
 
     @Test
     public void should_be_different_when_attribute_is_added() throws Exception {
-        // given
-        String doc1 = "<root>text</root>";
-        String doc2 = "<root a=\"b\">text</root>";
-        // when
-        Diff diff = newDiff().betweenControlDocument(doc1).andTestDocument(doc2).build();
-        // then
-        assertDifferent(diff);
+        String ctrl = "<root>text</root>";
+        String test = "<root a=\"b\">text</root>";
+
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_pass_when_extra_attribute_in_control_string() throws Exception {
-        // given
-        String control = "<same except=\"this\">pass</same>";
-        String test = "<same>pass</same>";
+    public void should_be_different_when_attribute_is_removed() throws Exception {
+        String ctrl = "<root a=\"b\">text</root>";
+        String test = "<root>text</root>";
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-
-        // then
-        assertDifferent(diff);
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_pass_when_strings_have_attributes_in_reverse_order() throws Exception {
-        // given
-        String control = "<same zzz=\"qwerty\" aaa=\"uiop\">pass</same>";
-        String test = "<same aaa=\"uiop\" zzz=\"qwerty\">pass</same>";
+    public void should_be_identical_when_attribute_order_differs() throws Exception {
+        String ctrl = "<root a=\"b\" c=\"d\">text</root>";
+        String test = "<root c=\"d\" a=\"b\">text</root>";
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-
-        assertIdentical(diff);
+        assertIdentical(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_pass_when_xml_and_xml_with_dtd_are_similar() throws Exception {
-        // given
-        String xmlWithoutDTD = "<test>" +
-                "<assertion result=\"pass\"/>" +
-                "<assertion result=\"fail\"/>" +
-                "</test>";
+    public void should_be_similar_when_dtd_is_added() throws Exception {
+        String ctrl = TestResources.SIMPLE_XML.getContents();
+        String test = TestResources.SIMPLE_XML_WITH_DTD.getContents();
 
-        String xmlWithDTD =
-                "<!DOCTYPE test [" + "<!ELEMENT assertion EMPTY>" +
-                        "<!ATTLIST assertion result (pass|fail) \"fail\">" +
-                        "<!ELEMENT test (assertion)*>" +
-                        "]>" +
-                        xmlWithoutDTD;
-
-        // when
-        Diff diff = prepareDiff(properties, xmlWithDTD, xmlWithoutDTD);
-
-        assertSimilar(diff);
+        assertSimilar(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_pass_when_xml_and_xml_with_external_dtd_are_similar() throws Exception {
-        // given
-        String xmlWithoutDTD = "<test>" +
-                "<assertion result=\"pass\"/>" +
-                "<assertion result=\"fail\"/>" +
-                "</test>";
+    public void should_be_similar_when_dtd_is_externalized() throws Exception {
+        String ctrl = TestResources.SIMPLE_XML_WITH_DTD.getContents();
+        String test = TestResources.SIMPLE_XML_WITH_EXT_DTD.getContents();
 
-        String aDTD =
-                "<!DOCTYPE test [" + "<!ELEMENT assertion EMPTY>" +
-                        "<!ATTLIST assertion result (pass|fail) \"fail\">" +
-                        "<!ELEMENT test (assertion)*>" +
-                        "]>";
-
-        String xmlWithDTD = aDTD + xmlWithoutDTD;
-
-        // TODO: remove writing to file
-        File tempDtdFile = File.createTempFile(this.getClass().toString(), "dtd");
-        tempDtdFile.deleteOnExit();
-        FileWriter dtdWriter = new FileWriter(tempDtdFile);
-        dtdWriter.write(aDTD);
-
-        String xmlWithExternalDTD =
-                "<!DOCTYPE test SYSTEM \"" +
-                        tempDtdFile.toURI().toURL().toExternalForm()
-                        + "\">" +
-                        xmlWithoutDTD;
-        try {
-            // when
-            Diff diff = prepareDiff(properties, xmlWithDTD, xmlWithExternalDTD);
-
-            assertSimilar(diff);
-        } finally {
-            tempDtdFile.delete();
-        }
+        assertSimilar(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_pass_when_two_xmls_with_dtd_are_identical() throws Exception {
-        String xmlWithoutDTD = "<test>" +
-                "<assertion result=\"pass\"/>" +
-                "<assertion result=\"fail\"/>" +
-                "</test>";
+    public void should_be_identical_when_dtds_are_equivalent() throws Exception {
+        String ctrl = TestResources.SIMPLE_XML_WITH_DTD.getContents();
+        String test = TestResources.SIMPLE_XML_WITH_LONGER_DTD.getContents();
 
-        String aDTDpart =
-                "<!DOCTYPE test [" + "<!ELEMENT assertion EMPTY>" +
-                        "<!ATTLIST assertion result (pass|fail) \"fail\">" +
-                        "<!ELEMENT test (assertion)*>";
-
-        String xmlWithDTD = aDTDpart + "]>" + xmlWithoutDTD;
-        String xmlWithAnotherDTD = aDTDpart + "<!ELEMENT comment (ANY)>" + "]>" + xmlWithoutDTD;
-
-        Diff diff = prepareDiff(properties, xmlWithDTD, xmlWithAnotherDTD);
-
-        assertIdentical(diff);
+        assertIdentical(createDiff(ctrl, test));
     }
 
     /**
      * Raised by aakture 25.04.2002 Despite the name under which this defect was raised the issue is really
      * about managing redundant whitespace
-     * 
+     *
      * @throws IOException
      * @throws SAXException
      */
@@ -380,9 +283,10 @@ public abstract class DiffTestAbstract {
     }
 
     // TODO
+
     /**
      * Raised 15.05.2002
-     * 
+     *
      * @throws IOException
      * @throws SAXException
      */
@@ -407,7 +311,7 @@ public abstract class DiffTestAbstract {
 
     /**
      * Raised 16.05.2002
-     * 
+     *
      * @throws IOException
      * @throws SAXException
      */
@@ -654,7 +558,7 @@ public abstract class DiffTestAbstract {
                         "</root>";
 
         ExpectedDifferenceEvaluator evaluator = new ExpectedDifferenceEvaluator(
-                new ComparisonType[] {
+                new ComparisonType[]{
                         ComparisonType.NAMESPACE_PREFIX,
                         ComparisonType.CHILD_NODELIST_SEQUENCE
                 });
@@ -736,7 +640,7 @@ public abstract class DiffTestAbstract {
         private final Set<ComparisonType> expectedIds;
 
         private ExpectedDifferenceEvaluator(ComparisonType expectedType) {
-            this(new ComparisonType[] { expectedType });
+            this(new ComparisonType[]{expectedType});
         }
 
         private ExpectedDifferenceEvaluator(ComparisonType[] expectedIdValues) {
@@ -928,7 +832,7 @@ public abstract class DiffTestAbstract {
      * inspired by {@link http
      * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html Erik von Oosten's Weblog},
      * made us implement special handling of schemaLocation.
-     * 
+     *
      * @throws IOException
      * @throws SAXException
      */
@@ -957,12 +861,11 @@ public abstract class DiffTestAbstract {
 
     /**
      * Bug Report 1779701
-     * 
+     *
      * @throws IOException
      * @throws SAXException
-     * 
      * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
-     *      amp;group_id=23187&amp;atid=377768
+     * amp;group_id=23187&amp;atid=377768
      */
     @Test
     public void should_be_identical_when_namespaces_present_and_whitespaces_ignored() throws Exception {
@@ -987,12 +890,11 @@ public abstract class DiffTestAbstract {
 
     /**
      * Bug Report 1863632
-     * 
+     *
      * @throws IOException
      * @throws SAXException
-     * 
      * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
-     *      amp;group_id=23187&amp;atid=377768
+     * amp;group_id=23187&amp;atid=377768
      */
     @Test
     public void should_be_identical_when_whitespaces_ignored() throws Exception {
@@ -1072,7 +974,9 @@ public abstract class DiffTestAbstract {
                 DifferenceEngine engine = super.newEngine();
                 engine.addMatchListener(mockedListener);
                 return engine;
-            };
+            }
+
+            ;
         };
 
         // when
@@ -1186,7 +1090,7 @@ public abstract class DiffTestAbstract {
 
     /**
      * Not a real test. Need something that actually fails unless I set the flag.
-     * 
+     *
      * @throws IOException
      * @throws SAXException
      */
@@ -1473,6 +1377,10 @@ public abstract class DiffTestAbstract {
 
         // then
         assertDifferent(diff);
+    }
+
+    private Diff createDiff(String ctrl, String test) throws BuilderException {
+        return newDiff(properties).betweenControlDocument(ctrl).andTestDocument(test).build();
     }
 
     protected void assertDifferent(Diff diff) {

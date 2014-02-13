@@ -70,7 +70,7 @@ import org.xml.sax.SAXException;
  * Test a DetailedDiff. Extend the test case class for Diff so we can rerun those tests with a DetailedDiff
  * and assert that behaviour has not changed.
  */
-public class DetailedDiffTest extends DiffTestAbstract {
+public class DetailedDiffTest extends AbstractDiffTest {
 
     protected Diff prepareDiff(
             XmlUnitProperties properties,

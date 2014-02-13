@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.google.common.io.Resources;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Convenience enum for test resources.
@@ -34,7 +35,17 @@ public enum TestResources {
     NAMESPACES_TEST("/testNamespaces.xml"),
     INVALID_BOOK("/invalidBook.xml"),
     DETAIL_CONTROL("/controlDetail.xml"),
-    DETAIL_TEST("/testDetail.xml");
+    DETAIL_TEST("/testDetail.xml"),
+    SIMPLE_XML("/simple.xml"),
+    SIMPLE_XML_WITH_DTD("/simpleWithDtd.xml"),
+    SIMPLE_XML_WITH_LONGER_DTD("/simpleWithLongerDtd.xml"),
+    SIMPLE_XML_DTD("/simple.dtd"),
+    SIMPLE_XML_WITH_EXT_DTD("/simpleWithExtDtd.xml"){
+        @Override
+        public String getContents() throws IOException{
+            return String.format(super.getContents(), SIMPLE_XML_DTD.getFile().getAbsolutePath());
+        }
+    };
 
     private String path;
 
@@ -64,6 +75,11 @@ public enum TestResources {
     public File getFile() throws IOException {
         File file = new File(getUri());
         return file;
+    }
+
+    public String getContents() throws IOException {
+        File file = new File(getUri());
+        return FileUtils.readFileToString(file);
     }
 
     public static File getFile(String path) throws IOException {

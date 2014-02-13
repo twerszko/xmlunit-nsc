@@ -56,7 +56,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 
-public class DiffTest extends DiffTestAbstract {
+public class DiffTest extends AbstractDiffTest {
 
     @Test
     public void should_stop_comparison_after_first_difference() throws Exception {

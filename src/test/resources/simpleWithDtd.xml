@@ -1,0 +1,2 @@
+<!DOCTYPE test [<!ELEMENT test (#PCDATA)> <!ATTLIST test a (b|c) "c">]>
+<test a="b">text</test>
