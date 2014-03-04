@@ -57,7 +57,6 @@ import org.xmlunit.diff.ElementSelectors;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -72,11 +71,11 @@ import static org.mockito.Mockito.*;
 
 
 @RunWith(JUnitParamsRunner.class)
-public abstract class AbstractDiffTest {
+public class AbstractDiffTest {
 
     protected XmlUnitProperties properties;
-    private DocumentUtils documentUtils;
     protected DefaultDifferenceEngineFactory engineFactory;
+    private DocumentUtils documentUtils;
 
     @Before
     public void setUp() throws Exception {
@@ -243,43 +242,40 @@ public abstract class AbstractDiffTest {
         assertIdentical(createDiff(ctrl, test));
     }
 
-    /**
-     * Raised by aakture 25.04.2002 Despite the name under which this defect was raised the issue is really
-     * about managing redundant whitespace
-     *
-     * @throws IOException
-     * @throws SAXException
-     */
     @Test
-    public void should_check_whitespace_awareness() throws Exception {
-        XmlUnitProperties properties1 = new XmlUnitProperties();
-        properties1.setIgnoreWhitespace(false);
+    public void should_not_ignore_whitespace_by_default() throws Exception {
+        String ctrl = "<root><child>text</child></root>";
+        String test = "<root>  \n<child> \ntext </child>\t </root>";
 
-        XmlUnitProperties properties2 = new XmlUnitProperties();
-        properties2.setIgnoreWhitespace(true);
-
-        // given
-        String control = "<aakture><node>text</node><node>text2</node></aakture>";
-        String test = "<aakture>  <node>text</node>\t<node>text2</node> \n </aakture>";
-
-        // when
-        Diff whitespaceAwareDiff = prepareDiff(properties1, control, test);
-        Diff whitespaceIgnoredDiff = prepareDiff(properties2, control, test);
-        // then
-        assertDifferent(whitespaceAwareDiff);
-        assertIdentical(whitespaceIgnoredDiff);
+        assertDifferent(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_check_whitespace_awareness_with_comment_handling() throws Exception {
-        properties.setIgnoreComments(true);
-        should_check_whitespace_awareness();
+    public void should_ignore_whitespace_if_configured_so() throws Exception {
+        String ctrl = "<root><child>text</child></root>";
+        String test = "<root>  \n<child> \ntext </child>\t </root>";
+
+        properties.setIgnoreWhitespace(true);
+
+        assertIdentical(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_check_whitespace_awareness_with_normalization() throws Exception {
+    public void normalizing_whitespace_should_have_same_effect_as_ignoring_whitespace() throws Exception {
+        String ctrl = "<root><child>text</child></root>";
+        String test = "<root>  \n<child> \ntext </child>\t </root>";
+
         properties.setNormalizeWhitespace(true);
-        should_check_whitespace_awareness();
+
+        assertIdentical(createDiff(ctrl, test));
+    }
+
+    @Test
+    public void ignoring_comments_should_not_affect_ignoring_whitespace() throws Exception {
+        properties.setIgnoreComments(true);
+
+        should_not_ignore_whitespace_by_default();
+        should_ignore_whitespace_if_configured_so();
     }
 
     // TODO
@@ -603,12 +599,6 @@ public abstract class AbstractDiffTest {
         assertSimilar(diff);
     }
 
-    private abstract class ExaminingExpectedDifferenceListener extends ExpectedDifferenceEvaluator {
-        private ExaminingExpectedDifferenceListener(ComparisonType expectedType) {
-            super(expectedType);
-        }
-    }
-
     // defect raised by Kevin Krouse Jan 2003
     @Test
     public void should_check_XMLNS_number_of_attributes() throws Exception {
@@ -621,47 +611,6 @@ public abstract class AbstractDiffTest {
 
         // then
         assertSimilar(diff);
-    }
-
-    private class OverridingDifferenceEvaluator implements DifferenceEvaluator {
-        private final ComparisonResult overrideValue;
-
-        private OverridingDifferenceEvaluator(ComparisonResult overrideValue) {
-            this.overrideValue = overrideValue;
-        }
-
-        @Override
-        public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
-            return overrideValue;
-        }
-    }
-
-    private class ExpectedDifferenceEvaluator implements DifferenceEvaluator {
-        private final Set<ComparisonType> expectedIds;
-
-        private ExpectedDifferenceEvaluator(ComparisonType expectedType) {
-            this(new ComparisonType[]{expectedType});
-        }
-
-        private ExpectedDifferenceEvaluator(ComparisonType[] expectedIdValues) {
-            this.expectedIds = new HashSet<ComparisonType>(expectedIdValues.length);
-            for (int i = 0; i < expectedIdValues.length; ++i) {
-                expectedIds.add(expectedIdValues[i]);
-            }
-        }
-
-        @Override
-        public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
-            if (outcome == ComparisonResult.EQUAL) {
-                return outcome;
-            }
-            assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
-            examineDifferenceContents(difference);
-            return ComparisonResult.DIFFERENT;
-        }
-
-        protected void examineDifferenceContents(Comparison comparison) {
-        }
     }
 
     @Test
@@ -1396,5 +1345,52 @@ public abstract class AbstractDiffTest {
     protected void assertIdentical(Diff diff) {
         assertThat(diff.similar()).as("Should be similar").isTrue();
         assertThat(diff.identical()).as("Should be identical").isTrue();
+    }
+
+    private abstract class ExaminingExpectedDifferenceListener extends ExpectedDifferenceEvaluator {
+        private ExaminingExpectedDifferenceListener(ComparisonType expectedType) {
+            super(expectedType);
+        }
+    }
+
+    private class OverridingDifferenceEvaluator implements DifferenceEvaluator {
+        private final ComparisonResult overrideValue;
+
+        private OverridingDifferenceEvaluator(ComparisonResult overrideValue) {
+            this.overrideValue = overrideValue;
+        }
+
+        @Override
+        public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
+            return overrideValue;
+        }
+    }
+
+    private class ExpectedDifferenceEvaluator implements DifferenceEvaluator {
+        private final Set<ComparisonType> expectedIds;
+
+        private ExpectedDifferenceEvaluator(ComparisonType expectedType) {
+            this(new ComparisonType[]{expectedType});
+        }
+
+        private ExpectedDifferenceEvaluator(ComparisonType[] expectedIdValues) {
+            this.expectedIds = new HashSet<ComparisonType>(expectedIdValues.length);
+            for (int i = 0; i < expectedIdValues.length; ++i) {
+                expectedIds.add(expectedIdValues[i]);
+            }
+        }
+
+        @Override
+        public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
+            if (outcome == ComparisonResult.EQUAL) {
+                return outcome;
+            }
+            assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
+            examineDifferenceContents(difference);
+            return ComparisonResult.DIFFERENT;
+        }
+
+        protected void examineDifferenceContents(Comparison comparison) {
+        }
     }
 }
