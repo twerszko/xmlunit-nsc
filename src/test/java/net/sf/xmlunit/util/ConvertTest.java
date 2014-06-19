@@ -14,9 +14,7 @@
 package net.sf.xmlunit.util;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.FileInputStream;
 
@@ -27,13 +25,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.TestResources;
-
 import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
+import org.xmlunit.TestResources;
 
 public class ConvertTest {
 

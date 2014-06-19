@@ -17,12 +17,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.TestResources;
-
 import org.junit.Test;
-import org.xmlunit.validation.Language;
-import org.xmlunit.validation.ParsingValidator;
-import org.xmlunit.validation.ValidationResult;
+import org.xmlunit.TestResources;
 
 public class ParsingValidatorTest {
 

@@ -1,18 +1,15 @@
 package net.sf.xmlunit.diff;
 
-import static net.sf.xmlunit.TestResources.BOOK_DTD;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.xmlunit.TestResources.BOOK_DTD;
 
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.NullNode;
 import net.sf.xmlunit.util.Convert;
 
 import org.custommonkey.xmlunit.XMLConstants;
@@ -20,18 +17,10 @@ import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Attr;
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Comment;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.ProcessingInstruction;
-import org.w3c.dom.Text;
-import org.xmlunit.builder.Input;
+import org.w3c.dom.*;
+import org.xmlunit.NullNode;
 import org.xmlunit.diff.ElementSelectors;
+import org.xmlunit.transform.Input;
 
 public abstract class DifferenceEngineTestAbstract {
     protected XmlUnitProperties properties;

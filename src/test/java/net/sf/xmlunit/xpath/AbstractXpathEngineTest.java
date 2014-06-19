@@ -21,9 +21,6 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.TestResources;
-import net.sf.xmlunit.util.IterableNodeList;
-
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -32,7 +29,9 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.xmlunit.builder.Input;
+import org.xmlunit.TestResources;
+import org.xmlunit.transform.Input;
+import org.xmlunit.util.IterableNodeList;
 
 public abstract class AbstractXpathEngineTest {
 

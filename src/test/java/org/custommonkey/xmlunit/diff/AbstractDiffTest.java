@@ -36,10 +36,24 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.diff;
 
+import static org.custommonkey.xmlunit.diff.Diff.newDiff;
+import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.*;
+
 import org.custommonkey.xmlunit.ElementNameAndAttributeSelector;
 import org.custommonkey.xmlunit.XMLConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
@@ -53,23 +67,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xmlunit.TestResources;
 import org.xmlunit.diff.ElementSelectors;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.custommonkey.xmlunit.diff.Diff.newDiff;
-import static org.custommonkey.xmlunit.diff.Diffs.prepareDiff;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 
 @RunWith(JUnitParamsRunner.class)
 public abstract class AbstractDiffTest {
@@ -96,7 +95,7 @@ public abstract class AbstractDiffTest {
 
     @SuppressWarnings("unused")
     private Object[] getXmlPairs() {
-        return new Object[][]{
+        return new Object[][] {
                 {
                         "<test/>",
                         "<fail/>"
@@ -244,9 +243,9 @@ public abstract class AbstractDiffTest {
     }
 
     /**
-     * Raised by aakture 25.04.2002 Despite the name under which this defect was raised the issue is really
-     * about managing redundant whitespace
-     *
+     * Raised by aakture 25.04.2002 Despite the name under which this defect was
+     * raised the issue is really about managing redundant whitespace
+     * 
      * @throws IOException
      * @throws SAXException
      */
@@ -286,7 +285,7 @@ public abstract class AbstractDiffTest {
 
     /**
      * Raised 15.05.2002
-     *
+     * 
      * @throws IOException
      * @throws SAXException
      */
@@ -311,7 +310,7 @@ public abstract class AbstractDiffTest {
 
     /**
      * Raised 16.05.2002
-     *
+     * 
      * @throws IOException
      * @throws SAXException
      */
@@ -558,7 +557,7 @@ public abstract class AbstractDiffTest {
                         "</root>";
 
         ExpectedDifferenceEvaluator evaluator = new ExpectedDifferenceEvaluator(
-                new ComparisonType[]{
+                new ComparisonType[] {
                         ComparisonType.NAMESPACE_PREFIX,
                         ComparisonType.CHILD_NODELIST_SEQUENCE
                 });
@@ -640,7 +639,7 @@ public abstract class AbstractDiffTest {
         private final Set<ComparisonType> expectedIds;
 
         private ExpectedDifferenceEvaluator(ComparisonType expectedType) {
-            this(new ComparisonType[]{expectedType});
+            this(new ComparisonType[] { expectedType });
         }
 
         private ExpectedDifferenceEvaluator(ComparisonType[] expectedIdValues) {
@@ -829,10 +828,11 @@ public abstract class AbstractDiffTest {
     }
 
     /**
-     * inspired by {@link http
-     * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html Erik von Oosten's Weblog},
-     * made us implement special handling of schemaLocation.
-     *
+     * inspired by {@link http 
+     * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html
+     * Erik von Oosten's Weblog}, made us implement special handling of
+     * schemaLocation.
+     * 
      * @throws IOException
      * @throws SAXException
      */
@@ -861,11 +861,12 @@ public abstract class AbstractDiffTest {
 
     /**
      * Bug Report 1779701
-     *
+     * 
      * @throws IOException
      * @throws SAXException
-     * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
-     * amp;group_id=23187&amp;atid=377768
+     * @see http
+     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
+     *      amp;group_id=23187&amp;atid=377768
      */
     @Test
     public void should_be_identical_when_namespaces_present_and_whitespaces_ignored() throws Exception {
@@ -890,11 +891,12 @@ public abstract class AbstractDiffTest {
 
     /**
      * Bug Report 1863632
-     *
+     * 
      * @throws IOException
      * @throws SAXException
-     * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
-     * amp;group_id=23187&amp;atid=377768
+     * @see http
+     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
+     *      amp;group_id=23187&amp;atid=377768
      */
     @Test
     public void should_be_identical_when_whitespaces_ignored() throws Exception {
@@ -1089,8 +1091,9 @@ public abstract class AbstractDiffTest {
     }
 
     /**
-     * Not a real test. Need something that actually fails unless I set the flag.
-     *
+     * Not a real test. Need something that actually fails unless I set the
+     * flag.
+     * 
      * @throws IOException
      * @throws SAXException
      */
@@ -1110,7 +1113,9 @@ public abstract class AbstractDiffTest {
     }
 
     /**
-     * @see https ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187 &atid=377768
+     * @see https 
+     *      ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187
+     *      &atid=377768
      */
     @Test
     public void should_check_issue_2807167() throws Exception {

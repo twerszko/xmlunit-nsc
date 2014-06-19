@@ -11,21 +11,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.input;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
-import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.Nodes;
+package org.xmlunit.util;
 
 /**
- * A source that is obtained from a different source by removing all empty text
- * nodes and trimming the non-empty ones.
+ * A function that tests an object for a property.
  */
-public class WhitespaceStrippedSource extends DOMSource {
-
-    public WhitespaceStrippedSource(Source originalSource) {
-        super(Nodes.stripWhitespace(Convert.toDocument(originalSource)));
-        setSystemId(originalSource.getSystemId());
-    }
+public interface Predicate<T> {
+    boolean matches(T toTest);
 }

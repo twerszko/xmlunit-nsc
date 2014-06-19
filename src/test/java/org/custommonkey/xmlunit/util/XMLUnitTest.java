@@ -88,7 +88,7 @@ public class XMLUnitTest {
         assertThat(builderBefore).isNotSameAs(builderAfter);
     }
 
-    // TODO more casses of loading different document builder factories
+    // TODO more casses of loading different document internal factories
 
     @Test
     public void testIgnoreWhitespace() throws Exception {

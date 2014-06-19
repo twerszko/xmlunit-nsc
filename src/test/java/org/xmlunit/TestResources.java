@@ -1,4 +1,4 @@
-package net.sf.xmlunit;
+package org.xmlunit;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,8 +6,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
+
+import com.google.common.io.Resources;
 
 /**
  * Convenience enum for test resources.
@@ -58,8 +59,7 @@ public enum TestResources {
     }
 
     public URL getUrl() throws IOException {
-        URL resourceUrl = Resources.getResource(TestResources.class, this.getPath());
-        return resourceUrl;
+        return Resources.getResource(TestResources.class, this.getPath());
     }
 
     public URI getUri() throws IOException {
@@ -73,8 +73,7 @@ public enum TestResources {
     }
 
     public File getFile() throws IOException {
-        File file = new File(getUri());
-        return file;
+        return new File(getUri());
     }
 
     public String getContents() throws IOException {

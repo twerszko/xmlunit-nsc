@@ -25,19 +25,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.xmlunit.input.CommentLessSource;
-import net.sf.xmlunit.input.WhitespaceNormalizedSource;
-import net.sf.xmlunit.input.WhitespaceStrippedSource;
-import net.sf.xmlunit.util.Preconditions;
 import net.sf.xmlunit.xpath.JaxpXpathEngine;
 import net.sf.xmlunit.xpath.SimpleXpathEngine;
 import net.sf.xmlunit.xpath.XpathEngine;
@@ -50,6 +42,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlunit.input.CommentLessSource;
+import org.xmlunit.input.WhitespaceNormalizedSource;
+import org.xmlunit.input.WhitespaceStrippedSource;
+import org.xmlunit.util.Preconditions;
 
 /**
  * Class containing convenience methods related to DOM

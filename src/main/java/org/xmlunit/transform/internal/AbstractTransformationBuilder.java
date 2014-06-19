@@ -11,12 +11,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.xmlunit.builder;
+package org.xmlunit.transform.internal;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
-import net.sf.xmlunit.transform.Transformation;
+
+import org.xmlunit.transform.Transformation;
 
 /**
  * Base class providing the common logic of the XSLT related builders.
@@ -29,7 +30,7 @@ import net.sf.xmlunit.transform.Transformation;
  * I wish there was a way to say <code>implements B</code>.
  * </p>
  */
-abstract class AbstractTransformationBuilder<B extends TransformationBuilderBase<B>>
+public abstract class AbstractTransformationBuilder<B extends TransformationBuilderBase<B>>
         implements TransformationBuilderBase<B> {
 
     private final Transformation helper;

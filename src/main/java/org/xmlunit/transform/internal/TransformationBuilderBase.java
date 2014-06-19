@@ -11,17 +11,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.xmlunit.builder;
+package org.xmlunit.transform.internal;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
 /**
- * Holds the common builder methods for XSLT related builders.
+ * Holds the common internal methods for XSLT related builders.
  * 
  * <p>
- * <code>B</code> is the derived builder interface.
+ * <code>B</code> is the derived internal interface.
  * </p>
  */
 public interface TransformationBuilderBase<B extends TransformationBuilderBase<B>> {

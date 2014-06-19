@@ -20,10 +20,10 @@ import net.sf.xmlunit.diff.providers.ComparisonProviders;
 import net.sf.xmlunit.diff.providers.DOMComparator;
 import net.sf.xmlunit.diff.providers.ElementComparisonProvider;
 import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.Preconditions;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Node;
+import org.xmlunit.util.Preconditions;
 
 /**
  * Difference engine based on DOM.

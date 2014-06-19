@@ -17,9 +17,8 @@ import java.util.Map;
 
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.util.IterableNodeList;
-
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.xmlunit.util.IterableNodeList;
 
 /**
  * Interface for XMLUnit's XPath abstraction.

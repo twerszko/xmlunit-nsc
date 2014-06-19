@@ -15,18 +15,17 @@ package net.sf.xmlunit.diff;
 
 import java.util.List;
 
-import net.sf.xmlunit.util.Pair;
-
 import org.w3c.dom.Node;
+import org.xmlunit.util.Pair;
 
 /**
  * Strategy that matches control and tests nodes for comparison.
  */
 public interface NodeMatcher {
 
-	/**
-	 * Matches control and test nodes against each other, returns the matching
-	 * pairs.
-	 */
-	List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes);
+    /**
+     * Matches control and test nodes against each other, returns the matching
+     * pairs.
+     */
+    List<Pair<Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes);
 }

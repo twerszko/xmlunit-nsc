@@ -23,10 +23,9 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import net.sf.xmlunit.util.Linqy;
-
 import org.junit.Test;
 import org.w3c.dom.Node;
+import org.xmlunit.util.Linqy;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

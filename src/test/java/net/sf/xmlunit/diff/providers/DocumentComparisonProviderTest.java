@@ -21,79 +21,78 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
-import net.sf.xmlunit.diff.providers.DocumentComparisonProvider;
 import net.sf.xmlunit.util.Convert;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.xmlunit.builder.Input;
+import org.xmlunit.transform.Input;
 
 public class DocumentComparisonProviderTest {
-	@Test
-	public void should_detect_different_xml_version() throws Exception {
-		// given
-		Document control = Convert.toDocument(
-		        Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
-		Document test = Convert.toDocument(
-		        Input.fromMemory("<?xml version=\"1.1\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
+    @Test
+    public void should_detect_different_xml_version() throws Exception {
+        // given
+        Document control = Convert.toDocument(
+                Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
+        Document test = Convert.toDocument(
+                Input.fromMemory("<?xml version=\"1.1\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
 
-		// when
-		List<Comparison> differences = findHeaderDifferences(control, test);
+        // when
+        List<Comparison> differences = findHeaderDifferences(control, test);
 
-		// then
-		assertThat(differences).hasSize(1);
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.XML_VERSION);
-		assertThat(difference.getControlDetails().getValue()).isEqualTo("1.0");
-		assertThat(difference.getTestDetails().getValue()).isEqualTo("1.1");
-	}
+        // then
+        assertThat(differences).hasSize(1);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.XML_VERSION);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo("1.0");
+        assertThat(difference.getTestDetails().getValue()).isEqualTo("1.1");
+    }
 
-	@Test
-	public void should_detect_different_standalone() throws Exception {
-		// given
-		Document control = Convert.toDocument(
-		        Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"yes\"?>" + "<Book/>").build());
-		Document test = Convert.toDocument(
-		        Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"no\"?>" + "<Book/>").build());
+    @Test
+    public void should_detect_different_standalone() throws Exception {
+        // given
+        Document control = Convert.toDocument(
+                Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"yes\"?>" + "<Book/>").build());
+        Document test = Convert.toDocument(
+                Input.fromMemory("<?xml version=\"1.0\"" + " standalone=\"no\"?>" + "<Book/>").build());
 
-		// when
-		List<Comparison> differences = findHeaderDifferences(control, test);
+        // when
+        List<Comparison> differences = findHeaderDifferences(control, test);
 
-		// then
-		assertThat(differences).hasSize(1);
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.XML_STANDALONE);
-		assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
-		assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
-	}
+        // then
+        assertThat(differences).hasSize(1);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.XML_STANDALONE);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo(true);
+        assertThat(difference.getTestDetails().getValue()).isEqualTo(false);
+    }
 
-	@Test
-	public void should_detect_different_encoding() throws Exception {
-		// given
-		Document control = Convert.toDocument(
-		        Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
-		Document test = Convert.toDocument(
-		        Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-16\"?>" + "<Book/>").build());
+    @Test
+    public void should_detect_different_encoding() throws Exception {
+        // given
+        Document control = Convert.toDocument(
+                Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-8\"?>" + "<Book/>").build());
+        Document test = Convert.toDocument(
+                Input.fromMemory("<?xml version=\"1.0\"" + " encoding=\"UTF-16\"?>" + "<Book/>").build());
 
-		// when
-		List<Comparison> differences = findHeaderDifferences(control, test);
+        // when
+        List<Comparison> differences = findHeaderDifferences(control, test);
 
-		// then
-		assertThat(differences).hasSize(1);
-		Comparison difference = differences.get(0);
-		assertThat(difference.getType()).isEqualTo(ComparisonType.XML_ENCODING);
-		assertThat(difference.getControlDetails().getValue()).isEqualTo("UTF-8");
-		assertThat(difference.getTestDetails().getValue()).isEqualTo("UTF-16");
-	}
+        // then
+        assertThat(differences).hasSize(1);
+        Comparison difference = differences.get(0);
+        assertThat(difference.getType()).isEqualTo(ComparisonType.XML_ENCODING);
+        assertThat(difference.getControlDetails().getValue()).isEqualTo("UTF-8");
+        assertThat(difference.getTestDetails().getValue()).isEqualTo("UTF-16");
+    }
 
-	private List<Comparison> findHeaderDifferences(Document controlDoc, Document testDoc) {
-		ListingComparator comparator = new ListingComparator();
+    private List<Comparison> findHeaderDifferences(Document controlDoc, Document testDoc) {
+        ListingComparator comparator = new ListingComparator();
 
-		NodeAndXpath<Document> control = NodeAndXpath.from(controlDoc);
-		NodeAndXpath<Document> test = NodeAndXpath.from(testDoc);
-		Comparisons comparisons = new DocumentComparisonProvider().provideComparisons(control, test);
-		comparator.executeComparisons(comparisons);
+        NodeAndXpath<Document> control = NodeAndXpath.from(controlDoc);
+        NodeAndXpath<Document> test = NodeAndXpath.from(testDoc);
+        Comparisons comparisons = new DocumentComparisonProvider().provideComparisons(control, test);
+        comparator.executeComparisons(comparisons);
 
-		return comparator.getDifferences();
-	}
+        return comparator.getDifferences();
+    }
 }

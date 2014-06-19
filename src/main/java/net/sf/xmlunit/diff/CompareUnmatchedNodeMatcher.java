@@ -18,11 +18,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.xmlunit.util.Linqy;
-import net.sf.xmlunit.util.Pair;
-import net.sf.xmlunit.util.Predicate;
-
 import org.w3c.dom.Node;
+import org.xmlunit.util.Linqy;
+import org.xmlunit.util.Pair;
+import org.xmlunit.util.Predicate;
 
 public class CompareUnmatchedNodeMatcher implements NodeMatcher {
     private final NodeMatcher matcher;

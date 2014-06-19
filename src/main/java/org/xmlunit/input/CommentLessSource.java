@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.input;
+package org.xmlunit.input;
 
 import java.io.StringReader;
 
@@ -19,8 +19,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.transform.Transformation;
-import net.sf.xmlunit.util.Preconditions;
+import org.xmlunit.transform.Transformation;
+import org.xmlunit.util.Preconditions;
 
 /**
  * A source that is obtained from a different source by stripping all comments.

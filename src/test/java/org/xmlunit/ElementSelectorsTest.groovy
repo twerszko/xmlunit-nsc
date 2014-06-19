@@ -11,17 +11,13 @@
  */
 package org.xmlunit
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertTrue
-
-import javax.xml.namespace.QName
-import javax.xml.parsers.DocumentBuilderFactory
-
 import org.w3c.dom.Document
 import org.xmlunit.diff.ElementSelector
 import org.xmlunit.diff.ElementSelectors
-
 import spock.lang.Specification
+
+import javax.xml.namespace.QName
+import javax.xml.parsers.DocumentBuilderFactory
 
 class ElementSelectorsTest extends Specification {
     private static final String FOO = "foo"
@@ -35,20 +31,21 @@ class ElementSelectorsTest extends Specification {
     }
 
     def void "selectors should be able to compare simple nodes"() {
-        expect: correctlyClassifiesSimpleNodes(selector)
+        expect:
+        correctlyClassifiesSimpleNodes(selector)
 
         where:
         selector << [
-            ElementSelectors.byName,
-            ElementSelectors.byNameAndText,
-            ElementSelectors.byNameAndTextRec,
-            ElementSelectors.byNameAndAllAttributes,
-            ElementSelectors.byNameAndAttributes([] as String[]),
-            ElementSelectors.byNameAndAttributes([] as QName[]),
-            ElementSelectors.byNameAndAttributes(BAR),
-            ElementSelectors.byNameAndAttributes(new QName(SOME_URI, BAR)),
-            ElementSelectors.byNameAndAttributesControlNS(),
-            ElementSelectors.byNameAndAttributesControlNS(BAR)
+                ElementSelectors.byName,
+                ElementSelectors.byNameAndText,
+                ElementSelectors.byNameAndTextRec,
+                ElementSelectors.byNameAndAllAttributes,
+                ElementSelectors.byNameAndAttributes([] as String[]),
+                ElementSelectors.byNameAndAttributes([] as QName[]),
+                ElementSelectors.byNameAndAttributes(BAR),
+                ElementSelectors.byNameAndAttributes(new QName(SOME_URI, BAR)),
+                ElementSelectors.byNameAndAttributesControlNS(),
+                ElementSelectors.byNameAndAttributesControlNS(BAR)
         ]
     }
 
@@ -69,12 +66,13 @@ class ElementSelectorsTest extends Specification {
     }
 
     def "by name selectors should be able to recognize text child nodes"() {
-        expect: correctlyRecognizesTextChildren(selector)
+        expect:
+        correctlyRecognizesTextChildren(selector)
 
         where:
         selector << [
-            ElementSelectors.byNameAndText,
-            ElementSelectors.byNameAndTextRec
+                ElementSelectors.byNameAndText,
+                ElementSelectors.byNameAndTextRec
         ]
     }
 
@@ -109,12 +107,13 @@ class ElementSelectorsTest extends Specification {
         def equal = document.createElement(FOO)
         equal.appendChild(document.createTextNode(FOO + BAR))
 
-        expect: selector.canBeCompared(control, equal) == true
+        expect:
+        selector.canBeCompared(control, equal) == true
 
         where:
         selector << [
-            ElementSelectors.byNameAndText,
-            ElementSelectors.byNameAndTextRec
+                ElementSelectors.byNameAndText,
+                ElementSelectors.byNameAndTextRec
         ]
     }
 

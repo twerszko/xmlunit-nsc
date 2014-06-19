@@ -21,13 +21,9 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.CDATASection;
+import org.w3c.dom.*;
 import org.w3c.dom.CharacterData;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.ProcessingInstruction;
-import org.w3c.dom.Text;
+import org.xmlunit.util.IterableNodeList;
 
 /**
  * Utility algorithms that work on DOM nodes.

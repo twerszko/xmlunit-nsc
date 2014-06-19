@@ -16,10 +16,9 @@ package net.sf.xmlunit.xpath;
 
 import javax.xml.transform.TransformerException;
 
-import net.sf.xmlunit.util.Preconditions;
-
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
+import org.xmlunit.util.Preconditions;
 
 /**
  * This object is a simple wrapper that holds xpath string and a document

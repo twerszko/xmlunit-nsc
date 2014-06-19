@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.xmlunit.builder;
+package org.xmlunit.transform;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -25,13 +25,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.util.Convert;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.xmlunit.builder.Input;
+import org.xmlunit.TestResources;
 
 import com.google.common.io.Closeables;
 
@@ -212,7 +211,6 @@ public class InputTest {
 
     private static Document parseDocument(Source s) throws Exception {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = builder.parse(Convert.toInputSource(s));
-        return document;
+        return builder.parse(Convert.toInputSource(s));
     }
 }

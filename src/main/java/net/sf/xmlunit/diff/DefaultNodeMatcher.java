@@ -18,13 +18,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sf.xmlunit.util.Linqy;
-import net.sf.xmlunit.util.Pair;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlunit.diff.ElementSelector;
 import org.xmlunit.diff.ElementSelectors;
+import org.xmlunit.util.Linqy;
+import org.xmlunit.util.Pair;
 
 /**
  * Strategy that matches control and tests nodes for comparison.

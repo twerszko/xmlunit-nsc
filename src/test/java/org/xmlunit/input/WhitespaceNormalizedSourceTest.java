@@ -1,9 +1,10 @@
-package net.sf.xmlunit.input;
+package org.xmlunit.input;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.io.StringReader;
 
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.xmlunit.util.Convert;
@@ -22,8 +23,7 @@ public class WhitespaceNormalizedSourceTest {
     @Test
     public void should_normalize_whitespace() throws Exception {
         // given
-        StreamSource s =
-                new StreamSource(new StringReader(XML_WITH_WHITESPACE));
+        Source s = new StreamSource(new StringReader(XML_WITH_WHITESPACE));
 
         // when
         WhitespaceNormalizedSource wns = new WhitespaceNormalizedSource(s);
@@ -37,8 +37,7 @@ public class WhitespaceNormalizedSourceTest {
     @Test
     public void should_not_modify_source_when_not_whitespace_to_be_normalized() throws Exception {
         // given
-        StreamSource s =
-                new StreamSource(new StringReader(XML_WITHOUT_WHITESPACE));
+        Source s = new StreamSource(new StringReader(XML_WITHOUT_WHITESPACE));
 
         // when
         WhitespaceNormalizedSource wns = new WhitespaceNormalizedSource(s);

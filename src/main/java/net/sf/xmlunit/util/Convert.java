@@ -15,19 +15,13 @@ package net.sf.xmlunit.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
@@ -68,9 +62,9 @@ public final class Convert {
                 is = SAXSource.sourceToInputSource(s);
             }
             return is;
-        } catch (javax.xml.transform.TransformerConfigurationException e) {
+        } catch (TransformerConfigurationException e) {
             throw new ConfigurationException(e);
-        } catch (javax.xml.transform.TransformerException e) {
+        } catch (TransformerException e) {
             throw new XMLUnitRuntimeException(e);
         }
     }
@@ -88,8 +82,11 @@ public final class Convert {
      */
     public static Document toDocument(Source s) {
         Document d = tryExtractDocFromDOMSource(s);
-        return d != null ? d
-                : toDocument(s, DocumentBuilderFactory.newInstance());
+        if (d == null) {
+            return toDocument(s, DocumentBuilderFactory.newInstance());
+        } else {
+            return d;
+        }
     }
 
     /**
@@ -103,8 +100,7 @@ public final class Convert {
      * toInputSource.
      * </p>
      */
-    public static Document toDocument(Source s,
-            DocumentBuilderFactory factory) {
+    public static Document toDocument(Source s, DocumentBuilderFactory factory) {
         Document d = tryExtractDocFromDOMSource(s);
         if (d == null) {
             InputSource is = toInputSource(s);
@@ -140,8 +136,7 @@ public final class Convert {
     private static Document tryExtractDocFromDOMSource(Source s) {
         Node n = tryExtractNodeFromDOMSource(s);
         if (n != null && n instanceof Document) {
-            Document d = (Document) n;
-            return d;
+            return (Document) n;
         }
         return null;
     }
@@ -206,7 +201,7 @@ public final class Convert {
 
             public String getPrefix(String uri) {
                 Iterator<String> i = getPrefixes(uri);
-                return i.hasNext() ? (String) i.next() : null;
+                return i.hasNext() ? i.next() : null;
             }
 
             public Iterator<String> getPrefixes(String uri) {

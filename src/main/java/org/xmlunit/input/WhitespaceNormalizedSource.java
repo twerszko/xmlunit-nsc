@@ -11,10 +11,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.input;
+package org.xmlunit.input;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+
 import net.sf.xmlunit.util.Convert;
 import net.sf.xmlunit.util.Nodes;
 

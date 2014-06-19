@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
+import org.xmlunit.util.Pair;
 
 public class PairTest {
     @Test

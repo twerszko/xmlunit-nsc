@@ -11,12 +11,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.xmlunit.builder;
+package org.xmlunit.transform;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import net.sf.xmlunit.transform.Transformation;
+
 import org.w3c.dom.Document;
+import org.xmlunit.transform.internal.AbstractTransformationBuilder;
+import org.xmlunit.transform.internal.TransformationBuilderBase;
 
 /**
  * Fluent API access to {@link Transformation}.

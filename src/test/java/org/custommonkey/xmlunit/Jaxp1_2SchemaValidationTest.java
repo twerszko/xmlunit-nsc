@@ -48,10 +48,9 @@ import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.TestResources;
-
 import org.junit.Test;
 import org.xml.sax.InputSource;
+import org.xmlunit.TestResources;
 
 //TODO refactor
 public class Jaxp1_2SchemaValidationTest {

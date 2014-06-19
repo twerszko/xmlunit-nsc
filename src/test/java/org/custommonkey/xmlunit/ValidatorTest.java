@@ -36,25 +36,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.invalidXml;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.invalidXmlSource;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.invalidXmlString;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.validXml;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.validXmlSource;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.validXmlString;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
-
-import net.sf.xmlunit.TestResources;
+import java.io.*;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
@@ -62,6 +49,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xmlunit.TestResources;
 
 /**
  * JUnit test for Validator Also includes tests for XMLTestCase
