@@ -17,7 +17,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.Nodes;
+
+import org.xmlunit.util.Nodes;
 
 /**
  * A source that is obtained from a different source by removing all empty text

@@ -11,24 +11,27 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.util;
+package org.xmlunit.util;
+
+import static javax.xml.XMLConstants.DEFAULT_NS_PREFIX;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.*;
 import org.w3c.dom.CharacterData;
-import org.xmlunit.util.IterableNodeList;
 
 /**
  * Utility algorithms that work on DOM nodes.
  */
 public final class Nodes {
+
+    private static final char SPACE = ' ';
+
     private Nodes() {
     }
 
@@ -38,10 +41,14 @@ public final class Nodes {
     public static QName getQName(Node n) {
         String s = n.getLocalName();
         String p = n.getPrefix();
-        return s != null
-                ? new QName(n.getNamespaceURI(), s,
-                        p != null ? p : XMLConstants.DEFAULT_NS_PREFIX)
-                : new QName(n.getNodeName());
+        if (s == null)
+            return new QName(n.getNodeName());
+        else {
+            if (p == null)
+                return new QName(n.getNamespaceURI(), s, DEFAULT_NS_PREFIX);
+            else
+                return new QName(n.getNamespaceURI(), s, p);
+        }
     }
 
     /**
@@ -53,7 +60,7 @@ public final class Nodes {
     public static String getMergedNestedText(Node n) {
         StringBuilder sb = new StringBuilder();
         for (Node child : new IterableNodeList(n.getChildNodes())) {
-            if (child instanceof Text || child instanceof CDATASection) {
+            if (child instanceof CDATASection || child instanceof Text) {
                 String s = child.getNodeValue();
                 if (s != null) {
                     sb.append(s);
@@ -66,13 +73,12 @@ public final class Nodes {
     /**
      * Obtains an element's attributes as Map.
      */
-    public static Map<QName, String> getAttributes(Node n) {
+    public static Map<QName, String> getAttributes(Node node) {
         Map<QName, String> map = new LinkedHashMap<QName, String>();
-        NamedNodeMap m = n.getAttributes();
-        if (m != null) {
-            final int len = m.getLength();
-            for (int i = 0; i < len; i++) {
-                Attr a = (Attr) m.item(i);
+        NamedNodeMap attributes = node.getAttributes();
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); i++) {
+                Attr a = (Attr) attributes.item(i);
                 map.put(getQName(a), a.getValue());
             }
         }
@@ -81,7 +87,7 @@ public final class Nodes {
 
     /**
      * Creates a new Node (of the same type as the original node) that is
-     * similar to the orginal but doesn't contain any empty text or CDATA nodes
+     * similar to the original but doesn't contain any empty text or CDATA nodes
      * and where all textual content including attribute values or comments are
      * trimmed.
      */
@@ -94,7 +100,7 @@ public final class Nodes {
 
     /**
      * Creates a new Node (of the same type as the original node) that is
-     * similar to the orginal but doesn't contain any empty text or CDATA nodes
+     * similar to the original but doesn't contain any empty text or CDATA nodes
      * and where all textual content including attribute values or comments are
      * trimmed and normalized.
      * 
@@ -129,7 +135,7 @@ public final class Nodes {
         for (Node child : new IterableNodeList(n.getChildNodes())) {
             handleWsRec(child, normalize);
             if (!(n instanceof Attr)
-                    && (child instanceof Text || child instanceof CDATASection)
+                    && (child instanceof CDATASection || child instanceof Text)
                     && child.getNodeValue().length() == 0) {
                 toRemove.add(child);
             }
@@ -139,14 +145,11 @@ public final class Nodes {
         }
         NamedNodeMap attrs = n.getAttributes();
         if (attrs != null) {
-            final int len = attrs.getLength();
-            for (int i = 0; i < len; i++) {
+            for (int i = 0; i < attrs.getLength(); i++) {
                 handleWsRec(attrs.item(i), normalize);
             }
         }
     }
-
-    private static final char SPACE = ' ';
 
     /**
      * Normalize a string.
@@ -160,15 +163,14 @@ public final class Nodes {
         StringBuilder sb = new StringBuilder();
         boolean changed = false;
         boolean lastCharWasWS = false;
-        final int len = s.length();
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (Character.isWhitespace(c)) {
-                if (!lastCharWasWS) {
+                if (lastCharWasWS) {
+                    changed = true;
+                } else {
                     sb.append(SPACE);
                     changed |= (c != SPACE);
-                } else {
-                    changed = true;
                 }
                 lastCharWasWS = true;
             } else {

@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.diff.providers;
+package org.xmlunit.diff.providers;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
