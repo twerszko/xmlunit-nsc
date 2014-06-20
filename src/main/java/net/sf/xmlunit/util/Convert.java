@@ -15,12 +15,14 @@ package net.sf.xmlunit.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
@@ -32,6 +34,7 @@ import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Conversion methods.
@@ -114,7 +117,7 @@ public final class Convert {
                     factory.setNamespaceAware(true);
                 }
                 b = factory.newDocumentBuilder();
-            } catch (javax.xml.parsers.ParserConfigurationException e) {
+            } catch (ParserConfigurationException e) {
                 throw new ConfigurationException(e);
             } finally {
                 if (!oldNsAware) {
@@ -124,9 +127,9 @@ public final class Convert {
 
             try {
                 d = b.parse(is);
-            } catch (org.xml.sax.SAXException e) {
+            } catch (SAXException e) {
                 throw new XMLUnitRuntimeException(e);
-            } catch (java.io.IOException e) {
+            } catch (IOException e) {
                 throw new XMLUnitRuntimeException(e);
             }
         }

@@ -43,9 +43,7 @@ import org.w3c.dom.Node;
  * Perform Node-by-Node validation of a DOM Document. Nodes are supplied to
  * <code>testNode</code> method by a NodeTest instance, and after all the nodes
  * in the NodeTest have been supplied the <code>noMoreNodes</code> method is
- * called. <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * called.
  * 
  * @see NodeTest
  */
