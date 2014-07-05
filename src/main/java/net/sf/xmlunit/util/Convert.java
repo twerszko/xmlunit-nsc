@@ -22,6 +22,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
@@ -116,7 +117,7 @@ public final class Convert {
                     factory.setNamespaceAware(true);
                 }
                 b = factory.newDocumentBuilder();
-            } catch (javax.xml.parsers.ParserConfigurationException e) {
+            } catch (ParserConfigurationException e) {
                 throw new ConfigurationException(e);
             } finally {
                 if (!oldNsAware) {

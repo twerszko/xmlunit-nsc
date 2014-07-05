@@ -52,6 +52,7 @@
 				<configuration>
 					<includes>
 						<include>**/*Test.*</include>
+						<include>**/test_*.*</include>
 					</includes>
 					<systemPropertyVariables>
 						<log4j.configuration>file:${project.build.testOutputDirectory}/log4j.surefire.properties</log4j.configuration>

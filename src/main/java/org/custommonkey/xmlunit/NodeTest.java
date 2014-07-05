@@ -53,10 +53,8 @@ import org.xml.sax.SAXException;
 /**
  * Encapsulation of the Node-by-Node testing of a DOM Document Uses a
  * nodetype-specific <code>NodeFilter</code> to pass the DOM Nodes to a
- * NodeTester instance that performs the acual Node validation. <br />
- * Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.
- * sourceforge.net</a>
- * 
+ * NodeTester instance that performs the actual Node validation. <br />
+ *
  * @see NodeTester
  */
 public class NodeTest {
@@ -138,8 +136,7 @@ public class NodeTest {
      * @exception NodeTestException
      *                if test fails
      */
-    public void performTest(NodeTester tester, short singleNodeType)
-            throws NodeTestException {
+    public void performTest(NodeTester tester, short singleNodeType) throws NodeTestException {
         performTest(tester, new short[] { singleNodeType });
     }
 
@@ -202,13 +199,10 @@ public class NodeTest {
 
         /**
          * Does this instance accept nodes with the node type value
-         * 
-         * @param shortVal
-         * @return
          */
         private boolean acceptNodeType(short shortVal) {
-            for (int i = 0; i < nodeTypes.length; ++i) {
-                if (nodeTypes[i] == shortVal) {
+            for (short nodeType : nodeTypes) {
+                if (nodeType == shortVal) {
                     return true;
                 }
             }
