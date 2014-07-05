@@ -24,8 +24,13 @@ import net.sf.xmlunit.diff.XPathContext;
 import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
 import org.xmlunit.util.IterableNodeList;
 import org.xmlunit.util.Linqy;
 import org.xmlunit.util.Pair;

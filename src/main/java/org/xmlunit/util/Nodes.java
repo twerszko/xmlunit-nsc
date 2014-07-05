@@ -22,8 +22,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
 
 /**
  * Utility algorithms that work on DOM nodes.
@@ -170,7 +175,7 @@ public final class Nodes {
                     changed = true;
                 } else {
                     sb.append(SPACE);
-                    changed |= (c != SPACE);
+                    changed |= c != SPACE;
                 }
                 lastCharWasWS = true;
             } else {

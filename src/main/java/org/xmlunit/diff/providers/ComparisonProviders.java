@@ -3,8 +3,13 @@ package org.xmlunit.diff.providers;
 import net.sf.xmlunit.diff.DefaultNodeMatcher;
 import net.sf.xmlunit.diff.NodeMatcher;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
 
 public class ComparisonProviders {
     private ComparisonProvider<Attr> attrComparisonProvider;

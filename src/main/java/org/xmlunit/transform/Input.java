@@ -13,7 +13,13 @@
  */
 package org.xmlunit.transform;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -198,9 +204,8 @@ public class Input {
     public static Builder fromURI(String uri) {
         try {
             return fromURI(new URI(uri));
-        } catch (java.net.URISyntaxException ex) {
-            throw new IllegalArgumentException("uri " + uri + " is not an URI",
-                    ex);
+        } catch (URISyntaxException ex) {
+            throw new IllegalArgumentException("uri " + uri + " is not an URI", ex);
         }
     }
 
