@@ -8,6 +8,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.xpath.XPathFactory;
 
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.xmlunit.NamespaceContext;
 
 public class XmlUnitBuilder {
     private final XmlUnitProperties properties;

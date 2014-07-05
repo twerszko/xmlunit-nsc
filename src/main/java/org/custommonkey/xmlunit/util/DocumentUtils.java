@@ -25,7 +25,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
@@ -37,7 +41,7 @@ import net.sf.xmlunit.xpath.XpathEngine;
 import org.custommonkey.xmlunit.Validator;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.jaxp13.XmlUnitNamespaceContext2Jaxp13;
+import org.custommonkey.xmlunit.jaxp13.NamespaceContext2Jaxp13;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -308,7 +312,7 @@ public class DocumentUtils {
         }
         if (properties.getXpathNamespaceContext() != null) {
             // TODO
-            eng.setNamespaceContext(XmlUnitNamespaceContext2Jaxp13.turnIntoMap(properties.getXpathNamespaceContext()));
+            eng.setNamespaceContext(NamespaceContext2Jaxp13.convertToMap(properties.getXpathNamespaceContext()));
         }
         return eng;
     }

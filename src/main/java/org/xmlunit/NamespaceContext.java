@@ -34,49 +34,33 @@ POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************
  */
 
-package org.custommonkey.xmlunit;
+package org.xmlunit;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-
-import org.xmlunit.NamespaceContext;
 
 /**
- * Implementation of NamespaceContext that's backed by a map.
+ * Interface used by XpathEngine in order to map prefixes to namespace URIs.
+ * 
+ * <p>
+ * This is modelled after javax.xml.namespace.NamespaceContext but reduced to
+ * our needs.
+ * </p>
  */
-// TODO remove it
-public class SimpleNamespaceContext implements NamespaceContext {
-    /* prefix -> NS URI */
-    private final Map<String, String> prefixMap;
-
+public interface NamespaceContext {
     /**
-     * An empty context containing no prefixes at all.
-     */
-    public static final SimpleNamespaceContext EMPTY_CONTEXT =
-            new SimpleNamespaceContext(Collections.<String, String> emptyMap());
-
-    /**
-     * Creates a NamespaceContext backed by the given map.
+     * Obtain the URI for a given prefix.
      * 
      * <p>
-     * Copies the map, changes made to the given map after calling the
-     * constructor are not reflected into the NamespaceContext.
+     * Unlike the method in javax.xml.namespace.NamespaceContext doesn't have to
+     * implement any special handling for predefined prefix values.
      * </p>
      * 
-     * @param prefixMap
-     *            maps prefix to Namespace URI
+     * @return null if the prefix is unknown.
      */
-    public SimpleNamespaceContext(Map<String, String> prefixMap) {
-        this.prefixMap = new HashMap<String, String>(prefixMap);
-    }
+    String getNamespaceURI(String prefix);
 
-    public String getNamespaceURI(String prefix) {
-        return prefixMap.get(prefix);
-    }
-
-    public Iterator<String> getPrefixes() {
-        return prefixMap.keySet().iterator();
-    }
+    /**
+     * Get all prefixes of this context.
+     */
+    Iterator<String> getPrefixes();
 }
