@@ -37,11 +37,11 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Node;
+import org.xmlunit.transform.TransformerFactoryUtils;
 
 /**
  * Simple serialization class that uses a NodeInputStream (and hence a
@@ -63,10 +63,8 @@ public class SimpleSerializer {
     }
 
     /**
-     * Set an output property for the serialied form
+     * Set an output property for the serialized form
      * 
-     * @param name
-     * @param value
      * @see javax.xml.transform.OutputKeys
      */
     public void setOutputProperty(String name, String value) {
@@ -76,30 +74,24 @@ public class SimpleSerializer {
     /**
      * Serialize a Node to a String with default String encoding
      * 
-     * @param domNode
      * @return full String representation of Node
      * @throws IOException
-     * @throws UnsupportedEncodingException
      */
-    public String serialize(Node domNode)
-            throws IOException, UnsupportedEncodingException {
+    public String serialize(Node domNode) throws IOException {
         return serialize(domNode, null);
     }
 
     /**
      * Serialize a Node to a String with specific String encoding
      * 
-     * @param domNode
      * @return full String representation of Node
      * @throws IOException
-     * @throws UnsupportedEncodingException
      */
-    public String serialize(Node domNode, String encoding)
-            throws IOException, UnsupportedEncodingException {
-
-        NodeInputStream nodeStream = new NodeInputStream(domNode, outputProperties, properties);
-        String string = IOUtils.toString(nodeStream, encoding);
-
-        return string;
+    public String serialize(Node domNode, String encoding) throws IOException {
+        TransformerFactoryUtils utils = new TransformerFactoryUtils();
+        utils.setUriResolver(properties.getUriResolver());
+        utils.setTransformerFactoryClass(properties.getTransformerFactoryClass());
+        NodeInputStream nodeStream = new NodeInputStream(domNode, outputProperties, utils);
+        return IOUtils.toString(nodeStream, encoding);
     }
 }

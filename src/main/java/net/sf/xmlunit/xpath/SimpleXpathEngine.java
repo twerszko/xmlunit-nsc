@@ -49,8 +49,6 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.util.XsltUtils;
-
 import org.custommonkey.xmlunit.XSLTConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
@@ -58,6 +56,7 @@ import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xmlunit.transform.TransformerFactoryUtils;
 import org.xmlunit.util.IterableNodeList;
 
 /**
@@ -159,11 +158,11 @@ public class SimpleXpathEngine implements XpathEngine {
             StreamSource xsltSource = new StreamSource(new StringReader(xslt));
 
             // TODO
-            XsltUtils xsltUtils = new XsltUtils();
-            xsltUtils.setUriResolver(properties.getUriResolver());
-            xsltUtils.setTransformerFactoryClass(properties.getTransformerFactoryClass());
+            TransformerFactoryUtils transformerFactoryUtils = new TransformerFactoryUtils();
+            transformerFactoryUtils.setUriResolver(properties.getUriResolver());
+            transformerFactoryUtils.setTransformerFactoryClass(properties.getTransformerFactoryClass());
 
-            TransformerFactory tf = xsltUtils.newTransformerFactory();
+            TransformerFactory tf = transformerFactoryUtils.newTransformerFactory();
             ErrorListener el = new ErrorListener() {
                 @Override
                 public void error(TransformerException ex) throws TransformerException {

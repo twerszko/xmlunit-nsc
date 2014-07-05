@@ -41,18 +41,19 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
-
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xmlunit.transform.TransformerFactoryUtils;
 import org.xmlunit.validation.Language;
 import org.xmlunit.validation.ParsingValidator;
 import org.xmlunit.validation.ValidationProblem;
@@ -89,10 +90,6 @@ public class Validator extends DefaultHandler {
 
     /**
      * Baseline constructor: called by all others
-     * 
-     * @param inputSource
-     * @param systemId
-     * @param usingDoctypeReader
      */
     protected Validator(InputSource inputSource,
             String systemId,
@@ -110,21 +107,20 @@ public class Validator extends DefaultHandler {
      * as DOM level 2 does not allow creation of Doctype nodes. The supplied
      * systemId and doctype name will replace any Doctype settings in the
      * Document.
-     * 
-     * @param document
-     * @param systemID
-     * @param doctype
      */
     public Validator(Document document, String systemID, String doctype, XmlUnitProperties properties) {
-        this(new InputStreamReader(new NodeInputStream(document, properties)),
+        this(new InputStreamReader(new NodeInputStream(
+                document,
+                null,
+                new TransformerFactoryUtils(
+                        properties.getUriResolver(),
+                        properties.getTransformerFactoryClass()))),
                 systemID, doctype);
     }
 
     /**
      * Basic constructor. Validates the contents of the Reader using the DTD or
      * schema referenced by those contents.
-     * 
-     * @param readerForValidation
      */
     public Validator(Reader readerForValidation) {
         this(readerForValidation, null);
@@ -133,8 +129,6 @@ public class Validator extends DefaultHandler {
     /**
      * Basic constructor. Validates the contents of the String using the DTD or
      * schema referenced by those contents.
-     * 
-     * @param stringForValidation
      */
     public Validator(String stringForValidation) {
         this(new StringReader(stringForValidation));
@@ -143,8 +137,6 @@ public class Validator extends DefaultHandler {
     /**
      * Basic constructor. Validates the contents of the InputSource using the
      * DTD or schema referenced by those contents.
-     * 
-     * @param readerForValidation
      */
     public Validator(InputSource sourceForValidation) {
         this(sourceForValidation, null);
@@ -156,9 +148,6 @@ public class Validator extends DefaultHandler {
      * markup that references the DTD or else the markup will be considered
      * invalid: if there is no DOCTYPE in the markup use the 3-argument
      * constructor
-     * 
-     * @param readerForValidation
-     * @param systemID
      */
     public Validator(Reader readerForValidation, String systemID) {
         this(new InputSource(readerForValidation), systemID,
@@ -171,9 +160,6 @@ public class Validator extends DefaultHandler {
      * markup that references the DTD or else the markup will be considered
      * invalid: if there is no DOCTYPE in the markup use the 3-argument
      * constructor
-     * 
-     * @param stringForValidation
-     * @param systemID
      */
     public Validator(String stringForValidation, String systemID) {
         this(new StringReader(stringForValidation), systemID);
@@ -185,9 +171,6 @@ public class Validator extends DefaultHandler {
      * markup that references the DTD or else the markup will be considered
      * invalid: if there is no DOCTYPE in the markup use the 3-argument
      * constructor
-     * 
-     * @param sourceForValidation
-     * @param systemID
      */
     public Validator(InputSource sourceForValidation, String systemID) {
         this(sourceForValidation, systemID, false);
@@ -196,10 +179,6 @@ public class Validator extends DefaultHandler {
     /**
      * Full constructor. Validates the contents of the InputSource using the DTD
      * specified with the systemID and named with the doctype name.
-     * 
-     * @param sourceForValidation
-     * @param systemID
-     * @param doctype
      */
     public Validator(InputSource sourceForValidation, String systemID,
             String doctype) {
@@ -218,10 +197,6 @@ public class Validator extends DefaultHandler {
     /**
      * Full constructor. Validates the contents of the Reader using the DTD
      * specified with the systemID and named with the doctype name.
-     * 
-     * @param readerForValidation
-     * @param systemID
-     * @param doctype
      */
     public Validator(Reader readerForValidation, String systemID,
             String doctype) {
@@ -270,8 +245,6 @@ public class Validator extends DefaultHandler {
 
     /**
      * Append any validation message(s) to the specified StringBuffer.
-     * 
-     * @param toAppendTo
      * @return specified StringBuffer with message(s) appended
      */
     private StringBuffer appendMessage(StringBuffer toAppendTo) {
@@ -305,9 +278,7 @@ public class Validator extends DefaultHandler {
             schemaSourceList.add(new StreamSource(systemId));
         }
         if (schemaSources != null) {
-            for (Source schemaSource : schemaSources) {
-                schemaSourceList.add(schemaSource);
-            }
+            Collections.addAll(schemaSourceList, schemaSources);
         }
         v.setSchemaSources(schemaSourceList.toArray(new Source[schemaSourceList.size()]));
 
@@ -339,8 +310,6 @@ public class Validator extends DefaultHandler {
     /**
      * Set the validation status flag to false and capture the message for use
      * later.
-     * 
-     * @param message
      */
     private void invalidate(String message) {
         isValid = false;

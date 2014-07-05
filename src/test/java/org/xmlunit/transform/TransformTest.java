@@ -22,8 +22,6 @@ import java.io.FileReader;
 
 import javax.xml.transform.*;
 
-import net.sf.xmlunit.util.XsltUtils;
-
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.diff.Diff;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
@@ -256,7 +254,7 @@ public class TransformTest {
         stylesheet.setSystemId(systemId);
         source.setSystemId(systemId);
 
-        TransformerFactory factory = new XsltUtils().newTransformerFactory();
+        TransformerFactory factory = new TransformerFactoryUtils().newTransformerFactory();
 
         // when
         URIResolver mockedResolver = mock(URIResolver.class);

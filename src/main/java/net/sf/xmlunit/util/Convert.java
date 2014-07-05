@@ -15,6 +15,7 @@ package net.sf.xmlunit.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 import javax.xml.XMLConstants;
@@ -32,6 +33,7 @@ import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Conversion methods.
@@ -124,9 +126,9 @@ public final class Convert {
 
             try {
                 d = b.parse(is);
-            } catch (org.xml.sax.SAXException e) {
+            } catch (SAXException e) {
                 throw new XMLUnitRuntimeException(e);
-            } catch (java.io.IOException e) {
+            } catch (IOException e) {
                 throw new XMLUnitRuntimeException(e);
             }
         }

@@ -11,7 +11,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package net.sf.xmlunit.util;
+package org.xmlunit.transform;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -19,17 +19,17 @@ import javax.xml.transform.TransformerFactory;
 
 import org.junit.Test;
 
-public class XsltUtilsTest {
+public class TransformerFactoryUtilsTest {
     @Test
     public void should_create_two_separate_transformer_factories() throws Exception {
         // given
-        XsltUtils xsltUtils = new XsltUtils();
-        TransformerFactory factoryBefore = xsltUtils.newTransformerFactory();
+        TransformerFactoryUtils transformerFactoryUtils = new TransformerFactoryUtils();
+        TransformerFactory factoryBefore = transformerFactoryUtils.newTransformerFactory();
         Class<? extends TransformerFactory> factoryClass = factoryBefore.getClass();
 
         // when
-        xsltUtils.setTransformerFactoryClass(factoryClass);
-        TransformerFactory factoryAfter = xsltUtils.newTransformerFactory();
+        transformerFactoryUtils.setTransformerFactoryClass(factoryClass);
+        TransformerFactory factoryAfter = transformerFactoryUtils.newTransformerFactory();
 
         // then
         assertThat(factoryBefore).isNotSameAs(factoryAfter);

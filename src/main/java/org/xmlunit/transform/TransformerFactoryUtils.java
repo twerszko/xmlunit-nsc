@@ -1,15 +1,20 @@
-package net.sf.xmlunit.util;
+package org.xmlunit.transform;
 
 import javax.annotation.Nullable;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
-public class XsltUtils {
-    @Nullable
+public class TransformerFactoryUtils {
     private URIResolver uriResolver;
-
-    @Nullable
     private Class<? extends TransformerFactory> transformerFactoryClass;
+
+    public TransformerFactoryUtils() {
+    }
+
+    public TransformerFactoryUtils(URIResolver uriResolver, Class<? extends TransformerFactory> transformerFactoryClass) {
+        this.uriResolver = uriResolver;
+        this.transformerFactoryClass = transformerFactoryClass;
+    }
 
     public void setUriResolver(@Nullable URIResolver uriResolver) {
         this.uriResolver = uriResolver;
