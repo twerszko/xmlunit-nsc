@@ -16,8 +16,7 @@ package org.xmlunit.input;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.util.Convert;
-
+import org.xmlunit.util.Convert;
 import org.xmlunit.util.Nodes;
 
 /**

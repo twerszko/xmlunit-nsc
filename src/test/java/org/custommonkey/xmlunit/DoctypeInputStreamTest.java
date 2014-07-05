@@ -49,8 +49,7 @@ public class DoctypeInputStreamTest extends DoctypeTestAbstract {
     private static final String ISO_8859_1 = "ISO-8859-1";
 
     private InputStream stringToInputStream(String content) throws IOException {
-        InputStream is = new ByteArrayInputStream(content.getBytes(ISO_8859_1));
-        return is;
+        return new ByteArrayInputStream(content.getBytes(ISO_8859_1));
     }
 
     @Override

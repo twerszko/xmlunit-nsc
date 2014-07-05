@@ -93,7 +93,7 @@ public class XPathContext {
         }
 
         for (NodeInfo child : children) {
-            Level l = null;
+            Level l;
             switch (child.getType()) {
             case Node.COMMENT_NODE:
                 l = new Level(COMMENT + OPEN + (++comments) + CLOSE);
@@ -145,8 +145,8 @@ public class XPathContext {
      */
     private static int add1OrIncrement(String name, Map<String, Integer> map) {
         Integer old = map.get(name);
-        int index = old == null ? 1 : (old.intValue() + 1);
-        map.put(name, Integer.valueOf(index));
+        int index = old == null ? 1 : (old + 1);
+        map.put(name, index);
         return index;
     }
 

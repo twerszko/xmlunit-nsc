@@ -141,7 +141,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the control DocumentBuilder to
      * parse the specified String.
      * 
-     * @param fromXML
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -154,7 +153,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the control DocumentBuilder and
      * the specified InputSource
      * 
-     * @param fromSource
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -167,7 +165,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the test DocumentBuilder to
      * parse the specified String.
      * 
-     * @param fromXML
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -180,7 +177,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the test DocumentBuilder and the
      * specified InputSource
      * 
-     * @param fromSource
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -194,8 +190,6 @@ public class DocumentUtils {
      * Utility method to build a Document using a specific DocumentBuilder and
      * reading characters from a specific Reader.
      * 
-     * @param withBuilder
-     * @param fromReader
      * @return Document built
      * @throws SAXException
      * @throws IOException
@@ -209,8 +203,6 @@ public class DocumentUtils {
      * Utility method to build a Document using a specific DocumentBuilder and a
      * specific InputSource
      * 
-     * @param withBuilder
-     * @param fromSource
      * @return Document built
      * @throws SAXException
      * @throws IOException
@@ -301,7 +293,7 @@ public class DocumentUtils {
      * Obtains an XpathEngine to use in XPath tests.
      */
     public XpathEngine newXpathEngine() {
-        XpathEngine eng = null;
+        XpathEngine eng;
         try {
             Class.forName("javax.xml.xpath.XPath");
             eng = new JaxpXpathEngine(newXpathFactory());
@@ -338,8 +330,6 @@ public class DocumentUtils {
     /**
      * Converts document into string
      * 
-     * @param document
-     * @return
      * @throws TransformerException
      *             when transformation fails
      * @throws IllegalArgumentException

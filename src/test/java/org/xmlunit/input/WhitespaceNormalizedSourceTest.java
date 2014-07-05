@@ -7,11 +7,10 @@ import java.io.StringReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.util.Convert;
-
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xmlunit.util.Convert;
 
 public class WhitespaceNormalizedSourceTest {
     private static final String XML_WITH_WHITESPACE =

@@ -13,7 +13,6 @@
  */
 package org.xmlunit.util
 
-import net.sf.xmlunit.util.Convert
 import org.w3c.dom.*
 import org.xmlunit.transform.Input
 import spock.lang.Specification

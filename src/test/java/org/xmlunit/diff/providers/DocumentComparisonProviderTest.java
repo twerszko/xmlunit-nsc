@@ -21,11 +21,11 @@ import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.internal.Comparisons;
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
-import net.sf.xmlunit.util.Convert;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xmlunit.transform.Input;
+import org.xmlunit.util.Convert;
 
 public class DocumentComparisonProviderTest {
     @Test

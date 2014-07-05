@@ -25,12 +25,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.util.Convert;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xmlunit.TestResources;
+import org.xmlunit.util.Convert;
 
 import com.google.common.io.Closeables;
 

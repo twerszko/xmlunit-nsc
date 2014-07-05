@@ -10,8 +10,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 
-import net.sf.xmlunit.util.Convert;
-
 import org.custommonkey.xmlunit.XMLConstants;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
@@ -21,6 +19,7 @@ import org.w3c.dom.*;
 import org.xmlunit.NullNode;
 import org.xmlunit.diff.ElementSelectors;
 import org.xmlunit.transform.Input;
+import org.xmlunit.util.Convert;
 
 public abstract class DifferenceEngineTestAbstract {
     protected XmlUnitProperties properties;

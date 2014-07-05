@@ -20,12 +20,11 @@ import java.io.StringReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.util.Convert;
-
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlunit.util.Convert;
 
 public class CommentLessSourceTest {
 
