@@ -88,7 +88,7 @@ public class AbstractDiffTest {
         String ctrl = "<root><test>text1</test></root>";
         String test = "<root><test>text2</test></root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class AbstractDiffTest {
         String ctrl = "<control><test>test1</test><test>test2</test></control>";
         String test = "<control><test>test2</test><test>text1</test></control>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class AbstractDiffTest {
         String ctrl = "<control><test></test></control>";
         String test = "<control><test>text</test></control>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -112,14 +112,14 @@ public class AbstractDiffTest {
         String ctrl = TestResources.BLAME_FILE.getContents();
         String test = TestResources.BLAME_FILE.getContents();
 
-        assertIdentical(createDiff(ctrl, test));
+        assertIdentical(ctrl, test);
     }
 
     @Test
     public void should_be_identical_when_doc_is_compared_to_itself() throws Exception {
         String doc = "<root a=\"b\">text</root>";
 
-        assertIdentical(createDiff(doc, doc));
+        assertIdentical(doc, doc);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AbstractDiffTest {
         String ctrl = "<root></root>";
         String test = "<root><node/></root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class AbstractDiffTest {
         String ctrl = "<root><node/></root>";
         String test = "<root></root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class AbstractDiffTest {
         String ctrl = "<root><child1/><child2/></root>";
         String test = "<root><child2/><child1/></root>";
 
-        assertSimilar(createDiff(ctrl, test));
+        assertSimilar(ctrl, test);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class AbstractDiffTest {
         String ctrl = "<root>text</root>";
         String test = "<root a=\"b\">text</root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class AbstractDiffTest {
         String ctrl = "<root a=\"b\">text</root>";
         String test = "<root>text</root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -167,7 +167,7 @@ public class AbstractDiffTest {
         String ctrl = "<root a=\"b\" c=\"d\">text</root>";
         String test = "<root c=\"d\" a=\"b\">text</root>";
 
-        assertIdentical(createDiff(ctrl, test));
+        assertIdentical(ctrl, test);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class AbstractDiffTest {
         String ctrl = "<root a=\"b\">text</root>";
         String test = "<root a=\"c\">text</root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class AbstractDiffTest {
         String ctrl = TestResources.SIMPLE_XML.getContents();
         String test = TestResources.SIMPLE_XML_WITH_DTD.getContents();
 
-        assertSimilar(createDiff(ctrl, test));
+        assertSimilar(ctrl, test);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class AbstractDiffTest {
         String ctrl = TestResources.SIMPLE_XML_WITH_DTD.getContents();
         String test = TestResources.SIMPLE_XML_WITH_EXT_DTD.getContents();
 
-        assertSimilar(createDiff(ctrl, test));
+        assertSimilar(ctrl, test);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class AbstractDiffTest {
         String ctrl = TestResources.SIMPLE_XML_WITH_DTD.getContents();
         String test = TestResources.SIMPLE_XML_WITH_LONGER_DTD.getContents();
 
-        assertIdentical(createDiff(ctrl, test));
+        assertIdentical(ctrl, test);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class AbstractDiffTest {
         String ctrl = "<root><child>text</child></root>";
         String test = "<root>  \n<child> \ntext </child>\t </root>";
 
-        assertDifferent(createDiff(ctrl, test));
+        assertDifferent(ctrl, test);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class AbstractDiffTest {
 
         properties.setIgnoreWhitespace(true);
 
-        assertIdentical(createDiff(ctrl, test));
+        assertIdentical(ctrl, test);
     }
 
     @Test
@@ -227,7 +227,7 @@ public class AbstractDiffTest {
 
         properties.setNormalizeWhitespace(true);
 
-        assertIdentical(createDiff(ctrl, test));
+        assertIdentical(ctrl, test);
     }
 
     @Test
@@ -243,7 +243,7 @@ public class AbstractDiffTest {
         String ctrl = "<ns1:root xmlns:ns1=\"http://yada.com\"><ns1:child/></ns1:root>";
         String test = "<ns2:root xmlns:ns2=\"http://yada.com\"><ns2:child/></ns2:root>";
 
-        assertSimilar(createDiff(ctrl, test));
+        assertSimilar(ctrl, test);
     }
 
     @Test
@@ -251,15 +251,15 @@ public class AbstractDiffTest {
         String ctrl = "<ns1:root xmlns:ns1=\"http://yada.com\"><ns1:child/></ns1:root>";
         String test = "<root xmlns=\"http://yada.com\"><child/></root>";
 
-        assertSimilar(createDiff(ctrl, test));
+        assertSimilar(ctrl, test);
     }
 
     @Test
     public void should_be_similar_when_fully_named_element_order_differs() throws Exception {
-        String ctrl = "<ns1:root xmlns:ns1=\"http://yada.com\" xmlns:ns2=\"http://yada.com\"><ns1:child/><ns2:child/></ns1:root>";
-        String test = "<ns1:root xmlns:ns1=\"http://yada.com\" xmlns:ns2=\"http://yada.com\"><ns2:child/><ns1:child/></ns1:root>";
+        String ctrl = "<ns1:root xmlns:ns1=\"foo\" xmlns:ns2=\"bar\"><ns1:child/><ns2:child/></ns1:root>";
+        String test = "<ns1:root xmlns:ns1=\"foo\" xmlns:ns2=\"bar\"><ns2:child/><ns1:child/></ns1:root>";
 
-        assertSimilar(createDiff(ctrl, test));
+        assertSimilar(ctrl, test);
     }
 
     @Test
@@ -1230,6 +1230,18 @@ public class AbstractDiffTest {
 
     private Diff createDiff(String ctrl, String test) throws BuilderException {
         return newDiff(properties).betweenControlDocument(ctrl).andTestDocument(test).build();
+    }
+
+    private void assertDifferent(String ctrl, String test) throws BuilderException {
+        assertDifferent(createDiff(ctrl, test));
+    }
+
+    private void assertSimilar(String ctrl, String test) throws BuilderException {
+        assertSimilar(createDiff(ctrl, test));
+    }
+
+    private void assertIdentical(String ctrl, String test) throws BuilderException {
+        assertIdentical(createDiff(ctrl, test));
     }
 
     protected void assertDifferent(Diff diff) {
