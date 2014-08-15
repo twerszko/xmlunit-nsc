@@ -263,75 +263,13 @@ public class AbstractDiffTest {
     }
 
     @Test
-    public void should_always_be_equal_with_overriden_evaluator() throws Exception {
-        // given
-        String control =
-                "<vehicles>" +
-                        "<car colour=\"white\">ford fiesta</car>" +
-                        "<car colour=\"red\">citroen xsara</car>" +
-                        "</vehicles>";
-
-        String test =
-                "<vehicles>" +
-                        "<car colour=\"white\">nissan primera</car>" +
-                        "<car colour=\"blue\">peugot 206</car></vehicles>";
+    public void should_use_provided_evaluator() throws Exception {
+        String ctrl = "<root></root>";
+        String test = "<root><node/></root>";
 
         engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.EQUAL));
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
-
-        // then
-        assertIdentical(diff);
-    }
-
-    @Test
-    public void should_always_be_similar_with_overriden_evaluator() throws Exception {
-        // given
-        String control =
-                "<vehicles>" +
-                        "<car colour=\"white\">ford fiesta</car>" +
-                        "<car colour=\"red\">citroen xsara</car>" +
-                        "</vehicles>";
-
-        String test =
-                "<vehicles>" +
-                        "<car colour=\"white\">nissan primera</car>" +
-                        "<car colour=\"blue\">peugot 206</car></vehicles>";
-
-        engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.SIMILAR));
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
-
-        // then
-        assertSimilar(diff);
-    }
-
-    @Test
-    public void should_always_be_different_with_overriden_evaluator() throws Exception {
-        // given
-        String control =
-                "<vehicles>" +
-                        "<car colour=\"white\">ford fiesta</car>" +
-                        "<car colour=\"red\">citroen xsara</car>" +
-                        "</vehicles>";
-
-        String test =
-                "<vehicles>" +
-                        "<car colour=\"white\">nissan primera</car>" +
-                        "<car colour=\"blue\">peugot 206</car></vehicles>";
-
-        engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.DIFFERENT));
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
-
-        // then
-        assertDifferent(diff);
+        assertIdentical(ctrl, test);
     }
 
     @Test
