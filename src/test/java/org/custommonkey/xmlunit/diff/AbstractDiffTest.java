@@ -84,53 +84,6 @@ public class AbstractDiffTest {
         engineFactory = new DefaultDifferenceEngineFactory(properties);
     }
 
-    // TODO split this into well named test cases
-    @Test
-    @Parameters(method = "getXmlPairs")
-    public void similar_should_be_false_when_xmls_are_different(String control, String test)
-            throws Exception {
-        // when
-        assertDifferent(createDiff(control, test));
-    }
-
-    @SuppressWarnings("unused")
-    private Object[] getXmlPairs() {
-        return new Object[][]{
-                {
-                        "<test/>",
-                        "<fail/>"
-                },
-                {
-                        "<test></test>",
-                        "<fail/>"
-                },
-                {
-                        "<test>test</test>",
-                        "<fail>test</fail>"
-                },
-                {
-                        "<test/>",
-                        "<fail/>"
-                },
-                {
-                        "<test>test</test>",
-                        "<test>fail</test>"
-                },
-                {
-                        "<test test=\"test\"/>",
-                        "<test test=\"fail\"/>"
-                },
-                {
-                        "<test test=\"test\"><test>test<test>test</test></test></test>",
-                        "<test test=\"fail\"><test>test<test>test</test></test></test>"
-                },
-                {
-                        "<java></java>",
-                        "<java><package-def><ident>org</ident><dot/><ident>apache</ident><dot/><ident>test</ident></package-def></java>"
-                }
-        };
-    }
-
     @Test
     public void should_be_different_when_text_node_values_differ() throws Exception {
         String ctrl = "<root><test>text1</test></root>";
@@ -219,6 +172,14 @@ public class AbstractDiffTest {
     }
 
     @Test
+    public void should_be_different_when_attribute_value_differs() throws Exception {
+        String ctrl = "<root a=\"b\">text</root>";
+        String test = "<root a=\"c\">text</root>";
+
+        assertDifferent(createDiff(ctrl, test));
+    }
+
+    @Test
     public void should_be_similar_when_dtd_is_added() throws Exception {
         String ctrl = TestResources.SIMPLE_XML.getContents();
         String test = TestResources.SIMPLE_XML_WITH_DTD.getContents();
@@ -278,98 +239,28 @@ public class AbstractDiffTest {
         should_ignore_whitespace_if_configured_so();
     }
 
-    // TODO
-
-    /**
-     * Raised 15.05.2002
-     *
-     * @throws IOException
-     * @throws SAXException
-     */
     @Test
-    public void should_be_similar_with_different_namespaces() throws Exception {
-        // given
-        String control =
-                "<control:abc xmlns:control=\"http://yada.com\">" +
-                        "<control:xyz>text</control:xyz></control:abc>";
+    public void should_be_similar_when_only_namespace_name_differs() throws Exception {
+        String ctrl = "<ns1:root xmlns:ns1=\"http://yada.com\"><ns1:child/></ns1:root>";
+        String test = "<ns2:root xmlns:ns2=\"http://yada.com\"><ns2:child/></ns2:root>";
 
-        String test =
-                "<test:abc xmlns:test=\"http://yada.com\">" +
-                        "<test:xyz>text</test:xyz></test:abc>";
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        Diff reverseDiff = prepareDiff(properties, test, control);
-
-        assertSimilar(diff);
-        assertSimilar(reverseDiff);
-    }
-
-    /**
-     * Raised 16.05.2002
-     *
-     * @throws IOException
-     * @throws SAXException
-     */
-    @Test
-    public void should_be_similar_with_default_namespace() throws Exception {
-        // given
-        String control =
-                "<control:abc xmlns:control=\"http://yada.com\">" +
-                        "<control:xyz>text</control:xyz></control:abc>";
-
-        String test =
-                "<abc xmlns=\"http://yada.com\">" +
-                        "<xyz>text</xyz></abc>";
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        Diff reverseDiff = prepareDiff(properties, test, control);
-
-        assertSimilar(diff);
-        assertSimilar(reverseDiff);
+        assertSimilar(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_be_similar_with_the_same_name_and_different_QName() throws Exception {
-        // given
-        String control =
-                "<ns1:root xmlns:ns1=\"http://example.org/ns1\" xmlns:ns2=\"http://example.org/ns2\">" +
-                        "<ns1:branch>In namespace 1</ns1:branch>" +
-                        "<ns2:branch>In namespace 2</ns2:branch>" +
-                        "</ns1:root>";
+    public void should_be_similar_when_namespace_prefix_is_omitted() throws Exception {
+        String ctrl = "<ns1:root xmlns:ns1=\"http://yada.com\"><ns1:child/></ns1:root>";
+        String test = "<root xmlns=\"http://yada.com\"><child/></root>";
 
-        String test = "<ns1:root xmlns:ns1=\"http://example.org/ns1\" xmlns:ns2=\"http://example.org/ns2\">" +
-                "<ns2:branch>In namespace 2</ns2:branch>" +
-                "<ns1:branch>In namespace 1</ns1:branch>" +
-                "</ns1:root>";
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        Diff reverseDiff = prepareDiff(properties, test, control);
-
-        assertSimilar(diff);
-        assertSimilar(reverseDiff);
+        assertSimilar(createDiff(ctrl, test));
     }
 
     @Test
-    public void should_be_different_when_different_nodes() throws Exception {
-        // given
-        String control =
-                "<vehicles>" +
-                        "<car colour=\"white\">ford fiesta</car>" +
-                        "<car colour=\"red\">citroen xsara</car>" +
-                        "</vehicles>";
+    public void should_be_similar_when_fully_named_element_order_differs() throws Exception {
+        String ctrl = "<ns1:root xmlns:ns1=\"http://yada.com\" xmlns:ns2=\"http://yada.com\"><ns1:child/><ns2:child/></ns1:root>";
+        String test = "<ns1:root xmlns:ns1=\"http://yada.com\" xmlns:ns2=\"http://yada.com\"><ns2:child/><ns1:child/></ns1:root>";
 
-        String test =
-                "<vehicles>" +
-                        "<car colour=\"white\">nissan primera</car>" +
-                        "<car colour=\"blue\">peugot 206</car></vehicles>";
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        // then
-        assertDifferent(diff);
+        assertSimilar(createDiff(ctrl, test));
     }
 
     @Test
@@ -842,7 +733,7 @@ public class AbstractDiffTest {
      *
      * @throws IOException
      * @throws SAXException
-     * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
+     * @see http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
      * amp;group_id=23187&amp;atid=377768
      */
     @Test
