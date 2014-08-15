@@ -22,14 +22,10 @@ import java.io.IOException;
 
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.xmlunit.TestResources;
-
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.junit.Before;
 import org.junit.Test;
-import org.xmlunit.validation.JAXPValidator;
-import org.xmlunit.validation.Language;
-import org.xmlunit.validation.ValidationResult;
+import org.xmlunit.TestResources;
 
 public class JAXPValidatorTest {
 

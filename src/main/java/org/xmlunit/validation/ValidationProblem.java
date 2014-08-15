@@ -21,7 +21,7 @@ import org.xml.sax.SAXParseException;
 public class ValidationProblem {
     public static enum ProblemType {
         ERROR, WARNING
-    };
+    }
 
     public static final int UNKNOWN = -1;
 

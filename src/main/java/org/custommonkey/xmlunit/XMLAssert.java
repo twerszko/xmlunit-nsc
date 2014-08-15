@@ -1133,9 +1133,9 @@
 //        }
 //    }
 //
-//    private Document asXpathResultDocument(final DocumentBuilder builder,
+//    private Document asXpathResultDocument(final DocumentBuilder internal,
 //            final NodeList nodes) {
-//        final Document d = builder.newDocument();
+//        final Document d = internal.newDocument();
 //        final Element root = d.createElement("xpathResult");
 //        d.appendChild(root);
 //        final int length = nodes.getLength();

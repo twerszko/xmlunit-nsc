@@ -13,7 +13,7 @@
  */
 package net.sf.xmlunit.diff;
 
-import net.sf.xmlunit.util.Preconditions;
+import org.xmlunit.util.Preconditions;
 
 public abstract class ObservableDifferenceEngine implements DifferenceEngine {
     private final ComparisonListenerSupport listeners = new ComparisonListenerSupport();

@@ -38,17 +38,15 @@ package org.custommonkey.xmlunit;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Adapts the marked-up content in a source InputStream to specify that it
  * conforms to a different DTD. Combines InputStream semantics with the ability
  * to specify a target doctype for a byte stream containing XML markup. Used by
- * Validator class to wrap an InputStrea, when performing validation of a
+ * Validator class to wrap an InputStream, when performing validation of a
  * document against a DTD. <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class DoctypeInputStream extends InputStream {
 

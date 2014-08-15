@@ -24,15 +24,14 @@ import javax.xml.transform.dom.DOMSource;
 
 import net.sf.xmlunit.diff.DefaultDifferenceEngineFactory;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
-import net.sf.xmlunit.util.Preconditions;
 
 import org.custommonkey.xmlunit.XmlUnitProperties;
-import org.custommonkey.xmlunit.builder.Builder;
 import org.custommonkey.xmlunit.builder.BuilderException;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import org.xmlunit.builder.Input;
+import org.xmlunit.transform.Input;
+import org.xmlunit.util.Preconditions;
 
 public class DiffBuilder {
     final DocumentUtils documentUtils;
@@ -54,8 +53,7 @@ public class DiffBuilder {
 
     private Document prepareDocumentFrom(InputSource inputSource, DocumentBuilder parser) throws BuilderException {
         try {
-            Document document = documentUtils.buildDocument(parser, inputSource);
-            return document;
+            return documentUtils.buildDocument(parser, inputSource);
         } catch (Exception e) {
             throw new BuilderException("Failed to build Diff!", e);
         }
@@ -63,8 +61,7 @@ public class DiffBuilder {
 
     private Document prepareDocumentFrom(Reader reader, DocumentBuilder parser) throws BuilderException {
         try {
-            Document document = documentUtils.buildDocument(parser, reader);
-            return document;
+            return documentUtils.buildDocument(parser, reader);
         } catch (Exception e) {
             throw new BuilderException("Failed to build Diff!", e);
         }
@@ -73,7 +70,6 @@ public class DiffBuilder {
     public DiffTestDocBuilder betweenControlDocument(Document document) {
         Preconditions.checkArgument(document != null, "Document cannot be null");
         this.controlSource = Input.fromDocument(document).build();
-        ;
         return new DiffTestDocBuilder();
     }
 
@@ -162,7 +158,7 @@ public class DiffBuilder {
 
     }
 
-    public class DiffPropertiesBuilder implements Builder<Diff> {
+    public class DiffPropertiesBuilder {
 
         private DiffPropertiesBuilder() {
         }
@@ -173,7 +169,6 @@ public class DiffBuilder {
             return this;
         }
 
-        @Override
         public Diff build() throws BuilderException {
             validate();
             testSource = documentUtils.applySourceProperties(testSource);

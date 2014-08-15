@@ -39,60 +39,38 @@ package org.custommonkey.xmlunit;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 
-import net.sf.xmlunit.util.XsltUtils;
-
 import org.w3c.dom.Node;
-import org.xmlunit.builder.Input;
-import org.xmlunit.builder.Transform;
-import org.xmlunit.builder.Transform.Builder;
+import org.xmlunit.transform.Input;
+import org.xmlunit.transform.Transform;
+import org.xmlunit.transform.Transform.Builder;
+import org.xmlunit.transform.TransformerFactoryUtils;
 
 /**
  * Adapter class to present the content of a DOM Node (e.g. a Document) as an
  * InputStream using a DOM to Stream transformation. <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class NodeInputStream extends InputStream {
     private final Node rootNode;
     private final ByteArrayOutputStream nodeContentBytes;
     private final Properties outputProperties;
     private int atPos = 0;
+    private final TransformerFactoryUtils utils;
 
-    // TODO get rid of it
-    private final XmlUnitProperties properties;
-
-    /**
-     * Simple constructor
-     * 
-     * @param rootNode
-     *            the node to be presented as an input stream
-     */
-    public NodeInputStream(Node rootNode, XmlUnitProperties properties) {
-        this(rootNode, null, properties);
+    public NodeInputStream(Node rootNode) {
+        this(rootNode, null, null);
     }
 
-    /**
-     * Simple constructor
-     * 
-     * @param rootNode
-     *            the node to be presented as an input stream
-     */
-    public NodeInputStream(Node rootNode, Properties outputProperties, XmlUnitProperties properties) {
-        this.properties = properties.clone();
+    public NodeInputStream(Node rootNode, Properties outputProperties, TransformerFactoryUtils utils) {
         this.rootNode = rootNode;
         nodeContentBytes = new ByteArrayOutputStream();
-        if (outputProperties == null) {
-            this.outputProperties = new Properties();
-        } else {
-            this.outputProperties = outputProperties;
-        }
+        this.outputProperties = outputProperties == null ? new Properties() : outputProperties;
+        this.utils = utils == null ? new TransformerFactoryUtils() : utils;
     }
 
     /**
@@ -107,17 +85,8 @@ public class NodeInputStream extends InputStream {
         }
         try {
             Source source = Input.fromNode(rootNode).build();
-
-            // TODO
-            XsltUtils xsltUtils = new XsltUtils();
-            xsltUtils.setUriResolver(properties.getUriResolver());
-            xsltUtils.setTransformerFactoryClass(properties.getTransformerFactoryClass());
-
-            Builder transformBuilder = Transform.source(source)
-                    .usingFactory(xsltUtils.newTransformerFactory());
-            Iterator<Entry<Object, Object>> it = outputProperties.entrySet().iterator();
-            while (it.hasNext()) {
-                Entry<Object, Object> entry = it.next();
+            Builder transformBuilder = Transform.source(source).usingFactory(utils.newTransformerFactory());
+            for (Entry<Object, Object> entry : outputProperties.entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
                 if (key != null && value != null) {

@@ -46,8 +46,6 @@ import java.io.Reader;
  * target doctype for a character stream containing XML markup. Used by
  * Validator class to wrap a Reader when performing validation of a document
  * against a DTD. <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
  */
 public class DoctypeReader extends Reader {
 
@@ -60,10 +58,6 @@ public class DoctypeReader extends Reader {
      * Create a Reader whose XML content is provided by the originalSource with
      * the exception of the DOCTYPE which is provided by the doctypeName and
      * systemID.
-     * 
-     * @param originalSource
-     * @param doctypeName
-     * @param systemID
      */
     public DoctypeReader(Reader originalSource, String doctypeName, String systemID) {
         originalReader = new BufferedReader(originalSource);
@@ -87,7 +81,6 @@ public class DoctypeReader extends Reader {
     }
 
     /**
-     * @param originalSource
      * @return the contents of the originalSource within a StringBuffer
      * @throws IOException
      *             if thrown while reading from the original source
@@ -121,9 +114,6 @@ public class DoctypeReader extends Reader {
     /**
      * Read DOCTYPE-replaced content from the wrapped Reader
      * 
-     * @param cbuf
-     * @param off
-     * @param len
      * @return The number of characters read, or -1 if the end of the stream has
      *         been reached
      * @throws IOException

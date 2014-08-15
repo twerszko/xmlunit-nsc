@@ -67,7 +67,7 @@ public class NodeInputStreamTest {
     public void setUp() throws SAXException, IOException {
         XmlUnitProperties properties = new XmlUnitProperties();
         Document document = new DocumentUtils(properties).buildControlDocument(frog);
-        nodeStream = new NodeInputStream(document, properties);
+        nodeStream = new NodeInputStream(document);
     }
 
     @After

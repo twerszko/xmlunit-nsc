@@ -17,7 +17,6 @@ package org.custommonkey.xmlunit.matchers.xpath;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.xpath.XpathEngine;
 
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -26,6 +25,7 @@ import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
+import org.xmlunit.util.IterableNodeList;
 
 /**
  * Assert that a specific XPath exists in some given XML document *

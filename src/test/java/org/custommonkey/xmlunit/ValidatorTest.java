@@ -36,32 +36,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit;
 
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.invalidXml;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.invalidXmlSource;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.invalidXmlString;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.validXml;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.validXmlSource;
-import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.validXmlString;
+import static org.custommonkey.xmlunit.matchers.XmlUnitMatchers.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
-
-import net.sf.xmlunit.TestResources;
+import java.io.*;
 
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xmlunit.TestResources;
 
 /**
  * JUnit test for Validator Also includes tests for XMLTestCase
@@ -246,15 +236,16 @@ public class ValidatorTest {
 
     // ---- XMLTestCase methods ----
     private void passXMLTestCaseTest(String xml) throws Exception {
-        assertThat(xml, is(validXmlString()));
-        assertThat(new InputSource(new StringReader(xml)), is(validXmlSource()));
-        assertThat(new InputSource(new StringBufferInputStream(xml)), is(validXmlSource()));
+        Assert.assertThat(xml, is(validXmlString()));
+        Assert.assertThat(new InputSource(new StringReader(xml)), is(validXmlSource()));
+        Assert.assertThat(new InputSource(new StringBufferInputStream(xml)), is(validXmlSource()));
     }
 
     private void passXMLTestCaseTest(String xml, String systemId) throws Exception {
-        assertThat(xml, is(validXmlString().withSystemId(systemId)));
-        assertThat(new InputSource(new StringReader(xml)), is(validXmlSource().withSystemId(systemId)));
-        assertThat(new InputSource(new StringBufferInputStream(xml)), is(validXmlSource().withSystemId(systemId)));
+        Assert.assertThat(xml, is(validXmlString().withSystemId(systemId)));
+        Assert.assertThat(new InputSource(new StringReader(xml)), is(validXmlSource().withSystemId(systemId)));
+        Assert.assertThat(new InputSource(new StringBufferInputStream(xml)),
+                is(validXmlSource().withSystemId(systemId)));
     }
 
     private void passXMLTestCaseTest(String xml, String systemId, String doctype)
@@ -263,41 +254,41 @@ public class ValidatorTest {
         InputSource inputSource1 = new InputSource(new StringReader(xml));
         InputSource inputSource2 = new InputSource(new StringBufferInputStream(xml));
 
-        assertThat(xml, is(validXmlString().withSystemId(systemId).withDoctype(doctype)));
-        assertThat(inputSource1, is(validXmlSource().withSystemId(systemId).withDoctype(doctype)));
-        assertThat(inputSource2, is(validXmlSource().withSystemId(systemId).withDoctype(doctype)));
+        Assert.assertThat(xml, is(validXmlString().withSystemId(systemId).withDoctype(doctype)));
+        Assert.assertThat(inputSource1, is(validXmlSource().withSystemId(systemId).withDoctype(doctype)));
+        Assert.assertThat(inputSource2, is(validXmlSource().withSystemId(systemId).withDoctype(doctype)));
     }
 
     private void passXMLTestCaseTest(Validator validator) throws Exception {
-        assertThat(validator, is(validXml()));
+        Assert.assertThat(validator, is(validXml()));
     }
 
     private void failXMLTestCaseTest(String xml, String systemId) throws Exception {
         InputSource inputSource1 = new InputSource(new StringReader(xml));
         InputSource inputSource2 = new InputSource(new StringBufferInputStream(xml));
 
-        assertThat(xml, is(invalidXmlString().withSystemId(systemId)));
-        assertThat(inputSource1, is(invalidXmlSource().withSystemId(systemId)));
-        assertThat(inputSource2, is(invalidXmlSource().withSystemId(systemId)));
+        Assert.assertThat(xml, is(invalidXmlString().withSystemId(systemId)));
+        Assert.assertThat(inputSource1, is(invalidXmlSource().withSystemId(systemId)));
+        Assert.assertThat(inputSource2, is(invalidXmlSource().withSystemId(systemId)));
     }
 
     private void failXMLTestCaseTest(String xml) throws Exception {
-        assertThat(xml, is(invalidXmlString()));
-        assertThat(new InputSource(new StringReader(xml)), is(invalidXmlSource()));
-        assertThat(new InputSource(new StringBufferInputStream(xml)), is(invalidXmlSource()));
+        Assert.assertThat(xml, is(invalidXmlString()));
+        Assert.assertThat(new InputSource(new StringReader(xml)), is(invalidXmlSource()));
+        Assert.assertThat(new InputSource(new StringBufferInputStream(xml)), is(invalidXmlSource()));
     }
 
     private void failXMLTestCaseTest(String xml, String systemId, String doctype) throws Exception {
         InputSource inputSource = new InputSource(new StringReader(xml));
         InputSource inputSource2 = new InputSource(new StringBufferInputStream(xml));
 
-        assertThat(xml, is(invalidXmlString().withSystemId(systemId).withDoctype(doctype)));
-        assertThat(inputSource, is(invalidXmlSource().withSystemId(systemId).withDoctype(doctype)));
-        assertThat(inputSource2, is(invalidXmlSource().withSystemId(systemId).withDoctype(doctype)));
+        Assert.assertThat(xml, is(invalidXmlString().withSystemId(systemId).withDoctype(doctype)));
+        Assert.assertThat(inputSource, is(invalidXmlSource().withSystemId(systemId).withDoctype(doctype)));
+        Assert.assertThat(inputSource2, is(invalidXmlSource().withSystemId(systemId).withDoctype(doctype)));
     }
 
     private void failXMLTestCaseTest(Validator validator) throws Exception {
-        assertThat(validator, is(invalidXml()));
+        Assert.assertThat(validator, is(invalidXml()));
     }
 
 }

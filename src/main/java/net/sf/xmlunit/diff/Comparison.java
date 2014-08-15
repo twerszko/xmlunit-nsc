@@ -164,13 +164,13 @@ public class Comparison {
             this.type = type;
         }
 
-        public TestNodeComparisonBuider between(NodeAndXpath<? extends Node> controlTarget, Object controlValue) {
+        public TestNodeComparisonBuilder between(NodeAndXpath<? extends Node> controlTarget, Object controlValue) {
             this.controlTarget = controlTarget;
             this.controlValue = controlValue;
-            return new TestNodeComparisonBuider();
+            return new TestNodeComparisonBuilder();
         }
 
-        public final class TestNodeComparisonBuider {
+        public final class TestNodeComparisonBuilder {
             public Comparison and(NodeAndXpath<? extends Node> testTarget, Object testValue) {
                 ComparisonBuilder.this.testTarget = testTarget;
                 ComparisonBuilder.this.testValue = testValue;

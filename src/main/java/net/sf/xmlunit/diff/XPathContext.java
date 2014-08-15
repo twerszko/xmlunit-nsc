@@ -13,19 +13,12 @@
  */
 package net.sf.xmlunit.diff;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import net.sf.xmlunit.util.Nodes;
-
 import org.w3c.dom.Node;
+import org.xmlunit.util.Nodes;
 
 public class XPathContext {
     private final Deque<Level> path = new LinkedList<Level>();
@@ -100,28 +93,28 @@ public class XPathContext {
         }
 
         for (NodeInfo child : children) {
-            Level l = null;
+            Level l;
             switch (child.getType()) {
-                case Node.COMMENT_NODE:
-                    l = new Level(COMMENT + OPEN + (++comments) + CLOSE);
-                    break;
-                case Node.PROCESSING_INSTRUCTION_NODE:
-                    l = new Level(PI + OPEN + (++pis) + CLOSE);
-                    break;
-                case Node.CDATA_SECTION_NODE:
-                case Node.TEXT_NODE:
-                    l = new Level(TEXT + OPEN + (++texts) + CLOSE);
-                    break;
-                case Node.ELEMENT_NODE:
-                    String name = getName(child.getName());
-                    l = new Level(name + OPEN + add1OrIncrement(name, elements)
-                            + CLOSE);
-                    break;
-                default:
-                    // more or less ignore
-                    // FIXME: is this a good thing?
-                    l = new Level(EMPTY);
-                    break;
+            case Node.COMMENT_NODE:
+                l = new Level(COMMENT + OPEN + (++comments) + CLOSE);
+                break;
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                l = new Level(PI + OPEN + (++pis) + CLOSE);
+                break;
+            case Node.CDATA_SECTION_NODE:
+            case Node.TEXT_NODE:
+                l = new Level(TEXT + OPEN + (++texts) + CLOSE);
+                break;
+            case Node.ELEMENT_NODE:
+                String name = getName(child.getName());
+                l = new Level(name + OPEN + add1OrIncrement(name, elements)
+                        + CLOSE);
+                break;
+            default:
+                // more or less ignore
+                // FIXME: is this a good thing?
+                l = new Level(EMPTY);
+                break;
             }
             current.children.add(l);
         }
@@ -152,8 +145,8 @@ public class XPathContext {
      */
     private static int add1OrIncrement(String name, Map<String, Integer> map) {
         Integer old = map.get(name);
-        int index = old == null ? 1 : (old.intValue() + 1);
-        map.put(name, Integer.valueOf(index));
+        int index = old == null ? 1 : (old + 1);
+        map.put(name, index);
         return index;
     }
 

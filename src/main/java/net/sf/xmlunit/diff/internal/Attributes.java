@@ -31,11 +31,11 @@ public class Attributes {
                 XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation");
         Attr nNsLoc = (Attr) map.getNamedItemNS(
                 XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "noNamespaceSchemaLocation");
-        List<Attr> regularAttrs = extractRegularAtrributes(map);
+        List<Attr> regularAttrs = extractRegularAttributes(map);
         return new Attributes(sLoc, nNsLoc, regularAttrs);
     }
 
-    private static List<Attr> extractRegularAtrributes(NamedNodeMap map) {
+    private static List<Attr> extractRegularAttributes(NamedNodeMap map) {
         List<Attr> regularAttrs = new LinkedList<Attr>();
         final int len = map.getLength();
         for (int i = 0; i < len; i++) {

@@ -34,10 +34,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.xmlunit.input.CommentLessSource;
-import net.sf.xmlunit.input.WhitespaceNormalizedSource;
-import net.sf.xmlunit.input.WhitespaceStrippedSource;
-import net.sf.xmlunit.util.Preconditions;
 import net.sf.xmlunit.xpath.JaxpXpathEngine;
 import net.sf.xmlunit.xpath.SimpleXpathEngine;
 import net.sf.xmlunit.xpath.XpathEngine;
@@ -45,11 +41,15 @@ import net.sf.xmlunit.xpath.XpathEngine;
 import org.custommonkey.xmlunit.Validator;
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
-import org.custommonkey.xmlunit.jaxp13.XmlUnitNamespaceContext2Jaxp13;
+import org.custommonkey.xmlunit.jaxp13.NamespaceContext2Jaxp13;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlunit.input.CommentLessSource;
+import org.xmlunit.input.WhitespaceNormalizedSource;
+import org.xmlunit.input.WhitespaceStrippedSource;
+import org.xmlunit.util.Preconditions;
 
 /**
  * Class containing convenience methods related to DOM
@@ -145,7 +145,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the control DocumentBuilder to
      * parse the specified String.
      * 
-     * @param fromXML
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -158,7 +157,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the control DocumentBuilder and
      * the specified InputSource
      * 
-     * @param fromSource
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -171,7 +169,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the test DocumentBuilder to
      * parse the specified String.
      * 
-     * @param fromXML
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -184,7 +181,6 @@ public class DocumentUtils {
      * Utility method to build a Document using the test DocumentBuilder and the
      * specified InputSource
      * 
-     * @param fromSource
      * @return Document representation of the String content
      * @throws SAXException
      * @throws IOException
@@ -198,8 +194,6 @@ public class DocumentUtils {
      * Utility method to build a Document using a specific DocumentBuilder and
      * reading characters from a specific Reader.
      * 
-     * @param withBuilder
-     * @param fromReader
      * @return Document built
      * @throws SAXException
      * @throws IOException
@@ -213,8 +207,6 @@ public class DocumentUtils {
      * Utility method to build a Document using a specific DocumentBuilder and a
      * specific InputSource
      * 
-     * @param withBuilder
-     * @param fromSource
      * @return Document built
      * @throws SAXException
      * @throws IOException
@@ -305,7 +297,7 @@ public class DocumentUtils {
      * Obtains an XpathEngine to use in XPath tests.
      */
     public XpathEngine newXpathEngine() {
-        XpathEngine eng = null;
+        XpathEngine eng;
         try {
             Class.forName("javax.xml.xpath.XPath");
             eng = new JaxpXpathEngine(newXpathFactory());
@@ -320,7 +312,7 @@ public class DocumentUtils {
         }
         if (properties.getXpathNamespaceContext() != null) {
             // TODO
-            eng.setNamespaceContext(XmlUnitNamespaceContext2Jaxp13.turnIntoMap(properties.getXpathNamespaceContext()));
+            eng.setNamespaceContext(NamespaceContext2Jaxp13.convertToMap(properties.getXpathNamespaceContext()));
         }
         return eng;
     }
@@ -342,8 +334,6 @@ public class DocumentUtils {
     /**
      * Converts document into string
      * 
-     * @param document
-     * @return
      * @throws TransformerException
      *             when transformation fails
      * @throws IllegalArgumentException

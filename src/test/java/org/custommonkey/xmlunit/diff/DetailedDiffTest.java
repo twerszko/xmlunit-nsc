@@ -47,7 +47,6 @@ import java.util.List;
 
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.Comparison;
 import net.sf.xmlunit.diff.ComparisonType;
 import net.sf.xmlunit.diff.DifferenceEngineFactory;
@@ -64,11 +63,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
+import org.xmlunit.TestResources;
 
 /**
- * Test a DetailedDiff. Extend the test case class for Diff so we can rerun those tests with a DetailedDiff
- * and assert that behaviour has not changed.
+ * Test a DetailedDiff. Extend the test case class for Diff so we can rerun
+ * those tests with a DetailedDiff and assert that behaviour has not changed.
  */
 public class DetailedDiffTest extends AbstractDiffTest {
 
@@ -302,7 +301,8 @@ public class DetailedDiffTest extends AbstractDiffTest {
      * @throws IOException
      * @throws SAXException
      * @throws BuilderException
-     * @see http ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
+     * @see http 
+     *      ://sourceforge.net/forum/forum.php?thread_id=1691528&forum_id=73274
      */
     @Test
     public void should_check_issue_from_forum_thread_1691528() throws SAXException, IOException,
@@ -349,7 +349,8 @@ public class DetailedDiffTest extends AbstractDiffTest {
      * @throws SAXException
      * @throws BuilderException
      * 
-     * @see https ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
+     * @see https
+     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1860681
      *      &amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -440,7 +441,8 @@ public class DetailedDiffTest extends AbstractDiffTest {
     }
 
     /**
-     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187& atid=377768
+     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
+     * atid=377768
      * 
      * @throws IOException
      * @throws SAXException
@@ -473,7 +475,8 @@ public class DetailedDiffTest extends AbstractDiffTest {
     }
 
     /**
-     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187& atid=377768
+     * https://sourceforge.net/tracker/?func=detail&aid=2758280&group_id=23187&
+     * atid=377768
      * 
      * @throws IOException
      * @throws SAXException
@@ -522,7 +525,8 @@ public class DetailedDiffTest extends AbstractDiffTest {
     /**
      * @throws IOException
      * @throws SAXException
-     * @see https ://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062518
+     * @see https
+     *      ://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062518
      *      &amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -765,7 +769,8 @@ public class DetailedDiffTest extends AbstractDiffTest {
     }
 
     /**
-     * @see http ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
+     * @see http 
+     *      ://sourceforge.net/forum/forum.php?thread_id=3284504&forum_id=73274
      */
     @Test
     public void should_ignore_namespace_attribute_differences() throws Exception {

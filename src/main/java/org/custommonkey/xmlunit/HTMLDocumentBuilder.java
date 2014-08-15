@@ -57,9 +57,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * Build a DOM document from HTML content converting from 'plain' HTML into
  * 'XHTML' along the way with the help of a TolerantSaxDocumentBuilder and the
  * Swing html parser classes. This allows XML assertions to be made against
- * badly formed HTML. <br />
- * Examples and more at <a
- * href="http://xmlunit.sourceforge.net"/>xmlunit.sourceforge.net</a>
+ * badly formed HTML.
  * 
  * @see TolerantSaxDocumentBuilder
  */

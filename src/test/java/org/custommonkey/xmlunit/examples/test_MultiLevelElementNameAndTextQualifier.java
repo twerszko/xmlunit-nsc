@@ -192,7 +192,7 @@ public class test_MultiLevelElementNameAndTextQualifier extends TestCase {
                 .build();
         assertFalse(d.toString(), d.similar());
 
-        // TODO Diff builder knows about properties
+        // TODO Diff internal knows about properties
         engineFactory.useSelector(new MultiLevelElementNameAndTextSelector(2));
         properties.setIgnoreWhitespace(true);
         d = Diff.newDiff(properties)

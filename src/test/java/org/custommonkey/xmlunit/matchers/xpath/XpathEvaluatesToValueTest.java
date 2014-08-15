@@ -22,16 +22,16 @@ import java.util.HashMap;
 
 import net.sf.xmlunit.xpath.XpathWrapper;
 
-import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XmlUnit;
-import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.XmlUnitBuilder;
+import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.custommonkey.xmlunit.util.DocumentUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xmlunit.NamespaceContext;
 
 public class XpathEvaluatesToValueTest {
     private static final String PREFIX = "foo";

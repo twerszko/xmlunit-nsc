@@ -53,9 +53,7 @@ import org.xml.sax.SAXException;
 /**
  * Encapsulation of the Node-by-Node testing of a DOM Document Uses a
  * nodetype-specific <code>NodeFilter</code> to pass the DOM Nodes to a
- * NodeTester instance that performs the acual Node validation. <br />
- * Examples and more at <a href="http://xmlunit.sourceforge.net"/>xmlunit.
- * sourceforge.net</a>
+ * NodeTester instance that performs the actual Node validation. <br />
  * 
  * @see NodeTester
  */
@@ -103,7 +101,6 @@ public class NodeTest {
     /**
      * Try to cast a Document into a DocumentTraversal
      * 
-     * @param document
      * @return DocumentTraversal interface if the DOM implementation supports it
      */
     private static DocumentTraversal getDocumentTraversal(Document document) {
@@ -128,7 +125,6 @@ public class NodeTest {
     /**
      * Does this NodeTest pass using the specified NodeTester instance?
      * 
-     * @param tester
      * @param singleNodeType
      *            note <code>Node.ATTRIBUTE_NODE</code> is not exposed by the
      *            DocumentTraversal node iterator unless the root node is itself
@@ -138,15 +134,13 @@ public class NodeTest {
      * @exception NodeTestException
      *                if test fails
      */
-    public void performTest(NodeTester tester, short singleNodeType)
-            throws NodeTestException {
+    public void performTest(NodeTester tester, short singleNodeType) throws NodeTestException {
         performTest(tester, new short[] { singleNodeType });
     }
 
     /**
      * Does this NodeTest pass using the specified NodeTester instance?
      * 
-     * @param tester
      * @param nodeTypes
      *            note <code>Node.ATTRIBUTE_NODE</code> is not exposed by the
      *            DocumentTraversal node iterator unless the root node is itself
@@ -189,9 +183,6 @@ public class NodeTest {
 
         /**
          * NodeFilter method.
-         * 
-         * @param aNode
-         * @return
          */
         public short acceptNode(Node aNode) {
             if (acceptNodeType(aNode.getNodeType())) {
@@ -202,13 +193,10 @@ public class NodeTest {
 
         /**
          * Does this instance accept nodes with the node type value
-         * 
-         * @param shortVal
-         * @return
          */
         private boolean acceptNodeType(short shortVal) {
-            for (int i = 0; i < nodeTypes.length; ++i) {
-                if (nodeTypes[i] == shortVal) {
+            for (short nodeType : nodeTypes) {
+                if (nodeType == shortVal) {
                     return true;
                 }
             }

@@ -21,12 +21,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.IterableNodeList;
-
 import org.custommonkey.xmlunit.exceptions.ConfigurationException;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.NodeList;
+import org.xmlunit.util.Convert;
+import org.xmlunit.util.IterableNodeList;
 
 /**
  * Simplified access to JAXP's XPath API.

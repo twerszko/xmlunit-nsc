@@ -13,21 +13,12 @@
  */
 package org.xmlunit.diff;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import net.sf.xmlunit.util.Nodes;
-
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
+import org.xmlunit.util.Nodes;
 
 /**
  * Common ElementSelector implementations.
@@ -274,6 +265,6 @@ public final class ElementSelectors {
     }
 
     private static boolean isText(Node n) {
-        return n instanceof Text || n instanceof CDATASection;
+        return n instanceof CDATASection || n instanceof Text;
     }
 }

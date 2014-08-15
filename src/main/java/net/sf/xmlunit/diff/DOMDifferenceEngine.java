@@ -16,14 +16,14 @@ package net.sf.xmlunit.diff;
 import javax.xml.transform.Source;
 
 import net.sf.xmlunit.diff.internal.NodeAndXpath;
-import net.sf.xmlunit.diff.providers.ComparisonProviders;
-import net.sf.xmlunit.diff.providers.DOMComparator;
-import net.sf.xmlunit.diff.providers.ElementComparisonProvider;
-import net.sf.xmlunit.util.Convert;
-import net.sf.xmlunit.util.Preconditions;
 
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.w3c.dom.Node;
+import org.xmlunit.diff.providers.ComparisonProviders;
+import org.xmlunit.diff.providers.DOMComparator;
+import org.xmlunit.diff.providers.ElementComparisonProvider;
+import org.xmlunit.util.Convert;
+import org.xmlunit.util.Preconditions;
 
 /**
  * Difference engine based on DOM.

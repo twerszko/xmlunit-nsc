@@ -18,7 +18,6 @@ import java.io.IOException;
 
 import javax.xml.transform.dom.DOMSource;
 
-import net.sf.xmlunit.util.IterableNodeList;
 import net.sf.xmlunit.xpath.XpathEngine;
 
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -28,6 +27,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import org.xmlunit.util.IterableNodeList;
 
 /**
  * Assert that a specific XPath exists in some given XML *

@@ -1,11 +1,10 @@
 package net.sf.xmlunit.diff;
 
-import net.sf.xmlunit.util.Preconditions;
-
 import org.custommonkey.xmlunit.XmlUnitProperties;
 import org.w3c.dom.Node;
 import org.xmlunit.diff.ElementSelector;
 import org.xmlunit.diff.ElementSelectors;
+import org.xmlunit.util.Preconditions;
 
 public class DefaultDifferenceEngineFactory implements DifferenceEngineFactory {
     private final XmlUnitProperties properties;

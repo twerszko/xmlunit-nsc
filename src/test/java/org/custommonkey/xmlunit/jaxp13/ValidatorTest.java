@@ -36,12 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 package org.custommonkey.xmlunit.jaxp13;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,13 +48,12 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
-import net.sf.xmlunit.TestResources;
-
 import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xmlunit.TestResources;
 
 public class ValidatorTest {
 

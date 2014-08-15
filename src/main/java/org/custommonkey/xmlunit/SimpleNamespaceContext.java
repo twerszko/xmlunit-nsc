@@ -41,6 +41,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.xmlunit.NamespaceContext;
+
 /**
  * Implementation of NamespaceContext that's backed by a map.
  */

@@ -1,0 +1,215 @@
+/*
+  This file is licensed to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ */
+package org.xmlunit.util;
+
+import static java.util.Map.Entry;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.custommonkey.xmlunit.exceptions.ConfigurationException;
+import org.custommonkey.xmlunit.exceptions.XMLUnitRuntimeException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+/**
+ * Conversion methods.
+ */
+public final class Convert {
+    private Convert() {
+    }
+
+    /**
+     * Creates a SAX InputSource from a TraX Source.
+     * 
+     * <p>
+     * May use an XSLT identity transformation if SAXSource cannot convert it
+     * directly.
+     * </p>
+     */
+    public static InputSource toInputSource(Source s) {
+        try {
+            InputSource is = SAXSource.sourceToInputSource(s);
+            if (is == null) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                StreamResult r = new StreamResult(bos);
+                TransformerFactory fac = TransformerFactory.newInstance();
+                Transformer t = fac.newTransformer();
+                t.transform(s, r);
+                s = new StreamSource(new ByteArrayInputStream(bos.toByteArray()));
+                is = SAXSource.sourceToInputSource(s);
+            }
+            return is;
+        } catch (TransformerConfigurationException e) {
+            throw new ConfigurationException(e);
+        } catch (TransformerException e) {
+            throw new XMLUnitRuntimeException(e);
+        }
+    }
+
+    /**
+     * Creates a DOM Document from a TraX Source.
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} holding a Document Node, this one
+     * will be returned. Otherwise {@link #toInputSource} and a namespace aware
+     * DocumentBuilder (created by the default DocumentBuilderFactory) will be
+     * used to read the source. This may involve an XSLT identity transform in
+     * toInputSource.
+     * </p>
+     */
+    public static Document toDocument(Source s) {
+        Document d = tryExtractDocFromDOMSource(s);
+        if (d == null) {
+            return toDocument(s, DocumentBuilderFactory.newInstance());
+        } else {
+            return d;
+        }
+    }
+
+    /**
+     * Creates a DOM Document from a TraX Source.
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} holding a Document Node, this one
+     * will be returned. Otherwise {@link #toInputSource} and a namespace aware
+     * DocumentBuilder (created by given DocumentBuilderFactory) will be used to
+     * read the source. This may involve an XSLT identity transform in
+     * toInputSource.
+     * </p>
+     */
+    public static Document toDocument(Source s, DocumentBuilderFactory factory) {
+        Document d = tryExtractDocFromDOMSource(s);
+        if (d == null) {
+            InputSource is = toInputSource(s);
+            DocumentBuilder b = null;
+
+            // yes, there is a race condition but it is so unlikely to
+            // happen that I currently don't care enough
+            boolean oldNsAware = factory.isNamespaceAware();
+            try {
+                if (!oldNsAware) {
+                    factory.setNamespaceAware(true);
+                }
+                b = factory.newDocumentBuilder();
+            } catch (ParserConfigurationException e) {
+                throw new ConfigurationException(e);
+            } finally {
+                if (!oldNsAware) {
+                    factory.setNamespaceAware(false);
+                }
+            }
+
+            try {
+                d = b.parse(is);
+            } catch (SAXException e) {
+                throw new XMLUnitRuntimeException(e);
+            } catch (IOException e) {
+                throw new XMLUnitRuntimeException(e);
+            }
+        }
+        return d;
+    }
+
+    private static Document tryExtractDocFromDOMSource(Source s) {
+        Node n = tryExtractNodeFromDOMSource(s);
+        if (n != null && n instanceof Document) {
+            return (Document) n;
+        }
+        return null;
+    }
+
+    /**
+     * Creates a DOM Node from a TraX Source.
+     * 
+     * <p>
+     * If the source is a {@link DOMSource} its Node will be returned, otherwise
+     * this delegates to {@link #toDocument}.
+     * </p>
+     */
+    public static Node toNode(Source s) {
+        Node n = tryExtractNodeFromDOMSource(s);
+        return n == null ? toDocument(s, DocumentBuilderFactory.newInstance()) : n;
+    }
+
+    private static Node tryExtractNodeFromDOMSource(Source s) {
+        if (s instanceof DOMSource) {
+            DOMSource ds = (DOMSource) s;
+            return ds.getNode();
+        }
+        return null;
+    }
+
+    /**
+     * Creates a JAXP NamespaceContext from a Map prefix =&gt; Namespace URI.
+     */
+    public static NamespaceContext toNamespaceContext(Map<String, String> prefix2URI) {
+        final Map<String, String> copy = new LinkedHashMap<String, String>(prefix2URI);
+        return new NamespaceContext() {
+            public String getNamespaceURI(String prefix) {
+                Preconditions.checkArgument(prefix != null, "prefix must not be null");
+                if (XMLConstants.XML_NS_PREFIX.equals(prefix)) {
+                    return XMLConstants.XML_NS_URI;
+                }
+                if (XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)) {
+                    return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+                }
+                String uri = copy.get(prefix);
+                return uri != null ? uri : XMLConstants.NULL_NS_URI;
+            }
+
+            public String getPrefix(String uri) {
+                Iterator<String> i = getPrefixes(uri);
+                return i.hasNext() ? i.next() : null;
+            }
+
+            public Iterator<String> getPrefixes(String uri) {
+                Preconditions.checkArgument(uri != null, "uri must not be null");
+                Collection<String> c = new LinkedHashSet<String>();
+                boolean done = false;
+                if (XMLConstants.XML_NS_URI.equals(uri)) {
+                    c.add(XMLConstants.XML_NS_PREFIX);
+                    done = true;
+                }
+                if (XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(uri)) {
+                    c.add(XMLConstants.XMLNS_ATTRIBUTE);
+                    done = true;
+                }
+                if (!done) {
+                    for (Entry<String, String> entry : copy.entrySet()) {
+                        if (uri.equals(entry.getValue())) {
+                            c.add(entry.getKey());
+                        }
+                    }
+                }
+                return c.iterator();
+            }
+        };
+    }
+}

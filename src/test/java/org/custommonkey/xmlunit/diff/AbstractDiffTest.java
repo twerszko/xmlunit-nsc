@@ -37,8 +37,6 @@ POSSIBILITY OF SUCH DAMAGE.
 package org.custommonkey.xmlunit.diff;
 
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import net.sf.xmlunit.TestResources;
 import net.sf.xmlunit.diff.*;
 import org.custommonkey.xmlunit.ElementNameAndAttributeSelector;
 import org.custommonkey.xmlunit.XMLConstants;
@@ -53,6 +51,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xmlunit.TestResources;
 import org.xmlunit.diff.ElementSelectors;
 
 import java.io.File;
@@ -670,8 +669,9 @@ public class AbstractDiffTest {
 
     /**
      * inspired by {@link http
-     * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html Erik von Oosten's Weblog},
-     * made us implement special handling of schemaLocation.
+     * ://day-to-day-stuff.blogspot.com/2007/05/comparing-xml-in-junit-test.html
+     * Erik von Oosten's Weblog}, made us implement special handling of
+     * schemaLocation.
      *
      * @throws IOException
      * @throws SAXException
@@ -704,7 +704,8 @@ public class AbstractDiffTest {
      *
      * @throws IOException
      * @throws SAXException
-     * @see http ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
+     * @see http
+     * ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1779701&
      * amp;group_id=23187&amp;atid=377768
      */
     @Test
@@ -732,9 +733,14 @@ public class AbstractDiffTest {
      * Bug Report 1863632
      *
      * @throws IOException
-     * @throws SAXException
+     * @throws SAXException <<<<<<< HEAD
      * @see http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
      * amp;group_id=23187&amp;atid=377768
+     * =======
+     * @see http
+     * ://sourceforge.net/tracker/index.php?func=detail&amp;aid=1863632&
+     * amp;group_id=23187&amp;atid=377768
+     * >>>>>>> 51b4600b7d345020c4f223daf545d80abc66829a
      */
     @Test
     public void should_be_identical_when_whitespaces_ignored() throws Exception {
@@ -929,7 +935,8 @@ public class AbstractDiffTest {
     }
 
     /**
-     * Not a real test. Need something that actually fails unless I set the flag.
+     * Not a real test. Need something that actually fails unless I set the
+     * flag.
      *
      * @throws IOException
      * @throws SAXException
@@ -950,7 +957,9 @@ public class AbstractDiffTest {
     }
 
     /**
-     * @see https ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187 &atid=377768
+     * @see https
+     * ://sourceforge.net/tracker/?func=detail&aid=2807167&group_id=23187
+     * &atid=377768
      */
     @Test
     public void should_check_issue_2807167() throws Exception {
