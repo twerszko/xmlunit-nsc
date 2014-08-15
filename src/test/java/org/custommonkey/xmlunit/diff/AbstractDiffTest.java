@@ -1167,7 +1167,11 @@ public class AbstractDiffTest {
     }
 
     private Diff createDiff(String ctrl, String test) throws BuilderException {
-        return newDiff(properties).betweenControlDocument(ctrl).andTestDocument(test).build();
+        return newDiff(properties)
+                .betweenControlDocument(ctrl)
+                .andTestDocument(test)
+                .usingDifferenceEngineFactory(engineFactory)
+                .build();
     }
 
     private void assertDifferent(String ctrl, String test) throws BuilderException {
