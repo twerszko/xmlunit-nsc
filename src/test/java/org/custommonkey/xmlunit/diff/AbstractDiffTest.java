@@ -54,9 +54,8 @@ import org.xml.sax.SAXException;
 import org.xmlunit.TestResources;
 import org.xmlunit.diff.ElementSelectors;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +66,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-
 
 @RunWith(JUnitParamsRunner.class)
 public class AbstractDiffTest {
@@ -264,30 +262,27 @@ public class AbstractDiffTest {
 
     @Test
     public void should_use_provided_evaluator() throws Exception {
+        // given
         String ctrl = "<root></root>";
         String test = "<root><node/></root>";
-
-        engineFactory.useEvaluator(new OverridingDifferenceEvaluator(ComparisonResult.EQUAL));
-
+        // when
+        engineFactory.useEvaluator(new DifferenceEvaluator() {
+            @Override
+            public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
+                return ComparisonResult.EQUAL;
+            }
+        });
+        // then
         assertIdentical(ctrl, test);
     }
 
     @Test
-    public void should_check_files_with_namespaced_attributes() throws Exception {
+    public void should_be_similar_when_only_namespace_names_differ() throws Exception {
         // given
-        File controlFile = TestResources.NAMESPACES_CONTROL.getFile();
-        File testFile = TestResources.NAMESPACES_TEST.getFile();
-        FileReader control = new FileReader(controlFile);
-        FileReader test = new FileReader(testFile);
+        String ctrl = TestResources.LONG_NS_NAMES.getContents();
+        String test = TestResources.SHORT_NS_NAMES.getContents();
 
-        engineFactory.useEvaluator(new ExpectedDifferenceEvaluator(ComparisonType.NAMESPACE_PREFIX));
-
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
-
-        // then
-        assertSimilar(diff);
+        assertSimilar(ctrl, test);
     }
 
     @Test
@@ -382,10 +377,8 @@ public class AbstractDiffTest {
                         "</root>";
 
         ExpectedDifferenceEvaluator evaluator = new ExpectedDifferenceEvaluator(
-                new ComparisonType[]{
-                        ComparisonType.NAMESPACE_PREFIX,
-                        ComparisonType.CHILD_NODELIST_SEQUENCE
-                });
+                ComparisonType.NAMESPACE_PREFIX,
+                ComparisonType.CHILD_NODELIST_SEQUENCE);
 
         engineFactory.useEvaluator(evaluator);
         engineFactory.useSelector(new ElementNameAndAttributeSelector());
@@ -1207,38 +1200,19 @@ public class AbstractDiffTest {
         }
     }
 
-    private class OverridingDifferenceEvaluator implements DifferenceEvaluator {
-        private final ComparisonResult overrideValue;
-
-        private OverridingDifferenceEvaluator(ComparisonResult overrideValue) {
-            this.overrideValue = overrideValue;
-        }
-
-        @Override
-        public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
-            return overrideValue;
-        }
-    }
-
     private class ExpectedDifferenceEvaluator implements DifferenceEvaluator {
-        private final Set<ComparisonType> expectedIds;
 
-        private ExpectedDifferenceEvaluator(ComparisonType expectedType) {
-            this(new ComparisonType[]{expectedType});
-        }
+        private final Set<ComparisonType> expectedIds = new HashSet<ComparisonType>();
 
-        private ExpectedDifferenceEvaluator(ComparisonType[] expectedIdValues) {
-            this.expectedIds = new HashSet<ComparisonType>(expectedIdValues.length);
-            for (int i = 0; i < expectedIdValues.length; ++i) {
-                expectedIds.add(expectedIdValues[i]);
-            }
+        private ExpectedDifferenceEvaluator(ComparisonType... expectedIdValues) {
+            Collections.addAll(expectedIds, expectedIdValues);
         }
 
         @Override
         public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
-            if (outcome == ComparisonResult.EQUAL) {
+            if (outcome == ComparisonResult.EQUAL)
                 return outcome;
-            }
+
             assertTrue(difference.toString(), expectedIds.contains(difference.getType()));
             examineDifferenceContents(difference);
             return ComparisonResult.DIFFERENT;

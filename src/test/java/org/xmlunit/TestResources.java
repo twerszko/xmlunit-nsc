@@ -12,9 +12,8 @@ import com.google.common.io.Resources;
 
 /**
  * Convenience enum for test resources.
- * 
+ *
  * @author Tomasz Werszko
- * 
  */
 public enum TestResources {
     ANIMAL_FILE("/test1.xml"),
@@ -32,8 +31,8 @@ public enum TestResources {
     BOOK_WITH_DOC_TYPE("/BookWithDoctype.xml"),
     INVALID_BOOK_WITH_DOC_TYPE("/invalidBookWithDoctype.xml"),
     BROKEN_XSD("/broken.xsd"),
-    NAMESPACES_CONTROL("/controlNamespaces.xml"),
-    NAMESPACES_TEST("/testNamespaces.xml"),
+    LONG_NS_NAMES("/longNsNames.xml"),
+    SHORT_NS_NAMES("/shortNsNames.xml"),
     INVALID_BOOK("/invalidBook.xml"),
     DETAIL_CONTROL("/controlDetail.xml"),
     DETAIL_TEST("/testDetail.xml"),
@@ -41,9 +40,9 @@ public enum TestResources {
     SIMPLE_XML_WITH_DTD("/simpleWithDtd.xml"),
     SIMPLE_XML_WITH_LONGER_DTD("/simpleWithLongerDtd.xml"),
     SIMPLE_XML_DTD("/simple.dtd"),
-    SIMPLE_XML_WITH_EXT_DTD("/simpleWithExtDtd.xml"){
+    SIMPLE_XML_WITH_EXT_DTD("/simpleWithExtDtd.xml") {
         @Override
-        public String getContents() throws IOException{
+        public String getContents() throws IOException {
             return String.format(super.getContents(), SIMPLE_XML_DTD.getFile().getAbsolutePath());
         }
     };
@@ -52,6 +51,18 @@ public enum TestResources {
 
     private TestResources(String path) {
         this.path = path;
+    }
+
+    public static File getFile(String path) throws IOException {
+        URI resourceUri;
+        try {
+            URL resourceUrl = Resources.getResource(TestResources.class, path);
+            resourceUri = resourceUrl.toURI();
+        } catch (URISyntaxException e) {
+            throw new IOException("Failed to get Uri", e);
+        }
+
+        return new File(resourceUri);
     }
 
     public String getPath() {
@@ -79,17 +90,5 @@ public enum TestResources {
     public String getContents() throws IOException {
         File file = new File(getUri());
         return FileUtils.readFileToString(file);
-    }
-
-    public static File getFile(String path) throws IOException {
-        URI resourceUri;
-        try {
-            URL resourceUrl = Resources.getResource(TestResources.class, path);
-            resourceUri = resourceUrl.toURI();
-        } catch (URISyntaxException e) {
-            throw new IOException("Failed to get Uri", e);
-        }
-
-        return new File(resourceUri);
     }
 }
