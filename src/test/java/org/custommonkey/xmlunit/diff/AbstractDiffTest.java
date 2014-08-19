@@ -262,23 +262,21 @@ public class AbstractDiffTest {
 
     @Test
     public void should_use_provided_evaluator() throws Exception {
-        // given
         String ctrl = "<root></root>";
         String test = "<root><node/></root>";
-        // when
+
         engineFactory.useEvaluator(new DifferenceEvaluator() {
             @Override
             public ComparisonResult evaluate(Comparison difference, ComparisonResult outcome) {
                 return ComparisonResult.EQUAL;
             }
         });
-        // then
+
         assertIdentical(ctrl, test);
     }
 
     @Test
     public void should_be_similar_when_only_namespace_names_differ() throws Exception {
-        // given
         String ctrl = TestResources.LONG_NS_NAMES.getContents();
         String test = TestResources.SHORT_NS_NAMES.getContents();
 
@@ -286,152 +284,80 @@ public class AbstractDiffTest {
     }
 
     @Test
-    public void should_check_different_structures() throws Exception {
-        // given
-        String control = "<root><node>text</node></root>";
-        String test = "<root><node><inner-node>text</inner-node></node></root>";
+    public void should_be_different_when_child_nodes_have_different_type() throws Exception {
+        String ctrl = "<root><node1>text</node1></root>";
+        String test = "<root><node1><node2/></node1></root>";
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-
-        // then
-        assertDifferent(diff);
+        assertDifferent(ctrl, test);
     }
 
     @Test
-    public void should_check_repeated_element_names_with_attribute_qualification() throws Exception {
-        // given
-        String control = "<root><node id=\"1\"/><node id=\"2\"/></root>";
+    public void should_be_similar_when_selector_checks_the_only_attribute() throws Exception {
+        String ctrl = "<root><node id=\"1\"/><node id=\"2\"/></root>";
         String test = "<root><node id=\"2\"/><node id=\"1\"/></root>";
 
-        // when
         engineFactory.useSelector(new ElementNameAndAttributeSelector("id"));
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
 
-        // then
-        assertSimilar(diff);
+        assertSimilar(ctrl, test);
     }
 
     @Test
-    public void should_check_repeated_element_names_with_attribute_qualification2() throws Exception {
-        // given
-        String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
+    public void should_be_different_when_selector_checks_part_of_the_attributes_and_rest_of_attributes_differs()
+            throws Exception {
+        String ctrl = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
-        // when
         engineFactory.useSelector(new ElementNameAndAttributeSelector("id"));
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
 
-        // then
-        assertDifferent(diff);
+        assertDifferent(ctrl, test);
     }
 
     @Test
-    public void should_check_repeated_element_names_with_attribute_qualification3() throws Exception {
-        // given
-        String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
+    public void should_be_similar_when_selector_checks_all_attributes() throws Exception {
+        String ctrl = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
         String test = "<root><node id=\"2\" val=\"3\"/><node id=\"1\" val=\"4\"/></root>";
 
-        // when
         engineFactory.useSelector(new ElementNameAndAttributeSelector());
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
 
-        // then
-        assertSimilar(diff);
+        assertSimilar(ctrl, test);
     }
 
     @Test
-    public void should_check_repeated_element_names_with_attribute_qualification4()
-            throws Exception {
-
-        // given
-        String control = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
+    public void should_be_different_when_selector_checks_all_attributes_and_they_differ() throws Exception {
+        String ctrl = "<root><node id=\"1\" val=\"4\"/><node id=\"2\" val=\"3\"/></root>";
         String test = "<root><node id=\"2\" val=\"4\"/><node id=\"1\" val=\"3\"/></root>";
 
-        // when
         engineFactory.useSelector(new ElementNameAndAttributeSelector());
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
 
-        // then
-        assertDifferent(diff);
+        assertDifferent(ctrl, test);
     }
 
     @Test
-    public void should_check_repeated_element_names_with_namespaced_attribute_qualification()
-            throws Exception {
-        // TODO
-        // given
-        String control =
-                "<root xmlns:a=\"http://a.com\" xmlns:b=\"http://b.com\">" +
-                        "<node id=\"1\" a:val=\"a\" b:val=\"b\"/>" +
-                        "<node id=\"2\" a:val=\"a2\" b:val=\"b2\"/>" +
-                        "</root>";
-        String test =
-                "<root xmlns:c=\"http://a.com\" xmlns:d=\"http://b.com\">" +
-                        "<node id=\"2\" c:val=\"a2\" d:val=\"b2\"/>" +
-                        "<node id=\"1\" c:val=\"a\" d:val=\"b\"/>" +
-                        "</root>";
+    public void should_be_different_when_selector_checks_all_attributes_and_namespaces_differ() throws Exception {
+        String ctrl = "<root xmlns:a=\"http://a.com\"><node a:id=\"1\"/><node a:id=\"2\"/></root>";
+        String test = "<root xmlns:b=\"http://b.com\"><node b:id=\"2\"/><node b:id=\"1\"/></root>";
 
-        ExpectedDifferenceEvaluator evaluator = new ExpectedDifferenceEvaluator(
-                ComparisonType.NAMESPACE_PREFIX,
-                ComparisonType.CHILD_NODELIST_SEQUENCE);
-
-        engineFactory.useEvaluator(evaluator);
         engineFactory.useSelector(new ElementNameAndAttributeSelector());
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
-
-        // then
-        assertSimilar(diff);
+        assertDifferent(ctrl, test);
     }
 
     @Test
-    public void should_check_repeated_element_names_with_text_qualification() throws Exception {
-        // given
-        String control = "<root><node>1</node><node>2</node></root>";
+    public void should_be_similar_when_selector_checks_name_and_text() throws Exception {
+        String ctrl = "<root><node>1</node><node>2</node></root>";
         String test = "<root><node>2</node><node>1</node></root>";
 
-        ExaminingExpectedDifferenceListener delegate =
-                new ExaminingExpectedDifferenceListener(ComparisonType.CHILD_NODELIST_SEQUENCE) {
-                    private int i = 0;
-
-                    @Override
-                    protected void examineDifferenceContents(Comparison difference) {
-                        ++i;
-                        String differenceXpathLocation = difference.getControlDetails().getXpath();
-                        assertThat(differenceXpathLocation).isEqualTo("/root[1]/node[" + i + "]");
-                    }
-                };
-
-        engineFactory.useEvaluator(delegate);
         engineFactory.useSelector(ElementSelectors.byNameAndText);
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-        diff.setEngineFactory(engineFactory);
-
-        // then
-        assertSimilar(diff);
+        assertSimilar(ctrl, test);
     }
 
-    // defect raised by Kevin Krouse Jan 2003
     @Test
-    public void should_check_XMLNS_number_of_attributes() throws Exception {
-        // given
-        String control = "<root xmlns=\"qwerty\"><node/></root>";
-        String test = "<root xmlns=\"qwerty\" xmlns:qwerty=\"qwerty\"><qwerty:node/></root>";
+    public void should_be_similar_when_namespace_is_redeclared_with_prefix() throws Exception {
+        String ctrl = "<root xmlns=\"test\"><node/></root>";
+        String test = "<root xmlns=\"test\" xmlns:test=\"test\"><test:node/></root>";
 
-        // when
-        Diff diff = prepareDiff(properties, control, test);
-
-        // then
-        assertSimilar(diff);
+        assertSimilar(ctrl, test);
     }
 
     @Test
